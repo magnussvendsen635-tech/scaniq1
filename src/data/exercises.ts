@@ -773,6 +773,28 @@ export const EXERCISES: Exercise[] = [
   { name: "Geocaching hike", kcalPerMin: 6, category: "Sport" },
   { name: "Snow tubing", kcalPerMin: 6, category: "Sport" },
   { name: "Sledding", kcalPerMin: 7, category: "Sport" },
+
+  // ===== 20 popular at-home strength exercises =====
+  { name: "Resistance band chest press", kcalPerMin: 6, category: "Strength" },
+  { name: "Resistance band row", kcalPerMin: 6, category: "Strength" },
+  { name: "Resistance band squat", kcalPerMin: 7, category: "Strength" },
+  { name: "Resistance band deadlift", kcalPerMin: 7, category: "Strength" },
+  { name: "Resistance band shoulder press", kcalPerMin: 6, category: "Strength" },
+  { name: "Resistance band bicep curl", kcalPerMin: 5, category: "Strength" },
+  { name: "Resistance band tricep kickback", kcalPerMin: 5, category: "Strength" },
+  { name: "Resistance band lateral walk", kcalPerMin: 6, category: "Strength" },
+  { name: "Glute kickbacks (band)", kcalPerMin: 5, category: "Strength" },
+  { name: "Clamshells", kcalPerMin: 4, category: "Strength" },
+  { name: "Fire hydrants", kcalPerMin: 5, category: "Strength" },
+  { name: "Donkey kicks", kcalPerMin: 5, category: "Strength" },
+  { name: "Backpack squats", kcalPerMin: 7, category: "Strength" },
+  { name: "Backpack deadlifts", kcalPerMin: 7, category: "Strength" },
+  { name: "Backpack rows", kcalPerMin: 6, category: "Strength" },
+  { name: "Chair dips", kcalPerMin: 7, category: "Strength" },
+  { name: "Chair step-ups", kcalPerMin: 7, category: "Strength" },
+  { name: "Towel rows (door anchor)", kcalPerMin: 6, category: "Strength" },
+  { name: "Doorway pull-ins", kcalPerMin: 5, category: "Strength" },
+  { name: "Single-leg sit to stand", kcalPerMin: 7, category: "Strength" },
 ];
 
 export const FOOD_NAMES = [
