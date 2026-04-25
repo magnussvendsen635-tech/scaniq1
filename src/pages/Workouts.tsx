@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { EXERCISES, type Exercise } from "@/data/exercises";
 import { useKStore } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
-import { Flame, Play, Pause, RotateCcw, Search, X } from "lucide-react";
+import { Flame, Play, Pause, RotateCcw, Search, X, Lock } from "lucide-react";
 import { Ring } from "@/components/Ring";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
