@@ -169,17 +169,33 @@ export default function Workouts() {
             <div className="mb-6">
               <div className="flex justify-between text-xs text-muted-foreground mb-2">
                 <span>Duration</span>
-                <span>{duration} min</span>
+                <span>
+                  {duration < 60
+                    ? `${duration} min`
+                    : duration % 60 === 0
+                    ? `${duration / 60} h`
+                    : `${Math.floor(duration / 60)} h ${duration % 60} min`}
+                </span>
               </div>
+              {/* 0-60: 1 min steps. 60-360: 15 min steps. Slider index 0..80 */}
               <input
                 type="range"
                 min={1}
-                max={60}
-                value={duration}
+                max={80}
+                value={duration <= 60 ? duration : 60 + (duration - 60) / 15}
                 disabled={running}
-                onChange={(e) => setDuration(Number(e.target.value))}
+                onChange={(e) => {
+                  const idx = Number(e.target.value);
+                  const mins = idx <= 60 ? idx : 60 + (idx - 60) * 15;
+                  setDuration(mins);
+                }}
                 className="w-full accent-[hsl(var(--primary))]"
               />
+              <div className="flex justify-between text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">
+                <span>1 min</span>
+                <span>1 h</span>
+                <span>5 h</span>
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2">
