@@ -11,7 +11,8 @@ import { cn } from "@/lib/utils";
 const CATS = ["All", "Cardio", "HIIT", "Strength", "Mobility", "Sport"] as const;
 
 export default function Workouts() {
-  const { addWorkout } = useKStore();
+  const { addWorkout, premium } = useKStore();
+  const nav = useNavigate();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<(typeof CATS)[number]>("All");
   const [active, setActive] = useState<Exercise | null>(null);
