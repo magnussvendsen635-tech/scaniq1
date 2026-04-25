@@ -70,6 +70,21 @@ export default function Workouts() {
     <div className="k-page">
       <h1 className="text-3xl font-semibold tracking-tight mb-5">Train</h1>
 
+      {!premium && (
+        <button
+          onClick={() => nav("/premium")}
+          className="k-card k-tap w-full p-4 mb-4 flex items-center gap-3 bg-gradient-primary !border-transparent shadow-glow text-left"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+            <Lock className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <div className="text-sm font-semibold text-white">Unlock workouts with Premium</div>
+            <div className="text-xs text-white/80">Get full access to 200+ exercises</div>
+          </div>
+        </button>
+      )}
+
       <div className="relative mb-4">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
