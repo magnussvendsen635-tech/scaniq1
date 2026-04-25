@@ -177,11 +177,11 @@ export default function Workouts() {
                     : `${Math.floor(duration / 60)} h ${duration % 60} min`}
                 </span>
               </div>
-              {/* 0-60: 1 min steps. 60-420: 15 min steps. Slider index 0..84 */}
+              {/* 0-60: 1 min steps. 60-360: 15 min steps. Slider index 0..80 */}
               <input
                 type="range"
                 min={1}
-                max={84}
+                max={80}
                 value={duration <= 60 ? duration : 60 + (duration - 60) / 15}
                 disabled={running}
                 onChange={(e) => {
