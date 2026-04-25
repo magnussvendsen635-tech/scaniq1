@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { EXERCISES, type Exercise } from "@/data/exercises";
 import { useKStore } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
-import { Flame, Play, Pause, RotateCcw, Search, X } from "lucide-react";
+import { Flame, Play, Pause, RotateCcw, Search, X, Lock } from "lucide-react";
 import { Ring } from "@/components/Ring";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -10,7 +11,8 @@ import { cn } from "@/lib/utils";
 const CATS = ["All", "Cardio", "HIIT", "Strength", "Mobility", "Sport"] as const;
 
 export default function Workouts() {
-  const { addWorkout } = useKStore();
+  const { addWorkout, premium } = useKStore();
+  const nav = useNavigate();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<(typeof CATS)[number]>("All");
   const [active, setActive] = useState<Exercise | null>(null);
@@ -68,6 +70,21 @@ export default function Workouts() {
     <div className="k-page">
       <h1 className="text-3xl font-semibold tracking-tight mb-5">Train</h1>
 
+      {!premium && (
+        <button
+          onClick={() => nav("/premium")}
+          className="k-card k-tap w-full p-4 mb-4 flex items-center gap-3 bg-gradient-primary !border-transparent shadow-glow text-left"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+            <Lock className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <div className="text-sm font-semibold text-white">Unlock workouts with Premium</div>
+            <div className="text-xs text-white/80">Get full access to 200+ exercises</div>
+          </div>
+        </button>
+      )}
+
       <div className="relative mb-4">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
@@ -98,6 +115,11 @@ export default function Workouts() {
           <button
             key={e.name}
             onClick={() => {
+              if (!premium) {
+                toast("Unlock workouts with Premium", { description: "Upgrade to access all exercises." });
+                nav("/premium");
+                return;
+              }
               setActive(e);
               setElapsed(0);
               setRunning(false);
@@ -105,7 +127,11 @@ export default function Workouts() {
             className="k-card k-tap w-full p-4 flex items-center gap-4 text-left"
           >
             <div className="w-11 h-11 rounded-2xl bg-gradient-soft flex items-center justify-center shrink-0">
-              <Flame className="w-5 h-5 text-primary-glow" />
+              {premium ? (
+                <Flame className="w-5 h-5 text-primary-glow" />
+              ) : (
+                <Lock className="w-5 h-5 text-primary-glow" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{e.name}</div>
