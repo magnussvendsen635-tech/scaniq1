@@ -78,14 +78,14 @@ export default function Workouts() {
         />
       </div>
 
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 mb-4 -mx-1 px-1">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 mb-4 -mx-4 px-4">
         {CATS.map((c) => (
           <button
             key={c}
             onClick={() => setCat(c)}
             className={cn(
-              "px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap k-tap transition",
-              cat === c ? "bg-gradient-primary text-primary-foreground shadow-glow" : "bg-card border border-border/60 text-muted-foreground"
+              "px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap k-tap transition shrink-0",
+              cat === c ? "bg-gradient-primary text-white shadow-glow" : "bg-card border border-border/60 text-muted-foreground"
             )}
           >
             {c}
