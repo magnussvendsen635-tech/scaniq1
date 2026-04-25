@@ -100,6 +100,11 @@ export default function Workouts() {
           <button
             key={e.name}
             onClick={() => {
+              if (!premium) {
+                toast("Unlock workouts with Premium", { description: "Upgrade to access all exercises." });
+                nav("/premium");
+                return;
+              }
               setActive(e);
               setElapsed(0);
               setRunning(false);
@@ -107,7 +112,11 @@ export default function Workouts() {
             className="k-card k-tap w-full p-4 flex items-center gap-4 text-left"
           >
             <div className="w-11 h-11 rounded-2xl bg-gradient-soft flex items-center justify-center shrink-0">
-              <Flame className="w-5 h-5 text-primary-glow" />
+              {premium ? (
+                <Flame className="w-5 h-5 text-primary-glow" />
+              ) : (
+                <Lock className="w-5 h-5 text-primary-glow" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{e.name}</div>
