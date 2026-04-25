@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
+import profileAvatar from "@/assets/profile-avatar.png";
 import { Button } from "@/components/ui/button";
 import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -22,8 +23,8 @@ export default function Profile() {
       <div className="k-card p-6 mb-4 bg-gradient-surface relative overflow-hidden">
         <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-gradient-primary opacity-20 blur-3xl" />
         <div className="relative flex items-center gap-4">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-primary flex items-center justify-center shadow-glow">
-            <span className="text-2xl font-semibold text-white">K</span>
+          <div className="w-16 h-16 rounded-3xl overflow-hidden shadow-glow">
+            <img src={profileAvatar} alt="Profile avatar" className="w-full h-full object-cover" />
           </div>
           <div className="flex-1">
             <div className="text-xs text-muted-foreground tracking-widest uppercase">Goal</div>
