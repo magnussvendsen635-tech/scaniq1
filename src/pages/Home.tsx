@@ -123,36 +123,16 @@ const ScannerCard = () => {
   return (
     <Link
       to="/scan"
-      className="k-card k-tap p-5 flex flex-col gap-3 group bg-primary relative overflow-hidden"
+      className="k-card k-tap p-5 flex flex-col gap-3 group bg-primary relative"
     >
-      {/* Mini camera viewfinder showing a "plate of food" */}
-      <div className="relative w-full h-24 rounded-2xl bg-foreground border-[3px] border-foreground overflow-hidden">
-        {/* Soft warm radial glow (food vibe) */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_60%,hsl(var(--primary)/0.55),transparent_70%)]" />
-        {/* Faux plate */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-background/90 border-2 border-background flex items-center justify-center">
-          {/* Faux food blobs */}
-          <span className="absolute w-5 h-5 rounded-full bg-primary -translate-x-2 -translate-y-1" />
-          <span className="absolute w-4 h-4 rounded-full bg-[hsl(var(--pop-green,140_60%_45%))] translate-x-2 translate-y-1.5" />
-          <span className="absolute w-3 h-3 rounded-full bg-[hsl(var(--pop-yellow,45_95%_55%))] translate-x-2.5 -translate-y-2" />
-        </div>
-        {/* Corner brackets */}
-        <span className="absolute top-1.5 left-1.5 w-3 h-3 border-t-2 border-l-2 border-primary rounded-tl-sm" />
-        <span className="absolute top-1.5 right-1.5 w-3 h-3 border-t-2 border-r-2 border-primary rounded-tr-sm" />
-        <span className="absolute bottom-1.5 left-1.5 w-3 h-3 border-b-2 border-l-2 border-primary rounded-bl-sm" />
-        <span className="absolute bottom-1.5 right-1.5 w-3 h-3 border-b-2 border-r-2 border-primary rounded-br-sm" />
-        {/* Animated scan line */}
-        <span className="absolute left-2 right-2 h-0.5 bg-primary shadow-[0_0_10px_hsl(var(--primary))] animate-scan-line" />
-        {/* Tiny cam icon */}
-        <Camera className="absolute top-1.5 right-1/2 translate-x-1/2 w-3.5 h-3.5 text-primary/0" />
+      <div className="w-11 h-11 rounded-2xl flex items-center justify-center border-[3px] border-foreground bg-background">
+        <ScanLine className="w-5 h-5 text-foreground" strokeWidth={2.5} />
       </div>
       <div>
-        <div className="font-semibold text-foreground flex items-center gap-1.5">
-          {t("home.log_food")}
-          <ScanLine className="w-3.5 h-3.5" />
-        </div>
+        <div className="font-semibold text-foreground">{t("home.log_food")}</div>
         <div className="text-xs text-foreground/80">{t("home.scan_meal")}</div>
       </div>
+      <ChevronRight className="w-4 h-4 ml-auto -mt-6 text-foreground" />
     </Link>
   );
 };
