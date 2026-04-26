@@ -163,16 +163,16 @@ const ActionCard = ({ to, Icon, title, sub, gradient }: { to: string; Icon: any;
   <Link
     to={to}
     className={
-      "k-card k-tap p-5 flex flex-col gap-3 group " + (gradient ? "bg-gradient-primary !border-transparent shadow-glow" : "")
+      "k-card k-tap p-5 flex flex-col gap-3 group " + (gradient ? "bg-primary" : "")
     }
   >
-    <div className={"w-11 h-11 rounded-2xl flex items-center justify-center " + (gradient ? "bg-white/15" : "bg-gradient-soft")}>
-      <Icon className={"w-5 h-5 " + (gradient ? "text-white" : "text-primary-glow")} />
+    <div className={"w-11 h-11 rounded-2xl flex items-center justify-center border-[3px] border-foreground " + (gradient ? "bg-background" : "bg-gradient-soft")}>
+      <Icon className="w-5 h-5 text-foreground" />
     </div>
     <div>
-      <div className={"font-semibold " + (gradient ? "text-white" : "")}>{title}</div>
-      <div className={"text-xs " + (gradient ? "text-white/70" : "text-muted-foreground")}>{sub}</div>
+      <div className="font-semibold text-foreground">{title}</div>
+      <div className={"text-xs " + (gradient ? "text-foreground/80" : "text-muted-foreground")}>{sub}</div>
     </div>
-    <ChevronRight className={"w-4 h-4 ml-auto -mt-6 " + (gradient ? "text-white/70" : "text-muted-foreground")} />
+    <ChevronRight className="w-4 h-4 ml-auto -mt-6 text-foreground" />
   </Link>
 );
