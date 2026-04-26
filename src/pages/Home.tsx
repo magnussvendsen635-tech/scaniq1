@@ -109,7 +109,6 @@ export default function Home() {
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3">
-        <ScannerCard />
         <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
         <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
         <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
@@ -117,25 +116,6 @@ export default function Home() {
     </div>
   );
 }
-
-const ScannerCard = () => {
-  const t = useT();
-  return (
-    <Link
-      to="/scan"
-      className="k-card k-tap p-5 flex flex-col gap-3 group bg-primary relative"
-    >
-      <div className="w-11 h-11 rounded-2xl flex items-center justify-center border-[3px] border-foreground bg-background">
-        <ScanLine className="w-5 h-5 text-foreground" strokeWidth={2.5} />
-      </div>
-      <div>
-        <div className="font-semibold text-foreground">{t("home.log_food")}</div>
-        <div className="text-xs text-foreground/80">{t("home.scan_meal")}</div>
-      </div>
-      <ChevronRight className="w-4 h-4 ml-auto -mt-6 text-foreground" />
-    </Link>
-  );
-};
 
 const Stat = ({ label, value, accent = false }: { label: string; value: number; accent?: boolean }) => (
   <div>
