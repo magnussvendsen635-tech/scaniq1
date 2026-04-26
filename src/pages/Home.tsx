@@ -112,7 +112,8 @@ const MacroBar = ({ label, value, target }: { label: string; value: number; targ
         <div className="h-full bg-gradient-primary rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
     </div>
-);
+  );
+};
 
 const InsightCard = ({ Icon, title, rows }: { Icon: any; title: string; rows: [string, string][] }) => (
   <div className="k-card p-5">
@@ -132,7 +133,6 @@ const InsightCard = ({ Icon, title, rows }: { Icon: any; title: string; rows: [s
     </div>
   </div>
 );
-};
 
 const ActionCard = ({ to, Icon, title, sub, gradient }: { to: string; Icon: any; title: string; sub: string; gradient?: boolean }) => (
   <Link
