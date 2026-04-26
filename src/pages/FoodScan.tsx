@@ -222,16 +222,14 @@ const ScannerBackdrop = () => (
   <>
     {/* Subtle grid pattern */}
     <div
-      className="absolute inset-0 opacity-[0.08]"
+      className="absolute inset-0 opacity-[0.06]"
       style={{
         backgroundImage:
-          "linear-gradient(hsl(var(--background)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--background)) 1px, transparent 1px)",
+          "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
         backgroundSize: "24px 24px",
       }}
     />
     {/* Soft primary glow from center */}
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,hsl(var(--primary)/0.35),transparent_65%)]" />
-    {/* Vignette */}
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_55%,hsl(var(--foreground))_100%)] opacity-60" />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,hsl(var(--primary)/0.18),transparent_65%)]" />
   </>
 );
