@@ -20,6 +20,7 @@ const rand = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) +
 
 export default function FoodScan() {
   const nav = useNavigate();
+  const t = useT();
   const { user, meals, addMeal, streak } = useKStore();
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
