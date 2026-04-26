@@ -3,6 +3,9 @@ import { persist } from "zustand/middleware";
 
 export type Goal = "lose" | "gain" | "maintain";
 export type Activity = "sedentary" | "light" | "moderate" | "active" | "athlete";
+export type Pace = "aggressive" | "balanced" | "slow";
+export type Frequency = "0-1" | "2-3" | "4+";
+export type Diet = "none" | "high-protein" | "low-carb" | "vegetarian";
 
 export interface Meal {
   id: string;
