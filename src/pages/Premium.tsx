@@ -63,13 +63,13 @@ export default function Premium() {
           sub="Cancel anytime"
         />
         <PlanOption
-          active={plan === "lifetime"}
-          onClick={() => setPlan("lifetime")}
-          title="Lifetime"
+          active={plan === "year"}
+          onClick={() => setPlan("year")}
+          title="Yearly"
           price="$189"
-          unit="once"
-          sub="Best value"
-          badge="Save 80%"
+          unit="/ year"
+          sub="Pay once, get full access"
+          badge="Best Value"
         />
       </div>
 
