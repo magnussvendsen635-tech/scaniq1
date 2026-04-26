@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { translate, type TKey } from "@/i18n/translations";
-import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
+import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TOTAL_QUESTIONS = 10; // steps 0..9 (0 = language)
@@ -233,11 +233,22 @@ export default function Onboarding() {
         )}
       </div>
 
-      <div className="pt-8">
+      <div className="pt-8 flex gap-3">
+        {step < TOTAL_QUESTIONS && step > 0 && (
+          <Button
+            size="lg"
+            variant="outline"
+            className="h-14 rounded-2xl px-5 text-base font-semibold"
+            onClick={() => setStep((s) => Math.max(0, s - 1))}
+            aria-label={tt("common.back")}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        )}
         {step < TOTAL_QUESTIONS && (
           <Button
             size="lg"
-            className="w-full h-14 rounded-2xl bg-gradient-primary hover:opacity-90 text-base font-semibold shadow-glow"
+            className="flex-1 h-14 rounded-2xl bg-gradient-primary hover:opacity-90 text-base font-semibold shadow-glow"
             onClick={isLastQuestion ? generate : next}
           >
             {isLastQuestion ? tt("onboarding.create_plan") : tt("common.continue")}
