@@ -7,9 +7,12 @@ import { toast } from "sonner";
 import { LANGUAGES } from "@/data/languages";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useT } from "@/i18n/useT";
+import { translate } from "@/i18n/translations";
 
 export default function Settings() {
   const nav = useNavigate();
+  const t = useT();
   const { user, updateUser, language, setLanguage } = useKStore();
   const [form, setForm] = useState(user);
   const [langOpen, setLangOpen] = useState(false);
@@ -19,7 +22,7 @@ export default function Settings() {
 
   const save = () => {
     updateUser(form);
-    toast.success("Saved", { description: "Your plan is updated everywhere." });
+    toast.success(t("settings.saved"), { description: t("settings.saved_desc") });
     nav("/profile");
   };
 
@@ -29,16 +32,16 @@ export default function Settings() {
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("settings.title")}</h1>
       </header>
 
       <div className="space-y-3">
-        <Section title="App">
+        <Section title={t("settings.app")}>
           <button
             onClick={() => setLangOpen(true)}
             className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
           >
-            <span className="text-sm">Language</span>
+            <span className="text-sm">{t("settings.language")}</span>
             <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="text-lg leading-none">{currentLang.flag}</span>
               <span>{currentLang.native}</span>
@@ -47,50 +50,50 @@ export default function Settings() {
           </button>
         </Section>
 
-        <Section title="Body">
-          <Field label="Weight (kg)">
+        <Section title={t("settings.body")}>
+          <Field label={t("settings.weight_kg")}>
             <NumInput value={form.weight} onChange={(n) => set("weight", n)} />
           </Field>
         </Section>
 
-        <Section title="Goal">
-          <Field label="Objective">
+        <Section title={t("settings.goal")}>
+          <Field label={t("settings.objective")}>
             <SelectInput
               value={form.goal}
               onChange={(v) => set("goal", v as Goal)}
               options={[
-                { value: "lose", label: "Lose Fat" },
-                { value: "gain", label: "Gain Muscle" },
-                { value: "maintain", label: "Maintain" },
+                { value: "lose", label: t("goal.lose") },
+                { value: "gain", label: t("goal.gain") },
+                { value: "maintain", label: t("goal.maintain") },
               ]}
             />
           </Field>
-          <Field label="Activity level">
+          <Field label={t("settings.activity_level")}>
             <SelectInput
               value={form.activity}
               onChange={(v) => set("activity", v as Activity)}
               options={[
-                { value: "sedentary", label: "Sedentary" },
-                { value: "light", label: "Light" },
-                { value: "moderate", label: "Moderate" },
-                { value: "active", label: "Active" },
-                { value: "athlete", label: "Athlete" },
+                { value: "sedentary", label: t("activity.sedentary") },
+                { value: "light", label: t("activity.light") },
+                { value: "moderate", label: t("activity.moderate") },
+                { value: "active", label: t("activity.active") },
+                { value: "athlete", label: t("activity.athlete") },
               ]}
             />
           </Field>
         </Section>
 
-        <Section title="Daily targets">
-          <Field label="Calories (kcal)">
+        <Section title={t("settings.daily_targets")}>
+          <Field label={t("settings.calories")}>
             <NumInput value={form.calories} onChange={(n) => set("calories", n)} />
           </Field>
-          <Field label="Protein (g)">
+          <Field label={t("settings.protein")}>
             <NumInput value={form.protein} onChange={(n) => set("protein", n)} />
           </Field>
-          <Field label="Carbs (g)">
+          <Field label={t("settings.carbs")}>
             <NumInput value={form.carbs} onChange={(n) => set("carbs", n)} />
           </Field>
-          <Field label="Fat (g)">
+          <Field label={t("settings.fat")}>
             <NumInput value={form.fat} onChange={(n) => set("fat", n)} />
           </Field>
         </Section>
@@ -99,14 +102,14 @@ export default function Settings() {
           onClick={save}
           className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90 mt-3"
         >
-          Save Changes
+          {t("settings.save_changes")}
         </Button>
       </div>
 
       <Dialog open={langOpen} onOpenChange={setLangOpen}>
         <DialogContent className="max-w-md p-0 bg-card border-border/60">
           <DialogHeader className="px-5 pt-5 pb-2">
-            <DialogTitle>Choose language</DialogTitle>
+            <DialogTitle>{t("settings.choose_language")}</DialogTitle>
           </DialogHeader>
           <div className="p-4 pt-2">
             <LanguagePicker
@@ -114,7 +117,7 @@ export default function Settings() {
               onChange={(c) => {
                 setLanguage(c);
                 setLangOpen(false);
-                toast.success("Language updated");
+                toast.success(translate(c, "settings.language_updated"));
               }}
             />
           </div>

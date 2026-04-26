@@ -2,20 +2,22 @@ import { Link, useNavigate } from "react-router-dom";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import profileAvatar from "@/assets/profile-avatar.png";
-import { Button } from "@/components/ui/button";
 import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/i18n/useT";
+import type { TKey } from "@/i18n/translations";
 
-const goalLabel = { lose: "Lose Fat", gain: "Gain Muscle", maintain: "Maintain" } as const;
+const goalKey: Record<string, TKey> = { lose: "goal.lose", gain: "goal.gain", maintain: "goal.maintain" };
 
 export default function Profile() {
   const nav = useNavigate();
+  const t = useT();
   const { user, streak, premium, resetDay, setOnboarded } = useKStore();
 
   return (
     <div className="k-page">
       <header className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-semibold tracking-tight">Profile</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{t("profile.title")}</h1>
         <Logo size={36} />
       </header>
 
@@ -27,21 +29,21 @@ export default function Profile() {
             <img src={profileAvatar} alt="Profile avatar" className="w-full h-full object-cover" />
           </div>
           <div className="flex-1">
-            <div className="text-xs text-muted-foreground tracking-widest uppercase">Goal</div>
-            <div className="text-xl font-semibold">{goalLabel[user.goal]}</div>
+            <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("profile.goal")}</div>
+            <div className="text-xl font-semibold">{t(goalKey[user.goal])}</div>
           </div>
           <div className="flex flex-col items-center px-3 py-2 rounded-2xl bg-card border border-border/60">
             <Flame className="w-5 h-5 text-primary-glow" />
             <span className="text-lg font-semibold leading-tight">{streak}</span>
-            <span className="text-[9px] uppercase tracking-widest text-muted-foreground">streak</span>
+            <span className="text-[9px] uppercase tracking-widest text-muted-foreground">{t("common.streak")}</span>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <Stat label="Weight" value={`${user.weight}`} unit="kg" />
-        <Stat label="Calories" value={`${user.calories}`} unit="kcal" />
-        <Stat label="Protein" value={`${user.protein}`} unit="g" />
+        <Stat label={t("profile.weight")} value={`${user.weight}`} unit="kg" />
+        <Stat label={t("profile.calories")} value={`${user.calories}`} unit="kcal" />
+        <Stat label={t("profile.protein")} value={`${user.protein}`} unit="g" />
       </div>
 
       {!premium && (
@@ -50,28 +52,28 @@ export default function Profile() {
             <Crown className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <div className="font-semibold text-white">Go Premium</div>
-            <div className="text-xs text-white/70">Unlock unlimited features</div>
+            <div className="font-semibold text-white">{t("profile.go_premium")}</div>
+            <div className="text-xs text-white/70">{t("profile.unlock")}</div>
           </div>
           <ChevronRight className="w-5 h-5 text-white/80" />
         </Link>
       )}
 
       <div className="k-card divide-y divide-border/60 overflow-hidden">
-        <Row Icon={SettingsIcon} title="Edit Settings" sub="Goals, macros, weight" onClick={() => nav("/settings")} />
+        <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
         <Row
           Icon={RotateCcw}
-          title="Reset Day"
-          sub="Clear today's meals & workouts"
+          title={t("profile.reset_day")}
+          sub={t("profile.reset_day_sub")}
           onClick={() => {
             resetDay();
-            toast.success("Day reset");
+            toast.success(t("profile.day_reset"));
           }}
         />
         <Row
           Icon={LogOut}
-          title="Logout"
-          sub="Restart onboarding"
+          title={t("profile.logout")}
+          sub={t("profile.logout_sub")}
           danger
           onClick={() => {
             setOnboarded(false);

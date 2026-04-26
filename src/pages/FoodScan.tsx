@@ -5,6 +5,7 @@ import { FOOD_NAMES } from "@/data/exercises";
 import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useT } from "@/i18n/useT";
 
 interface Result {
   name: string;
@@ -19,6 +20,7 @@ const rand = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) +
 
 export default function FoodScan() {
   const nav = useNavigate();
+  const t = useT();
   const { user, meals, addMeal, streak } = useKStore();
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
@@ -64,11 +66,11 @@ export default function FoodScan() {
       setCelebrate({ count: newStreak });
       setTimeout(() => {
         setCelebrate(null);
-        toast.success("Meal added", { description: `${result.calories} kcal logged.` });
+        toast.success(t("scan.meal_added"), { description: `${result.calories} ${t("scan.kcal_logged")}` });
         nav("/diary");
       }, 1800);
     } else {
-      toast.success("Meal added", { description: `${result.calories} kcal logged.` });
+      toast.success(t("scan.meal_added"), { description: `${result.calories} ${t("scan.kcal_logged")}` });
       nav("/diary");
     }
   };
@@ -87,9 +89,9 @@ export default function FoodScan() {
               </div>
             </div>
             <div className="text-7xl font-bold k-gradient-text mb-2">{celebrate.count}</div>
-            <div className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-3">day streak</div>
-            <p className="text-lg font-semibold">Keep the fire alive! 🔥</p>
-            <p className="text-sm text-muted-foreground mt-1">Scan a meal every day to grow your streak.</p>
+            <div className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-3">{t("common.day_streak")}</div>
+            <p className="text-lg font-semibold">{t("scan.keep_fire")}</p>
+            <p className="text-sm text-muted-foreground mt-1">{t("scan.streak_sub")}</p>
           </div>
         </div>
       )}
@@ -98,7 +100,7 @@ export default function FoodScan() {
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight">Scan Food</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("scan.title")}</h1>
       </header>
 
       {/* Camera viewport */}
@@ -122,7 +124,7 @@ export default function FoodScan() {
                   <Sparkles className="w-9 h-9 text-white" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">Identifying your meal…</p>
+              <p className="text-sm text-muted-foreground">{t("scan.identifying")}</p>
             </>
           ) : result ? (
             <div className="animate-scale-in">
@@ -132,7 +134,7 @@ export default function FoodScan() {
           ) : (
             <>
               <Camera className="w-14 h-14 text-muted-foreground/70 mb-3" />
-              <p className="text-muted-foreground text-sm">Point at your meal and tap Scan</p>
+              <p className="text-muted-foreground text-sm">{t("scan.point")}</p>
             </>
           )}
         </div>
@@ -144,7 +146,7 @@ export default function FoodScan() {
           onClick={scan}
           className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
         >
-          {scanning ? "Scanning…" : "Scan Food"}
+          {scanning ? t("scan.scanning") : t("scan.cta")}
         </Button>
       )}
 
@@ -153,7 +155,7 @@ export default function FoodScan() {
           <div className="k-card p-5 bg-gradient-soft">
             <div className="flex items-baseline justify-between">
               <div>
-                <div className="text-xs text-muted-foreground tracking-widest uppercase">Calories</div>
+                <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.calories")}</div>
                 <div className="text-5xl font-semibold k-gradient-text">{result.calories}</div>
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
@@ -161,18 +163,18 @@ export default function FoodScan() {
                 <span className="text-sm font-semibold">{result.healthScore}/10</span>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-3">You have <span className="text-foreground font-semibold">{remaining} kcal</span> remaining today.</p>
+            <p className="text-sm text-muted-foreground mt-3">{t("scan.remaining_pre")} <span className="text-foreground font-semibold">{remaining} kcal</span> {t("scan.remaining_post")}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <Macro label="Protein" value={result.protein} />
-            <Macro label="Carbs" value={result.carbs} />
-            <Macro label="Fat" value={result.fat} />
+            <Macro label={t("home.protein")} value={result.protein} />
+            <Macro label={t("home.carbs")} value={result.carbs} />
+            <Macro label={t("home.fat")} value={result.fat} />
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <Button variant="outline" onClick={scan} className="h-12 rounded-2xl border-border bg-card">Rescan</Button>
-            <Button onClick={save} className="h-12 rounded-2xl bg-gradient-primary shadow-glow hover:opacity-90 font-semibold">Add to diary</Button>
+            <Button variant="outline" onClick={scan} className="h-12 rounded-2xl border-border bg-card">{t("scan.rescan")}</Button>
+            <Button onClick={save} className="h-12 rounded-2xl bg-gradient-primary shadow-glow hover:opacity-90 font-semibold">{t("scan.add_to_diary")}</Button>
           </div>
         </div>
       )}

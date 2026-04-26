@@ -4,6 +4,7 @@ import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequ
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { LanguagePicker } from "@/components/LanguagePicker";
+import { translate } from "@/i18n/translations";
 import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -101,7 +102,10 @@ export default function Onboarding() {
 
       <div className="flex-1 animate-fade-in" key={step}>
         {step === 0 && (
-          <Step title="Choose your language" sub="You can change this later in Settings.">
+          <Step
+            title={translate(lang, "onboarding.choose_language")}
+            sub={translate(lang, "onboarding.choose_language_sub")}
+          >
             <LanguagePicker value={lang} onChange={setLang} />
           </Step>
         )}
@@ -236,7 +240,7 @@ export default function Onboarding() {
             className="w-full h-14 rounded-2xl bg-gradient-primary hover:opacity-90 text-base font-semibold shadow-glow"
             onClick={isLastQuestion ? generate : next}
           >
-            {isLastQuestion ? "Create my plan" : "Continue"}
+            {isLastQuestion ? "Create my plan" : translate(lang, "common.continue")}
             <ArrowRight className="ml-1 w-5 h-5" />
           </Button>
         )}
