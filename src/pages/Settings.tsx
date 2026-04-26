@@ -102,6 +102,24 @@ export default function Settings() {
           Save Changes
         </Button>
       </div>
+
+      <Dialog open={langOpen} onOpenChange={setLangOpen}>
+        <DialogContent className="max-w-md p-0 bg-card border-border/60">
+          <DialogHeader className="px-5 pt-5 pb-2">
+            <DialogTitle>Choose language</DialogTitle>
+          </DialogHeader>
+          <div className="p-4 pt-2">
+            <LanguagePicker
+              value={language}
+              onChange={(c) => {
+                setLanguage(c);
+                setLangOpen(false);
+                toast.success("Language updated");
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
