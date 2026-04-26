@@ -2,92 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* KCALLY Design System — Clean, minimal, human */
+/* KCALLY Design System — Dark, clean, minimal */
 
 @layer base {
   :root {
-    /* Core surfaces — light, calm, paper-like */
-    --background: 40 20% 98%;          /* warm off-white */
-    --foreground: 222 20% 12%;
-    --surface: 0 0% 100%;
-    --surface-2: 40 14% 96%;
-    --surface-3: 40 12% 92%;
+    /* Core surfaces — deep neutral, not blue */
+    --background: 0 0% 6%;             /* near-black */
+    --foreground: 0 0% 98%;
+    --surface: 0 0% 9%;
+    --surface-2: 0 0% 12%;
+    --surface-3: 0 0% 16%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 20% 12%;
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 20% 12%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 222 47% 16%;            /* near-black indigo, calm */
-    --primary-foreground: 40 20% 98%;
-    --primary-glow: 222 47% 24%;       /* very subtle */
+    --primary: 0 0% 98%;               /* white = primary action (Apple-like) */
+    --primary-foreground: 0 0% 8%;
+    --primary-glow: 0 0% 80%;
 
-    --secondary: 40 14% 96%;
-    --secondary-foreground: 222 20% 12%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 40 14% 96%;
-    --muted-foreground: 222 10% 42%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 18 78% 58%;              /* warm terracotta accent */
+    --accent: 18 90% 60%;              /* warm orange accent (calories/fire vibe) */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 10% 88%;
-    --input: 30 10% 88%;
-    --ring: 222 47% 16%;
+    --border: 0 0% 16%;
+    --input: 0 0% 14%;
+    --ring: 0 0% 60%;
 
-    --radius: 0.875rem; /* 14px — softer, less "blob" */
+    --radius: 1rem; /* 16px */
 
-    /* Subtle gradients (almost flat) */
-    --gradient-primary: linear-gradient(180deg, hsl(222 47% 18%), hsl(222 47% 12%));
-    --gradient-soft: linear-gradient(180deg, hsl(40 14% 97%), hsl(40 14% 94%));
-    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(40 14% 97%));
-    --gradient-text: linear-gradient(180deg, hsl(222 47% 16%), hsl(222 47% 16%));
+    /* Subtle gradients */
+    --gradient-primary: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 92%));
+    --gradient-soft: linear-gradient(180deg, hsl(0 0% 13%), hsl(0 0% 10%));
+    --gradient-surface: linear-gradient(180deg, hsl(0 0% 11%), hsl(0 0% 8%));
+    --gradient-text: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 90%));
 
-    /* Shadows — soft, paper-like */
-    --shadow-card: 0 1px 2px hsl(222 20% 12% / 0.04), 0 1px 0 hsl(222 20% 12% / 0.02);
-    --shadow-glow: 0 4px 16px -6px hsl(222 47% 16% / 0.18);
-    --shadow-soft: 0 2px 8px -2px hsl(222 20% 12% / 0.06);
+    /* Shadows */
+    --shadow-card: 0 1px 0 hsl(0 0% 100% / 0.03), 0 8px 24px -12px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 8px 28px -10px hsl(18 90% 60% / 0.35);
+    --shadow-soft: 0 4px 16px -6px hsl(0 0% 0% / 0.4);
 
-    /* Motion */
     --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 
-    /* Sidebar */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222 20% 12%;
-    --sidebar-primary: 222 47% 16%;
-    --sidebar-primary-foreground: 40 20% 98%;
-    --sidebar-accent: 40 14% 96%;
-    --sidebar-accent-foreground: 222 20% 12%;
-    --sidebar-border: 30 10% 88%;
-    --sidebar-ring: 222 47% 16%;
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 8%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 0 0% 60%;
   }
 
   .dark {
-    --background: 222 18% 8%;
-    --foreground: 40 20% 96%;
-    --surface: 222 14% 12%;
-    --surface-2: 222 12% 15%;
-    --surface-3: 222 11% 19%;
-    --card: 222 14% 12%;
-    --card-foreground: 40 20% 96%;
-    --popover: 222 14% 12%;
-    --popover-foreground: 40 20% 96%;
-    --primary: 40 20% 96%;
-    --primary-foreground: 222 18% 8%;
-    --primary-glow: 40 20% 80%;
-    --secondary: 222 12% 15%;
-    --secondary-foreground: 40 20% 96%;
-    --muted: 222 12% 15%;
-    --muted-foreground: 220 8% 64%;
-    --accent: 18 78% 62%;
-    --accent-foreground: 0 0% 100%;
-    --border: 222 10% 20%;
-    --input: 222 10% 20%;
-    --ring: 40 20% 96%;
+    /* same as :root — app is dark by default */
   }
 }
 
@@ -106,7 +84,7 @@
     letter-spacing: -0.005em;
   }
   h1, h2, h3, h4 {
-    letter-spacing: -0.02em;
+    letter-spacing: -0.022em;
   }
 }
 
@@ -117,7 +95,7 @@
   .k-tap {
     @apply transition-all duration-200 ease-out active:scale-[0.98];
   }
-  /* Neutralize previous "AI gradient text" — render as solid foreground */
+  /* Solid foreground — no rainbow text */
   .k-gradient-text {
     color: hsl(var(--foreground));
     background: none;
@@ -125,8 +103,8 @@
     background-clip: initial;
   }
   .k-gradient-bg {
-    background: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
   }
   .k-gradient-soft {
     background: hsl(var(--surface-2));
@@ -156,6 +134,6 @@
   100% { transform: scale(1); opacity: 1; }
 }
 @keyframes k-pulse-ring {
-  0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.25); }
-  100% { box-shadow: 0 0 0 18px hsl(var(--primary) / 0); }
+  0% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.35); }
+  100% { box-shadow: 0 0 0 18px hsl(var(--accent) / 0); }
 }
