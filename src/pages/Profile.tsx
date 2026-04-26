@@ -2,14 +2,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import profileAvatar from "@/assets/profile-avatar.png";
-import { Button } from "@/components/ui/button";
 import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/i18n/useT";
+import type { TKey } from "@/i18n/translations";
 
-const goalLabel = { lose: "Lose Fat", gain: "Gain Muscle", maintain: "Maintain" } as const;
+const goalKey: Record<string, TKey> = { lose: "goal.lose", gain: "goal.gain", maintain: "goal.maintain" };
 
 export default function Profile() {
   const nav = useNavigate();
+  const t = useT();
   const { user, streak, premium, resetDay, setOnboarded } = useKStore();
 
   return (
