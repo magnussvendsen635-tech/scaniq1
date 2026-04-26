@@ -8,6 +8,7 @@ import { LANGUAGES } from "@/data/languages";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useT } from "@/i18n/useT";
+import { translate } from "@/i18n/translations";
 
 export default function Settings() {
   const nav = useNavigate();
