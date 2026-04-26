@@ -2,74 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-/* KCALLY Design System — Premium dark, Apple-level minimal */
+/* KCALLY Design System — Clean, minimal, human */
 
 @layer base {
   :root {
-    /* Core surfaces */
-    --background: 222 16% 5%;        /* #0b0c10 */
-    --foreground: 0 0% 100%;
-    --surface: 222 12% 10%;          /* #16181d cards */
-    --surface-2: 222 11% 14%;        /* elevated */
-    --surface-3: 222 10% 18%;
+    /* Core surfaces — light, calm, paper-like */
+    --background: 40 20% 98%;          /* warm off-white */
+    --foreground: 222 20% 12%;
+    --surface: 0 0% 100%;
+    --surface-2: 40 14% 96%;
+    --surface-3: 40 12% 92%;
 
-    --card: 222 12% 10%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 20% 12%;
 
-    --popover: 222 12% 10%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 20% 12%;
 
-    --primary: 245 85% 65%;          /* indigo */
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 270 85% 70%;     /* purple */
+    --primary: 222 47% 16%;            /* near-black indigo, calm */
+    --primary-foreground: 40 20% 98%;
+    --primary-glow: 222 47% 24%;       /* very subtle */
 
-    --secondary: 222 11% 14%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 40 14% 96%;
+    --secondary-foreground: 222 20% 12%;
 
-    --muted: 222 11% 14%;
-    --muted-foreground: 220 8% 60%;
+    --muted: 40 14% 96%;
+    --muted-foreground: 222 10% 42%;
 
-    --accent: 245 85% 65%;
+    --accent: 18 78% 58%;              /* warm terracotta accent */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 75% 60%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 222 10% 16%;
-    --input: 222 11% 14%;
-    --ring: 245 85% 65%;
+    --border: 30 10% 88%;
+    --input: 30 10% 88%;
+    --ring: 222 47% 16%;
 
-    --radius: 1.25rem; /* 20px */
+    --radius: 0.875rem; /* 14px — softer, less "blob" */
 
-    /* Premium gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(245 85% 65%), hsl(270 85% 70%));
-    --gradient-soft: linear-gradient(135deg, hsl(245 85% 65% / 0.18), hsl(270 85% 70% / 0.10));
-    --gradient-surface: linear-gradient(180deg, hsl(222 12% 12%), hsl(222 12% 9%));
-    --gradient-text: linear-gradient(135deg, hsl(245 100% 80%), hsl(280 100% 82%));
+    /* Subtle gradients (almost flat) */
+    --gradient-primary: linear-gradient(180deg, hsl(222 47% 18%), hsl(222 47% 12%));
+    --gradient-soft: linear-gradient(180deg, hsl(40 14% 97%), hsl(40 14% 94%));
+    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(40 14% 97%));
+    --gradient-text: linear-gradient(180deg, hsl(222 47% 16%), hsl(222 47% 16%));
 
-    /* Shadows */
-    --shadow-card: 0 8px 32px -12px hsl(0 0% 0% / 0.6);
-    --shadow-glow: 0 8px 40px -8px hsl(245 85% 65% / 0.45);
-    --shadow-soft: 0 4px 20px -6px hsl(0 0% 0% / 0.4);
+    /* Shadows — soft, paper-like */
+    --shadow-card: 0 1px 2px hsl(222 20% 12% / 0.04), 0 1px 0 hsl(222 20% 12% / 0.02);
+    --shadow-glow: 0 4px 16px -6px hsl(222 47% 16% / 0.18);
+    --shadow-soft: 0 2px 8px -2px hsl(222 20% 12% / 0.06);
 
     /* Motion */
     --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 
-    /* Sidebar (unchanged tokens, keep dark) */
-    --sidebar-background: 222 16% 5%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 245 85% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 11% 14%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 222 10% 16%;
-    --sidebar-ring: 245 85% 65%;
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 20% 12%;
+    --sidebar-primary: 222 47% 16%;
+    --sidebar-primary-foreground: 40 20% 98%;
+    --sidebar-accent: 40 14% 96%;
+    --sidebar-accent-foreground: 222 20% 12%;
+    --sidebar-border: 30 10% 88%;
+    --sidebar-ring: 222 47% 16%;
   }
 
   .dark {
-    /* Same — app is always dark */
-    --background: 222 16% 5%;
-    --foreground: 0 0% 100%;
+    --background: 222 18% 8%;
+    --foreground: 40 20% 96%;
+    --surface: 222 14% 12%;
+    --surface-2: 222 12% 15%;
+    --surface-3: 222 11% 19%;
+    --card: 222 14% 12%;
+    --card-foreground: 40 20% 96%;
+    --popover: 222 14% 12%;
+    --popover-foreground: 40 20% 96%;
+    --primary: 40 20% 96%;
+    --primary-foreground: 222 18% 8%;
+    --primary-glow: 40 20% 80%;
+    --secondary: 222 12% 15%;
+    --secondary-foreground: 40 20% 96%;
+    --muted: 222 12% 15%;
+    --muted-foreground: 220 8% 64%;
+    --accent: 18 78% 62%;
+    --accent-foreground: 0 0% 100%;
+    --border: 222 10% 20%;
+    --input: 222 10% 20%;
+    --ring: 40 20% 96%;
   }
 }
 
@@ -84,37 +102,43 @@
   body {
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.005em;
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
   }
 }
 
 @layer components {
   .k-card {
-    @apply rounded-3xl bg-card border border-border/60 shadow-[var(--shadow-card)];
+    @apply rounded-2xl bg-card border border-border shadow-[var(--shadow-card)];
   }
   .k-tap {
-    @apply transition-transform duration-200 ease-out active:scale-[0.97] hover:scale-[1.01];
+    @apply transition-all duration-200 ease-out active:scale-[0.98];
   }
+  /* Neutralize previous "AI gradient text" — render as solid foreground */
   .k-gradient-text {
-    background: var(--gradient-text);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: hsl(var(--foreground));
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
   }
   .k-gradient-bg {
-    background: var(--gradient-primary);
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
   }
   .k-gradient-soft {
-    background: var(--gradient-soft);
+    background: hsl(var(--surface-2));
   }
   .k-glow {
-    box-shadow: var(--shadow-glow);
+    box-shadow: var(--shadow-soft);
   }
   .k-page {
     @apply min-h-screen w-full max-w-md mx-auto px-5 pb-28 pt-8 animate-[k-fade_0.35s_var(--ease-smooth)];
   }
   .k-divider {
-    @apply h-px w-full bg-border/60;
+    @apply h-px w-full bg-border;
   }
 }
 
@@ -124,14 +148,14 @@
 }
 
 @keyframes k-fade {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes k-pop {
-  0% { transform: scale(0.9); opacity: 0; }
+  0% { transform: scale(0.96); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 @keyframes k-pulse-ring {
-  0% { box-shadow: 0 0 0 0 hsl(245 85% 65% / 0.45); }
-  100% { box-shadow: 0 0 0 24px hsl(245 85% 65% / 0); }
+  0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.25); }
+  100% { box-shadow: 0 0 0 18px hsl(var(--primary) / 0); }
 }
