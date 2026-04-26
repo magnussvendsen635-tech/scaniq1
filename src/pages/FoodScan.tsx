@@ -106,13 +106,13 @@ export default function FoodScan() {
 
       {!premium ? (
         <PremiumLock>
-          <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-foreground mb-5 shadow-card">
+          <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card">
             <ScannerBackdrop />
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-              <div className="w-16 h-16 rounded-2xl bg-primary border-[3px] border-background flex items-center justify-center mb-3">
-                <Camera className="w-8 h-8 text-background" />
+              <div className="w-16 h-16 rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
+                <Camera className="w-8 h-8 text-foreground" />
               </div>
-              <p className="text-background/80 text-sm font-medium">{t("scan.point")}</p>
+              <p className="text-foreground/70 text-sm font-medium">{t("scan.point")}</p>
             </div>
           </div>
           <Button className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
@@ -123,7 +123,7 @@ export default function FoodScan() {
         <>
 
       {/* Camera viewport */}
-      <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-foreground mb-5 shadow-card">
+      <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card">
         <ScannerBackdrop />
         {/* Corner brackets */}
         {[
@@ -143,25 +143,25 @@ export default function FoodScan() {
             <>
               <div className="relative w-20 h-20 mb-4">
                 <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-40" />
-                <div className="absolute inset-0 rounded-full bg-primary border-[3px] border-background flex items-center justify-center">
-                  <Sparkles className="w-9 h-9 text-background" />
+                <div className="absolute inset-0 rounded-full bg-primary border-[3px] border-foreground flex items-center justify-center">
+                  <Sparkles className="w-9 h-9 text-foreground" />
                 </div>
               </div>
-              <p className="text-sm text-background/80 font-medium">{t("scan.identifying")}</p>
+              <p className="text-sm text-foreground/70 font-medium">{t("scan.identifying")}</p>
             </>
           ) : result ? (
             <div className="animate-scale-in">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary border-[3px] border-background flex items-center justify-center mb-3">
-                <Check className="w-8 h-8 text-background" strokeWidth={3} />
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
+                <Check className="w-8 h-8 text-foreground" strokeWidth={3} />
               </div>
-              <p className="text-2xl font-bold text-background">{result.name}</p>
+              <p className="text-2xl font-bold text-foreground">{result.name}</p>
             </div>
           ) : (
             <>
-              <div className="w-16 h-16 rounded-2xl bg-primary border-[3px] border-background flex items-center justify-center mb-3">
-                <Camera className="w-8 h-8 text-background" />
+              <div className="w-16 h-16 rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
+                <Camera className="w-8 h-8 text-foreground" />
               </div>
-              <p className="text-background/80 text-sm font-medium">{t("scan.point")}</p>
+              <p className="text-foreground/70 text-sm font-medium">{t("scan.point")}</p>
             </>
           )}
         </div>
