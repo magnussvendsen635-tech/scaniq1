@@ -3,22 +3,16 @@ import { useKStore, caloriesToday, macrosToday, caloriesBurnedToday } from "@/st
 import { Logo } from "@/components/Logo";
 import { Ring } from "@/components/Ring";
 import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight } from "lucide-react";
-
-const motivations = [
-  "Small steps. Big change.",
-  "Discipline beats motivation.",
-  "Today counts.",
-  "Stay consistent.",
-  "You vs. yesterday.",
-];
+import { useT } from "@/i18n/useT";
 
 export default function Home() {
+  const t = useT();
   const { user, meals, workouts, streak } = useKStore();
   const eaten = caloriesToday(meals);
   const burned = caloriesBurnedToday(workouts);
   const remaining = Math.max(0, user.calories - eaten + burned);
   const m = macrosToday(meals);
-  const motivation = motivations[new Date().getDate() % motivations.length];
+  const motivation = t("app.tagline");
 
   return (
     <div className="k-page">
