@@ -108,7 +108,7 @@ export default function Settings() {
       <Dialog open={langOpen} onOpenChange={setLangOpen}>
         <DialogContent className="max-w-md p-0 bg-card border-border/60">
           <DialogHeader className="px-5 pt-5 pb-2">
-            <DialogTitle>Choose language</DialogTitle>
+            <DialogTitle>{t("settings.choose_language")}</DialogTitle>
           </DialogHeader>
           <div className="p-4 pt-2">
             <LanguagePicker
@@ -116,7 +116,7 @@ export default function Settings() {
               onChange={(c) => {
                 setLanguage(c);
                 setLangOpen(false);
-                toast.success("Language updated");
+                toast.success(translate(c, "settings.language_updated"));
               }}
             />
           </div>
