@@ -6,6 +6,7 @@ import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sp
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 import { StreakCard } from "@/components/StreakCard";
+import { HealthScoreCard } from "@/components/HealthScoreCard";
 
 export default function Home() {
   const t = useT();
