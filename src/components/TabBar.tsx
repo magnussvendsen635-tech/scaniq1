@@ -17,7 +17,7 @@ export const TabBar = () => {
   return (
     <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[min(420px,92%)]">
       <div className="k-card !rounded-full backdrop-blur-xl bg-card/85 border-border/70 px-2 py-2 flex items-center justify-between">
-        {items.map(({ to, label, Icon }) => (
+        {items.map(({ to, key, Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -30,7 +30,7 @@ export const TabBar = () => {
             }
           >
             <Icon className="w-5 h-5" strokeWidth={2.2} />
-            <span className="text-[10px] font-medium tracking-wide">{label}</span>
+            <span className="text-[10px] font-medium tracking-wide">{t(key)}</span>
           </NavLink>
         ))}
       </div>
