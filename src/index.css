@@ -2,70 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
-/* KCALLY Design System — Dark, clean, minimal */
+/* KCALLY Design System — Tactile Arcade Brutalism */
 
 @layer base {
   :root {
-    /* Core surfaces — deep neutral, not blue */
-    --background: 0 0% 6%;             /* near-black */
-    --foreground: 0 0% 98%;
-    --surface: 0 0% 9%;
-    --surface-2: 0 0% 12%;
-    --surface-3: 0 0% 16%;
+    /* Core surfaces — warm cream paper */
+    --background: 38 33% 94%;          /* #F4F0EA */
+    --foreground: 222 30% 6%;          /* near-black ink */
+    --surface: 0 0% 100%;
+    --surface-2: 35 26% 86%;           /* #E5DCD0 */
+    --surface-3: 35 22% 78%;
 
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 30% 6%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 30% 6%;
 
-    --primary: 0 0% 98%;               /* white = primary action (Apple-like) */
-    --primary-foreground: 0 0% 8%;
-    --primary-glow: 0 0% 80%;
+    --primary: 222 30% 6%;             /* INK = primary stroke + buttons */
+    --primary-foreground: 38 33% 94%;
+    --primary-glow: 14 100% 60%;       /* orange punch */
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 35 26% 86%;
+    --secondary-foreground: 222 30% 6%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 38 20% 88%;
+    --muted-foreground: 222 15% 38%;
 
-    --accent: 18 90% 60%;              /* warm orange accent (calories/fire vibe) */
-    --accent-foreground: 0 0% 100%;
+    --accent: 14 100% 60%;             /* #FF5A36 orange */
+    --accent-foreground: 222 30% 6%;
 
-    --destructive: 0 75% 55%;
+    --destructive: 0 80% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 16%;
-    --input: 0 0% 14%;
-    --ring: 0 0% 60%;
+    --border: 222 30% 6%;              /* INK borders — 4px */
+    --input: 222 30% 6%;
+    --ring: 14 100% 60%;
 
-    --radius: 1rem; /* 16px */
+    --radius: 1.5rem; /* 24px chunky */
 
-    /* Subtle gradients */
-    --gradient-primary: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 92%));
-    --gradient-soft: linear-gradient(180deg, hsl(0 0% 13%), hsl(0 0% 10%));
-    --gradient-surface: linear-gradient(180deg, hsl(0 0% 11%), hsl(0 0% 8%));
-    --gradient-text: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 90%));
+    /* Brutal "gradients" — flat color swaps */
+    --gradient-primary: hsl(14 100% 60%);
+    --gradient-soft: hsl(38 33% 94%);
+    --gradient-surface: hsl(0 0% 100%);
+    --gradient-text: hsl(222 30% 6%);
 
-    /* Shadows */
-    --shadow-card: 0 1px 0 hsl(0 0% 100% / 0.03), 0 8px 24px -12px hsl(0 0% 0% / 0.5);
-    --shadow-glow: 0 8px 28px -10px hsl(18 90% 60% / 0.35);
-    --shadow-soft: 0 4px 16px -6px hsl(0 0% 0% / 0.4);
+    /* Hard offset shadows — the brutalism signature */
+    --shadow-card: 4px 4px 0 hsl(222 30% 6%);
+    --shadow-card-lg: 6px 6px 0 hsl(222 30% 6%);
+    --shadow-glow: 4px 4px 0 hsl(14 100% 60%);
+    --shadow-soft: 3px 3px 0 hsl(222 30% 6%);
 
     --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 
-    --sidebar-background: 0 0% 6%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 0 0% 8%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 16%;
-    --sidebar-ring: 0 0% 60%;
+    --sidebar-background: 38 33% 94%;
+    --sidebar-foreground: 222 30% 6%;
+    --sidebar-primary: 222 30% 6%;
+    --sidebar-primary-foreground: 38 33% 94%;
+    --sidebar-accent: 35 26% 86%;
+    --sidebar-accent-foreground: 222 30% 6%;
+    --sidebar-border: 222 30% 6%;
+    --sidebar-ring: 14 100% 60%;
+
+    /* Brand pop palette */
+    --pop-yellow: 65 100% 50%;
+    --pop-blue: 224 100% 50%;
+    --pop-green: 152 100% 45%;
+    --pop-pink: 326 100% 60%;
   }
 
   .dark {
-    /* same as :root — app is dark by default */
+    /* keep brutalism look in dark too */
+    --background: 222 30% 6%;
+    --foreground: 38 33% 94%;
+    --surface: 222 25% 10%;
+    --surface-2: 222 22% 14%;
+    --card: 222 25% 10%;
+    --card-foreground: 38 33% 94%;
+    --popover: 222 25% 10%;
+    --popover-foreground: 38 33% 94%;
+    --primary: 38 33% 94%;
+    --primary-foreground: 222 30% 6%;
+    --secondary: 222 22% 14%;
+    --secondary-foreground: 38 33% 94%;
+    --muted: 222 22% 14%;
+    --muted-foreground: 38 10% 70%;
+    --border: 38 33% 94%;
+    --input: 222 22% 14%;
+    --shadow-card: 4px 4px 0 hsl(38 33% 94%);
+    --shadow-card-lg: 6px 6px 0 hsl(38 33% 94%);
+    --shadow-soft: 3px 3px 0 hsl(38 33% 94%);
   }
 }
 
@@ -78,29 +104,45 @@
     min-height: 100%;
   }
   body {
-    font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
-    letter-spacing: -0.005em;
+    font-family: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    letter-spacing: -0.01em;
   }
   h1, h2, h3, h4 {
-    letter-spacing: -0.022em;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-transform: none;
   }
+  .font-mono, code, kbd {
+    font-family: 'Space Mono', ui-monospace, monospace;
+  }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
 }
 
 @layer components {
   .k-card {
-    @apply rounded-2xl bg-card border border-border shadow-[var(--shadow-card)];
+    @apply rounded-3xl bg-card border-[3px] border-foreground;
+    box-shadow: var(--shadow-card);
+  }
+  .k-card-lg {
+    @apply rounded-3xl bg-card border-[3px] border-foreground;
+    box-shadow: var(--shadow-card-lg);
   }
   .k-tap {
-    @apply transition-all duration-200 ease-out active:scale-[0.98];
+    @apply transition-all duration-150 ease-out;
   }
-  /* Solid foreground — no rainbow text */
+  .k-tap:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 hsl(var(--foreground)) !important;
+  }
+  /* Brutalism: solid bold ink text instead of rainbow gradient */
   .k-gradient-text {
     color: hsl(var(--foreground));
     background: none;
     -webkit-background-clip: initial;
     background-clip: initial;
+    font-weight: 900;
+    letter-spacing: -0.04em;
   }
   .k-gradient-bg {
     background: hsl(var(--accent));
@@ -110,19 +152,26 @@
     background: hsl(var(--surface-2));
   }
   .k-glow {
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-card);
   }
   .k-page {
     @apply min-h-screen w-full max-w-md mx-auto px-5 pb-28 pt-8 animate-[k-fade_0.35s_var(--ease-smooth)];
   }
   .k-divider {
-    @apply h-px w-full bg-border;
+    @apply h-[3px] w-full bg-foreground;
+  }
+  .k-chip {
+    @apply inline-flex items-center gap-2 bg-card border-[3px] border-foreground rounded-full px-3.5 py-1.5;
+    box-shadow: 3px 3px 0 hsl(var(--foreground));
   }
 }
 
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { scrollbar-width: none; }
+  .shadow-brutal { box-shadow: 4px 4px 0 hsl(var(--foreground)); }
+  .shadow-brutal-lg { box-shadow: 6px 6px 0 hsl(var(--foreground)); }
+  .shadow-brutal-sm { box-shadow: 3px 3px 0 hsl(var(--foreground)); }
 }
 
 @keyframes k-fade {
@@ -130,10 +179,10 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes k-pop {
-  0% { transform: scale(0.96); opacity: 0; }
+  0% { transform: scale(0.94); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 @keyframes k-pulse-ring {
-  0% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.35); }
-  100% { box-shadow: 0 0 0 18px hsl(var(--accent) / 0); }
+  0% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.5); }
+  100% { box-shadow: 0 0 0 16px hsl(var(--accent) / 0); }
 }
