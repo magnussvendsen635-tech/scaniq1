@@ -134,7 +134,7 @@ export default function FoodScan() {
           ) : (
             <>
               <Camera className="w-14 h-14 text-muted-foreground/70 mb-3" />
-              <p className="text-muted-foreground text-sm">Point at your meal and tap Scan</p>
+              <p className="text-muted-foreground text-sm">{t("scan.point")}</p>
             </>
           )}
         </div>
