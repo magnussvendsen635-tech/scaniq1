@@ -69,10 +69,15 @@ export const useKStore = create<KState>()(
     (set, get) => ({
       onboarded: false,
       user: {
+        age: 28,
         weight: 75,
+        targetWeight: 70,
         height: 175,
         goal: "lose",
         activity: "moderate",
+        pace: "balanced",
+        frequency: "2-3",
+        diet: "none",
         calories: 2200,
         protein: 150,
         carbs: 220,
