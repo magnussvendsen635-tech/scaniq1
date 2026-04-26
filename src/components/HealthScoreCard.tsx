@@ -51,18 +51,18 @@ export function HealthScoreCard() {
   });
 
   const map = {
-    empty: { Icon: Sparkles, dot: "bg-muted", iconBg: "bg-surface-2", title: t("health.empty"), sub: t("health.empty_sub"), tone: "text-muted-foreground" },
-    healthy: { Icon: CheckCircle2, dot: "bg-emerald-500", iconBg: "bg-emerald-500/15", title: t("health.healthy"), sub: t("health.healthy_sub"), tone: "text-emerald-600" },
-    ok: { Icon: AlertCircle, dot: "bg-amber-500", iconBg: "bg-amber-500/15", title: t("health.ok"), sub: t("health.ok_sub"), tone: "text-amber-600" },
-    unhealthy: { Icon: XCircle, dot: "bg-red-500", iconBg: "bg-red-500/15", title: t("health.unhealthy"), sub: t("health.unhealthy_sub"), tone: "text-red-600" },
+    empty: { Icon: Sparkles, dot: "bg-muted", ring: "border-border/60", title: t("health.empty"), sub: t("health.empty_sub"), tone: "text-muted-foreground" },
+    healthy: { Icon: CheckCircle2, dot: "bg-emerald-500", ring: "border-emerald-500/40", title: t("health.healthy"), sub: t("health.healthy_sub"), tone: "text-emerald-500" },
+    ok: { Icon: AlertCircle, dot: "bg-amber-500", ring: "border-amber-500/40", title: t("health.ok"), sub: t("health.ok_sub"), tone: "text-amber-500" },
+    unhealthy: { Icon: XCircle, dot: "bg-red-500", ring: "border-red-500/40", title: t("health.unhealthy"), sub: t("health.unhealthy_sub"), tone: "text-red-500" },
   } as const;
 
   const v = map[verdict];
   const Icon = v.Icon;
 
   return (
-    <div className="k-card p-4 mb-5 flex items-center gap-4">
-      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center border-[3px] border-foreground ${v.iconBg}`}>
+    <div className={`k-card p-4 mb-5 flex items-center gap-4 border ${v.ring}`}>
+      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${v.dot}/15 bg-opacity-15`}>
         <Icon className={`w-5 h-5 ${v.tone}`} />
       </div>
       <div className="flex-1 min-w-0">
