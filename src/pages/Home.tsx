@@ -46,11 +46,41 @@ export default function Home() {
       </div>
 
       {/* Macros */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        <MacroBar label={t("home.protein")} value={m.protein} target={user.protein} />
-        <MacroBar label={t("home.carbs")} value={m.carbs} target={user.carbs} />
-        <MacroBar label={t("home.fat")} value={m.fat} target={user.fat} />
-      </div>
+      {premium ? (
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          <MacroBar label={t("home.protein")} value={m.protein} target={user.protein} />
+          <MacroBar label={t("home.carbs")} value={m.carbs} target={user.carbs} />
+          <MacroBar label={t("home.fat")} value={m.fat} target={user.fat} />
+        </div>
+      ) : (
+        <div className="mb-5">
+          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">{t("home.macros")}</div>
+          <PremiumLock>
+            <div className="grid grid-cols-3 gap-3">
+              <MacroBar label={t("home.protein")} value={m.protein} target={user.protein} />
+              <MacroBar label={t("home.carbs")} value={m.carbs} target={user.carbs} />
+              <MacroBar label={t("home.fat")} value={m.fat} target={user.fat} />
+            </div>
+          </PremiumLock>
+        </div>
+      )}
+
+      {/* Premium insights */}
+      {!premium && (
+        <div className="grid grid-cols-1 gap-3 mb-5">
+          <PremiumLock>
+            <InsightCard Icon={Heart} title={t("home.heart_healthy")} rows={[["Sodium", "—/2300mg"], ["Cholesterol", "—/300mg"], ["Sat. fat", "—/20g"]]} />
+          </PremiumLock>
+          <div className="grid grid-cols-2 gap-3">
+            <PremiumLock>
+              <InsightCard Icon={Leaf} title={t("home.low_carb")} rows={[["Net carbs", "—g"], ["Sugar", "—g"], ["Fiber", "—g"]]} />
+            </PremiumLock>
+            <PremiumLock>
+              <InsightCard Icon={Sparkles} title={t("home.custom_overview")} rows={[["Carbs", "—g"], ["Fat", "—g"], ["Protein", "—g"]]} />
+            </PremiumLock>
+          </div>
+        </div>
+      )}
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3">
