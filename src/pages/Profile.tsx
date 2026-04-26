@@ -6,13 +6,15 @@ import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
+import { useAuth } from "@/hooks/useAuth";
 
 const goalKey: Record<string, TKey> = { lose: "goal.lose", gain: "goal.gain", maintain: "goal.maintain" };
 
 export default function Profile() {
   const nav = useNavigate();
   const t = useT();
-  const { user, streak, premium, resetDay, setOnboarded } = useKStore();
+  const { signOut } = useAuth();
+  const { user, streak, premium, resetDay } = useKStore();
 
   return (
     <div className="k-page">
@@ -75,9 +77,9 @@ export default function Profile() {
           title={t("profile.logout")}
           sub={t("profile.logout_sub")}
           danger
-          onClick={() => {
-            setOnboarded(false);
-            nav("/onboarding", { replace: true });
+          onClick={async () => {
+            await signOut();
+            nav("/auth", { replace: true });
           }}
         />
       </div>
