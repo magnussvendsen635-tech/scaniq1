@@ -155,7 +155,7 @@ export default function FoodScan() {
           <div className="k-card p-5 bg-gradient-soft">
             <div className="flex items-baseline justify-between">
               <div>
-                <div className="text-xs text-muted-foreground tracking-widest uppercase">Calories</div>
+                <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.calories")}</div>
                 <div className="text-5xl font-semibold k-gradient-text">{result.calories}</div>
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
@@ -163,18 +163,18 @@ export default function FoodScan() {
                 <span className="text-sm font-semibold">{result.healthScore}/10</span>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-3">You have <span className="text-foreground font-semibold">{remaining} kcal</span> remaining today.</p>
+            <p className="text-sm text-muted-foreground mt-3">{t("scan.remaining_pre")} <span className="text-foreground font-semibold">{remaining} kcal</span> {t("scan.remaining_post")}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <Macro label="Protein" value={result.protein} />
-            <Macro label="Carbs" value={result.carbs} />
-            <Macro label="Fat" value={result.fat} />
+            <Macro label={t("home.protein")} value={result.protein} />
+            <Macro label={t("home.carbs")} value={result.carbs} />
+            <Macro label={t("home.fat")} value={result.fat} />
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <Button variant="outline" onClick={scan} className="h-12 rounded-2xl border-border bg-card">Rescan</Button>
-            <Button onClick={save} className="h-12 rounded-2xl bg-gradient-primary shadow-glow hover:opacity-90 font-semibold">Add to diary</Button>
+            <Button variant="outline" onClick={scan} className="h-12 rounded-2xl border-border bg-card">{t("scan.rescan")}</Button>
+            <Button onClick={save} className="h-12 rounded-2xl bg-gradient-primary shadow-glow hover:opacity-90 font-semibold">{t("scan.add_to_diary")}</Button>
           </div>
         </div>
       )}
