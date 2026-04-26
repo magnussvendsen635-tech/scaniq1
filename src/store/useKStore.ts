@@ -70,6 +70,7 @@ export const useKStore = create<KState>()(
   persist(
     (set, get) => ({
       onboarded: false,
+      language: "en",
       user: {
         age: 28,
         weight: 75,
@@ -93,6 +94,7 @@ export const useKStore = create<KState>()(
       premium: false,
 
       setOnboarded: (v) => set({ onboarded: v }),
+      setLanguage: (code) => set({ language: code }),
       updateUser: (u) => set({ user: { ...get().user, ...u } }),
       addMeal: (m) => {
         const meals = [m, ...get().meals];
