@@ -5,6 +5,7 @@ import { FOOD_NAMES } from "@/data/exercises";
 import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useT } from "@/i18n/useT";
 
 interface Result {
   name: string;
