@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
+import { LanguagePicker } from "@/components/LanguagePicker";
 import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const TOTAL_QUESTIONS = 9; // steps 0..8
+const TOTAL_QUESTIONS = 10; // steps 0..9 (0 = language)
 
 const goals: { id: Goal; title: string; sub: string; Icon: any }[] = [
   { id: "lose", title: "Lose Fat", sub: "Cut calories smartly", Icon: TrendingDown },
