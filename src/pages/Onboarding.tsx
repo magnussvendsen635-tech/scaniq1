@@ -240,7 +240,7 @@ export default function Onboarding() {
             className="w-full h-14 rounded-2xl bg-gradient-primary hover:opacity-90 text-base font-semibold shadow-glow"
             onClick={isLastQuestion ? generate : next}
           >
-            {isLastQuestion ? "Create my plan" : "Continue"}
+            {isLastQuestion ? "Create my plan" : translate(lang, "common.continue")}
             <ArrowRight className="ml-1 w-5 h-5" />
           </Button>
         )}
