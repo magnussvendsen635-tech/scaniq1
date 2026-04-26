@@ -27,10 +27,15 @@ export interface WorkoutLog {
 }
 
 export interface UserProfile {
+  age: number;
   weight: number; // kg
+  targetWeight: number; // kg
   height: number; // cm
   goal: Goal;
   activity: Activity;
+  pace: Pace;
+  frequency: Frequency;
+  diet: Diet;
   calories: number;
   protein: number;
   carbs: number;
