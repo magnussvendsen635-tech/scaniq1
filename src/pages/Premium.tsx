@@ -17,7 +17,7 @@ const features = [
 export default function Premium() {
   const nav = useNavigate();
   const { setPremium, premium } = useKStore();
-  const [plan, setPlan] = useState<"month" | "lifetime">("lifetime");
+  const [plan, setPlan] = useState<"month" | "year">("year");
 
   const upgrade = () => {
     setPremium(true);
