@@ -77,6 +77,23 @@ export default function FoodScan() {
 
   return (
     <div className="k-page">
+      {celebrate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in">
+          <div className="text-center px-8 animate-scale-in">
+            <div className="relative mx-auto w-40 h-40 mb-6">
+              <div className="absolute inset-0 rounded-full bg-gradient-primary opacity-30 blur-3xl animate-ping" />
+              <div className="absolute inset-0 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
+                <Flame className="w-20 h-20 text-white drop-shadow-lg" />
+              </div>
+            </div>
+            <div className="text-7xl font-bold k-gradient-text mb-2">{celebrate.count}</div>
+            <div className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-3">day streak</div>
+            <p className="text-lg font-semibold">Keep the fire alive! 🔥</p>
+            <p className="text-sm text-muted-foreground mt-1">Scan a meal every day to grow your streak.</p>
+          </div>
+        </div>
+      )}
+
       <header className="flex items-center gap-3 mb-6">
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
