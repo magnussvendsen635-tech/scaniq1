@@ -100,7 +100,7 @@ export default function FoodScan() {
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight">Scan Food</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("scan.title")}</h1>
       </header>
 
       {/* Camera viewport */}
