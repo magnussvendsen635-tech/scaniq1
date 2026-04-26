@@ -4,6 +4,7 @@ import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequ
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { LanguagePicker } from "@/components/LanguagePicker";
+import { translate } from "@/i18n/translations";
 import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
