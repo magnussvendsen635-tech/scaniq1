@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, caloriesToday } from "@/store/useKStore";
-import { FOOD_NAMES } from "@/data/exercises";
-import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame } from "lucide-react";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Result {
   name: string;
@@ -26,25 +26,59 @@ export default function FoodScan() {
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const scan = async () => {
+  const fileToDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+
+  const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await fileToDataUrl(file);
+    setPreview(dataUrl);
+    setResult(null);
+    await scan(dataUrl);
+    e.target.value = "";
+  };
+
+  const scan = async (image?: string) => {
+    const img = image ?? preview;
+    if (!img) {
+      fileRef.current?.click();
+      return;
+    }
     setScanning(true);
     setResult(null);
-    await new Promise((r) => setTimeout(r, 1400));
-    const calories = rand(200, 700);
-    const protein = rand(10, 45);
-    const fat = rand(5, 30);
-    const carbs = Math.max(5, Math.round((calories - protein * 4 - fat * 9) / 4));
-    const r: Result = {
-      name: FOOD_NAMES[rand(0, FOOD_NAMES.length - 1)],
-      calories,
-      protein,
-      carbs,
-      fat,
-      healthScore: rand(4, 10),
-    };
-    setResult(r);
-    setScanning(false);
+    try {
+      const { data, error } = await supabase.functions.invoke("scan-food", {
+        body: { image: img },
+      });
+      if (error) {
+        const status = (error as any).context?.status;
+        if (status === 429) toast.error("Rate limit", { description: "Try again in a moment." });
+        else if (status === 402) toast.error("Out of AI credits", { description: "Add funds to continue." });
+        else toast.error("Scan failed", { description: error.message });
+        return;
+      }
+      setResult({
+        name: data.name,
+        calories: Math.round(data.calories),
+        protein: Math.round(data.protein),
+        carbs: Math.round(data.carbs),
+        fat: Math.round(data.fat),
+        healthScore: Math.round(data.healthScore),
+      });
+    } catch (err: any) {
+      toast.error("Scan failed", { description: err?.message ?? "Unknown error" });
+    } finally {
+      setScanning(false);
+    }
   };
 
   const save = () => {
@@ -168,13 +202,24 @@ export default function FoodScan() {
       </div>
 
       {!result && (
-        <Button
-          disabled={scanning}
-          onClick={scan}
-          className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
-        >
-          {scanning ? t("scan.scanning") : t("scan.cta")}
-        </Button>
+        <>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={onPick}
+          />
+          <Button
+            disabled={scanning}
+            onClick={() => fileRef.current?.click()}
+            className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
+          >
+            <Camera className="w-5 h-5 mr-1" />
+            {scanning ? t("scan.scanning") : t("scan.cta")}
+          </Button>
+        </>
       )}
 
       {result && (
@@ -200,7 +245,7 @@ export default function FoodScan() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <Button variant="outline" onClick={scan} className="h-12 rounded-2xl border-border bg-card">{t("scan.rescan")}</Button>
+            <Button variant="outline" onClick={() => { setResult(null); setPreview(null); fileRef.current?.click(); }} className="h-12 rounded-2xl border-border bg-card">{t("scan.rescan")}</Button>
             <Button onClick={save} className="h-12 rounded-2xl bg-gradient-primary shadow-glow hover:opacity-90 font-semibold">{t("scan.add_to_diary")}</Button>
           </div>
         </div>
