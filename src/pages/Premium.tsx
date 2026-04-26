@@ -8,7 +8,7 @@ import { toast } from "sonner";
 const features = [
   "Unlimited food scans",
   "Advanced macro insights",
-  "100+ premium workouts",
+  "1000+ premium workouts",
   "Custom meal plans",
   "Progress trends & exports",
   "Priority new features",
