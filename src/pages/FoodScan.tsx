@@ -89,9 +89,9 @@ export default function FoodScan() {
               </div>
             </div>
             <div className="text-7xl font-bold k-gradient-text mb-2">{celebrate.count}</div>
-            <div className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-3">day streak</div>
-            <p className="text-lg font-semibold">Keep the fire alive! 🔥</p>
-            <p className="text-sm text-muted-foreground mt-1">Scan a meal every day to grow your streak.</p>
+            <div className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-3">{t("common.day_streak")}</div>
+            <p className="text-lg font-semibold">{t("scan.keep_fire")}</p>
+            <p className="text-sm text-muted-foreground mt-1">{t("scan.streak_sub")}</p>
           </div>
         </div>
       )}
