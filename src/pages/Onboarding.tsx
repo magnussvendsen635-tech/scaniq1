@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
+import { LanguagePicker } from "@/components/LanguagePicker";
 import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const TOTAL_QUESTIONS = 9; // steps 0..8
+const TOTAL_QUESTIONS = 10; // steps 0..9 (0 = language)
 
 const goals: { id: Goal; title: string; sub: string; Icon: any }[] = [
   { id: "lose", title: "Lose Fat", sub: "Cut calories smartly", Icon: TrendingDown },
@@ -43,8 +44,9 @@ const diets: { id: Diet; title: string; sub: string; Icon: any }[] = [
 
 export default function Onboarding() {
   const nav = useNavigate();
-  const { user, updateUser, setOnboarded } = useKStore();
+  const { user, updateUser, setOnboarded, language, setLanguage } = useKStore();
   const [step, setStep] = useState(0);
+  const [lang, setLang] = useState(language);
   const [goal, setGoal] = useState<Goal>(user.goal);
   const [age, setAge] = useState(user.age);
   const [weight, setWeight] = useState(user.weight);
@@ -73,6 +75,7 @@ export default function Onboarding() {
 
   const finish = () => {
     if (!plan) return;
+    setLanguage(lang);
     updateUser({ age, weight, targetWeight, height, goal, activity, pace, frequency, diet, ...plan });
     setOnboarded(true);
     nav("/", { replace: true });
@@ -98,6 +101,12 @@ export default function Onboarding() {
 
       <div className="flex-1 animate-fade-in" key={step}>
         {step === 0 && (
+          <Step title="Choose your language" sub="You can change this later in Settings.">
+            <LanguagePicker value={lang} onChange={setLang} />
+          </Step>
+        )}
+
+        {step === 1 && (
           <Step title="What's your goal?" sub="We'll tune your plan around it.">
             <div className="space-y-3">
               {goals.map(({ id, title, sub, Icon }) => (
@@ -107,31 +116,31 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 1 && (
+        {step === 2 && (
           <Step title="What's your age?" sub="Helps us personalize your metabolism.">
             <NumberInput value={age} onChange={setAge} suffix="yrs" min={13} max={100} />
           </Step>
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <Step title="What's your height?" sub="A quick measurement.">
             <NumberInput value={height} onChange={setHeight} suffix="cm" min={120} max={230} />
           </Step>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <Step title="What's your current weight?" sub="So we can calculate macros.">
             <NumberInput value={weight} onChange={setWeight} suffix="kg" min={30} max={250} />
           </Step>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <Step title="What's your target weight?" sub="Where do you want to be?">
             <NumberInput value={targetWeight} onChange={setTargetWeight} suffix="kg" min={30} max={250} />
           </Step>
         )}
 
-        {step === 5 && (
+        {step === 6 && (
           <Step title="How fast do you want to reach your goal?" sub="Pick a pace that fits your life.">
             <div className="space-y-3">
               {paces.map(({ id, title, sub, Icon }) => (
@@ -141,7 +150,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 6 && (
+        {step === 7 && (
           <Step title="How often do you work out?" sub="Be honest — we adjust the plan.">
             <div className="space-y-2.5">
               {frequencies.map((f) => (
@@ -164,7 +173,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 7 && (
+        {step === 8 && (
           <Step title="What type of diet do you follow?" sub="We'll match your macros.">
             <div className="space-y-3">
               {diets.map(({ id, title, sub, Icon }) => (
@@ -174,7 +183,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 8 && (
+        {step === 9 && (
           <Step title="Activity level" sub="How active are you weekly?">
             <div className="space-y-2.5">
               {activities.map((a) => (

@@ -2,13 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, type Goal, type Activity } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { LANGUAGES } from "@/data/languages";
+import { LanguagePicker } from "@/components/LanguagePicker";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function Settings() {
   const nav = useNavigate();
-  const { user, updateUser } = useKStore();
+  const { user, updateUser, language, setLanguage } = useKStore();
   const [form, setForm] = useState(user);
+  const [langOpen, setLangOpen] = useState(false);
+  const currentLang = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];
 
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm({ ...form, [k]: v });
 
@@ -28,6 +33,20 @@ export default function Settings() {
       </header>
 
       <div className="space-y-3">
+        <Section title="App">
+          <button
+            onClick={() => setLangOpen(true)}
+            className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
+          >
+            <span className="text-sm">Language</span>
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-lg leading-none">{currentLang.flag}</span>
+              <span>{currentLang.native}</span>
+              <ChevronRight className="w-4 h-4" />
+            </span>
+          </button>
+        </Section>
+
         <Section title="Body">
           <Field label="Weight (kg)">
             <NumInput value={form.weight} onChange={(n) => set("weight", n)} />
@@ -83,6 +102,24 @@ export default function Settings() {
           Save Changes
         </Button>
       </div>
+
+      <Dialog open={langOpen} onOpenChange={setLangOpen}>
+        <DialogContent className="max-w-md p-0 bg-card border-border/60">
+          <DialogHeader className="px-5 pt-5 pb-2">
+            <DialogTitle>Choose language</DialogTitle>
+          </DialogHeader>
+          <div className="p-4 pt-2">
+            <LanguagePicker
+              value={language}
+              onChange={(c) => {
+                setLanguage(c);
+                setLangOpen(false);
+                toast.success("Language updated");
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

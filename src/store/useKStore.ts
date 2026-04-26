@@ -44,6 +44,7 @@ export interface UserProfile {
 
 interface KState {
   onboarded: boolean;
+  language: string;
   user: UserProfile;
   meals: Meal[];
   workouts: WorkoutLog[];
@@ -54,6 +55,7 @@ interface KState {
   premium: boolean;
 
   setOnboarded: (v: boolean) => void;
+  setLanguage: (code: string) => void;
   updateUser: (u: Partial<UserProfile>) => void;
   addMeal: (m: Meal) => void;
   addWorkout: (w: WorkoutLog) => void;
@@ -68,6 +70,7 @@ export const useKStore = create<KState>()(
   persist(
     (set, get) => ({
       onboarded: false,
+      language: "en",
       user: {
         age: 28,
         weight: 75,
@@ -91,6 +94,7 @@ export const useKStore = create<KState>()(
       premium: false,
 
       setOnboarded: (v) => set({ onboarded: v }),
+      setLanguage: (code) => set({ language: code }),
       updateUser: (u) => set({ user: { ...get().user, ...u } }),
       addMeal: (m) => {
         const meals = [m, ...get().meals];
