@@ -124,7 +124,7 @@ export default function FoodScan() {
                   <Sparkles className="w-9 h-9 text-white" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">Identifying your meal…</p>
+              <p className="text-sm text-muted-foreground">{t("scan.identifying")}</p>
             </>
           ) : result ? (
             <div className="animate-scale-in">
