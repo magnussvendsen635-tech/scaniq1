@@ -7,9 +7,11 @@ import { toast } from "sonner";
 import { LANGUAGES } from "@/data/languages";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useT } from "@/i18n/useT";
 
 export default function Settings() {
   const nav = useNavigate();
+  const t = useT();
   const { user, updateUser, language, setLanguage } = useKStore();
   const [form, setForm] = useState(user);
   const [langOpen, setLangOpen] = useState(false);
@@ -19,7 +21,7 @@ export default function Settings() {
 
   const save = () => {
     updateUser(form);
-    toast.success("Saved", { description: "Your plan is updated everywhere." });
+    toast.success(t("settings.saved"), { description: t("settings.saved_desc") });
     nav("/profile");
   };
 
