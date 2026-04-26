@@ -2,13 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, type Goal, type Activity } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { LANGUAGES } from "@/data/languages";
+import { LanguagePicker } from "@/components/LanguagePicker";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function Settings() {
   const nav = useNavigate();
-  const { user, updateUser } = useKStore();
+  const { user, updateUser, language, setLanguage } = useKStore();
   const [form, setForm] = useState(user);
+  const [langOpen, setLangOpen] = useState(false);
+  const currentLang = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];
 
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm({ ...form, [k]: v });
 
