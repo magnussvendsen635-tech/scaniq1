@@ -4,24 +4,27 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Crown, Check, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useT } from "@/i18n/useT";
+import type { TKey } from "@/i18n/translations";
 
-const features = [
-  "Unlimited food scans",
-  "Advanced macro insights",
-  "1000+ premium workouts",
-  "Custom meal plans",
-  "Progress trends & exports",
-  "Priority new features",
+const featureKeys: TKey[] = [
+  "premium.feat_scans",
+  "premium.feat_macros",
+  "premium.feat_workouts",
+  "premium.feat_meal_plans",
+  "premium.feat_trends",
+  "premium.feat_priority",
 ];
 
 export default function Premium() {
   const nav = useNavigate();
+  const t = useT();
   const { setPremium, premium } = useKStore();
   const [plan, setPlan] = useState<"month" | "year">("year");
 
   const upgrade = () => {
     setPremium(true);
-    toast.success("Welcome to Premium 🎉", { description: "All features unlocked." });
+    toast.success(t("premium.welcome"), { description: t("premium.welcome_sub") });
     nav("/profile");
   };
 
@@ -31,24 +34,24 @@ export default function Premium() {
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight">Premium</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("premium.title")}</h1>
       </header>
 
       <div className="k-card p-6 mb-5 bg-gradient-primary !border-transparent shadow-glow text-center">
         <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center mx-auto mb-3">
           <Crown className="w-7 h-7 text-white" />
         </div>
-        <h2 className="text-2xl font-semibold text-white">Unlock KCALLY Pro</h2>
-        <p className="text-sm text-white/80 mt-1">Everything you need to reach your goal.</p>
+        <h2 className="text-2xl font-semibold text-white">{t("premium.unlock")}</h2>
+        <p className="text-sm text-white/80 mt-1">{t("premium.unlock_sub")}</p>
       </div>
 
       <div className="space-y-2 mb-5">
-        {features.map((f) => (
-          <div key={f} className="k-card p-4 flex items-center gap-3">
+        {featureKeys.map((k) => (
+          <div key={k} className="k-card p-4 flex items-center gap-3">
             <div className="w-7 h-7 rounded-full bg-gradient-soft flex items-center justify-center">
               <Check className="w-4 h-4 text-primary-glow" />
             </div>
-            <span className="text-sm">{f}</span>
+            <span className="text-sm">{t(k)}</span>
           </div>
         ))}
       </div>
@@ -57,19 +60,19 @@ export default function Premium() {
         <PlanOption
           active={plan === "month"}
           onClick={() => setPlan("month")}
-          title="Monthly"
+          title={t("premium.monthly")}
           price="$19"
-          unit="/ month"
-          sub="Cancel anytime"
+          unit={t("premium.per_month")}
+          sub={t("premium.cancel_anytime")}
         />
         <PlanOption
           active={plan === "year"}
           onClick={() => setPlan("year")}
-          title="Yearly"
+          title={t("premium.yearly")}
           price="$189"
-          unit="/ year"
-          sub="Pay once, get full access"
-          badge="Best Value"
+          unit={t("premium.per_year")}
+          sub={t("premium.pay_once")}
+          badge={t("premium.best_value")}
         />
       </div>
 
@@ -79,7 +82,7 @@ export default function Premium() {
         className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
       >
         <Sparkles className="w-5 h-5 mr-2" />
-        {premium ? "You're Premium" : "Upgrade now"}
+        {premium ? t("premium.youre_premium") : t("premium.upgrade_now")}
       </Button>
     </div>
   );
