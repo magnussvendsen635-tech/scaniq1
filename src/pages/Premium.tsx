@@ -69,10 +69,10 @@ export default function Premium() {
           active={plan === "year"}
           onClick={() => setPlan("year")}
           title={t("premium.yearly")}
-          price="$189"
+          price="$179"
           unit={t("premium.per_year")}
-          sub={t("premium.pay_once")}
-          badge={t("premium.best_value")}
+          sub={t("premium.lifetime")}
+          badge={t("premium.best_price")}
         />
       </div>
 

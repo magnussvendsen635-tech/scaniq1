@@ -2,12 +2,13 @@ import { Link } from "react-router-dom";
 import { useKStore, caloriesToday, macrosToday, caloriesBurnedToday } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Ring } from "@/components/Ring";
-import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight } from "lucide-react";
+import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles } from "lucide-react";
 import { useT } from "@/i18n/useT";
+import { PremiumLock } from "@/components/PremiumLock";
 
 export default function Home() {
   const t = useT();
-  const { user, meals, workouts, streak } = useKStore();
+  const { user, meals, workouts, streak, premium } = useKStore();
   const eaten = caloriesToday(meals);
   const burned = caloriesBurnedToday(workouts);
   const remaining = Math.max(0, user.calories - eaten + burned);
@@ -45,11 +46,41 @@ export default function Home() {
       </div>
 
       {/* Macros */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        <MacroBar label={t("home.protein")} value={m.protein} target={user.protein} />
-        <MacroBar label={t("home.carbs")} value={m.carbs} target={user.carbs} />
-        <MacroBar label={t("home.fat")} value={m.fat} target={user.fat} />
-      </div>
+      {premium ? (
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          <MacroBar label={t("home.protein")} value={m.protein} target={user.protein} />
+          <MacroBar label={t("home.carbs")} value={m.carbs} target={user.carbs} />
+          <MacroBar label={t("home.fat")} value={m.fat} target={user.fat} />
+        </div>
+      ) : (
+        <div className="mb-5">
+          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">{t("home.macros")}</div>
+          <PremiumLock>
+            <div className="grid grid-cols-3 gap-3">
+              <MacroBar label={t("home.protein")} value={m.protein} target={user.protein} />
+              <MacroBar label={t("home.carbs")} value={m.carbs} target={user.carbs} />
+              <MacroBar label={t("home.fat")} value={m.fat} target={user.fat} />
+            </div>
+          </PremiumLock>
+        </div>
+      )}
+
+      {/* Premium insights */}
+      {!premium && (
+        <div className="grid grid-cols-1 gap-3 mb-5">
+          <PremiumLock>
+            <InsightCard Icon={Heart} title={t("home.heart_healthy")} rows={[["Sodium", "—/2300mg"], ["Cholesterol", "—/300mg"], ["Sat. fat", "—/20g"]]} />
+          </PremiumLock>
+          <div className="grid grid-cols-2 gap-3">
+            <PremiumLock>
+              <InsightCard Icon={Leaf} title={t("home.low_carb")} rows={[["Net carbs", "—g"], ["Sugar", "—g"], ["Fiber", "—g"]]} />
+            </PremiumLock>
+            <PremiumLock>
+              <InsightCard Icon={Sparkles} title={t("home.custom_overview")} rows={[["Carbs", "—g"], ["Fat", "—g"], ["Protein", "—g"]]} />
+            </PremiumLock>
+          </div>
+        </div>
+      )}
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3">
@@ -83,6 +114,25 @@ const MacroBar = ({ label, value, target }: { label: string; value: number; targ
     </div>
   );
 };
+
+const InsightCard = ({ Icon, title, rows }: { Icon: any; title: string; rows: [string, string][] }) => (
+  <div className="k-card p-5">
+    <div className="flex items-center gap-2 mb-3">
+      <div className="w-8 h-8 rounded-xl bg-gradient-soft flex items-center justify-center">
+        <Icon className="w-4 h-4 text-primary-glow" />
+      </div>
+      <span className="font-semibold text-sm">{title}</span>
+    </div>
+    <div className="space-y-2">
+      {rows.map(([label, value]) => (
+        <div key={label} className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">{label}</span>
+          <span className="font-medium">{value}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 const ActionCard = ({ to, Icon, title, sub, gradient }: { to: string; Icon: any; title: string; sub: string; gradient?: boolean }) => (
   <Link
