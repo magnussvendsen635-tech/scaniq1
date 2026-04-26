@@ -6,6 +6,7 @@ import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
+import { PremiumLock } from "@/components/PremiumLock";
 
 interface Result {
   name: string;
@@ -21,7 +22,7 @@ const rand = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) +
 export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
-  const { user, meals, addMeal, streak } = useKStore();
+  const { user, meals, addMeal, streak, premium } = useKStore();
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
@@ -103,6 +104,22 @@ export default function FoodScan() {
         <h1 className="text-2xl font-semibold tracking-tight">{t("scan.title")}</h1>
       </header>
 
+      {!premium ? (
+        <PremiumLock>
+          <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border border-border/60 bg-gradient-surface mb-5">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,hsl(var(--primary)/0.18),transparent_60%)]" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+              <Camera className="w-14 h-14 text-muted-foreground/70 mb-3" />
+              <p className="text-muted-foreground text-sm">{t("scan.point")}</p>
+            </div>
+          </div>
+          <Button className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
+            {t("scan.cta")}
+          </Button>
+        </PremiumLock>
+      ) : (
+        <>
+
       {/* Camera viewport */}
       <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border border-border/60 bg-gradient-surface mb-5">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,hsl(var(--primary)/0.18),transparent_60%)]" />
@@ -177,6 +194,8 @@ export default function FoodScan() {
             <Button onClick={save} className="h-12 rounded-2xl bg-gradient-primary shadow-glow hover:opacity-90 font-semibold">{t("scan.add_to_diary")}</Button>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );
