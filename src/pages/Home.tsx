@@ -33,30 +33,30 @@ export default function Home() {
           <Ring value={Math.min(1, eaten / Math.max(1, user.calories))} size={220}>
             <div className="text-center">
               <div className="text-5xl font-semibold tracking-tight k-gradient-text">{remaining}</div>
-              <div className="text-xs text-muted-foreground mt-1 tracking-widest uppercase">kcal left</div>
+              <div className="text-xs text-muted-foreground mt-1 tracking-widest uppercase">{t("home.kcal_left")}</div>
             </div>
           </Ring>
           <div className="mt-6 grid grid-cols-3 w-full text-center">
-            <Stat label="Goal" value={user.calories} />
-            <Stat label="Eaten" value={eaten} accent />
-            <Stat label="Burned" value={burned} />
+            <Stat label={t("home.goal")} value={user.calories} />
+            <Stat label={t("home.eaten")} value={eaten} accent />
+            <Stat label={t("home.burned")} value={burned} />
           </div>
         </div>
       </div>
 
       {/* Macros */}
       <div className="grid grid-cols-3 gap-3 mb-5">
-        <MacroBar label="Protein" value={m.protein} target={user.protein} />
-        <MacroBar label="Carbs" value={m.carbs} target={user.carbs} />
-        <MacroBar label="Fat" value={m.fat} target={user.fat} />
+        <MacroBar label={t("home.protein")} value={m.protein} target={user.protein} />
+        <MacroBar label={t("home.carbs")} value={m.carbs} target={user.carbs} />
+        <MacroBar label={t("home.fat")} value={m.fat} target={user.fat} />
       </div>
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3">
-        <ActionCard to="/scan" Icon={Camera} title="Log Food" sub="Scan a meal" gradient />
-        <ActionCard to="/workouts" Icon={Dumbbell} title="Workouts" sub="Burn calories" />
-        <ActionCard to="/progress" Icon={BarChart3} title="Progress" sub="See your week" />
-        <ActionCard to="/profile" Icon={User} title="Profile" sub="Settings & plan" />
+        <ActionCard to="/scan" Icon={Camera} title={t("home.log_food")} sub={t("home.scan_meal")} gradient />
+        <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
+        <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
+        <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
       </div>
     </div>
   );
