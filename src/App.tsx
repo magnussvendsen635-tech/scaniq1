@@ -4,8 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useKStore } from "@/store/useKStore";
+import { useAuth } from "@/hooks/useAuth";
 import { TabBar } from "@/components/TabBar";
 
+import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
 import FoodScan from "./pages/FoodScan";
@@ -28,6 +30,8 @@ const Shell = ({ children }: { children: React.ReactNode }) => (
 
 const App = () => {
   const onboarded = useKStore((s) => s.onboarded);
+  const { session, loading } = useAuth();
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -35,8 +39,13 @@ const App = () => {
         <Sonner theme="dark" />
         <BrowserRouter>
           <Routes>
+            <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            {!onboarded ? (
+            {loading ? (
+              <Route path="*" element={<div className="min-h-screen bg-background" />} />
+            ) : !session ? (
+              <Route path="*" element={<Navigate to="/auth" replace />} />
+            ) : !onboarded ? (
               <Route path="*" element={<Navigate to="/onboarding" replace />} />
             ) : (
               <>
