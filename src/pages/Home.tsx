@@ -2,12 +2,13 @@ import { Link } from "react-router-dom";
 import { useKStore, caloriesToday, macrosToday, caloriesBurnedToday } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Ring } from "@/components/Ring";
-import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight } from "lucide-react";
+import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles } from "lucide-react";
 import { useT } from "@/i18n/useT";
+import { PremiumLock } from "@/components/PremiumLock";
 
 export default function Home() {
   const t = useT();
-  const { user, meals, workouts, streak } = useKStore();
+  const { user, meals, workouts, streak, premium } = useKStore();
   const eaten = caloriesToday(meals);
   const burned = caloriesBurnedToday(workouts);
   const remaining = Math.max(0, user.calories - eaten + burned);
