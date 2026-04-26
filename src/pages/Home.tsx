@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useKStore, caloriesToday, macrosToday, caloriesBurnedToday } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Ring } from "@/components/Ring";
-import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles } from "lucide-react";
+import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 import { StreakCard } from "@/components/StreakCard";
@@ -109,7 +109,7 @@ export default function Home() {
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3">
-        <ActionCard to="/scan" Icon={Camera} title={t("home.log_food")} sub={t("home.scan_meal")} gradient />
+        <ScannerCard />
         <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
         <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
         <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
@@ -117,6 +117,36 @@ export default function Home() {
     </div>
   );
 }
+
+const ScannerCard = () => {
+  const t = useT();
+  return (
+    <Link
+      to="/scan"
+      className="k-card k-tap p-5 flex flex-col gap-3 group bg-primary relative overflow-hidden"
+    >
+      {/* Scanner viewfinder visual */}
+      <div className="relative w-14 h-14 rounded-2xl bg-foreground border-[3px] border-foreground flex items-center justify-center overflow-hidden">
+        {/* Corner brackets */}
+        <span className="absolute top-1 left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-primary rounded-tl-sm" />
+        <span className="absolute top-1 right-1 w-2.5 h-2.5 border-t-2 border-r-2 border-primary rounded-tr-sm" />
+        <span className="absolute bottom-1 left-1 w-2.5 h-2.5 border-b-2 border-l-2 border-primary rounded-bl-sm" />
+        <span className="absolute bottom-1 right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-primary rounded-br-sm" />
+        {/* Scan line */}
+        <span className="absolute left-1.5 right-1.5 h-0.5 bg-primary shadow-[0_0_8px_hsl(var(--primary))] animate-scan-line" />
+        <Camera className="w-6 h-6 text-background relative z-10" strokeWidth={2.5} />
+      </div>
+      <div>
+        <div className="font-semibold text-foreground flex items-center gap-1.5">
+          {t("home.log_food")}
+          <ScanLine className="w-3.5 h-3.5" />
+        </div>
+        <div className="text-xs text-foreground/80">{t("home.scan_meal")}</div>
+      </div>
+      <ChevronRight className="w-4 h-4 ml-auto -mt-6 text-foreground" />
+    </Link>
+  );
+};
 
 const Stat = ({ label, value, accent = false }: { label: string; value: number; accent?: boolean }) => (
   <div>
