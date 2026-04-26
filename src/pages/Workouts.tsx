@@ -80,7 +80,7 @@ export default function Workouts() {
           </div>
           <div className="flex-1">
             <div className="text-sm font-semibold text-white">Unlock workouts with Premium</div>
-            <div className="text-xs text-white/80">Get full access to 200+ exercises</div>
+            <div className="text-xs text-white/80">Get full access to 1000+ exercises</div>
           </div>
         </button>
       )}
