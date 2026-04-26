@@ -3,6 +3,9 @@ import { persist } from "zustand/middleware";
 
 export type Goal = "lose" | "gain" | "maintain";
 export type Activity = "sedentary" | "light" | "moderate" | "active" | "athlete";
+export type Pace = "aggressive" | "balanced" | "slow";
+export type Frequency = "0-1" | "2-3" | "4+";
+export type Diet = "none" | "high-protein" | "low-carb" | "vegetarian";
 
 export interface Meal {
   id: string;
@@ -24,10 +27,15 @@ export interface WorkoutLog {
 }
 
 export interface UserProfile {
+  age: number;
   weight: number; // kg
+  targetWeight: number; // kg
   height: number; // cm
   goal: Goal;
   activity: Activity;
+  pace: Pace;
+  frequency: Frequency;
+  diet: Diet;
   calories: number;
   protein: number;
   carbs: number;
@@ -61,10 +69,15 @@ export const useKStore = create<KState>()(
     (set, get) => ({
       onboarded: false,
       user: {
+        age: 28,
         weight: 75,
+        targetWeight: 70,
         height: 175,
         goal: "lose",
         activity: "moderate",
+        pace: "balanced",
+        frequency: "2-3",
+        diet: "none",
         calories: 2200,
         protein: 150,
         carbs: 220,
