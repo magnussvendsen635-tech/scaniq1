@@ -44,8 +44,9 @@ const diets: { id: Diet; title: string; sub: string; Icon: any }[] = [
 
 export default function Onboarding() {
   const nav = useNavigate();
-  const { user, updateUser, setOnboarded } = useKStore();
+  const { user, updateUser, setOnboarded, language, setLanguage } = useKStore();
   const [step, setStep] = useState(0);
+  const [lang, setLang] = useState(language);
   const [goal, setGoal] = useState<Goal>(user.goal);
   const [age, setAge] = useState(user.age);
   const [weight, setWeight] = useState(user.weight);
@@ -74,6 +75,7 @@ export default function Onboarding() {
 
   const finish = () => {
     if (!plan) return;
+    setLanguage(lang);
     updateUser({ age, weight, targetWeight, height, goal, activity, pace, frequency, diet, ...plan });
     setOnboarded(true);
     nav("/", { replace: true });
