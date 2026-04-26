@@ -6,6 +6,7 @@ import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sp
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 import { StreakCard } from "@/components/StreakCard";
+import { HealthScoreCard } from "@/components/HealthScoreCard";
 
 export default function Home() {
   const t = useT();
@@ -46,8 +47,28 @@ export default function Home() {
             <Stat label={t("home.eaten")} value={eaten} accent />
             <Stat label={t("home.burned")} value={burned} />
           </div>
+          {/* Tracking progress bar */}
+          <div className="mt-5 w-full">
+            <div className="flex items-baseline justify-between mb-1.5">
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                {Math.round(Math.min(100, (eaten / Math.max(1, user.calories)) * 100))}% {t("home.of_goal")}
+              </span>
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                {Math.max(0, user.calories - eaten)} {t("home.kcal_remaining")}
+              </span>
+            </div>
+            <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-primary rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, (eaten / Math.max(1, user.calories)) * 100)}%` }}
+              />
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Daily health verdict */}
+      <HealthScoreCard />
 
       {/* Macros */}
       {premium ? (

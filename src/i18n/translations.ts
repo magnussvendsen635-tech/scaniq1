@@ -43,6 +43,11 @@ export type TKey =
   | "premium.best_price" | "premium.lifetime"
   | "home.macros" | "home.heart_healthy" | "home.low_carb" | "home.custom_overview"
   | "home.get_premium" | "home.locked_sub"
+  | "home.of_goal" | "home.kcal_eaten_today" | "home.kcal_remaining"
+  | "health.title" | "health.healthy" | "health.healthy_sub"
+  | "health.ok" | "health.ok_sub"
+  | "health.unhealthy" | "health.unhealthy_sub"
+  | "health.empty" | "health.empty_sub"
   | "onboarding.choose_language" | "onboarding.choose_language_sub"
   | "onboarding.q_goal" | "onboarding.q_goal_sub"
   | "onboarding.q_age" | "onboarding.q_age_sub"
@@ -141,6 +146,12 @@ const en: Record<TKey, string> = {
   "premium.best_price": "Best Price", "premium.lifetime": "lifetime access",
   "home.macros": "Macros", "home.heart_healthy": "Heart-healthy", "home.low_carb": "Low-carb", "home.custom_overview": "Custom overview",
   "home.get_premium": "Get Premium", "home.locked_sub": "Unlock with Premium",
+  "home.of_goal": "of daily goal", "home.kcal_eaten_today": "kcal eaten today", "home.kcal_remaining": "kcal remaining",
+  "health.title": "Today's health score",
+  "health.healthy": "Healthy day", "health.healthy_sub": "Great protein and balance — keep it up!",
+  "health.ok": "OK day", "health.ok_sub": "Decent intake, but balance could improve.",
+  "health.unhealthy": "Unhealthy day", "health.unhealthy_sub": "Too much junk or low protein — adjust your next meal.",
+  "health.empty": "Log a meal to get a score", "health.empty_sub": "Your daily health score appears once you start tracking.",
   "onboarding.choose_language": "Choose your language",
   "onboarding.choose_language_sub": "You can change this later in Settings.",
   "onboarding.q_goal": "What's your goal?", "onboarding.q_goal_sub": "We'll tune your plan around it.",
@@ -244,6 +255,12 @@ const da: Dict = {
   "premium.best_price": "Bedste pris", "premium.lifetime": "livstidsadgang",
   "home.macros": "Makroer", "home.heart_healthy": "Hjertesund", "home.low_carb": "Lavt kulhydratindhold", "home.custom_overview": "Tilpasset oversigt",
   "home.get_premium": "Få Premium", "home.locked_sub": "Lås op med Premium",
+  "home.of_goal": "af dagligt mål", "home.kcal_eaten_today": "kcal spist i dag", "home.kcal_remaining": "kcal tilbage",
+  "health.title": "Dagens sundhedsscore",
+  "health.healthy": "Sund dag", "health.healthy_sub": "God protein og balance — fortsæt sådan!",
+  "health.ok": "OK dag", "health.ok_sub": "Fint indtag, men balancen kan blive bedre.",
+  "health.unhealthy": "Usund dag", "health.unhealthy_sub": "For meget junk eller lav protein — juster næste måltid.",
+  "health.empty": "Log et måltid for at få en score", "health.empty_sub": "Din daglige sundhedsscore vises, når du begynder at tracke.",
   "onboarding.choose_language": "Vælg dit sprog",
   "onboarding.choose_language_sub": "Du kan ændre det senere under Indstillinger.",
   "onboarding.q_goal": "Hvad er dit mål?", "onboarding.q_goal_sub": "Vi tilpasser planen efter det.",
