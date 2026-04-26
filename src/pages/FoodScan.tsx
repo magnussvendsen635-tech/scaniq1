@@ -146,7 +146,7 @@ export default function FoodScan() {
           onClick={scan}
           className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
         >
-          {scanning ? "Scanning…" : "Scan Food"}
+          {scanning ? t("scan.scanning") : t("scan.cta")}
         </Button>
       )}
 
