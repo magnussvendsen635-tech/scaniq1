@@ -7,10 +7,21 @@ import { Flame, Play, Pause, RotateCcw, Search, X, Lock } from "lucide-react";
 import { Ring } from "@/components/Ring";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/useT";
+import type { TKey } from "@/i18n/translations";
 
 const CATS = ["All", "Cardio", "HIIT", "Strength", "Mobility", "Sport"] as const;
+const CAT_KEYS: Record<(typeof CATS)[number], TKey> = {
+  All: "workouts.cat_all",
+  Cardio: "workouts.cat_cardio",
+  HIIT: "workouts.cat_hiit",
+  Strength: "workouts.cat_strength",
+  Mobility: "workouts.cat_mobility",
+  Sport: "workouts.cat_sport",
+};
 
 export default function Workouts() {
+  const t = useT();
   const { addWorkout, premium } = useKStore();
   const nav = useNavigate();
   const [q, setQ] = useState("");
@@ -62,13 +73,13 @@ export default function Workouts() {
       caloriesBurned: burnedNow,
       at: Date.now(),
     });
-    toast.success("Workout logged", { description: `${burnedNow} kcal burned` });
+    toast.success(t("workouts.logged"), { description: `${burnedNow} ${t("workouts.kcal_burned")}` });
     close();
   };
 
   return (
     <div className="k-page">
-      <h1 className="text-3xl font-semibold tracking-tight mb-5">Train</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-5">{t("workouts.title")}</h1>
 
       {!premium && (
         <button
@@ -79,8 +90,8 @@ export default function Workouts() {
             <Lock className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <div className="text-sm font-semibold text-white">Unlock workouts with Premium</div>
-            <div className="text-xs text-white/80">Get full access to 1000+ exercises</div>
+            <div className="text-sm font-semibold text-white">{t("workouts.unlock")}</div>
+            <div className="text-xs text-white/80">{t("workouts.unlock_sub")}</div>
           </div>
         </button>
       )}
@@ -90,7 +101,7 @@ export default function Workouts() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search exercises"
+          placeholder={t("workouts.search")}
           className="w-full h-12 rounded-2xl bg-card border border-border/60 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/60"
         />
       </div>
@@ -105,7 +116,7 @@ export default function Workouts() {
               cat === c ? "bg-gradient-primary text-white shadow-glow" : "bg-card border border-border/60 text-muted-foreground"
             )}
           >
-            {c}
+            {t(CAT_KEYS[c])}
           </button>
         ))}
       </div>
@@ -116,7 +127,7 @@ export default function Workouts() {
             key={e.name}
             onClick={() => {
               if (!premium) {
-                toast("Unlock workouts with Premium", { description: "Upgrade to access all exercises." });
+                toast(t("workouts.upgrade_toast"), { description: t("workouts.upgrade_toast_sub") });
                 nav("/premium");
                 return;
               }
@@ -161,14 +172,14 @@ export default function Workouts() {
                   <div className="text-4xl font-semibold tracking-tight tabular-nums k-gradient-text">
                     {String(Math.floor(elapsed / 60)).padStart(2, "0")}:{String(elapsed % 60).padStart(2, "0")}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1 tracking-widest uppercase">{burnedNow} kcal</div>
+                  <div className="text-xs text-muted-foreground mt-1 tracking-widest uppercase">{burnedNow} {t("common.kcal")}</div>
                 </div>
               </Ring>
             </div>
 
             <div className="mb-6">
               <div className="flex justify-between text-xs text-muted-foreground mb-2">
-                <span>Duration</span>
+                <span>{t("workouts.duration")}</span>
                 <span>
                   {duration < 60
                     ? `${duration} min`
@@ -177,7 +188,6 @@ export default function Workouts() {
                     : `${Math.floor(duration / 60)} h ${duration % 60} min`}
                 </span>
               </div>
-              {/* 0-60: 1 min steps. 60-360: 15 min steps. Slider index 0..80 */}
               <input
                 type="range"
                 min={1}
@@ -206,10 +216,10 @@ export default function Workouts() {
                 onClick={() => setRunning((r) => !r)}
                 className="h-12 rounded-2xl bg-gradient-primary shadow-glow font-semibold col-span-1"
               >
-                {running ? <><Pause className="w-4 h-4 mr-1" />Pause</> : <><Play className="w-4 h-4 mr-1" />Start</>}
+                {running ? <><Pause className="w-4 h-4 mr-1" />{t("workouts.pause")}</> : <><Play className="w-4 h-4 mr-1" />{t("workouts.start")}</>}
               </Button>
               <Button onClick={finish} variant="outline" className="h-12 rounded-2xl border-border bg-card font-semibold">
-                Save
+                {t("common.save")}
               </Button>
             </div>
           </div>
