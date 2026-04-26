@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, caloriesToday } from "@/store/useKStore";
 import { FOOD_NAMES } from "@/data/exercises";
-import { Camera, Sparkles, ArrowLeft, Heart, Check } from "lucide-react";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
