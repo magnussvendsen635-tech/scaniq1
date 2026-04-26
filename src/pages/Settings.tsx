@@ -33,6 +33,20 @@ export default function Settings() {
       </header>
 
       <div className="space-y-3">
+        <Section title="App">
+          <button
+            onClick={() => setLangOpen(true)}
+            className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
+          >
+            <span className="text-sm">Language</span>
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-lg leading-none">{currentLang.flag}</span>
+              <span>{currentLang.native}</span>
+              <ChevronRight className="w-4 h-4" />
+            </span>
+          </button>
+        </Section>
+
         <Section title="Body">
           <Field label="Weight (kg)">
             <NumInput value={form.weight} onChange={(n) => set("weight", n)} />
