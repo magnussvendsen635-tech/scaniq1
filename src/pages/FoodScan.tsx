@@ -202,13 +202,24 @@ export default function FoodScan() {
       </div>
 
       {!result && (
-        <Button
-          disabled={scanning}
-          onClick={scan}
-          className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
-        >
-          {scanning ? t("scan.scanning") : t("scan.cta")}
-        </Button>
+        <>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={onPick}
+          />
+          <Button
+            disabled={scanning}
+            onClick={() => fileRef.current?.click()}
+            className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
+          >
+            <Camera className="w-5 h-5 mr-1" />
+            {scanning ? t("scan.scanning") : t("scan.cta")}
+          </Button>
+        </>
       )}
 
       {result && (
@@ -234,7 +245,7 @@ export default function FoodScan() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <Button variant="outline" onClick={scan} className="h-12 rounded-2xl border-border bg-card">{t("scan.rescan")}</Button>
+            <Button variant="outline" onClick={() => { setResult(null); setPreview(null); fileRef.current?.click(); }} className="h-12 rounded-2xl border-border bg-card">{t("scan.rescan")}</Button>
             <Button onClick={save} className="h-12 rounded-2xl bg-gradient-primary shadow-glow hover:opacity-90 font-semibold">{t("scan.add_to_diary")}</Button>
           </div>
         </div>
