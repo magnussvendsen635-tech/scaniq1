@@ -106,11 +106,13 @@ export default function FoodScan() {
 
       {!premium ? (
         <PremiumLock>
-          <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border border-border/60 bg-gradient-surface mb-5">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,hsl(var(--primary)/0.18),transparent_60%)]" />
+          <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-foreground mb-5 shadow-card">
+            <ScannerBackdrop />
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-              <Camera className="w-14 h-14 text-muted-foreground/70 mb-3" />
-              <p className="text-muted-foreground text-sm">{t("scan.point")}</p>
+              <div className="w-16 h-16 rounded-2xl bg-primary border-[3px] border-background flex items-center justify-center mb-3">
+                <Camera className="w-8 h-8 text-background" />
+              </div>
+              <p className="text-background/80 text-sm font-medium">{t("scan.point")}</p>
             </div>
           </div>
           <Button className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
@@ -121,37 +123,45 @@ export default function FoodScan() {
         <>
 
       {/* Camera viewport */}
-      <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border border-border/60 bg-gradient-surface mb-5">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,hsl(var(--primary)/0.18),transparent_60%)]" />
+      <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-foreground mb-5 shadow-card">
+        <ScannerBackdrop />
         {/* Corner brackets */}
         {[
-          "top-6 left-6 border-t-2 border-l-2",
-          "top-6 right-6 border-t-2 border-r-2",
-          "bottom-6 left-6 border-b-2 border-l-2",
-          "bottom-6 right-6 border-b-2 border-r-2",
+          "top-6 left-6 border-t-[3px] border-l-[3px]",
+          "top-6 right-6 border-t-[3px] border-r-[3px]",
+          "bottom-6 left-6 border-b-[3px] border-l-[3px]",
+          "bottom-6 right-6 border-b-[3px] border-r-[3px]",
         ].map((c, i) => (
-          <div key={i} className={`absolute w-10 h-10 rounded-md border-primary/70 ${c}`} />
+          <div key={i} className={`absolute w-12 h-12 rounded-md border-primary ${c}`} />
         ))}
+        {/* Scan line */}
+        {scanning && (
+          <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
+        )}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
           {scanning ? (
             <>
               <div className="relative w-20 h-20 mb-4">
-                <div className="absolute inset-0 rounded-full bg-gradient-primary animate-ping opacity-40" />
-                <div className="absolute inset-0 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
-                  <Sparkles className="w-9 h-9 text-white" />
+                <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-40" />
+                <div className="absolute inset-0 rounded-full bg-primary border-[3px] border-background flex items-center justify-center">
+                  <Sparkles className="w-9 h-9 text-background" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">{t("scan.identifying")}</p>
+              <p className="text-sm text-background/80 font-medium">{t("scan.identifying")}</p>
             </>
           ) : result ? (
             <div className="animate-scale-in">
-              <Check className="w-14 h-14 mx-auto text-primary-glow mb-2" />
-              <p className="text-2xl font-semibold">{result.name}</p>
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary border-[3px] border-background flex items-center justify-center mb-3">
+                <Check className="w-8 h-8 text-background" strokeWidth={3} />
+              </div>
+              <p className="text-2xl font-bold text-background">{result.name}</p>
             </div>
           ) : (
             <>
-              <Camera className="w-14 h-14 text-muted-foreground/70 mb-3" />
-              <p className="text-muted-foreground text-sm">{t("scan.point")}</p>
+              <div className="w-16 h-16 rounded-2xl bg-primary border-[3px] border-background flex items-center justify-center mb-3">
+                <Camera className="w-8 h-8 text-background" />
+              </div>
+              <p className="text-background/80 text-sm font-medium">{t("scan.point")}</p>
             </>
           )}
         </div>
@@ -206,4 +216,22 @@ const Macro = ({ label, value }: { label: string; value: number }) => (
     <div className="text-2xl font-semibold">{value}<span className="text-sm text-muted-foreground">g</span></div>
     <div className="text-[10px] tracking-widest uppercase text-muted-foreground mt-1">{label}</div>
   </div>
+);
+
+const ScannerBackdrop = () => (
+  <>
+    {/* Subtle grid pattern */}
+    <div
+      className="absolute inset-0 opacity-[0.08]"
+      style={{
+        backgroundImage:
+          "linear-gradient(hsl(var(--background)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--background)) 1px, transparent 1px)",
+        backgroundSize: "24px 24px",
+      }}
+    />
+    {/* Soft primary glow from center */}
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,hsl(var(--primary)/0.35),transparent_65%)]" />
+    {/* Vignette */}
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_55%,hsl(var(--foreground))_100%)] opacity-60" />
+  </>
 );
