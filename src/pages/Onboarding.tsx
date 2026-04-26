@@ -101,7 +101,10 @@ export default function Onboarding() {
 
       <div className="flex-1 animate-fade-in" key={step}>
         {step === 0 && (
-          <Step title="Choose your language" sub="You can change this later in Settings.">
+          <Step
+            title={translate(lang, "onboarding.choose_language")}
+            sub={translate(lang, "onboarding.choose_language_sub")}
+          >
             <LanguagePicker value={lang} onChange={setLang} />
           </Step>
         )}
