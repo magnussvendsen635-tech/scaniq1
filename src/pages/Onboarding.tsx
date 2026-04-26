@@ -1,53 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { LanguagePicker } from "@/components/LanguagePicker";
-import { translate } from "@/i18n/translations";
+import { translate, type TKey } from "@/i18n/translations";
 import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TOTAL_QUESTIONS = 10; // steps 0..9 (0 = language)
-
-const goals: { id: Goal; title: string; sub: string; Icon: any }[] = [
-  { id: "lose", title: "Lose Fat", sub: "Cut calories smartly", Icon: TrendingDown },
-  { id: "gain", title: "Gain Muscle", sub: "Build lean mass", Icon: TrendingUp },
-  { id: "maintain", title: "Maintain", sub: "Stay in shape", Icon: ActivityIcon },
-];
-
-const activities: { id: Activity; title: string; sub: string }[] = [
-  { id: "sedentary", title: "Sedentary", sub: "Little / no exercise" },
-  { id: "light", title: "Light", sub: "1–3 days / week" },
-  { id: "moderate", title: "Moderate", sub: "3–5 days / week" },
-  { id: "active", title: "Active", sub: "6–7 days / week" },
-  { id: "athlete", title: "Athlete", sub: "2x daily training" },
-];
-
-const paces: { id: Pace; title: string; sub: string; Icon: any }[] = [
-  { id: "aggressive", title: "Aggressive", sub: "Fastest results", Icon: Zap },
-  { id: "balanced", title: "Balanced", sub: "Steady & sustainable", Icon: Scale },
-  { id: "slow", title: "Slow & steady", sub: "Easiest to maintain", Icon: ActivityIcon },
-];
-
-const frequencies: { id: Frequency; title: string; sub: string }[] = [
-  { id: "0-1", title: "0–1 times / week", sub: "Just getting started" },
-  { id: "2-3", title: "2–3 times / week", sub: "Casual training" },
-  { id: "4+", title: "4+ times / week", sub: "Consistent athlete" },
-];
-
-const diets: { id: Diet; title: string; sub: string; Icon: any }[] = [
-  { id: "none", title: "No preference", sub: "I eat everything", Icon: ActivityIcon },
-  { id: "high-protein", title: "High protein", sub: "Muscle-focused", Icon: TrendingUp },
-  { id: "low-carb", title: "Low carb", sub: "Cut the carbs", Icon: TrendingDown },
-  { id: "vegetarian", title: "Vegetarian", sub: "Plant-based", Icon: Leaf },
-];
 
 export default function Onboarding() {
   const nav = useNavigate();
   const { user, updateUser, setOnboarded, language, setLanguage } = useKStore();
   const [step, setStep] = useState(0);
   const [lang, setLang] = useState(language);
+  const tt = (k: TKey) => translate(lang, k);
   const [goal, setGoal] = useState<Goal>(user.goal);
   const [age, setAge] = useState(user.age);
   const [weight, setWeight] = useState(user.weight);
@@ -60,18 +28,54 @@ export default function Onboarding() {
   const [loadingMsg, setLoadingMsg] = useState("");
   const [plan, setPlan] = useState<{ calories: number; protein: number; carbs: number; fat: number } | null>(null);
 
+  // Sync language live so other components reading from store update.
+  useEffect(() => { setLanguage(lang); }, [lang, setLanguage]);
+
+  const goals: { id: Goal; titleKey: TKey; subKey: TKey; Icon: any }[] = [
+    { id: "lose", titleKey: "goal.lose", subKey: "onboarding.goal_lose_sub", Icon: TrendingDown },
+    { id: "gain", titleKey: "goal.gain", subKey: "onboarding.goal_gain_sub", Icon: TrendingUp },
+    { id: "maintain", titleKey: "goal.maintain", subKey: "onboarding.goal_maintain_sub", Icon: ActivityIcon },
+  ];
+
+  const activities: { id: Activity; titleKey: TKey; subKey: TKey }[] = [
+    { id: "sedentary", titleKey: "activity.sedentary", subKey: "onboarding.act_sedentary_sub" },
+    { id: "light", titleKey: "activity.light", subKey: "onboarding.act_light_sub" },
+    { id: "moderate", titleKey: "activity.moderate", subKey: "onboarding.act_moderate_sub" },
+    { id: "active", titleKey: "activity.active", subKey: "onboarding.act_active_sub" },
+    { id: "athlete", titleKey: "activity.athlete", subKey: "onboarding.act_athlete_sub" },
+  ];
+
+  const paces: { id: Pace; titleKey: TKey; subKey: TKey; Icon: any }[] = [
+    { id: "aggressive", titleKey: "onboarding.pace_aggressive", subKey: "onboarding.pace_aggressive_sub", Icon: Zap },
+    { id: "balanced", titleKey: "onboarding.pace_balanced", subKey: "onboarding.pace_balanced_sub", Icon: Scale },
+    { id: "slow", titleKey: "onboarding.pace_slow", subKey: "onboarding.pace_slow_sub", Icon: ActivityIcon },
+  ];
+
+  const frequencies: { id: Frequency; titleKey: TKey; subKey: TKey }[] = [
+    { id: "0-1", titleKey: "onboarding.freq_low", subKey: "onboarding.freq_low_sub" },
+    { id: "2-3", titleKey: "onboarding.freq_mid", subKey: "onboarding.freq_mid_sub" },
+    { id: "4+", titleKey: "onboarding.freq_high", subKey: "onboarding.freq_high_sub" },
+  ];
+
+  const diets: { id: Diet; titleKey: TKey; subKey: TKey; Icon: any }[] = [
+    { id: "none", titleKey: "onboarding.diet_none", subKey: "onboarding.diet_none_sub", Icon: ActivityIcon },
+    { id: "high-protein", titleKey: "onboarding.diet_protein", subKey: "onboarding.diet_protein_sub", Icon: TrendingUp },
+    { id: "low-carb", titleKey: "onboarding.diet_lowcarb", subKey: "onboarding.diet_lowcarb_sub", Icon: TrendingDown },
+    { id: "vegetarian", titleKey: "onboarding.diet_veg", subKey: "onboarding.diet_veg_sub", Icon: Leaf },
+  ];
+
   const next = () => setStep((s) => s + 1);
 
   const generate = async () => {
-    setStep(TOTAL_QUESTIONS); // loading step
-    const msgs = ["Analyzing your answers…", "Calibrating your metabolism…", "Creating your plan…"];
+    setStep(TOTAL_QUESTIONS);
+    const msgs: TKey[] = ["onboarding.loading_1", "onboarding.loading_2", "onboarding.loading_3"];
     for (const m of msgs) {
-      setLoadingMsg(m);
+      setLoadingMsg(tt(m));
       await new Promise((r) => setTimeout(r, 900));
     }
     const p = computePlan({ weight, height, goal, activity });
     setPlan(p);
-    setStep(TOTAL_QUESTIONS + 1); // plan step
+    setStep(TOTAL_QUESTIONS + 1);
   };
 
   const finish = () => {
@@ -92,7 +96,6 @@ export default function Onboarding() {
         <span className="text-xs text-muted-foreground tracking-widest">{progressIndex} / {TOTAL_QUESTIONS}</span>
       </header>
 
-      {/* progress bar */}
       <div className="h-1 w-full bg-surface-3 rounded-full overflow-hidden mb-10">
         <div
           className="h-full bg-gradient-primary transition-all duration-500"
@@ -102,60 +105,57 @@ export default function Onboarding() {
 
       <div className="flex-1 animate-fade-in" key={step}>
         {step === 0 && (
-          <Step
-            title={translate(lang, "onboarding.choose_language")}
-            sub={translate(lang, "onboarding.choose_language_sub")}
-          >
+          <Step title={tt("onboarding.choose_language")} sub={tt("onboarding.choose_language_sub")}>
             <LanguagePicker value={lang} onChange={setLang} />
           </Step>
         )}
 
         {step === 1 && (
-          <Step title="What's your goal?" sub="We'll tune your plan around it.">
+          <Step title={tt("onboarding.q_goal")} sub={tt("onboarding.q_goal_sub")}>
             <div className="space-y-3">
-              {goals.map(({ id, title, sub, Icon }) => (
-                <SelectCard key={id} active={goal === id} onClick={() => setGoal(id)} title={title} sub={sub} Icon={Icon} />
+              {goals.map(({ id, titleKey, subKey, Icon }) => (
+                <SelectCard key={id} active={goal === id} onClick={() => setGoal(id)} title={tt(titleKey)} sub={tt(subKey)} Icon={Icon} />
               ))}
             </div>
           </Step>
         )}
 
         {step === 2 && (
-          <Step title="What's your age?" sub="Helps us personalize your metabolism.">
-            <NumberInput value={age} onChange={setAge} suffix="yrs" min={13} max={100} />
+          <Step title={tt("onboarding.q_age")} sub={tt("onboarding.q_age_sub")}>
+            <NumberInput value={age} onChange={setAge} suffix={tt("onboarding.suffix_yrs")} min={13} max={100} />
           </Step>
         )}
 
         {step === 3 && (
-          <Step title="What's your height?" sub="A quick measurement.">
-            <NumberInput value={height} onChange={setHeight} suffix="cm" min={120} max={230} />
+          <Step title={tt("onboarding.q_height")} sub={tt("onboarding.q_height_sub")}>
+            <NumberInput value={height} onChange={setHeight} suffix={tt("onboarding.suffix_cm")} min={120} max={230} />
           </Step>
         )}
 
         {step === 4 && (
-          <Step title="What's your current weight?" sub="So we can calculate macros.">
-            <NumberInput value={weight} onChange={setWeight} suffix="kg" min={30} max={250} />
+          <Step title={tt("onboarding.q_weight")} sub={tt("onboarding.q_weight_sub")}>
+            <NumberInput value={weight} onChange={setWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
           </Step>
         )}
 
         {step === 5 && (
-          <Step title="What's your target weight?" sub="Where do you want to be?">
-            <NumberInput value={targetWeight} onChange={setTargetWeight} suffix="kg" min={30} max={250} />
+          <Step title={tt("onboarding.q_target")} sub={tt("onboarding.q_target_sub")}>
+            <NumberInput value={targetWeight} onChange={setTargetWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
           </Step>
         )}
 
         {step === 6 && (
-          <Step title="How fast do you want to reach your goal?" sub="Pick a pace that fits your life.">
+          <Step title={tt("onboarding.q_pace")} sub={tt("onboarding.q_pace_sub")}>
             <div className="space-y-3">
-              {paces.map(({ id, title, sub, Icon }) => (
-                <SelectCard key={id} active={pace === id} onClick={() => setPace(id)} title={title} sub={sub} Icon={Icon} />
+              {paces.map(({ id, titleKey, subKey, Icon }) => (
+                <SelectCard key={id} active={pace === id} onClick={() => setPace(id)} title={tt(titleKey)} sub={tt(subKey)} Icon={Icon} />
               ))}
             </div>
           </Step>
         )}
 
         {step === 7 && (
-          <Step title="How often do you work out?" sub="Be honest — we adjust the plan.">
+          <Step title={tt("onboarding.q_freq")} sub={tt("onboarding.q_freq_sub")}>
             <div className="space-y-2.5">
               {frequencies.map((f) => (
                 <button
@@ -167,8 +167,8 @@ export default function Onboarding() {
                   )}
                 >
                   <div>
-                    <div className="font-medium">{f.title}</div>
-                    <div className="text-xs text-muted-foreground">{f.sub}</div>
+                    <div className="font-medium">{tt(f.titleKey)}</div>
+                    <div className="text-xs text-muted-foreground">{tt(f.subKey)}</div>
                   </div>
                   {frequency === f.id && <Check className="w-5 h-5 text-primary" />}
                 </button>
@@ -178,17 +178,17 @@ export default function Onboarding() {
         )}
 
         {step === 8 && (
-          <Step title="What type of diet do you follow?" sub="We'll match your macros.">
+          <Step title={tt("onboarding.q_diet")} sub={tt("onboarding.q_diet_sub")}>
             <div className="space-y-3">
-              {diets.map(({ id, title, sub, Icon }) => (
-                <SelectCard key={id} active={diet === id} onClick={() => setDiet(id)} title={title} sub={sub} Icon={Icon} />
+              {diets.map(({ id, titleKey, subKey, Icon }) => (
+                <SelectCard key={id} active={diet === id} onClick={() => setDiet(id)} title={tt(titleKey)} sub={tt(subKey)} Icon={Icon} />
               ))}
             </div>
           </Step>
         )}
 
         {step === 9 && (
-          <Step title="Activity level" sub="How active are you weekly?">
+          <Step title={tt("onboarding.q_activity")} sub={tt("onboarding.q_activity_sub")}>
             <div className="space-y-2.5">
               {activities.map((a) => (
                 <button
@@ -200,8 +200,8 @@ export default function Onboarding() {
                   )}
                 >
                   <div>
-                    <div className="font-medium">{a.title}</div>
-                    <div className="text-xs text-muted-foreground">{a.sub}</div>
+                    <div className="font-medium">{tt(a.titleKey)}</div>
+                    <div className="text-xs text-muted-foreground">{tt(a.subKey)}</div>
                   </div>
                   {activity === a.id && <Check className="w-5 h-5 text-primary" />}
                 </button>
@@ -217,17 +217,17 @@ export default function Onboarding() {
               <Loader2 className="w-16 h-16 text-primary animate-spin" />
             </div>
             <div className="text-lg font-medium animate-fade-in" key={loadingMsg}>{loadingMsg}</div>
-            <div className="text-sm text-muted-foreground">Personalizing your KCALLY experience</div>
+            <div className="text-sm text-muted-foreground">{tt("onboarding.personalizing")}</div>
           </div>
         )}
 
         {step === TOTAL_QUESTIONS + 1 && plan && (
-          <Step title="Your plan is ready" sub="Tuned to your body and goal.">
+          <Step title={tt("onboarding.plan_ready")} sub={tt("onboarding.plan_ready_sub")}>
             <div className="grid grid-cols-2 gap-3">
-              <PlanCard label="Calories" value={plan.calories} unit="kcal" big />
-              <PlanCard label="Protein" value={plan.protein} unit="g" />
-              <PlanCard label="Carbs" value={plan.carbs} unit="g" />
-              <PlanCard label="Fat" value={plan.fat} unit="g" />
+              <PlanCard label={tt("settings.calories")} value={plan.calories} unit={tt("common.kcal")} big />
+              <PlanCard label={tt("home.protein")} value={plan.protein} unit="g" />
+              <PlanCard label={tt("home.carbs")} value={plan.carbs} unit="g" />
+              <PlanCard label={tt("home.fat")} value={plan.fat} unit="g" />
             </div>
           </Step>
         )}
@@ -240,7 +240,7 @@ export default function Onboarding() {
             className="w-full h-14 rounded-2xl bg-gradient-primary hover:opacity-90 text-base font-semibold shadow-glow"
             onClick={isLastQuestion ? generate : next}
           >
-            {isLastQuestion ? "Create my plan" : translate(lang, "common.continue")}
+            {isLastQuestion ? tt("onboarding.create_plan") : tt("common.continue")}
             <ArrowRight className="ml-1 w-5 h-5" />
           </Button>
         )}
@@ -250,7 +250,7 @@ export default function Onboarding() {
             className="w-full h-14 rounded-2xl bg-gradient-primary hover:opacity-90 text-base font-semibold shadow-glow"
             onClick={finish}
           >
-            Start training
+            {tt("onboarding.start_training")}
             <Flame className="ml-2 w-5 h-5" />
           </Button>
         )}

@@ -1,6 +1,8 @@
 import { useKStore } from "@/store/useKStore";
+import { useT } from "@/i18n/useT";
 
 export default function Progress() {
+  const t = useT();
   const { meals, workouts, user, history } = useKStore();
 
   // Build last 7 days
@@ -22,16 +24,16 @@ export default function Progress() {
 
   return (
     <div className="k-page">
-      <h1 className="text-3xl font-semibold tracking-tight mb-6">Progress</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-6">{t("progress.title")}</h1>
 
       {/* Calories per day chart */}
       <div className="k-card p-5 mb-4 bg-gradient-surface">
         <div className="flex items-baseline justify-between mb-4">
           <div>
-            <div className="text-xs text-muted-foreground tracking-widest uppercase">Calories · 7 days</div>
-            <div className="text-3xl font-semibold k-gradient-text">{avg}<span className="text-sm text-muted-foreground"> avg/day</span></div>
+            <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("progress.cal_7d")}</div>
+            <div className="text-3xl font-semibold k-gradient-text">{avg}<span className="text-sm text-muted-foreground"> {t("progress.avg_per_day")}</span></div>
           </div>
-          <div className="text-xs text-muted-foreground">Goal {user.calories}</div>
+          <div className="text-xs text-muted-foreground">{t("progress.goal")} {user.calories}</div>
         </div>
         <div className="flex items-end justify-between gap-2 h-40">
           {days.map((d, i) => {
@@ -56,7 +58,7 @@ export default function Progress() {
       <div className="k-card p-5 mb-4">
         <div className="flex items-baseline justify-between mb-4">
           <div>
-            <div className="text-xs text-muted-foreground tracking-widest uppercase">Weight</div>
+            <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("progress.weight")}</div>
             <div className="text-3xl font-semibold">{user.weight}<span className="text-sm text-muted-foreground"> kg</span></div>
           </div>
         </div>
@@ -73,10 +75,10 @@ export default function Progress() {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <SummaryCard label="Week total" value={`${totalWeek}`} unit="kcal" />
-        <SummaryCard label="Burned" value={`${burned}`} unit="kcal" />
-        <SummaryCard label="Workouts" value={`${workouts.length}`} unit="" />
-        <SummaryCard label="Meals logged" value={`${meals.length}`} unit="" />
+        <SummaryCard label={t("progress.week_total")} value={`${totalWeek}`} unit={t("common.kcal")} />
+        <SummaryCard label={t("progress.burned")} value={`${burned}`} unit={t("common.kcal")} />
+        <SummaryCard label={t("progress.workouts")} value={`${workouts.length}`} unit="" />
+        <SummaryCard label={t("progress.meals_logged")} value={`${meals.length}`} unit="" />
       </div>
     </div>
   );
