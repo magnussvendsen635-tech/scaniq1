@@ -110,11 +110,14 @@ export const useKStore = create<KState>()(
       },
       tickStreak: () => {
         const d = today();
-        if (get().lastActiveDate === d) return;
-        // simple: increment if yesterday or first time
+        const last = get().lastActiveDate;
+        if (last === d) return;
         const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-        const next = get().lastActiveDate === yesterday ? get().streak + 1 : Math.max(1, get().streak);
-        set({ streak: get().streak === 0 ? 1 : next, lastActiveDate: d });
+        let next: number;
+        if (!last) next = 1; // first ever
+        else if (last === yesterday) next = get().streak + 1; // continued
+        else next = 1; // missed a day -> reset
+        set({ streak: next, lastActiveDate: d });
       },
       setPremium: (v) => set({ premium: v }),
     }),
