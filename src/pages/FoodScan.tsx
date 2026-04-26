@@ -46,6 +46,8 @@ export default function FoodScan() {
 
   const save = () => {
     if (!result) return;
+    const prevStreak = streak;
+    const prevDate = useKStore.getState().lastActiveDate;
     addMeal({
       id: crypto.randomUUID(),
       name: result.name,
@@ -56,8 +58,19 @@ export default function FoodScan() {
       healthScore: result.healthScore,
       at: Date.now(),
     });
-    toast.success("Meal added", { description: `${result.calories} kcal logged.` });
-    nav("/diary");
+    const newStreak = useKStore.getState().streak;
+    const grew = newStreak > prevStreak || prevDate !== useKStore.getState().lastActiveDate;
+    if (grew) {
+      setCelebrate({ count: newStreak });
+      setTimeout(() => {
+        setCelebrate(null);
+        toast.success("Meal added", { description: `${result.calories} kcal logged.` });
+        nav("/diary");
+      }, 1800);
+    } else {
+      toast.success("Meal added", { description: `${result.calories} kcal logged.` });
+      nav("/diary");
+    }
   };
 
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (result?.calories ?? 0));
