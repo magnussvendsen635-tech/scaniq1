@@ -74,7 +74,12 @@ export type TKey =
   | "onboarding.suffix_yrs" | "onboarding.suffix_cm" | "onboarding.suffix_kg"
   | "onboarding.create_plan" | "onboarding.start_training"
   | "onboarding.loading_1" | "onboarding.loading_2" | "onboarding.loading_3"
-  | "onboarding.personalizing" | "onboarding.plan_ready" | "onboarding.plan_ready_sub";
+  | "onboarding.personalizing" | "onboarding.plan_ready" | "onboarding.plan_ready_sub"
+  | "auth.welcome_back" | "auth.create_account" | "auth.sign_in_sub" | "auth.sign_up_sub"
+  | "auth.continue_google" | "auth.or" | "auth.email" | "auth.password"
+  | "auth.sign_in" | "auth.sign_up" | "auth.no_account" | "auth.have_account"
+  | "auth.account_created" | "auth.welcome_in"
+  | "home.scan_food" | "home.scan_food_sub";
 
 type Dict = Partial<Record<TKey, string>>;
 
@@ -189,6 +194,22 @@ const en: Record<TKey, string> = {
   "onboarding.personalizing": "Personalizing your KCALLY experience",
   "onboarding.plan_ready": "Your plan is ready",
   "onboarding.plan_ready_sub": "Tuned to your body and goal.",
+  "auth.welcome_back": "Welcome back",
+  "auth.create_account": "Create your account",
+  "auth.sign_in_sub": "Sign in to continue your streak.",
+  "auth.sign_up_sub": "Start tracking in seconds.",
+  "auth.continue_google": "Continue with Google",
+  "auth.or": "or",
+  "auth.email": "Email",
+  "auth.password": "Password",
+  "auth.sign_in": "Sign in",
+  "auth.sign_up": "Sign up",
+  "auth.no_account": "Don't have an account? Sign up",
+  "auth.have_account": "Already have an account? Sign in",
+  "auth.account_created": "Account created",
+  "auth.welcome_in": "You're in. Let's track!",
+  "home.scan_food": "AI Scanner",
+  "home.scan_food_sub": "Snap a meal, get calories",
 };
 
 const da: Dict = {
