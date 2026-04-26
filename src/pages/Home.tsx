@@ -112,7 +112,26 @@ const MacroBar = ({ label, value, target }: { label: string; value: number; targ
         <div className="h-full bg-gradient-primary rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
     </div>
-  );
+);
+
+const InsightCard = ({ Icon, title, rows }: { Icon: any; title: string; rows: [string, string][] }) => (
+  <div className="k-card p-5">
+    <div className="flex items-center gap-2 mb-3">
+      <div className="w-8 h-8 rounded-xl bg-gradient-soft flex items-center justify-center">
+        <Icon className="w-4 h-4 text-primary-glow" />
+      </div>
+      <span className="font-semibold text-sm">{title}</span>
+    </div>
+    <div className="space-y-2">
+      {rows.map(([label, value]) => (
+        <div key={label} className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">{label}</span>
+          <span className="font-medium">{value}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 };
 
 const ActionCard = ({ to, Icon, title, sub, gradient }: { to: string; Icon: any; title: string; sub: string; gradient?: boolean }) => (
