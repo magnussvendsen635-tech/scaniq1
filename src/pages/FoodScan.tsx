@@ -22,6 +22,11 @@ interface Result {
   protein: number;
   carbs: number;
   fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  saturatedFat?: number;
+  cholesterol?: number;
   healthScore: number;
   confidence?: number;
 }
@@ -116,6 +121,11 @@ export default function FoodScan() {
         protein: Math.round(data.protein),
         carbs: Math.round(data.carbs),
         fat: Math.round(data.fat),
+        fiber: typeof data.fiber === "number" ? Math.round(data.fiber * 10) / 10 : undefined,
+        sugar: typeof data.sugar === "number" ? Math.round(data.sugar * 10) / 10 : undefined,
+        sodium: typeof data.sodium === "number" ? Math.round(data.sodium) : undefined,
+        saturatedFat: typeof data.saturatedFat === "number" ? Math.round(data.saturatedFat * 10) / 10 : undefined,
+        cholesterol: typeof data.cholesterol === "number" ? Math.round(data.cholesterol) : undefined,
         healthScore: Math.round(data.healthScore),
         confidence: data.confidence,
       });
@@ -142,6 +152,11 @@ export default function FoodScan() {
       protein: result.protein,
       carbs: result.carbs,
       fat: result.fat,
+      fiber: result.fiber,
+      sugar: result.sugar,
+      sodium: result.sodium,
+      saturatedFat: result.saturatedFat,
+      cholesterol: result.cholesterol,
       healthScore: result.healthScore,
       at: Date.now(),
     });
