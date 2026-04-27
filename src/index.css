@@ -148,6 +148,18 @@
     background: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
   }
+  /* Ensure white, readable text on the orange primary gradient buttons */
+  .bg-gradient-primary {
+    background-color: hsl(14 100% 55%) !important;
+    background-image: none !important;
+    color: #fff;
+  }
+  .bg-gradient-primary:hover {
+    background-color: hsl(14 100% 50%) !important;
+  }
+  .bg-gradient-primary * {
+    color: #fff;
+  }
   .k-gradient-soft {
     background: hsl(var(--surface-2));
   }
