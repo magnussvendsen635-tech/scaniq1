@@ -33,8 +33,15 @@ const Shell = ({ children }: { children: React.ReactNode }) => (
 
 const App = () => {
   const onboarded = useKStore((s) => s.onboarded);
+  const language = useKStore((s) => s.language);
   const { session, loading } = useAuth();
 
+  useEffect(() => {
+    const base = (language || "en").split("-")[0];
+    const isRtl = RTL_LANGS.has(base);
+    document.documentElement.setAttribute("dir", isRtl ? "rtl" : "ltr");
+    document.documentElement.setAttribute("lang", base);
+  }, [language]);
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
