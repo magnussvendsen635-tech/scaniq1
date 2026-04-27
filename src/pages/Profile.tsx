@@ -48,9 +48,17 @@ export default function Profile() {
       <div className="k-card p-6 mb-4 bg-gradient-surface relative overflow-hidden">
         <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-gradient-primary opacity-20 blur-3xl" />
         <div className="relative flex items-center gap-4">
-          <div className="w-16 h-16 rounded-3xl overflow-hidden shadow-glow">
-            <img src={profileAvatar} alt="Profile avatar" className="w-full h-full object-cover" />
-          </div>
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="relative w-16 h-16 rounded-3xl overflow-hidden shadow-glow group"
+            aria-label="Change profile picture"
+          >
+            <img src={avatar ?? profileAvatar} alt="Profile avatar" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Camera className="w-5 h-5 text-white" />
+            </div>
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePick} />
           <div className="flex-1">
             <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("profile.goal")}</div>
             <div className="text-xl font-semibold">{t(goalKey[user.goal])}</div>
