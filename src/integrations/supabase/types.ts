@@ -21,6 +21,8 @@ export type Database = {
           display_name: string | null
           email: string | null
           id: string
+          is_premium: boolean
+          scan_count: number
           updated_at: string
         }
         Insert: {
@@ -29,6 +31,8 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id: string
+          is_premium?: boolean
+          scan_count?: number
           updated_at?: string
         }
         Update: {
@@ -37,6 +41,8 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id?: string
+          is_premium?: boolean
+          scan_count?: number
           updated_at?: string
         }
         Relationships: []

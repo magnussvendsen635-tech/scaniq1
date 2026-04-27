@@ -1,12 +1,14 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, caloriesToday } from "@/store/useKStore";
-import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Upload } from "lucide-react";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 
 interface Result {
   name: string;
@@ -15,19 +17,44 @@ interface Result {
   carbs: number;
   fat: number;
   healthScore: number;
+  confidence?: number;
 }
 
-const rand = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) + a;
+type Portion = "small" | "medium" | "large";
+type Step = "portion" | "capture" | "result";
 
 export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
+  const { user: profile } = useAuth();
   const { user, meals, addMeal, streak, premium } = useKStore();
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [portion, setPortion] = useState<Portion>("medium");
+  const [step, setStep] = useState<Step>("portion");
+  const [scansUsed, setScansUsed] = useState<number>(0);
+  const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
+  const [limitReached, setLimitReached] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Fetch scan quota from server
+  useEffect(() => {
+    if (!profile) return;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("scan_count, is_premium")
+        .eq("id", profile.id)
+        .maybeSingle();
+      if (data) {
+        setScansUsed(data.scan_count ?? 0);
+        setIsPremiumServer(!!data.is_premium);
+        if (!data.is_premium && (data.scan_count ?? 0) >= 1) setLimitReached(true);
+      }
+    })();
+  }, [profile]);
 
   const fileToDataUrl = (file: File) =>
     new Promise<string>((resolve, reject) => {
@@ -43,6 +70,7 @@ export default function FoodScan() {
     const dataUrl = await fileToDataUrl(file);
     setPreview(dataUrl);
     setResult(null);
+    setStep("capture");
     await scan(dataUrl);
     e.target.value = "";
   };
@@ -57,13 +85,20 @@ export default function FoodScan() {
     setResult(null);
     try {
       const { data, error } = await supabase.functions.invoke("scan-food", {
-        body: { image: img },
+        body: { image: img, portion },
       });
       if (error) {
         const status = (error as any).context?.status;
-        if (status === 429) toast.error("Rate limit", { description: "Try again in a moment." });
-        else if (status === 402) toast.error("Out of AI credits", { description: "Add funds to continue." });
-        else toast.error("Scan failed", { description: error.message });
+        if (status === 403) {
+          setLimitReached(true);
+          toast.error("Free scan used", { description: "Upgrade to premium for unlimited scans." });
+        } else if (status === 429) {
+          toast.error("Rate limit", { description: "Try again in a moment." });
+        } else if (status === 402) {
+          toast.error("Out of AI credits", { description: "Add funds to continue." });
+        } else {
+          toast.error("Scan failed", { description: error.message });
+        }
         return;
       }
       setResult({
@@ -73,7 +108,13 @@ export default function FoodScan() {
         carbs: Math.round(data.carbs),
         fat: Math.round(data.fat),
         healthScore: Math.round(data.healthScore),
+        confidence: data.confidence,
       });
+      if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
+      if (!data.is_premium && data.scans_used >= (data.scan_limit ?? 1)) {
+        // Limit will hit on next attempt
+      }
+      setStep("result");
     } catch (err: any) {
       toast.error("Scan failed", { description: err?.message ?? "Unknown error" });
     } finally {
@@ -111,6 +152,7 @@ export default function FoodScan() {
   };
 
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (result?.calories ?? 0));
+  const showPremiumGate = !premium && !isPremiumServer && limitReached && step !== "result";
 
   return (
     <div className="k-page">
@@ -135,10 +177,31 @@ export default function FoodScan() {
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("scan.title")}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("scan.title")}</h1>
+        {!isPremiumServer && (
+          <span className="text-xs px-2.5 py-1 rounded-full bg-card border border-border/60 text-muted-foreground">
+            {Math.max(0, 1 - scansUsed)}/1 free
+          </span>
+        )}
       </header>
 
-      {!premium ? (
+      {showPremiumGate ? (
+        <div className="k-card p-6 text-center bg-gradient-soft animate-fade-in">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-primary flex items-center justify-center mb-4 shadow-glow">
+            <Crown className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">You've used your free scan</h2>
+          <p className="text-sm text-muted-foreground mb-5">
+            Upgrade to Premium for <span className="text-foreground font-semibold">unlimited AI food scans</span>, plus all premium features.
+          </p>
+          <Link to="/premium">
+            <Button className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
+              <Crown className="w-5 h-5 mr-2" />
+              Get Premium
+            </Button>
+          </Link>
+        </div>
+      ) : !premium ? (
         <PremiumLock>
           <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card">
             <ScannerBackdrop />
@@ -155,101 +218,138 @@ export default function FoodScan() {
         </PremiumLock>
       ) : (
         <>
-
-      {/* Camera viewport */}
-      <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card">
-        <ScannerBackdrop />
-        {/* Corner brackets */}
-        {[
-          "top-6 left-6 border-t-[3px] border-l-[3px]",
-          "top-6 right-6 border-t-[3px] border-r-[3px]",
-          "bottom-6 left-6 border-b-[3px] border-l-[3px]",
-          "bottom-6 right-6 border-b-[3px] border-r-[3px]",
-        ].map((c, i) => (
-          <div key={i} className={`absolute w-12 h-12 rounded-md border-primary ${c}`} />
-        ))}
-        {/* Scan line */}
-        {scanning && (
-          <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
-        )}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-          {scanning ? (
-            <>
-              <div className="relative w-20 h-20 mb-4">
-                <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-40" />
-                <div className="absolute inset-0 rounded-full bg-primary border-[3px] border-foreground flex items-center justify-center">
-                  <Sparkles className="w-9 h-9 text-foreground" />
+          {/* Portion step */}
+          {step === "portion" && !result && (
+            <div className="animate-fade-in">
+              <div className="k-card p-5 mb-5">
+                <h2 className="text-lg font-semibold mb-1">How big is your portion?</h2>
+                <p className="text-sm text-muted-foreground mb-4">This helps the AI estimate calories more accurately.</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {(["small", "medium", "large"] as Portion[]).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPortion(p)}
+                      className={`k-tap rounded-2xl p-4 border-2 transition-all ${
+                        portion === p
+                          ? "border-primary bg-primary/10 shadow-glow"
+                          : "border-border bg-card"
+                      }`}
+                    >
+                      <div className="text-3xl mb-1">
+                        {p === "small" ? "🥄" : p === "medium" ? "🍽️" : "🍱"}
+                      </div>
+                      <div className="text-sm font-semibold capitalize">{p}</div>
+                    </button>
+                  ))}
                 </div>
               </div>
-              <p className="text-sm text-foreground/70 font-medium">{t("scan.identifying")}</p>
-            </>
-          ) : result ? (
-            <div className="animate-scale-in">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
-                <Check className="w-8 h-8 text-foreground" strokeWidth={3} />
-              </div>
-              <p className="text-2xl font-bold text-foreground">{result.name}</p>
+
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={onPick}
+              />
+              <Button
+                onClick={() => fileRef.current?.click()}
+                className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
+              >
+                <Camera className="w-5 h-5 mr-1" />
+                {t("scan.cta")}
+              </Button>
             </div>
-          ) : (
-            <>
-              <div className="w-16 h-16 rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
-                <Camera className="w-8 h-8 text-foreground" />
-              </div>
-              <p className="text-foreground/70 text-sm font-medium">{t("scan.point")}</p>
-            </>
           )}
-        </div>
-      </div>
 
-      {!result && (
-        <>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={onPick}
-          />
-          <Button
-            disabled={scanning}
-            onClick={() => fileRef.current?.click()}
-            className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
-          >
-            <Camera className="w-5 h-5 mr-1" />
-            {scanning ? t("scan.scanning") : t("scan.cta")}
-          </Button>
-        </>
-      )}
-
-      {result && (
-        <div className="space-y-4 animate-fade-in">
-          <div className="k-card p-5 bg-gradient-soft">
-            <div className="flex items-baseline justify-between">
-              <div>
-                <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.calories")}</div>
-                <div className="text-5xl font-semibold k-gradient-text">{result.calories}</div>
-              </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
-                <Heart className="w-4 h-4 text-primary-glow" />
-                <span className="text-sm font-semibold">{result.healthScore}/10</span>
+          {/* Camera viewport during scan & result */}
+          {step !== "portion" && (
+            <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card">
+              <ScannerBackdrop />
+              {preview && (
+                <img src={preview} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+              )}
+              {[
+                "top-6 left-6 border-t-[3px] border-l-[3px]",
+                "top-6 right-6 border-t-[3px] border-r-[3px]",
+                "bottom-6 left-6 border-b-[3px] border-l-[3px]",
+                "bottom-6 right-6 border-b-[3px] border-r-[3px]",
+              ].map((c, i) => (
+                <div key={i} className={`absolute w-12 h-12 rounded-md border-primary ${c}`} />
+              ))}
+              {scanning && (
+                <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
+              )}
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+                {scanning ? (
+                  <>
+                    <div className="relative w-20 h-20 mb-4">
+                      <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-40" />
+                      <div className="absolute inset-0 rounded-full bg-primary border-[3px] border-foreground flex items-center justify-center">
+                        <Sparkles className="w-9 h-9 text-foreground" />
+                      </div>
+                    </div>
+                    <p className="text-sm text-foreground/70 font-medium">{t("scan.identifying")}</p>
+                  </>
+                ) : result ? (
+                  <div className="animate-scale-in">
+                    <div className="w-16 h-16 mx-auto rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
+                      <Check className="w-8 h-8 text-foreground" strokeWidth={3} />
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{result.name}</p>
+                  </div>
+                ) : null}
               </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-3">{t("scan.remaining_pre")} <span className="text-foreground font-semibold">{remaining} kcal</span> {t("scan.remaining_post")}</p>
-          </div>
+          )}
 
-          <div className="grid grid-cols-3 gap-3">
-            <Macro label={t("home.protein")} value={result.protein} />
-            <Macro label={t("home.carbs")} value={result.carbs} />
-            <Macro label={t("home.fat")} value={result.fat} />
-          </div>
+          {result && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="k-card p-5 bg-gradient-soft">
+                <div className="flex items-baseline justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.calories")}</div>
+                    <div className="text-5xl font-semibold k-gradient-text">{result.calories}</div>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
+                    <Heart className="w-4 h-4 text-primary-glow" />
+                    <span className="text-sm font-semibold">{result.healthScore}/10</span>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-3">
+                  {t("scan.remaining_pre")} <span className="text-foreground font-semibold">{remaining} kcal</span> {t("scan.remaining_post")}
+                </p>
+                {typeof result.confidence === "number" && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    AI confidence: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span> · Portion: <span className="capitalize text-foreground font-medium">{portion}</span>
+                  </p>
+                )}
+              </div>
 
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <Button variant="outline" onClick={() => { setResult(null); setPreview(null); fileRef.current?.click(); }} className="h-12 rounded-2xl border-border bg-card">{t("scan.rescan")}</Button>
-            <Button onClick={save} className="h-12 rounded-2xl bg-gradient-primary shadow-glow hover:opacity-90 font-semibold">{t("scan.add_to_diary")}</Button>
-          </div>
-        </div>
-      )}
+              <div className="grid grid-cols-3 gap-3">
+                <Macro label={t("home.protein")} value={result.protein} />
+                <Macro label={t("home.carbs")} value={result.carbs} />
+                <Macro label={t("home.fat")} value={result.fat} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setResult(null);
+                    setPreview(null);
+                    setStep("portion");
+                  }}
+                  className="h-12 rounded-2xl border-border bg-card"
+                >
+                  {t("scan.rescan")}
+                </Button>
+                <Button onClick={save} className="h-12 rounded-2xl bg-gradient-primary shadow-glow hover:opacity-90 font-semibold">
+                  {t("scan.add_to_diary")}
+                </Button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
@@ -265,7 +365,6 @@ const Macro = ({ label, value }: { label: string; value: number }) => (
 
 const ScannerBackdrop = () => (
   <>
-    {/* Subtle grid pattern */}
     <div
       className="absolute inset-0 opacity-[0.06]"
       style={{
@@ -274,7 +373,6 @@ const ScannerBackdrop = () => (
         backgroundSize: "24px 24px",
       }}
     />
-    {/* Soft primary glow from center */}
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,hsl(var(--primary)/0.18),transparent_65%)]" />
   </>
 );
