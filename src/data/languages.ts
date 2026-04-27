@@ -17,4 +17,9 @@ export const LANGUAGES: Language[] = [
   { code: "nl", name: "Dutch", native: "Nederlands", flag: "🇳🇱" },
   { code: "pt", name: "Portuguese", native: "Português", flag: "🇵🇹" },
   { code: "sv", name: "Swedish", native: "Svenska", flag: "🇸🇪" },
+  { code: "zh", name: "Mandarin Chinese", native: "中文", flag: "🇨🇳" },
+  { code: "hi", name: "Hindi", native: "हिन्दी", flag: "🇮🇳" },
+  { code: "ar", name: "Arabic", native: "العربية", flag: "🇸🇦" },
+  { code: "bn", name: "Bengali", native: "বাংলা", flag: "🇧🇩" },
+  { code: "ur", name: "Urdu", native: "اردو", flag: "🇵🇰" },
 ];
