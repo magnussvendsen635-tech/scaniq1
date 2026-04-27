@@ -8,7 +8,7 @@ export const Logo = ({ size = 40, withText = false }: { size?: number; withText?
       width={size}
       height={size}
       loading="lazy"
-      className="rounded-[22%] shadow-glow"
+      className="drop-shadow-[0_4px_12px_hsl(var(--primary)/0.4)]"
       style={{ width: size, height: size }}
     />
     {withText && (
