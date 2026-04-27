@@ -10,8 +10,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 
+interface FoodItem {
+  name: string;
+  calories: number;
+}
+
 interface Result {
   name: string;
+  items?: FoodItem[];
   calories: number;
   protein: number;
   carbs: number;
@@ -103,6 +109,9 @@ export default function FoodScan() {
       }
       setResult({
         name: data.name,
+        items: Array.isArray(data.items)
+          ? data.items.map((it: any) => ({ name: String(it.name), calories: Math.round(Number(it.calories) || 0) }))
+          : undefined,
         calories: Math.round(data.calories),
         protein: Math.round(data.protein),
         carbs: Math.round(data.carbs),
@@ -325,6 +334,20 @@ export default function FoodScan() {
                   </p>
                 )}
               </div>
+
+              {result.items && result.items.length > 0 && (
+                <div className="k-card p-4">
+                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Items</div>
+                  <ul className="divide-y divide-border">
+                    {result.items.map((it, i) => (
+                      <li key={i} className="flex justify-between py-2 text-sm">
+                        <span className="text-foreground capitalize">{it.name}</span>
+                        <span className="text-muted-foreground">{it.calories} kcal</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="grid grid-cols-3 gap-3">
                 <Macro label={t("home.protein")} value={result.protein} />

@@ -113,9 +113,9 @@ Deno.serve(async (req) => {
             role: "system",
             content:
               "You are a professional nutritionist with expertise in visual food analysis. " +
-              "Carefully identify ALL components on the plate (e.g. 'grilled chicken + rice + broccoli'). " +
-              "Estimate weight in grams for each component using visual cues (plate size, utensils). " +
-              "Use standard nutrition databases (USDA values). Be realistic, not overly optimistic or pessimistic. " +
+              "Identify all food items in the image. Estimate portion sizes based on the selected portion (small/medium/large). " +
+              "Return: list of foods, calories per item, total calories, protein, carbs, fat, confidence (0-1). " +
+              "Be realistic and conservative with estimates. Use standard nutrition databases (USDA values). " +
               "Health score 1-10: 10 = whole foods, balanced macros, low processing; 1 = ultra-processed, high sugar/fat. " +
               "Always respond by calling the report_nutrition tool.",
           },
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Analyze this meal. ${portionHint} Identify all visible components, estimate total nutrition for the portion shown, and rate its healthiness.`,
+                text: `Identify all food items in this image. ${portionHint} Return list of foods with calories per item, total calories, protein, carbs, fat, and confidence (0-1). Be realistic and conservative.`,
               },
               { type: "image_url", image_url: { url: image } },
             ],
@@ -140,14 +140,27 @@ Deno.serve(async (req) => {
                 type: "object",
                 properties: {
                   name: { type: "string", description: "Short descriptive name including main components" },
-                  calories: { type: "number", description: "kcal for the portion shown" },
-                  protein: { type: "number", description: "grams of protein" },
-                  carbs: { type: "number", description: "grams of carbohydrates" },
-                  fat: { type: "number", description: "grams of fat" },
+                  items: {
+                    type: "array",
+                    description: "List of individual food items identified",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string", description: "Name of the food item" },
+                        calories: { type: "number", description: "kcal for this item" },
+                      },
+                      required: ["name", "calories"],
+                      additionalProperties: false,
+                    },
+                  },
+                  calories: { type: "number", description: "Total kcal for the portion shown" },
+                  protein: { type: "number", description: "Total grams of protein" },
+                  carbs: { type: "number", description: "Total grams of carbohydrates" },
+                  fat: { type: "number", description: "Total grams of fat" },
                   healthScore: { type: "number", description: "1-10 health rating" },
                   confidence: { type: "number", description: "0-1 confidence in the estimate" },
                 },
-                required: ["name", "calories", "protein", "carbs", "fat", "healthScore", "confidence"],
+                required: ["name", "items", "calories", "protein", "carbs", "fat", "healthScore", "confidence"],
                 additionalProperties: false,
               },
             },
