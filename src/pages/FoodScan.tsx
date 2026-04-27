@@ -10,8 +10,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 
+interface FoodItem {
+  name: string;
+  calories: number;
+}
+
 interface Result {
   name: string;
+  items?: FoodItem[];
   calories: number;
   protein: number;
   carbs: number;
