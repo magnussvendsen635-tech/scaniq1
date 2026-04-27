@@ -248,13 +248,13 @@ export default function Onboarding() {
         {step < TOTAL_QUESTIONS && (
           <Button
             size="lg"
-            className="flex-1 h-14 rounded-2xl bg-gradient-primary hover:opacity-90 text-base font-semibold shadow-glow"
+            className="group flex-1 h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
             onClick={isLastQuestion ? generate : next}
           >
-            {isLastQuestion ? tt("onboarding.create_plan") : tt("common.continue")}
+            <span className="text-white">{isLastQuestion ? tt("onboarding.create_plan") : tt("common.continue")}</span>
             <span className="ml-2 inline-flex items-center -space-x-2 transition-transform group-hover:translate-x-1">
-              <ChevronRight className="w-5 h-5" strokeWidth={2.75} />
-              <ChevronRight className="w-5 h-5 opacity-60" strokeWidth={2.75} />
+              <ChevronRight className="w-5 h-5 text-white" strokeWidth={2.75} />
+              <ChevronRight className="w-5 h-5 text-white opacity-60" strokeWidth={2.75} />
             </span>
           </Button>
         )}
