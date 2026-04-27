@@ -108,22 +108,53 @@ function parseProduct(p: any, barcode: string): Product | null {
 }
 
 async function lookupBarcode(barcode: string): Promise<Product | null> {
-  // Try each mirror in order, return first hit with usable nutrition
+  const fields = "product_name,product_name_en,product_name_fr,product_name_de,product_name_es,product_name_it,product_name_da,product_name_nl,product_name_sv,product_name_pt,product_name_ja,generic_name,generic_name_en,brands,image_front_small_url,image_front_url,image_url,nutriments,serving_quantity,categories_tags";
+
+  // 1) Try v2 API across regional mirrors
   for (const host of OFF_HOSTS) {
     try {
-      const res = await fetch(
-        `${host}/api/v2/product/${encodeURIComponent(barcode)}.json?fields=product_name,product_name_en,product_name_fr,product_name_de,product_name_es,product_name_it,product_name_da,product_name_nl,product_name_sv,product_name_pt,product_name_ja,generic_name,generic_name_en,brands,image_front_small_url,image_front_url,image_url,nutriments,serving_quantity`
-      );
+      const res = await fetch(`${host}/api/v2/product/${encodeURIComponent(barcode)}.json?fields=${fields}`);
       if (!res.ok) continue;
       const data = await res.json();
       if (data.status !== 1 || !data.product) continue;
       const parsed = parseProduct(data.product, barcode);
       if (parsed) return parsed;
     } catch (e) {
-      console.warn(`OFF mirror ${host} failed`, e);
-      // try next mirror
+      console.warn(`OFF v2 ${host} failed`, e);
     }
   }
+
+  // 2) Fallback to v0 API (older endpoint, sometimes has data v2 doesn't)
+  for (const host of OFF_HOSTS) {
+    try {
+      const res = await fetch(`${host}/api/v0/product/${encodeURIComponent(barcode)}.json`);
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.status !== 1 || !data.product) continue;
+      const parsed = parseProduct(data.product, barcode);
+      if (parsed) return parsed;
+    } catch (e) {
+      console.warn(`OFF v0 ${host} failed`, e);
+    }
+  }
+
+  // 3) Last resort: full-text search by code (catches products indexed but not by direct code lookup)
+  try {
+    const res = await fetch(
+      `https://world.openfoodfacts.org/cgi/search.pl?code=${encodeURIComponent(barcode)}&search_simple=1&action=process&json=1&page_size=1`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const hit = data.products?.[0];
+      if (hit) {
+        const parsed = parseProduct(hit, barcode);
+        if (parsed) return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn("OFF search fallback failed", e);
+  }
+
   return null;
 }
 
