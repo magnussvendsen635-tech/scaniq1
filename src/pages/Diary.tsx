@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useKStore, caloriesToday, macrosToday } from "@/store/useKStore";
+import { useKStore, caloriesToday, macrosToday, micronutrientsToday } from "@/store/useKStore";
 import { Camera, Heart } from "lucide-react";
 import { useT } from "@/i18n/useT";
 
@@ -10,6 +10,8 @@ export default function Diary() {
   const todayMeals = meals.filter((m) => new Date(m.at).toISOString().slice(0, 10) === today);
   const cal = caloriesToday(meals);
   const m = macrosToday(meals);
+  const micro = micronutrientsToday(meals);
+  const hasMicro = micro.fiber + micro.sugar + micro.sodium + micro.saturatedFat + micro.cholesterol > 0;
 
   return (
     <div className="k-page">
@@ -28,6 +30,19 @@ export default function Diary() {
           <T label={t("home.fat")} v={Math.round(m.fat)} />
         </div>
       </div>
+
+      {hasMicro && (
+        <div className="k-card p-4 mb-5">
+          <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">{t("micro.title")}</div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+            {micro.fiber > 0 && <MicroRow label={t("micro.fiber")} value={`${micro.fiber.toFixed(1)}g`} />}
+            {micro.sugar > 0 && <MicroRow label={t("micro.sugar")} value={`${micro.sugar.toFixed(1)}g`} />}
+            {micro.saturatedFat > 0 && <MicroRow label={t("micro.sat_fat")} value={`${micro.saturatedFat.toFixed(1)}g`} />}
+            {micro.sodium > 0 && <MicroRow label={t("micro.sodium")} value={`${Math.round(micro.sodium)}mg`} />}
+            {micro.cholesterol > 0 && <MicroRow label={t("micro.cholesterol")} value={`${Math.round(micro.cholesterol)}mg`} />}
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-medium text-muted-foreground tracking-widest uppercase">{t("diary.meals")}</h2>
@@ -73,5 +88,12 @@ const T = ({ label, v }: { label: string; v: number }) => (
   <div className="text-center">
     <div className="text-lg font-semibold">{v}g</div>
     <div className="text-[10px] tracking-widest uppercase text-muted-foreground">{label}</div>
+  </div>
+);
+
+const MicroRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-center justify-between">
+    <span className="text-muted-foreground">{label}</span>
+    <span className="font-medium">{value}</span>
   </div>
 );

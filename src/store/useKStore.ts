@@ -16,6 +16,12 @@ export interface Meal {
   fat: number;
   healthScore: number;
   at: number; // timestamp
+  // Optional micronutrients (returned from AI scan)
+  fiber?: number;
+  sugar?: number;
+  sodium?: number; // mg
+  saturatedFat?: number;
+  cholesterol?: number; // mg
 }
 
 export interface WorkoutLog {
@@ -53,6 +59,9 @@ interface KState {
   // history per day for progress
   history: Record<string, { calories: number; weight: number }>;
   premium: boolean;
+  // Water tracking — ml logged per day (key: YYYY-MM-DD)
+  water: Record<string, number>;
+  waterGoal: number; // ml per day, default 2500
 
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
@@ -62,6 +71,9 @@ interface KState {
   resetDay: () => void;
   tickStreak: () => void;
   setPremium: (v: boolean) => void;
+  addWater: (ml: number) => void;
+  setWaterGoal: (ml: number) => void;
+  resetWaterToday: () => void;
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -92,6 +104,8 @@ export const useKStore = create<KState>()(
       lastActiveDate: "",
       history: {},
       premium: false,
+      water: {},
+      waterGoal: 2500,
 
       setOnboarded: (v) => set({ onboarded: v }),
       setLanguage: (code) => set({ language: code }),
@@ -124,6 +138,18 @@ export const useKStore = create<KState>()(
         set({ streak: next, lastActiveDate: d });
       },
       setPremium: (v) => set({ premium: v }),
+      addWater: (ml) => {
+        const d = today();
+        const water = { ...get().water, [d]: Math.max(0, (get().water[d] ?? 0) + ml) };
+        set({ water });
+      },
+      setWaterGoal: (ml) => set({ waterGoal: Math.max(500, Math.min(6000, ml)) }),
+      resetWaterToday: () => {
+        const d = today();
+        const water = { ...get().water };
+        delete water[d];
+        set({ water });
+      },
     }),
     { name: "kcally-store-v1" }
   )
@@ -146,6 +172,25 @@ export function macrosToday(meals: Meal[]) {
 export function caloriesBurnedToday(workouts: WorkoutLog[]) {
   const d = today();
   return workouts.filter((w) => new Date(w.at).toISOString().slice(0, 10) === d).reduce((a, b) => a + b.caloriesBurned, 0);
+}
+export function waterToday(water: Record<string, number>) {
+  const d = today();
+  return water[d] ?? 0;
+}
+export function micronutrientsToday(meals: Meal[]) {
+  const d = today();
+  return meals
+    .filter((m) => new Date(m.at).toISOString().slice(0, 10) === d)
+    .reduce(
+      (acc, m) => ({
+        fiber: acc.fiber + (m.fiber ?? 0),
+        sugar: acc.sugar + (m.sugar ?? 0),
+        sodium: acc.sodium + (m.sodium ?? 0),
+        saturatedFat: acc.saturatedFat + (m.saturatedFat ?? 0),
+        cholesterol: acc.cholesterol + (m.cholesterol ?? 0),
+      }),
+      { fiber: 0, sugar: 0, sodium: 0, saturatedFat: 0, cholesterol: 0 }
+    );
 }
 
 // Calculate calories from onboarding (Mifflin-St Jeor simplified, assume male 30y)

@@ -22,6 +22,11 @@ interface Result {
   protein: number;
   carbs: number;
   fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  saturatedFat?: number;
+  cholesterol?: number;
   healthScore: number;
   confidence?: number;
 }
@@ -116,6 +121,11 @@ export default function FoodScan() {
         protein: Math.round(data.protein),
         carbs: Math.round(data.carbs),
         fat: Math.round(data.fat),
+        fiber: typeof data.fiber === "number" ? Math.round(data.fiber * 10) / 10 : undefined,
+        sugar: typeof data.sugar === "number" ? Math.round(data.sugar * 10) / 10 : undefined,
+        sodium: typeof data.sodium === "number" ? Math.round(data.sodium) : undefined,
+        saturatedFat: typeof data.saturatedFat === "number" ? Math.round(data.saturatedFat * 10) / 10 : undefined,
+        cholesterol: typeof data.cholesterol === "number" ? Math.round(data.cholesterol) : undefined,
         healthScore: Math.round(data.healthScore),
         confidence: data.confidence,
       });
@@ -142,6 +152,11 @@ export default function FoodScan() {
       protein: result.protein,
       carbs: result.carbs,
       fat: result.fat,
+      fiber: result.fiber,
+      sugar: result.sugar,
+      sodium: result.sodium,
+      saturatedFat: result.saturatedFat,
+      cholesterol: result.cholesterol,
       healthScore: result.healthScore,
       at: Date.now(),
     });
@@ -355,6 +370,29 @@ export default function FoodScan() {
                 <Macro label={t("home.fat")} value={result.fat} />
               </div>
 
+              {(result.fiber !== undefined || result.sugar !== undefined || result.sodium !== undefined || result.saturatedFat !== undefined || result.cholesterol !== undefined) && (
+                <div className="k-card p-4">
+                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">{t("micro.title")}</div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
+                    {result.fiber !== undefined && (
+                      <Micro label={t("micro.fiber")} value={`${result.fiber}g`} />
+                    )}
+                    {result.sugar !== undefined && (
+                      <Micro label={t("micro.sugar")} value={`${result.sugar}g`} />
+                    )}
+                    {result.saturatedFat !== undefined && (
+                      <Micro label={t("micro.sat_fat")} value={`${result.saturatedFat}g`} />
+                    )}
+                    {result.sodium !== undefined && (
+                      <Micro label={t("micro.sodium")} value={`${result.sodium}mg`} />
+                    )}
+                    {result.cholesterol !== undefined && (
+                      <Micro label={t("micro.cholesterol")} value={`${result.cholesterol}mg`} />
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <Button
                   variant="outline"
@@ -383,6 +421,13 @@ const Macro = ({ label, value }: { label: string; value: number }) => (
   <div className="k-card p-4 text-center">
     <div className="text-2xl font-semibold">{value}<span className="text-sm text-muted-foreground">g</span></div>
     <div className="text-[10px] tracking-widest uppercase text-muted-foreground mt-1">{label}</div>
+  </div>
+);
+
+const Micro = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-center justify-between">
+    <span className="text-muted-foreground">{label}</span>
+    <span className="font-medium">{value}</span>
   </div>
 );
 
