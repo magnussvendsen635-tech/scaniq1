@@ -187,10 +187,9 @@ export default function BarcodeScan() {
       BarcodeFormat.EAN_8,
       BarcodeFormat.UPC_A,
       BarcodeFormat.UPC_E,
-      BarcodeFormat.CODE_128,
-      BarcodeFormat.CODE_39,
-      BarcodeFormat.QR_CODE,
+      BarcodeFormat.ITF, // common on packaged food cases
     ]);
+    hints.set(DecodeHintType.TRY_HARDER, true);
     const reader = new BrowserMultiFormatReader(hints);
 
     try {
@@ -200,6 +199,8 @@ export default function BarcodeScan() {
         async (result, _err, ctrl) => {
           if (result) {
             const code = result.getText();
+            // Only accept numeric food barcodes (EAN/UPC/ITF) - ignore QR codes / URLs
+            if (!/^\d{6,14}$/.test(code)) return;
             ctrl.stop();
             controlsRef.current = null;
             await handleCode(code);
