@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { translate, type TKey } from "@/i18n/translations";
-import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
+import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TOTAL_QUESTIONS = 10; // steps 0..9 (0 = language)
@@ -252,7 +252,10 @@ export default function Onboarding() {
             onClick={isLastQuestion ? generate : next}
           >
             {isLastQuestion ? tt("onboarding.create_plan") : tt("common.continue")}
-            <ArrowRight className="ml-1 w-5 h-5" />
+            <span className="ml-2 inline-flex items-center -space-x-2 transition-transform group-hover:translate-x-1">
+              <ChevronRight className="w-5 h-5" strokeWidth={2.75} />
+              <ChevronRight className="w-5 h-5 opacity-60" strokeWidth={2.75} />
+            </span>
           </Button>
         )}
         {step === TOTAL_QUESTIONS + 1 && (
