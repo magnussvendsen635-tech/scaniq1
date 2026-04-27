@@ -79,7 +79,9 @@ export type TKey =
   | "auth.continue_google" | "auth.or" | "auth.email" | "auth.password"
   | "auth.sign_in" | "auth.sign_up" | "auth.no_account" | "auth.have_account"
   | "auth.account_created" | "auth.welcome_in"
-  | "home.scan_food" | "home.scan_food_sub";
+  | "home.scan_food" | "home.scan_food_sub"
+  | "micro.title" | "micro.fiber" | "micro.sugar" | "micro.sodium" | "micro.sat_fat" | "micro.cholesterol"
+  | "water.title" | "water.today" | "water.goal" | "water.add" | "water.reset" | "water.glass" | "water.bottle" | "water.large" | "water.sub" | "water.empty";
 
 type Dict = Partial<Record<TKey, string>>;
 
@@ -210,6 +212,13 @@ const en: Record<TKey, string> = {
   "auth.welcome_in": "You're in. Let's track!",
   "home.scan_food": "AI Scanner",
   "home.scan_food_sub": "Snap a meal, get calories",
+  "micro.title": "Micronutrients",
+  "micro.fiber": "Fiber", "micro.sugar": "Sugar", "micro.sodium": "Sodium", "micro.sat_fat": "Saturated fat", "micro.cholesterol": "Cholesterol",
+  "water.title": "Water",
+  "water.today": "Today", "water.goal": "Goal",
+  "water.add": "Add water", "water.reset": "Reset",
+  "water.glass": "Glass", "water.bottle": "Bottle", "water.large": "Large",
+  "water.sub": "Stay hydrated all day", "water.empty": "Tap to log your first glass",
 };
 
 const da: Dict = {
