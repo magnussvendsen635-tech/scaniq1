@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
             content:
               "You are a professional nutritionist with expertise in visual food analysis. " +
               "Identify all food items in the image. Estimate portion sizes based on the selected portion (small/medium/large). " +
-              "Return: list of foods, calories per item, total calories, protein, carbs, fat, confidence (0-1). " +
+              "Return: list of foods, calories per item, total calories, protein, carbs, fat, fiber, sugar, sodium (mg), saturated fat, cholesterol (mg), confidence (0-1). " +
               "Be realistic and conservative with estimates. Use standard nutrition databases (USDA values). " +
               "Health score 1-10: 10 = whole foods, balanced macros, low processing; 1 = ultra-processed, high sugar/fat. " +
               "Always respond by calling the report_nutrition tool.",
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Identify all food items in this image. ${portionHint} Return list of foods with calories per item, total calories, protein, carbs, fat, and confidence (0-1). Be realistic and conservative.`,
+                text: `Identify all food items in this image. ${portionHint} Return list of foods with calories per item, total calories, protein, carbs, fat, fiber, sugar, sodium (mg), saturated fat, cholesterol (mg), and confidence (0-1). Be realistic and conservative.`,
               },
               { type: "image_url", image_url: { url: image } },
             ],
@@ -157,10 +157,15 @@ Deno.serve(async (req) => {
                   protein: { type: "number", description: "Total grams of protein" },
                   carbs: { type: "number", description: "Total grams of carbohydrates" },
                   fat: { type: "number", description: "Total grams of fat" },
+                  fiber: { type: "number", description: "Total grams of dietary fiber" },
+                  sugar: { type: "number", description: "Total grams of sugar" },
+                  sodium: { type: "number", description: "Total milligrams of sodium" },
+                  saturatedFat: { type: "number", description: "Total grams of saturated fat" },
+                  cholesterol: { type: "number", description: "Total milligrams of cholesterol" },
                   healthScore: { type: "number", description: "1-10 health rating" },
                   confidence: { type: "number", description: "0-1 confidence in the estimate" },
                 },
-                required: ["name", "items", "calories", "protein", "carbs", "fat", "healthScore", "confidence"],
+                required: ["name", "items", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence"],
                 additionalProperties: false,
               },
             },
