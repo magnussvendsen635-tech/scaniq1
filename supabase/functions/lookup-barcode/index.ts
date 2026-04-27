@@ -195,7 +195,7 @@ async function firstValid(promises: Promise<Product | null>[]) {
   }
 }
 
-async function lookupBarcode(barcode: string) {
+async function lookupOpenFoodFacts(barcode: string) {
   const variants = barcodeVariants(barcode);
 
   for (const version of ["v3", "v2"] as const) {
@@ -224,6 +224,105 @@ async function lookupBarcode(barcode: string) {
   }
 
   return null;
+}
+
+// Fallback: ask Lovable AI to identify the product from the barcode using its training knowledge.
+// Many candy, snack, drink and regional products are missing from Open Food Facts but well-known to LLMs.
+async function lookupWithAI(barcode: string): Promise<Product | null> {
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) return null;
+
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a food product expert with deep knowledge of global packaged food, candy, chocolate, chips, soda, energy drinks, supplements, and regional products (Danish, Nordic, European, US, Asian). " +
+              "Given a barcode (EAN/UPC), identify the product if you recognize it OR if you can infer it from the barcode prefix (country code) + common products. " +
+              "Use realistic nutrition values per typical serving. Examples: Haribo Goldbears (100g) ~343 kcal, Coca-Cola 330ml ~139 kcal, Snickers bar 50g ~245 kcal. " +
+              "If you have NO confident guess, set found=false. Otherwise call report_product with realistic values. Be generous — better to give a reasonable estimate of a likely product than refuse.",
+          },
+          {
+            role: "user",
+            content: `Identify the food product with barcode: ${barcode}`,
+          },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "report_product",
+              description: "Report identified packaged food product with nutrition.",
+              parameters: {
+                type: "object",
+                properties: {
+                  found: { type: "boolean" },
+                  name: { type: "string" },
+                  brand: { type: "string" },
+                  servingSize: { type: "number", description: "Grams in one typical serving" },
+                  servingLabel: { type: "string", description: "e.g. '1 bar (50g)' or '1 can (330ml)'" },
+                  calories: { type: "number" },
+                  protein: { type: "number" },
+                  carbs: { type: "number" },
+                  fat: { type: "number" },
+                  fiber: { type: "number" },
+                  sugar: { type: "number" },
+                  sodium: { type: "number", description: "milligrams" },
+                  saturatedFat: { type: "number" },
+                  healthScore: { type: "number", description: "1-10. Candy/soda 1-3, chips 2-4, granola bars 4-6, plain dairy 6-8, whole foods 8-10" },
+                  confidence: { type: "number", description: "0-1" },
+                },
+                required: ["found", "name", "servingSize", "servingLabel", "calories", "protein", "carbs", "fat", "sugar", "saturatedFat", "sodium", "healthScore", "confidence"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ],
+        tool_choice: { type: "function", function: { name: "report_product" } },
+      }),
+    });
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    const args = data?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+    if (!args) return null;
+    const p = JSON.parse(args);
+    if (!p.found || (p.confidence ?? 0) < 0.35) return null;
+
+    return {
+      name: p.name,
+      brand: p.brand,
+      barcode,
+      servingSize: p.servingSize || 100,
+      servingLabel: p.servingLabel || `1 portion (${p.servingSize || 100}g)`,
+      calories: Math.round(p.calories),
+      protein: Math.round(p.protein),
+      carbs: Math.round(p.carbs),
+      fat: Math.round(p.fat),
+      fiber: p.fiber !== undefined ? Math.round(p.fiber * 10) / 10 : undefined,
+      sugar: Math.round((p.sugar ?? 0) * 10) / 10,
+      sodium: Math.round(p.sodium ?? 0),
+      saturatedFat: Math.round((p.saturatedFat ?? 0) * 10) / 10,
+      healthScore: Math.max(1, Math.min(10, Math.round(p.healthScore))),
+    };
+  } catch (e) {
+    console.error("AI barcode lookup failed", e);
+    return null;
+  }
+}
+
+async function lookupBarcode(barcode: string) {
+  const off = await lookupOpenFoodFacts(barcode);
+  if (off) return off;
+  return await lookupWithAI(barcode);
 }
 
 Deno.serve(async (req) => {
