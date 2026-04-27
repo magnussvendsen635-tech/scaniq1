@@ -39,13 +39,14 @@ function computeHealthScore(p: { sugar?: number; saturatedFat?: number; sodium?:
   return Math.max(1, Math.min(10, score));
 }
 
-// Try multiple Open Food Facts regional mirrors + Open Beauty/Pet/Products Facts
-// for maximum global coverage (US, UK, EU, Asia, etc.)
+// FOOD ONLY - Open Food Facts regional mirrors for maximum global coverage.
+// We deliberately exclude Open Beauty Facts and Open Products Facts so that
+// only edible products are matched.
 const OFF_HOSTS = [
-  "https://world.openfoodfacts.org",      // global food
-  "https://us.openfoodfacts.org",         // US-specific mirror
-  "https://world.openproductsfacts.org",  // general products
-  "https://world.openbeautyfacts.org",    // cosmetics (some scanned items)
+  "https://world.openfoodfacts.org",  // global food (largest DB)
+  "https://us.openfoodfacts.org",     // US mirror (better US/Canada coverage)
+  "https://uk.openfoodfacts.org",     // UK mirror
+  "https://fr.openfoodfacts.org",     // FR mirror
 ];
 
 function parseProduct(p: any, barcode: string): Product | null {
