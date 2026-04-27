@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,6 +7,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useKStore } from "@/store/useKStore";
 import { useAuth } from "@/hooks/useAuth";
 import { TabBar } from "@/components/TabBar";
+
+const RTL_LANGS = new Set(["ar", "ur", "he", "fa"]);
 
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
@@ -30,8 +33,15 @@ const Shell = ({ children }: { children: React.ReactNode }) => (
 
 const App = () => {
   const onboarded = useKStore((s) => s.onboarded);
+  const language = useKStore((s) => s.language);
   const { session, loading } = useAuth();
 
+  useEffect(() => {
+    const base = (language || "en").split("-")[0];
+    const isRtl = RTL_LANGS.has(base);
+    document.documentElement.setAttribute("dir", isRtl ? "rtl" : "ltr");
+    document.documentElement.setAttribute("lang", base);
+  }, [language]);
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
