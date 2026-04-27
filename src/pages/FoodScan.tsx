@@ -109,6 +109,9 @@ export default function FoodScan() {
       }
       setResult({
         name: data.name,
+        items: Array.isArray(data.items)
+          ? data.items.map((it: any) => ({ name: String(it.name), calories: Math.round(Number(it.calories) || 0) }))
+          : undefined,
         calories: Math.round(data.calories),
         protein: Math.round(data.protein),
         carbs: Math.round(data.carbs),
