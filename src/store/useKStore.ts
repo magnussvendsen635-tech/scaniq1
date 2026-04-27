@@ -106,11 +106,13 @@ export const useKStore = create<KState>()(
       lastActiveDate: "",
       history: {},
       premium: false,
+      avatar: null,
       water: {},
       waterGoal: 2500,
 
       setOnboarded: (v) => set({ onboarded: v }),
       setLanguage: (code) => set({ language: code }),
+      setAvatar: (dataUrl) => set({ avatar: dataUrl }),
       updateUser: (u) => set({ user: { ...get().user, ...u } }),
       addMeal: (m) => {
         const meals = [m, ...get().meals];
