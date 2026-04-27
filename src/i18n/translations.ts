@@ -328,6 +328,13 @@ const da: Dict = {
   "onboarding.personalizing": "Personliggør din KCALLY-oplevelse",
   "onboarding.plan_ready": "Din plan er klar",
   "onboarding.plan_ready_sub": "Tilpasset din krop og dit mål.",
+  "micro.title": "Mikronæring",
+  "micro.fiber": "Fiber", "micro.sugar": "Sukker", "micro.sodium": "Natrium", "micro.sat_fat": "Mættet fedt", "micro.cholesterol": "Kolesterol",
+  "water.title": "Vand",
+  "water.today": "I dag", "water.goal": "Mål",
+  "water.add": "Tilføj vand", "water.reset": "Nulstil",
+  "water.glass": "Glas", "water.bottle": "Flaske", "water.large": "Stor",
+  "water.sub": "Hold dig hydreret hele dagen", "water.empty": "Tryk for at logge dit første glas",
 };
 
 const es: Dict = {
