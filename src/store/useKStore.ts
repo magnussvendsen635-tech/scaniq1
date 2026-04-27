@@ -16,6 +16,12 @@ export interface Meal {
   fat: number;
   healthScore: number;
   at: number; // timestamp
+  // Optional micronutrients (returned from AI scan)
+  fiber?: number;
+  sugar?: number;
+  sodium?: number; // mg
+  saturatedFat?: number;
+  cholesterol?: number; // mg
 }
 
 export interface WorkoutLog {
@@ -53,6 +59,9 @@ interface KState {
   // history per day for progress
   history: Record<string, { calories: number; weight: number }>;
   premium: boolean;
+  // Water tracking — ml logged per day (key: YYYY-MM-DD)
+  water: Record<string, number>;
+  waterGoal: number; // ml per day, default 2500
 
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
@@ -62,6 +71,9 @@ interface KState {
   resetDay: () => void;
   tickStreak: () => void;
   setPremium: (v: boolean) => void;
+  addWater: (ml: number) => void;
+  setWaterGoal: (ml: number) => void;
+  resetWaterToday: () => void;
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
