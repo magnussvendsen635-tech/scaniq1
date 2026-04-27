@@ -39,52 +39,91 @@ function computeHealthScore(p: { sugar?: number; saturatedFat?: number; sodium?:
   return Math.max(1, Math.min(10, score));
 }
 
-async function lookupBarcode(barcode: string): Promise<Product | null> {
-  try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.status !== 1 || !data.product) return null;
-    const p = data.product;
-    const n = p.nutriments ?? {};
+// Try multiple Open Food Facts regional mirrors + Open Beauty/Pet/Products Facts
+// for maximum global coverage (US, UK, EU, Asia, etc.)
+const OFF_HOSTS = [
+  "https://world.openfoodfacts.org",      // global food
+  "https://us.openfoodfacts.org",         // US-specific mirror
+  "https://world.openproductsfacts.org",  // general products
+  "https://world.openbeautyfacts.org",    // cosmetics (some scanned items)
+];
 
-    // Prefer per-serving when available, otherwise per 100g
-    const hasServing = typeof n["energy-kcal_serving"] === "number" && p.serving_quantity;
-    const serving = hasServing ? Number(p.serving_quantity) : 100;
-    const suffix = hasServing ? "_serving" : "_100g";
+function parseProduct(p: any, barcode: string): Product | null {
+  const n = p.nutriments ?? {};
+  const hasServing = typeof n["energy-kcal_serving"] === "number" && p.serving_quantity;
+  const serving = hasServing ? Number(p.serving_quantity) : 100;
+  const suffix = hasServing ? "_serving" : "_100g";
 
-    const calories = Math.round(Number(n[`energy-kcal${suffix}`] ?? n["energy-kcal_100g"] ?? 0));
-    const protein = Math.round(Number(n[`proteins${suffix}`] ?? n["proteins_100g"] ?? 0));
-    const carbs = Math.round(Number(n[`carbohydrates${suffix}`] ?? n["carbohydrates_100g"] ?? 0));
-    const fat = Math.round(Number(n[`fat${suffix}`] ?? n["fat_100g"] ?? 0));
-    const fiber = n[`fiber${suffix}`] !== undefined ? Math.round(Number(n[`fiber${suffix}`]) * 10) / 10 : undefined;
-    const sugar = n[`sugars${suffix}`] !== undefined ? Math.round(Number(n[`sugars${suffix}`]) * 10) / 10 : undefined;
-    const saturatedFat = n[`saturated-fat${suffix}`] !== undefined ? Math.round(Number(n[`saturated-fat${suffix}`]) * 10) / 10 : undefined;
-    const sodium = n[`sodium${suffix}`] !== undefined ? Math.round(Number(n[`sodium${suffix}`]) * 1000) : undefined;
-
-    if (!calories && !protein && !carbs && !fat) return null;
-
-    return {
-      name: p.product_name || p.product_name_en || p.generic_name || "Unknown product",
-      brand: p.brands,
-      imageUrl: p.image_front_small_url || p.image_url,
-      barcode,
-      servingSize: serving,
-      servingLabel: hasServing ? `1 portion (${serving}g)` : "100g",
-      calories,
-      protein,
-      carbs,
-      fat,
-      fiber,
-      sugar,
-      sodium,
-      saturatedFat,
-      healthScore: computeHealthScore({ sugar, saturatedFat, sodium, fiber, protein }),
-    };
-  } catch (e) {
-    console.error("OpenFoodFacts error", e);
-    return null;
+  let calories = Math.round(Number(n[`energy-kcal${suffix}`] ?? n["energy-kcal_100g"] ?? 0));
+  // Fallback: convert kJ → kcal if kcal missing
+  if (!calories) {
+    const kj = Number(n[`energy${suffix}`] ?? n["energy_100g"] ?? 0);
+    if (kj) calories = Math.round(kj / 4.184);
   }
+  const protein = Math.round(Number(n[`proteins${suffix}`] ?? n["proteins_100g"] ?? 0));
+  const carbs = Math.round(Number(n[`carbohydrates${suffix}`] ?? n["carbohydrates_100g"] ?? 0));
+  const fat = Math.round(Number(n[`fat${suffix}`] ?? n["fat_100g"] ?? 0));
+  const fiber = n[`fiber${suffix}`] !== undefined ? Math.round(Number(n[`fiber${suffix}`]) * 10) / 10 : undefined;
+  const sugar = n[`sugars${suffix}`] !== undefined ? Math.round(Number(n[`sugars${suffix}`]) * 10) / 10 : undefined;
+  const saturatedFat = n[`saturated-fat${suffix}`] !== undefined ? Math.round(Number(n[`saturated-fat${suffix}`]) * 10) / 10 : undefined;
+  const sodium = n[`sodium${suffix}`] !== undefined ? Math.round(Number(n[`sodium${suffix}`]) * 1000) : undefined;
+
+  if (!calories && !protein && !carbs && !fat) return null;
+
+  // Pick best name across many language fields (handles all countries)
+  const name =
+    p.product_name ||
+    p.product_name_en ||
+    p.product_name_fr ||
+    p.product_name_de ||
+    p.product_name_es ||
+    p.product_name_it ||
+    p.product_name_da ||
+    p.product_name_nl ||
+    p.product_name_sv ||
+    p.product_name_pt ||
+    p.product_name_ja ||
+    p.generic_name ||
+    p.generic_name_en ||
+    "Unknown product";
+
+  return {
+    name,
+    brand: p.brands,
+    imageUrl: p.image_front_small_url || p.image_front_url || p.image_url,
+    barcode,
+    servingSize: serving,
+    servingLabel: hasServing ? `1 portion (${serving}g)` : "100g",
+    calories,
+    protein,
+    carbs,
+    fat,
+    fiber,
+    sugar,
+    sodium,
+    saturatedFat,
+    healthScore: computeHealthScore({ sugar, saturatedFat, sodium, fiber, protein }),
+  };
+}
+
+async function lookupBarcode(barcode: string): Promise<Product | null> {
+  // Try each mirror in order, return first hit with usable nutrition
+  for (const host of OFF_HOSTS) {
+    try {
+      const res = await fetch(
+        `${host}/api/v2/product/${encodeURIComponent(barcode)}.json?fields=product_name,product_name_en,product_name_fr,product_name_de,product_name_es,product_name_it,product_name_da,product_name_nl,product_name_sv,product_name_pt,product_name_ja,generic_name,generic_name_en,brands,image_front_small_url,image_front_url,image_url,nutriments,serving_quantity`
+      );
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.status !== 1 || !data.product) continue;
+      const parsed = parseProduct(data.product, barcode);
+      if (parsed) return parsed;
+    } catch (e) {
+      console.warn(`OFF mirror ${host} failed`, e);
+      // try next mirror
+    }
+  }
+  return null;
 }
 
 export default function BarcodeScan() {
