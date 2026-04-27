@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import profileAvatar from "@/assets/profile-avatar.png";
-import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight } from "lucide-react";
+import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
@@ -14,7 +15,27 @@ export default function Profile() {
   const nav = useNavigate();
   const t = useT();
   const { signOut } = useAuth();
-  const { user, streak, premium, resetDay } = useKStore();
+  const { user, streak, premium, resetDay, avatar, setAvatar } = useKStore();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image too large (max 5MB)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatar(reader.result as string);
+      toast.success("Profile picture updated");
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div className="k-page">
