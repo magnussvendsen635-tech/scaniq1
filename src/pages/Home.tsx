@@ -7,6 +7,7 @@ import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 import { StreakCard } from "@/components/StreakCard";
 import { HealthScoreCard } from "@/components/HealthScoreCard";
+import { WaterCard } from "@/components/WaterCard";
 
 export default function Home() {
   const t = useT();
@@ -69,6 +70,9 @@ export default function Home() {
 
       {/* Daily health verdict */}
       <HealthScoreCard />
+
+      {/* Water tracking */}
+      <WaterCard />
 
       {/* Macros */}
       {premium ? (
