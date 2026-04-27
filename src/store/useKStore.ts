@@ -59,12 +59,14 @@ interface KState {
   // history per day for progress
   history: Record<string, { calories: number; weight: number }>;
   premium: boolean;
+  avatar: string | null; // data URL for custom profile picture
   // Water tracking — ml logged per day (key: YYYY-MM-DD)
   water: Record<string, number>;
   waterGoal: number; // ml per day, default 2500
 
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
+  setAvatar: (dataUrl: string | null) => void;
   updateUser: (u: Partial<UserProfile>) => void;
   addMeal: (m: Meal) => void;
   addWorkout: (w: WorkoutLog) => void;
@@ -104,11 +106,13 @@ export const useKStore = create<KState>()(
       lastActiveDate: "",
       history: {},
       premium: false,
+      avatar: null,
       water: {},
       waterGoal: 2500,
 
       setOnboarded: (v) => set({ onboarded: v }),
       setLanguage: (code) => set({ language: code }),
+      setAvatar: (dataUrl) => set({ avatar: dataUrl }),
       updateUser: (u) => set({ user: { ...get().user, ...u } }),
       addMeal: (m) => {
         const meals = [m, ...get().meals];
