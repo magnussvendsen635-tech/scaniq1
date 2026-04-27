@@ -104,6 +104,8 @@ export const useKStore = create<KState>()(
       lastActiveDate: "",
       history: {},
       premium: false,
+      water: {},
+      waterGoal: 2500,
 
       setOnboarded: (v) => set({ onboarded: v }),
       setLanguage: (code) => set({ language: code }),
