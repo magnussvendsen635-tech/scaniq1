@@ -335,6 +335,20 @@ export default function FoodScan() {
                 )}
               </div>
 
+              {result.items && result.items.length > 0 && (
+                <div className="k-card p-4">
+                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Items</div>
+                  <ul className="divide-y divide-border">
+                    {result.items.map((it, i) => (
+                      <li key={i} className="flex justify-between py-2 text-sm">
+                        <span className="text-foreground capitalize">{it.name}</span>
+                        <span className="text-muted-foreground">{it.calories} kcal</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div className="grid grid-cols-3 gap-3">
                 <Macro label={t("home.protein")} value={result.protein} />
                 <Macro label={t("home.carbs")} value={result.carbs} />
