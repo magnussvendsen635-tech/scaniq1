@@ -123,9 +123,15 @@ export default function Auth() {
           <Button
             type="submit"
             disabled={busy}
-            className="w-full h-12 rounded-2xl bg-gradient-primary shadow-glow font-semibold"
+            className="w-full h-12 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)]"
           >
-            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : mode === "signin" ? t("auth.sign_in") : t("auth.sign_up")}
+            {busy ? (
+              <Loader2 className="w-4 h-4 animate-spin text-white" />
+            ) : (
+              <span className="text-white">
+                {mode === "signin" ? t("auth.sign_in") : t("auth.sign_up")}
+              </span>
+            )}
           </Button>
         </form>
 
