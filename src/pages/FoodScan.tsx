@@ -266,7 +266,7 @@ export default function FoodScan() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-primary flex items-center justify-center mb-4 shadow-glow">
             <Crown className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold mb-2">You've used your free scan</h2>
+          <h2 className="text-xl font-bold mb-2">You've used your 2 free scans</h2>
           <p className="text-sm text-muted-foreground mb-5">
             Upgrade to Premium for <span className="text-foreground font-semibold">unlimited AI food scans</span>, plus all premium features.
           </p>
