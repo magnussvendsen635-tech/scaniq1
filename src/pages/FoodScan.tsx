@@ -270,6 +270,30 @@ export default function FoodScan() {
                 </div>
               </div>
 
+              <div className="k-card p-5 mb-5">
+                <h2 className="text-lg font-semibold mb-1">Meal type</h2>
+                <p className="text-sm text-muted-foreground mb-4">Categorize this meal in your diary.</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {([
+                    ["breakfast", Sun, "Breakfast"],
+                    ["lunch", UtensilsCrossed, "Lunch"],
+                    ["dinner", Moon, "Dinner"],
+                    ["snack", Cookie, "Snack"],
+                  ] as [MealCategory, any, string][]).map(([c, Icon, label]) => (
+                    <button
+                      key={c}
+                      onClick={() => setCategory(c)}
+                      className={`k-tap rounded-2xl p-3 border-2 transition-all flex flex-col items-center gap-1 ${
+                        category === c ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-card"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="text-[11px] font-semibold">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <input
                 ref={fileRef}
                 type="file"
