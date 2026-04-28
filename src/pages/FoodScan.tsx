@@ -387,13 +387,9 @@ export default function FoodScan() {
                 onChange={onPick}
               />
               <Button
-                onClick={async () => {
-                  const quota = await refreshQuota();
-                  if (!quota.premium && quota.scans >= FREE_LIMIT) {
-                    setLimitReached(true);
-                    toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
-                    return;
-                  }
+                onClick={() => {
+                  // IMPORTANT: must be sync to preserve the user gesture so the
+                  // browser opens the camera/file picker. No awaits before .click().
                   fileRef.current?.click();
                 }}
                 className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
