@@ -9,7 +9,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const FREE_SCAN_LIMIT = 999999;
+const FREE_SCAN_LIMIT = 2;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
     }
 
     // ---- Input ----
-    const { image, portion } = await req.json();
+    const { image, portion, strategy } = await req.json();
     if (!image || typeof image !== "string") {
       return new Response(JSON.stringify({ error: "Missing image (data URL)" }), {
         status: 400,
@@ -90,6 +90,13 @@ Deno.serve(async (req) => {
       medium: "The user indicates this is a MEDIUM/typical portion size.",
       large: "The user indicates this is a LARGE portion (~140-160% of a typical serving). Scale calories and macros accordingly.",
     }[portionLabel];
+
+    // Retry strategy: "fallback" uses the stronger Pro model + OCR-focused prompt
+    const useFallback = strategy === "fallback";
+    const model = useFallback ? "google/gemini-2.5-pro" : "google/gemini-2.5-flash";
+    const extraHint = useFallback
+      ? " RETRY MODE: previous attempt failed or was low-confidence. Look EXTRA carefully — read any text/labels/brands on packaging (OCR), zoom mentally on the product, and make your best guess even if partial. NEVER refuse."
+      : "";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -107,7 +114,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model,
         messages: [
           {
             role: "system",
@@ -130,7 +137,7 @@ Deno.serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Analyze this food image. ${portionHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive.`,
+                text: `Analyze this food image. ${portionHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive.`,
               },
               { type: "image_url", image_url: { url: image } },
             ],

@@ -49,7 +49,9 @@ export default function FoodScan() {
   const [scansUsed, setScansUsed] = useState<number>(0);
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
+  const [scanStatus, setScanStatus] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const FREE_LIMIT = 2;
 
   // Fetch scan quota from server
   useEffect(() => {
@@ -63,7 +65,7 @@ export default function FoodScan() {
       if (data) {
         setScansUsed(data.scan_count ?? 0);
         setIsPremiumServer(!!data.is_premium);
-        if (!data.is_premium && (data.scan_count ?? 0) >= 1) setLimitReached(true);
+        if (!data.is_premium && (data.scan_count ?? 0) >= FREE_LIMIT) setLimitReached(true);
       }
     })();
   }, [profile]);
@@ -105,6 +107,21 @@ export default function FoodScan() {
     e.target.value = "";
   };
 
+  const callScan = async (img: string, strategy: "primary" | "fallback") => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 35000);
+    try {
+      const { data, error } = await supabase.functions.invoke("scan-food", {
+        body: { image: img, portion, strategy },
+      });
+      clearTimeout(timeout);
+      return { data, error };
+    } catch (e) {
+      clearTimeout(timeout);
+      return { data: null, error: e as any };
+    }
+  };
+
   const scan = async (image?: string) => {
     const img = image ?? preview;
     if (!img) {
@@ -113,24 +130,42 @@ export default function FoodScan() {
     }
     setScanning(true);
     setResult(null);
+    setScanStatus("🔍 Analyzing your food…");
     try {
-      const { data, error } = await supabase.functions.invoke("scan-food", {
-        body: { image: img, portion },
-      });
-      if (error) {
-        const status = (error as any).context?.status;
-        if (status === 403) {
+      let { data, error } = await callScan(img, "primary");
+
+      // Retry with stronger model + OCR-focused prompt on failure / timeout / low confidence
+      const status = (error as any)?.context?.status;
+      const lowConfidence = data && typeof data.confidence === "number" && data.confidence < 0.35;
+      const shouldRetry = (error && status !== 403 && status !== 402) || lowConfidence;
+
+      if (shouldRetry) {
+        setScanStatus("🤔 First try wasn't confident — retrying with smarter model…");
+        const retry = await callScan(img, "fallback");
+        if (!retry.error) {
+          data = retry.data;
+          error = null;
+        } else if (!data) {
+          error = retry.error;
+        }
+      }
+
+      if (error || !data) {
+        const s = (error as any)?.context?.status;
+        if (s === 403) {
           setLimitReached(true);
-          toast.error("Free scan used", { description: "Upgrade to premium for unlimited scans." });
-        } else if (status === 429) {
+          toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
+        } else if (s === 429) {
           toast.error("Rate limit", { description: "Try again in a moment." });
-        } else if (status === 402) {
+        } else if (s === 402) {
           toast.error("Out of AI credits", { description: "Add funds to continue." });
         } else {
-          toast.error("Scan failed", { description: error.message });
+          toast.error("Scan failed", { description: (error as any)?.message ?? "Unknown error" });
         }
         return;
       }
+
+      setScanStatus("✅ Done");
       setResult({
         name: data.name,
         items: Array.isArray(data.items)
@@ -149,9 +184,6 @@ export default function FoodScan() {
         confidence: data.confidence,
       });
       if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
-      if (!data.is_premium && data.scans_used >= (data.scan_limit ?? 1)) {
-        // Limit will hit on next attempt
-      }
       setStep("result");
     } catch (err: any) {
       toast.error("Scan failed", { description: err?.message ?? "Unknown error" });
@@ -224,7 +256,7 @@ export default function FoodScan() {
         <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("scan.title")}</h1>
         {!isPremiumServer && (
           <span className="text-xs px-2.5 py-1 rounded-full bg-card border border-border/60 text-muted-foreground">
-            {Math.max(0, 1 - scansUsed)}/1 free
+            {Math.max(0, FREE_LIMIT - scansUsed)}/{FREE_LIMIT} free
           </span>
         )}
       </header>
@@ -234,7 +266,7 @@ export default function FoodScan() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-primary flex items-center justify-center mb-4 shadow-glow">
             <Crown className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold mb-2">You've used your free scan</h2>
+          <h2 className="text-xl font-bold mb-2">You've used your 2 free scans</h2>
           <p className="text-sm text-muted-foreground mb-5">
             Upgrade to Premium for <span className="text-foreground font-semibold">unlimited AI food scans</span>, plus all premium features.
           </p>
@@ -358,6 +390,9 @@ export default function FoodScan() {
                       </div>
                     </div>
                     <p className="text-sm text-foreground/70 font-medium">{t("scan.identifying")}</p>
+                    {scanStatus && (
+                      <p className="text-xs text-foreground/60 mt-2 px-4 max-w-[260px]">{scanStatus}</p>
+                    )}
                   </>
                 ) : result ? (
                   <div className="animate-scale-in">

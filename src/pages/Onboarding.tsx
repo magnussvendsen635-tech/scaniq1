@@ -83,7 +83,7 @@ export default function Onboarding() {
     setLanguage(lang);
     updateUser({ age, weight, targetWeight, height, goal, activity, pace, frequency, diet, ...plan });
     setOnboarded(true);
-    nav("/", { replace: true });
+    nav("/premium", { replace: true });
   };
 
   const isLastQuestion = step === TOTAL_QUESTIONS - 1;
