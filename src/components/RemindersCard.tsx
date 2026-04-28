@@ -99,7 +99,7 @@ export const RemindersCard = () => {
       </div>
       <button
         onClick={reminders.enabled ? disable : enable}
-        className={`k-tap px-4 py-2 rounded-2xl text-sm font-semibold ${reminders.enabled ? "bg-card border border-border" : "bg-gradient-primary shadow-glow"}`}
+        className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-colors ${reminders.enabled ? "bg-card border border-border" : "bg-primary text-primary-foreground"}`}
       >
         {reminders.enabled ? "Off" : "Enable"}
       </button>
