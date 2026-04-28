@@ -107,6 +107,21 @@ export default function FoodScan() {
     e.target.value = "";
   };
 
+  const callScan = async (img: string, strategy: "primary" | "fallback") => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 35000);
+    try {
+      const { data, error } = await supabase.functions.invoke("scan-food", {
+        body: { image: img, portion, strategy },
+      });
+      clearTimeout(timeout);
+      return { data, error };
+    } catch (e) {
+      clearTimeout(timeout);
+      return { data: null, error: e as any };
+    }
+  };
+
   const scan = async (image?: string) => {
     const img = image ?? preview;
     if (!img) {
@@ -115,24 +130,42 @@ export default function FoodScan() {
     }
     setScanning(true);
     setResult(null);
+    setScanStatus("🔍 Analyzing your food…");
     try {
-      const { data, error } = await supabase.functions.invoke("scan-food", {
-        body: { image: img, portion },
-      });
-      if (error) {
-        const status = (error as any).context?.status;
-        if (status === 403) {
+      let { data, error } = await callScan(img, "primary");
+
+      // Retry with stronger model + OCR-focused prompt on failure / timeout / low confidence
+      const status = (error as any)?.context?.status;
+      const lowConfidence = data && typeof data.confidence === "number" && data.confidence < 0.35;
+      const shouldRetry = (error && status !== 403 && status !== 402) || lowConfidence;
+
+      if (shouldRetry) {
+        setScanStatus("🤔 First try wasn't confident — retrying with smarter model…");
+        const retry = await callScan(img, "fallback");
+        if (!retry.error) {
+          data = retry.data;
+          error = null;
+        } else if (!data) {
+          error = retry.error;
+        }
+      }
+
+      if (error || !data) {
+        const s = (error as any)?.context?.status;
+        if (s === 403) {
           setLimitReached(true);
-          toast.error("Free scan used", { description: "Upgrade to premium for unlimited scans." });
-        } else if (status === 429) {
+          toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
+        } else if (s === 429) {
           toast.error("Rate limit", { description: "Try again in a moment." });
-        } else if (status === 402) {
+        } else if (s === 402) {
           toast.error("Out of AI credits", { description: "Add funds to continue." });
         } else {
-          toast.error("Scan failed", { description: error.message });
+          toast.error("Scan failed", { description: (error as any)?.message ?? "Unknown error" });
         }
         return;
       }
+
+      setScanStatus("✅ Done");
       setResult({
         name: data.name,
         items: Array.isArray(data.items)
@@ -151,9 +184,6 @@ export default function FoodScan() {
         confidence: data.confidence,
       });
       if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
-      if (!data.is_premium && data.scans_used >= (data.scan_limit ?? 1)) {
-        // Limit will hit on next attempt
-      }
       setStep("result");
     } catch (err: any) {
       toast.error("Scan failed", { description: err?.message ?? "Unknown error" });
