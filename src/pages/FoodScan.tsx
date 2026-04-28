@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useKStore, caloriesToday } from "@/store/useKStore";
-import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown } from "lucide-react";
+import { useKStore, caloriesToday, categoryForNow, type MealCategory } from "@/store/useKStore";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Star, Sun, UtensilsCrossed, Moon, Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -38,13 +38,14 @@ export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, streak, premium } = useKStore();
+  const { user, meals, addMeal, streak, premium, addFavorite, isFavorite } = useKStore();
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [portion, setPortion] = useState<Portion>("medium");
   const [step, setStep] = useState<Step>("portion");
+  const [category, setCategory] = useState<MealCategory>(categoryForNow());
   const [scansUsed, setScansUsed] = useState<number>(0);
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
@@ -158,6 +159,7 @@ export default function FoodScan() {
       saturatedFat: result.saturatedFat,
       cholesterol: result.cholesterol,
       healthScore: result.healthScore,
+      category,
       at: Date.now(),
     });
     const newStreak = useKStore.getState().streak;

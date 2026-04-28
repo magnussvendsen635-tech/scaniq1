@@ -21,6 +21,8 @@ import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Premium from "./pages/Premium";
+import Weight from "./pages/Weight";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -69,6 +71,8 @@ const App = () => {
                 <Route path="/profile" element={<Shell><Profile /></Shell>} />
                 <Route path="/settings" element={<Shell><Settings /></Shell>} />
                 <Route path="/premium" element={<Shell><Premium /></Shell>} />
+                <Route path="/weight" element={<Shell><Weight /></Shell>} />
+                <Route path="/favorites" element={<Shell><Favorites /></Shell>} />
                 <Route path="*" element={<NotFound />} />
               </>
             )}
