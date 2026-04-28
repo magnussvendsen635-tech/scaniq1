@@ -47,6 +47,72 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reminder_preferences: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          meals: boolean
+          timezone: string
+          updated_at: string
+          user_id: string
+          water: boolean
+          weight: boolean
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          meals?: boolean
+          timezone?: string
+          updated_at?: string
+          user_id: string
+          water?: boolean
+          weight?: boolean
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          meals?: boolean
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+          water?: boolean
+          weight?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
