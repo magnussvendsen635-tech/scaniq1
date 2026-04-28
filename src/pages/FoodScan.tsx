@@ -256,7 +256,7 @@ export default function FoodScan() {
         <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("scan.title")}</h1>
         {!isPremiumServer && (
           <span className="text-xs px-2.5 py-1 rounded-full bg-card border border-border/60 text-muted-foreground">
-            {Math.max(0, 1 - scansUsed)}/1 free
+            {Math.max(0, FREE_LIMIT - scansUsed)}/{FREE_LIMIT} free
           </span>
         )}
       </header>
