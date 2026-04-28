@@ -295,7 +295,7 @@ async function lookupWithAI(barcode: string): Promise<Product | null> {
     const args = data?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
     if (!args) return null;
     const p = JSON.parse(args);
-    if (!p.found || (p.confidence ?? 0) < 0.35) return null;
+    if (!p.found || (p.confidence ?? 0) < 0.2) return null;
 
     return {
       name: p.name,
