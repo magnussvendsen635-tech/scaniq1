@@ -82,6 +82,7 @@ export type Database = {
       }
       reminder_preferences: {
         Row: {
+          calories: boolean
           created_at: string
           enabled: boolean
           meals: boolean
@@ -92,6 +93,7 @@ export type Database = {
           weight: boolean
         }
         Insert: {
+          calories?: boolean
           created_at?: string
           enabled?: boolean
           meals?: boolean
@@ -102,6 +104,7 @@ export type Database = {
           weight?: boolean
         }
         Update: {
+          calories?: boolean
           created_at?: string
           enabled?: boolean
           meals?: boolean
