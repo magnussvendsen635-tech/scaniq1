@@ -6,6 +6,7 @@ export type Activity = "sedentary" | "light" | "moderate" | "active" | "athlete"
 export type Pace = "aggressive" | "balanced" | "slow";
 export type Frequency = "0-1" | "2-3" | "4+";
 export type Diet = "none" | "high-protein" | "low-carb" | "vegetarian";
+export type MealCategory = "breakfast" | "lunch" | "dinner" | "snack";
 
 export interface Meal {
   id: string;
@@ -16,6 +17,7 @@ export interface Meal {
   fat: number;
   healthScore: number;
   at: number; // timestamp
+  category?: MealCategory;
   // Optional micronutrients (returned from AI scan)
   fiber?: number;
   sugar?: number;
@@ -24,12 +26,33 @@ export interface Meal {
   cholesterol?: number; // mg
 }
 
+export interface FavoriteMeal {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  healthScore: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  saturatedFat?: number;
+  cholesterol?: number;
+  addedAt: number;
+}
+
 export interface WorkoutLog {
   id: string;
   name: string;
   minutes: number;
   caloriesBurned: number;
   at: number;
+}
+
+export interface WeightEntry {
+  weight: number;
+  at: number; // timestamp
 }
 
 export interface UserProfile {
@@ -48,27 +71,38 @@ export interface UserProfile {
   fat: number;
 }
 
+export interface ReminderSettings {
+  enabled: boolean;
+  water: boolean;
+  meals: boolean;
+  weight: boolean;
+}
+
 interface KState {
   onboarded: boolean;
   language: string;
   user: UserProfile;
   meals: Meal[];
   workouts: WorkoutLog[];
+  favorites: FavoriteMeal[];
+  weights: WeightEntry[];
+  reminders: ReminderSettings;
   streak: number;
   lastActiveDate: string; // YYYY-MM-DD
   // history per day for progress
   history: Record<string, { calories: number; weight: number }>;
   premium: boolean;
-  avatar: string | null; // data URL for custom profile picture
-  // Water tracking — ml logged per day (key: YYYY-MM-DD)
+  avatar: string | null;
   water: Record<string, number>;
-  waterGoal: number; // ml per day, default 2500
+  waterGoal: number;
+  autoAdjustGoal: boolean;
 
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
   setAvatar: (dataUrl: string | null) => void;
   updateUser: (u: Partial<UserProfile>) => void;
   addMeal: (m: Meal) => void;
+  removeMeal: (id: string) => void;
   addWorkout: (w: WorkoutLog) => void;
   resetDay: () => void;
   tickStreak: () => void;
@@ -76,6 +110,14 @@ interface KState {
   addWater: (ml: number) => void;
   setWaterGoal: (ml: number) => void;
   resetWaterToday: () => void;
+  addFavorite: (m: Omit<FavoriteMeal, "id" | "addedAt">) => void;
+  removeFavorite: (id: string) => void;
+  isFavorite: (name: string) => boolean;
+  logWeight: (kg: number) => void;
+  removeWeight: (at: number) => void;
+  setReminders: (r: Partial<ReminderSettings>) => void;
+  setAutoAdjustGoal: (v: boolean) => void;
+  recomputePlan: () => void;
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -102,6 +144,9 @@ export const useKStore = create<KState>()(
       },
       meals: [],
       workouts: [],
+      favorites: [],
+      weights: [],
+      reminders: { enabled: false, water: true, meals: true, weight: true },
       streak: 0,
       lastActiveDate: "",
       history: {},
@@ -109,6 +154,7 @@ export const useKStore = create<KState>()(
       avatar: null,
       water: {},
       waterGoal: 2500,
+      autoAdjustGoal: true,
 
       setOnboarded: (v) => set({ onboarded: v }),
       setLanguage: (code) => set({ language: code }),
@@ -118,11 +164,11 @@ export const useKStore = create<KState>()(
         const meals = [m, ...get().meals];
         set({ meals });
         get().tickStreak();
-        // update history snapshot
         const d = today();
         const dayCals = meals.filter((x) => new Date(x.at).toISOString().slice(0, 10) === d).reduce((a, b) => a + b.calories, 0);
         set({ history: { ...get().history, [d]: { calories: dayCals, weight: get().user.weight } } });
       },
+      removeMeal: (id) => set({ meals: get().meals.filter((m) => m.id !== id) }),
       addWorkout: (w) => set({ workouts: [w, ...get().workouts] }),
       resetDay: () => {
         const d = today();
@@ -136,9 +182,9 @@ export const useKStore = create<KState>()(
         if (last === d) return;
         const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
         let next: number;
-        if (!last) next = 1; // first ever
-        else if (last === yesterday) next = get().streak + 1; // continued
-        else next = 1; // missed a day -> reset
+        if (!last) next = 1;
+        else if (last === yesterday) next = get().streak + 1;
+        else next = 1;
         set({ streak: next, lastActiveDate: d });
       },
       setPremium: (v) => set({ premium: v }),
@@ -153,6 +199,27 @@ export const useKStore = create<KState>()(
         const water = { ...get().water };
         delete water[d];
         set({ water });
+      },
+      addFavorite: (m) => {
+        if (get().favorites.some((f) => f.name.toLowerCase() === m.name.toLowerCase())) return;
+        const fav: FavoriteMeal = { ...m, id: crypto.randomUUID(), addedAt: Date.now() };
+        set({ favorites: [fav, ...get().favorites] });
+      },
+      removeFavorite: (id) => set({ favorites: get().favorites.filter((f) => f.id !== id) }),
+      isFavorite: (name) => get().favorites.some((f) => f.name.toLowerCase() === name.toLowerCase()),
+      logWeight: (kg) => {
+        const entry: WeightEntry = { weight: kg, at: Date.now() };
+        const weights = [entry, ...get().weights];
+        set({ weights, user: { ...get().user, weight: kg } });
+        if (get().autoAdjustGoal) get().recomputePlan();
+      },
+      removeWeight: (at) => set({ weights: get().weights.filter((w) => w.at !== at) }),
+      setReminders: (r) => set({ reminders: { ...get().reminders, ...r } }),
+      setAutoAdjustGoal: (v) => set({ autoAdjustGoal: v }),
+      recomputePlan: () => {
+        const u = get().user;
+        const plan = computePlan({ weight: u.weight, height: u.height, activity: u.activity, goal: u.goal });
+        set({ user: { ...u, ...plan } });
       },
     }),
     { name: "kcally-store-v1" }
@@ -195,6 +262,16 @@ export function micronutrientsToday(meals: Meal[]) {
       }),
       { fiber: 0, sugar: 0, sodium: 0, saturatedFat: 0, cholesterol: 0 }
     );
+}
+
+// Auto-detect meal category based on time of day
+export function categoryForNow(d: Date = new Date()): MealCategory {
+  const h = d.getHours();
+  if (h < 10) return "breakfast";
+  if (h < 14) return "lunch";
+  if (h < 17) return "snack";
+  if (h < 22) return "dinner";
+  return "snack";
 }
 
 // Calculate calories from onboarding (Mifflin-St Jeor simplified, assume male 30y)
