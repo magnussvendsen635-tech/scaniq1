@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import profileAvatar from "@/assets/profile-avatar.png";
-import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight, Camera, Scale, Star } from "lucide-react";
+import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
@@ -94,6 +94,7 @@ export default function Profile() {
         <Row Icon={Scale} title="Weight tracker" sub="Log weight & see your trend" onClick={() => nav("/weight")} />
         <Row Icon={Star} title="Favorites & recent" sub="Quick-add saved meals" onClick={() => nav("/favorites")} />
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
+        <BackendRow />
         <Row
           Icon={RotateCcw}
           title={t("profile.reset_day")}
@@ -139,4 +140,19 @@ const Row = ({ Icon, title, sub, onClick, danger }: { Icon: any; title: string; 
     </div>
     <ChevronRight className="w-4 h-4 text-muted-foreground" />
   </button>
+);
+
+const BackendRow = () => (
+  <div className="w-full p-4 flex items-center gap-4 text-left">
+    <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gradient-soft">
+      <Database className="w-4.5 h-4.5 text-primary-glow" />
+    </div>
+    <div className="flex-1">
+      <div className="font-medium">View Backend</div>
+      <div className="text-xs text-muted-foreground">Open database & users</div>
+    </div>
+    <presentation-actions>
+      <presentation-open-backend>Open</presentation-open-backend>
+    </presentation-actions>
+  </div>
 );
