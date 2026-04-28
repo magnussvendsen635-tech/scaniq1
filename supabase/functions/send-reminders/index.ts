@@ -60,8 +60,8 @@ Deno.serve(async (req) => {
     if (!p.enabled) continue;
     const { hour, dow } = localHour(p.timezone || "Europe/Copenhagen");
 
-    // Water — at 11, 14, 17, 20
-    if (p.water && [11, 14, 17, 20].includes(hour)) {
+    // Water — every 4 hours (11, 15, 19)
+    if (p.water && [11, 15, 19].includes(hour)) {
       jobs.push({
         user_id: p.user_id,
         title: "💧 Time to hydrate",
