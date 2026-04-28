@@ -6,6 +6,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const featureKeys: TKey[] = [
   "premium.feat_scans",
@@ -20,9 +22,17 @@ export default function Premium() {
   const nav = useNavigate();
   const t = useT();
   const { setPremium, premium } = useKStore();
+  const { user } = useAuth();
   const [plan, setPlan] = useState<"month" | "year">("year");
 
-  const upgrade = () => {
+  const upgrade = async () => {
+    if (user) {
+      const { error } = await supabase.from("profiles").update({ is_premium: true }).eq("id", user.id);
+      if (error) {
+        toast.error("Upgrade failed", { description: "Please try again." });
+        return;
+      }
+    }
     setPremium(true);
     toast.success(t("premium.welcome"), { description: t("premium.welcome_sub") });
     nav("/profile");
