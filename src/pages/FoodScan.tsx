@@ -99,6 +99,15 @@ export default function FoodScan() {
   const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!premium && !isPremiumServer && scansUsed >= FREE_LIMIT) {
+      setLimitReached(true);
+      setStep("portion");
+      toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
+      e.target.value = "";
+      return;
+    }
+
     const dataUrl = await fileToDataUrl(file);
     setPreview(dataUrl);
     setResult(null);
@@ -113,6 +122,7 @@ export default function FoodScan() {
     try {
       const { data, error } = await supabase.functions.invoke("scan-food", {
         body: { image: img, portion, strategy },
+        signal: controller.signal,
       });
       clearTimeout(timeout);
       return { data, error };
@@ -126,6 +136,15 @@ export default function FoodScan() {
     const img = image ?? preview;
     if (!img) {
       fileRef.current?.click();
+      return;
+    }
+    if (!premium && !isPremiumServer && scansUsed >= FREE_LIMIT) {
+      setLimitReached(true);
+      setStep("portion");
+      setPreview(null);
+      setResult(null);
+      setScanStatus("");
+      toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
       return;
     }
     setScanning(true);
@@ -183,7 +202,10 @@ export default function FoodScan() {
         healthScore: Math.round(data.healthScore),
         confidence: data.confidence,
       });
-      if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
+      if (typeof data.scans_used === "number") {
+        setScansUsed(data.scans_used);
+        if (!data.is_premium && data.scans_used >= FREE_LIMIT) setLimitReached(true);
+      }
       setStep("result");
     } catch (err: any) {
       toast.error("Scan failed", { description: err?.message ?? "Unknown error" });
