@@ -9,7 +9,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const FREE_SCAN_LIMIT = 1;
+const FREE_SCAN_LIMIT = 999999;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
