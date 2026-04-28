@@ -321,7 +321,7 @@ const da: Dict = {
   "onboarding.act_active_sub": "6–7 dage / uge",
   "onboarding.act_athlete_sub": "2x daglig træning",
   "onboarding.suffix_yrs": "år", "onboarding.suffix_cm": "cm", "onboarding.suffix_kg": "kg",
-  "onboarding.create_plan": "Opret min plan", "onboarding.start_training": "Start træning",
+  "onboarding.create_plan": "Opret min plan", "onboarding.start_training": "Kom i gang",
   "onboarding.loading_1": "Analyserer dine svar…",
   "onboarding.loading_2": "Kalibrerer dit stofskifte…",
   "onboarding.loading_3": "Opretter din plan…",
