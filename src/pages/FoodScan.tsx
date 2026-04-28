@@ -65,7 +65,7 @@ export default function FoodScan() {
       if (data) {
         setScansUsed(data.scan_count ?? 0);
         setIsPremiumServer(!!data.is_premium);
-        if (!data.is_premium && (data.scan_count ?? 0) >= 1) setLimitReached(true);
+        if (!data.is_premium && (data.scan_count ?? 0) >= FREE_LIMIT) setLimitReached(true);
       }
     })();
   }, [profile]);
