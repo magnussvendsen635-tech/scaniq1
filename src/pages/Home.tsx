@@ -76,6 +76,36 @@ export default function Home() {
       {/* Water tracking */}
       <WaterCard />
 
+      {/* AI Scanner — primary action (placed high so it's always tappable) */}
+      <Link
+        to="/scan"
+        className="k-card k-tap p-5 mb-3 mt-2 flex items-center gap-4 bg-gradient-primary shadow-glow group relative z-10"
+      >
+        <div className="w-12 h-12 rounded-2xl bg-background/20 backdrop-blur flex items-center justify-center border-[3px] border-foreground shrink-0">
+          <ScanLine className="w-6 h-6 text-foreground" strokeWidth={2.5} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-foreground">{t("home.scan_food")}</div>
+          <div className="text-xs text-foreground/80">{t("home.scan_food_sub")}</div>
+        </div>
+        <ChevronRight className="w-5 h-5 text-foreground" />
+      </Link>
+
+      {/* Barcode Scanner */}
+      <Link
+        to="/barcode"
+        className="k-card k-tap p-5 mb-5 flex items-center gap-4 bg-card group relative z-10"
+      >
+        <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center border-[3px] border-foreground shrink-0">
+          <Barcode className="w-6 h-6 text-foreground" strokeWidth={2.5} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-bold text-foreground">Scan barcode</div>
+          <div className="text-xs text-muted-foreground">Get instant nutrition from packaged food</div>
+        </div>
+        <ChevronRight className="w-5 h-5 text-foreground" />
+      </Link>
+
       {/* Macros */}
       {premium ? (
         <div className="grid grid-cols-3 gap-3 mb-5">
