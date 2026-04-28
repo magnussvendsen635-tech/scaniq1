@@ -53,21 +53,25 @@ export default function FoodScan() {
   const fileRef = useRef<HTMLInputElement>(null);
   const FREE_LIMIT = 2;
 
+  const refreshQuota = async () => {
+    if (!profile) return { scans: scansUsed, premium: isPremiumServer };
+    const { data } = await supabase
+      .from("profiles")
+      .select("scan_count, is_premium")
+      .eq("id", profile.id)
+      .maybeSingle();
+    const scans = data?.scan_count ?? scansUsed;
+    const serverPremium = !!data?.is_premium;
+    setScansUsed(scans);
+    setIsPremiumServer(serverPremium);
+    if (!serverPremium && scans >= FREE_LIMIT) setLimitReached(true);
+    return { scans, premium: serverPremium };
+  };
+
   // Fetch scan quota from server
   useEffect(() => {
     if (!profile) return;
-    (async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("scan_count, is_premium")
-        .eq("id", profile.id)
-        .maybeSingle();
-      if (data) {
-        setScansUsed(data.scan_count ?? 0);
-        setIsPremiumServer(!!data.is_premium);
-        if (!data.is_premium && (data.scan_count ?? 0) >= FREE_LIMIT) setLimitReached(true);
-      }
-    })();
+    refreshQuota();
   }, [profile]);
 
   const fileToDataUrl = (file: File) =>
@@ -99,6 +103,16 @@ export default function FoodScan() {
   const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const quota = await refreshQuota();
+    if (!premium && !quota.premium && quota.scans >= FREE_LIMIT) {
+      setLimitReached(true);
+      setStep("portion");
+      toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
+      e.target.value = "";
+      return;
+    }
+
     const dataUrl = await fileToDataUrl(file);
     setPreview(dataUrl);
     setResult(null);
@@ -111,9 +125,13 @@ export default function FoodScan() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 35000);
     try {
-      const { data, error } = await supabase.functions.invoke("scan-food", {
+      const invokePromise = supabase.functions.invoke("scan-food", {
         body: { image: img, portion, strategy },
       });
+      const { data, error } = await Promise.race([
+        invokePromise,
+        new Promise<never>((_, reject) => controller.signal.addEventListener("abort", () => reject(new Error("Scan timed out")), { once: true })),
+      ]);
       clearTimeout(timeout);
       return { data, error };
     } catch (e) {
@@ -126,6 +144,16 @@ export default function FoodScan() {
     const img = image ?? preview;
     if (!img) {
       fileRef.current?.click();
+      return;
+    }
+    const quota = await refreshQuota();
+    if (!premium && !quota.premium && quota.scans >= FREE_LIMIT) {
+      setLimitReached(true);
+      setStep("portion");
+      setPreview(null);
+      setResult(null);
+      setScanStatus("");
+      toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
       return;
     }
     setScanning(true);
@@ -183,7 +211,10 @@ export default function FoodScan() {
         healthScore: Math.round(data.healthScore),
         confidence: data.confidence,
       });
-      if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
+      if (typeof data.scans_used === "number") {
+        setScansUsed(data.scans_used);
+        if (!data.is_premium && data.scans_used >= FREE_LIMIT) setLimitReached(true);
+      }
       setStep("result");
     } catch (err: any) {
       toast.error("Scan failed", { description: err?.message ?? "Unknown error" });
