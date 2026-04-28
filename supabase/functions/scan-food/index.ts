@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Analyze this food image. ${portionHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive.`,
+                text: `Analyze this food image. ${portionHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive.`,
               },
               { type: "image_url", image_url: { url: image } },
             ],
