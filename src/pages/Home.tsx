@@ -143,36 +143,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* AI Scanner — primary action */}
-      <Link
-        to="/scan"
-        className="k-card k-tap p-5 mb-3 flex items-center gap-4 bg-gradient-primary shadow-glow group"
-      >
-        <div className="w-12 h-12 rounded-2xl bg-background/20 backdrop-blur flex items-center justify-center border-[3px] border-foreground shrink-0">
-          <ScanLine className="w-6 h-6 text-foreground" strokeWidth={2.5} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-semibold text-foreground">{t("home.scan_food")}</div>
-          <div className="text-xs text-foreground/80">{t("home.scan_food_sub")}</div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-foreground" />
-      </Link>
-
-      {/* Barcode Scanner */}
-      <Link
-        to="/barcode"
-        className="k-card k-tap p-5 mb-3 flex items-center gap-4 bg-card group"
-      >
-        <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center border-[3px] border-foreground shrink-0">
-          <Barcode className="w-6 h-6 text-foreground" strokeWidth={2.5} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-bold text-foreground">Scan barcode</div>
-          <div className="text-xs text-muted-foreground">Get instant nutrition from packaged food</div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-foreground" />
-      </Link>
-
       {/* Quick add favorites */}
       <Link
         to="/favorites"
