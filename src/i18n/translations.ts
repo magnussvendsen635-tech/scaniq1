@@ -189,7 +189,7 @@ const en: Record<TKey, string> = {
   "onboarding.act_active_sub": "6–7 days / week",
   "onboarding.act_athlete_sub": "2x daily training",
   "onboarding.suffix_yrs": "yrs", "onboarding.suffix_cm": "cm", "onboarding.suffix_kg": "kg",
-  "onboarding.create_plan": "Create my plan", "onboarding.start_training": "Start training",
+  "onboarding.create_plan": "Create my plan", "onboarding.start_training": "Get started",
   "onboarding.loading_1": "Analyzing your answers…",
   "onboarding.loading_2": "Calibrating your metabolism…",
   "onboarding.loading_3": "Creating your plan…",
