@@ -361,9 +361,37 @@ export default function FoodScan() {
                     <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.calories")}</div>
                     <div className="text-5xl font-semibold k-gradient-text">{result.calories}</div>
                   </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
-                    <Heart className="w-4 h-4 text-primary-glow" />
-                    <span className="text-sm font-semibold">{result.healthScore}/10</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        if (isFavorite(result.name)) {
+                          toast.info("Already in favorites");
+                          return;
+                        }
+                        addFavorite({
+                          name: result.name,
+                          calories: result.calories,
+                          protein: result.protein,
+                          carbs: result.carbs,
+                          fat: result.fat,
+                          healthScore: result.healthScore,
+                          fiber: result.fiber,
+                          sugar: result.sugar,
+                          sodium: result.sodium,
+                          saturatedFat: result.saturatedFat,
+                          cholesterol: result.cholesterol,
+                        });
+                        toast.success("Saved to favorites ⭐");
+                      }}
+                      className="k-tap w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center"
+                      aria-label="Save as favorite"
+                    >
+                      <Star className={`w-4 h-4 ${isFavorite(result.name) ? "fill-primary-glow text-primary-glow" : "text-muted-foreground"}`} />
+                    </button>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
+                      <Heart className="w-4 h-4 text-primary-glow" />
+                      <span className="text-sm font-semibold">{result.healthScore}/10</span>
+                    </div>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-3">
