@@ -1,5 +1,5 @@
 // Edge function: analyze a food image with Lovable AI Gateway (Gemini)
-// Enforces 1 free scan per user — premium users get unlimited.
+// AI food scanner — scans are currently free and unlimited.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -9,7 +9,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const FREE_SCAN_LIMIT = 2;
+const FREE_SCAN_LIMIT = Number.POSITIVE_INFINITY;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
     const scanCount = profile?.scan_count ?? 0;
     const isPremium = profile?.is_premium ?? false;
 
-    if (!isPremium && scanCount >= FREE_SCAN_LIMIT) {
+    if (!isPremium && Number.isFinite(FREE_SCAN_LIMIT) && scanCount >= FREE_SCAN_LIMIT) {
       return new Response(
         JSON.stringify({
           error: "scan_limit_reached",

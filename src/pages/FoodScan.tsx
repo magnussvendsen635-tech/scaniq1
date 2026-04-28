@@ -51,9 +51,8 @@ export default function FoodScan() {
   const [limitReached, setLimitReached] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
-  const FREE_LIMIT = 2;
-  const hasFreeScans = scansUsed < FREE_LIMIT;
-  const canScan = isPremiumServer || hasFreeScans;
+  const FREE_LIMIT = Number.POSITIVE_INFINITY;
+  const canScan = true;
 
   const refreshQuota = async () => {
     if (!profile) return { scans: scansUsed, premium: isPremiumServer };
@@ -291,11 +290,9 @@ export default function FoodScan() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("scan.title")}</h1>
-        {!isPremiumServer && (
-          <span className="text-xs px-2.5 py-1 rounded-full bg-card border border-border/60 text-muted-foreground">
-            {Math.max(0, FREE_LIMIT - scansUsed)}/{FREE_LIMIT} free
-          </span>
-        )}
+        <span className="text-xs px-2.5 py-1 rounded-full bg-card border border-border/60 text-muted-foreground">
+          Free scans
+        </span>
       </header>
 
       {showPremiumGate ? (
