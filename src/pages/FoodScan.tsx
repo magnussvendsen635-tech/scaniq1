@@ -38,7 +38,7 @@ export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, streak, premium, addFavorite, isFavorite } = useKStore();
+  const { user, meals, addMeal, streak, addFavorite, isFavorite } = useKStore();
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
@@ -52,6 +52,8 @@ export default function FoodScan() {
   const [scanStatus, setScanStatus] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
   const FREE_LIMIT = 2;
+  const hasFreeScans = scansUsed < FREE_LIMIT;
+  const canScan = isPremiumServer || hasFreeScans;
 
   const refreshQuota = async () => {
     if (!profile) return { scans: scansUsed, premium: isPremiumServer };
@@ -105,7 +107,7 @@ export default function FoodScan() {
     if (!file) return;
 
     const quota = await refreshQuota();
-    if (!premium && !quota.premium && quota.scans >= FREE_LIMIT) {
+    if (!quota.premium && quota.scans >= FREE_LIMIT) {
       setLimitReached(true);
       setStep("portion");
       toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
@@ -147,7 +149,7 @@ export default function FoodScan() {
       return;
     }
     const quota = await refreshQuota();
-    if (!premium && !quota.premium && quota.scans >= FREE_LIMIT) {
+    if (!quota.premium && quota.scans >= FREE_LIMIT) {
       setLimitReached(true);
       setStep("portion");
       setPreview(null);
@@ -182,6 +184,10 @@ export default function FoodScan() {
         const s = (error as any)?.context?.status;
         if (s === 403) {
           setLimitReached(true);
+          setStep("portion");
+          setPreview(null);
+          setResult(null);
+          setScansUsed(FREE_LIMIT);
           toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
         } else if (s === 429) {
           toast.error("Rate limit", { description: "Try again in a moment." });
@@ -259,7 +265,7 @@ export default function FoodScan() {
   };
 
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (result?.calories ?? 0));
-  const showPremiumGate = !premium && !isPremiumServer && limitReached && step !== "result";
+  const showPremiumGate = !isPremiumServer && !canScan && step !== "result";
 
   return (
     <div className="k-page">
@@ -308,7 +314,7 @@ export default function FoodScan() {
             </Button>
           </Link>
         </div>
-      ) : !premium ? (
+      ) : !canScan ? (
         <PremiumLock>
           <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card">
             <ScannerBackdrop />
@@ -384,7 +390,15 @@ export default function FoodScan() {
                 onChange={onPick}
               />
               <Button
-                onClick={() => fileRef.current?.click()}
+                onClick={async () => {
+                  const quota = await refreshQuota();
+                  if (!quota.premium && quota.scans >= FREE_LIMIT) {
+                    setLimitReached(true);
+                    toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
+                    return;
+                  }
+                  fileRef.current?.click();
+                }}
                 className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
               >
                 <Camera className="w-5 h-5 mr-1" />
