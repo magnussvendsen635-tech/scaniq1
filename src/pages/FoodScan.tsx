@@ -265,7 +265,7 @@ export default function FoodScan() {
   };
 
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (result?.calories ?? 0));
-  const showPremiumGate = !premium && !isPremiumServer && limitReached && step !== "result";
+  const showPremiumGate = !isPremiumServer && !canScan && step !== "result";
 
   return (
     <div className="k-page">
@@ -314,7 +314,7 @@ export default function FoodScan() {
             </Button>
           </Link>
         </div>
-      ) : !premium ? (
+      ) : !canScan ? (
         <PremiumLock>
           <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card">
             <ScannerBackdrop />
@@ -390,7 +390,15 @@ export default function FoodScan() {
                 onChange={onPick}
               />
               <Button
-                onClick={() => fileRef.current?.click()}
+                onClick={async () => {
+                  const quota = await refreshQuota();
+                  if (!quota.premium && quota.scans >= FREE_LIMIT) {
+                    setLimitReached(true);
+                    toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
+                    return;
+                  }
+                  fileRef.current?.click();
+                }}
                 className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
               >
                 <Camera className="w-5 h-5 mr-1" />
