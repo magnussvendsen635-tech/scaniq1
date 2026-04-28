@@ -1,1 +1,4 @@
 project_id = "uqnwhypjrisbfkouwcge"
+
+[functions.meal-suggest]
+verify_jwt = false

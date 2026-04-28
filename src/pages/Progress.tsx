@@ -1,6 +1,7 @@
 import { useKStore } from "@/store/useKStore";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
+import { WeeklyReport } from "@/components/WeeklyReport";
 
 export default function Progress() {
   const t = useT();
@@ -26,6 +27,8 @@ export default function Progress() {
   return (
     <div className="k-page">
       <h1 className="text-3xl font-semibold tracking-tight mb-6">{t("progress.title")}</h1>
+
+      <WeeklyReport />
 
       {!premium ? (
         <PremiumLock>

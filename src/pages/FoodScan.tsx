@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useKStore, caloriesToday } from "@/store/useKStore";
-import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown } from "lucide-react";
+import { useKStore, caloriesToday, categoryForNow, type MealCategory } from "@/store/useKStore";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Star, Sun, UtensilsCrossed, Moon, Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -38,13 +38,14 @@ export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, streak, premium } = useKStore();
+  const { user, meals, addMeal, streak, premium, addFavorite, isFavorite } = useKStore();
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [portion, setPortion] = useState<Portion>("medium");
   const [step, setStep] = useState<Step>("portion");
+  const [category, setCategory] = useState<MealCategory>(categoryForNow());
   const [scansUsed, setScansUsed] = useState<number>(0);
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
@@ -158,6 +159,7 @@ export default function FoodScan() {
       saturatedFat: result.saturatedFat,
       cholesterol: result.cholesterol,
       healthScore: result.healthScore,
+      category,
       at: Date.now(),
     });
     const newStreak = useKStore.getState().streak;
@@ -268,6 +270,30 @@ export default function FoodScan() {
                 </div>
               </div>
 
+              <div className="k-card p-5 mb-5">
+                <h2 className="text-lg font-semibold mb-1">Meal type</h2>
+                <p className="text-sm text-muted-foreground mb-4">Categorize this meal in your diary.</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {([
+                    ["breakfast", Sun, "Breakfast"],
+                    ["lunch", UtensilsCrossed, "Lunch"],
+                    ["dinner", Moon, "Dinner"],
+                    ["snack", Cookie, "Snack"],
+                  ] as [MealCategory, any, string][]).map(([c, Icon, label]) => (
+                    <button
+                      key={c}
+                      onClick={() => setCategory(c)}
+                      className={`k-tap rounded-2xl p-3 border-2 transition-all flex flex-col items-center gap-1 ${
+                        category === c ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-card"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="text-[11px] font-semibold">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <input
                 ref={fileRef}
                 type="file"
@@ -335,9 +361,37 @@ export default function FoodScan() {
                     <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.calories")}</div>
                     <div className="text-5xl font-semibold k-gradient-text">{result.calories}</div>
                   </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
-                    <Heart className="w-4 h-4 text-primary-glow" />
-                    <span className="text-sm font-semibold">{result.healthScore}/10</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        if (isFavorite(result.name)) {
+                          toast.info("Already in favorites");
+                          return;
+                        }
+                        addFavorite({
+                          name: result.name,
+                          calories: result.calories,
+                          protein: result.protein,
+                          carbs: result.carbs,
+                          fat: result.fat,
+                          healthScore: result.healthScore,
+                          fiber: result.fiber,
+                          sugar: result.sugar,
+                          sodium: result.sodium,
+                          saturatedFat: result.saturatedFat,
+                          cholesterol: result.cholesterol,
+                        });
+                        toast.success("Saved to favorites ⭐");
+                      }}
+                      className="k-tap w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center"
+                      aria-label="Save as favorite"
+                    >
+                      <Star className={`w-4 h-4 ${isFavorite(result.name) ? "fill-primary-glow text-primary-glow" : "text-muted-foreground"}`} />
+                    </button>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
+                      <Heart className="w-4 h-4 text-primary-glow" />
+                      <span className="text-sm font-semibold">{result.healthScore}/10</span>
+                    </div>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-3">
