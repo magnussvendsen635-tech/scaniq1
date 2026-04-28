@@ -49,7 +49,9 @@ export default function FoodScan() {
   const [scansUsed, setScansUsed] = useState<number>(0);
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
+  const [scanStatus, setScanStatus] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const FREE_LIMIT = 2;
 
   // Fetch scan quota from server
   useEffect(() => {
