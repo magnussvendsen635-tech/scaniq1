@@ -390,6 +390,9 @@ export default function FoodScan() {
                       </div>
                     </div>
                     <p className="text-sm text-foreground/70 font-medium">{t("scan.identifying")}</p>
+                    {scanStatus && (
+                      <p className="text-xs text-foreground/60 mt-2 px-4 max-w-[260px]">{scanStatus}</p>
+                    )}
                   </>
                 ) : result ? (
                   <div className="animate-scale-in">
