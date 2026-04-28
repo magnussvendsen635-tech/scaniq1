@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
   const admin = createClient(SUPABASE_URL, SERVICE_KEY);
   const { data: prefs, error } = await admin
     .from("reminder_preferences")
-    .select("user_id, enabled, water, meals, weight, timezone");
+    .select("user_id, enabled, water, meals, weight, calories, timezone");
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
@@ -67,6 +67,16 @@ Deno.serve(async (req) => {
         title: "💧 Time to hydrate",
         body: "Remember to drink some water and log it in KCALLY.",
         tag: `water-${hour}`,
+        url: "/",
+      });
+    }
+    // Calories — every 4 hours (10, 14, 18) — reminds user to log/check calories
+    if ((p as any).calories && [10, 14, 18].includes(hour)) {
+      jobs.push({
+        user_id: p.user_id,
+        title: "🔥 Check your calories",
+        body: "Open KCALLY to see how many calories you have left today.",
+        tag: `calories-${hour}`,
         url: "/",
       });
     }
