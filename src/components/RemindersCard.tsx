@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useKStore, waterToday } from "@/store/useKStore";
 import { Bell, BellOff } from "lucide-react";
 import { toast } from "sonner";
+import { isPushSupported, subscribeToPush, unsubscribeFromPush } from "@/lib/push";
 
 const STORAGE_KEY = "kcally-reminders-last";
 
@@ -10,20 +11,32 @@ export const RemindersCard = () => {
   const intervalRef = useRef<number | null>(null);
 
   const enable = async () => {
-    if (!("Notification" in window)) {
-      toast.error("Notifications not supported on this device");
+    if (!isPushSupported()) {
+      // Fallback to in-app notifications
+      if (!("Notification" in window)) {
+        toast.error("Notifications not supported on this device");
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") {
+        toast.error("Permission denied");
+        return;
+      }
+      setReminders({ enabled: true });
+      toast.success("Reminders enabled (in-app only)");
       return;
     }
-    const perm = await Notification.requestPermission();
-    if (perm !== "granted") {
-      toast.error("Permission denied");
+    const ok = await subscribeToPush();
+    if (!ok) {
+      toast.error("Could not enable push notifications");
       return;
     }
     setReminders({ enabled: true });
-    toast.success("Reminders enabled");
+    toast.success("Push notifications enabled 🔔");
   };
 
-  const disable = () => {
+  const disable = async () => {
+    await unsubscribeFromPush();
     setReminders({ enabled: false });
     toast.success("Reminders disabled");
   };
