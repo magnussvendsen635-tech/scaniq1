@@ -52,6 +52,8 @@ export default function FoodScan() {
   const [scanStatus, setScanStatus] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
   const FREE_LIMIT = 2;
+  const hasFreeScans = scansUsed < FREE_LIMIT;
+  const canScan = isPremiumServer || hasFreeScans;
 
   const refreshQuota = async () => {
     if (!profile) return { scans: scansUsed, premium: isPremiumServer };
@@ -105,7 +107,7 @@ export default function FoodScan() {
     if (!file) return;
 
     const quota = await refreshQuota();
-    if (!premium && !quota.premium && quota.scans >= FREE_LIMIT) {
+    if (!quota.premium && quota.scans >= FREE_LIMIT) {
       setLimitReached(true);
       setStep("portion");
       toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
@@ -147,7 +149,7 @@ export default function FoodScan() {
       return;
     }
     const quota = await refreshQuota();
-    if (!premium && !quota.premium && quota.scans >= FREE_LIMIT) {
+    if (!quota.premium && quota.scans >= FREE_LIMIT) {
       setLimitReached(true);
       setStep("portion");
       setPreview(null);
@@ -182,6 +184,10 @@ export default function FoodScan() {
         const s = (error as any)?.context?.status;
         if (s === 403) {
           setLimitReached(true);
+          setStep("portion");
+          setPreview(null);
+          setResult(null);
+          setScansUsed(FREE_LIMIT);
           toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
         } else if (s === 429) {
           toast.error("Rate limit", { description: "Try again in a moment." });
