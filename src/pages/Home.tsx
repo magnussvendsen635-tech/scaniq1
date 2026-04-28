@@ -2,12 +2,14 @@ import { Link } from "react-router-dom";
 import { useKStore, caloriesToday, macrosToday, caloriesBurnedToday } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Ring } from "@/components/Ring";
-import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine, Barcode } from "lucide-react";
+import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine, Barcode, Star, Scale } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 import { StreakCard } from "@/components/StreakCard";
 import { HealthScoreCard } from "@/components/HealthScoreCard";
 import { WaterCard } from "@/components/WaterCard";
+import { MealSuggestions } from "@/components/MealSuggestions";
+import { RemindersCard } from "@/components/RemindersCard";
 
 export default function Home() {
   const t = useT();
