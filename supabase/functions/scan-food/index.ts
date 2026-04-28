@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ---- AI call (upgraded to Pro for better accuracy) ----
+    // ---- AI call ----
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
         messages: [
           {
             role: "system",
