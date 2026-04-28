@@ -143,10 +143,32 @@ export default function Home() {
         <ChevronRight className="w-5 h-5 text-foreground" />
       </Link>
 
+      {/* Quick add favorites */}
+      <Link
+        to="/favorites"
+        className="k-card k-tap p-5 mb-3 flex items-center gap-4 bg-card group"
+      >
+        <div className="w-12 h-12 rounded-2xl bg-gradient-soft flex items-center justify-center shrink-0">
+          <Star className="w-6 h-6 text-primary-glow" strokeWidth={2.5} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-bold text-foreground">Quick add</div>
+          <div className="text-xs text-muted-foreground">Favorites & recent meals — one tap</div>
+        </div>
+        <ChevronRight className="w-5 h-5 text-foreground" />
+      </Link>
+
+      {/* AI meal suggestions (premium) */}
+      <MealSuggestions />
+
+      {/* Reminders */}
+      <RemindersCard />
+
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3">
         <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
         <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
+        <ActionCard to="/weight" Icon={Scale} title="Weight" sub="Track & log progress" />
         <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
       </div>
     </div>
