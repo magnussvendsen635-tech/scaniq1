@@ -694,6 +694,56 @@ export default function FoodScan() {
           )}
         </>
       )}
+
+      {/* Manual search dialog */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in p-4">
+          <div className="w-full max-w-md bg-card border-2 border-border rounded-3xl p-5 shadow-card animate-scale-in">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold">Search food manually</h3>
+              <button
+                onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
+                className="k-tap w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Type the food + portion. Examples: "medium apple", "1 ispind", "200g pasta carbonara", "glas appelsinjuice".
+            </p>
+            <Input
+              autoFocus
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && !searching) runManualSearch(); }}
+              placeholder="e.g. medium banana"
+              maxLength={200}
+              className="h-12 rounded-2xl mb-3"
+            />
+            <Button
+              onClick={runManualSearch}
+              disabled={searching || searchQuery.trim().length < 2}
+              className="w-full h-12 rounded-2xl bg-gradient-primary font-semibold shadow-glow"
+            >
+              {searching ? (
+                <>
+                  <Sparkles className="w-4 h-4 mr-1 animate-pulse" />
+                  Looking up…
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-1" />
+                  Search
+                </>
+              )}
+            </Button>
+            <p className="text-[11px] text-muted-foreground mt-3 text-center">
+              Counts as 1 scan toward your daily limit ({dailyUsed}/{DAILY_LIMIT})
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
