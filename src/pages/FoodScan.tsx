@@ -146,6 +146,75 @@ export default function FoodScan() {
     setPreviews((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const applyResult = (data: any) => {
+    setResult({
+      name: data.name,
+      items: Array.isArray(data.items)
+        ? data.items.map((it: any) => ({ name: String(it.name), calories: Math.round(Number(it.calories) || 0) }))
+        : undefined,
+      calories: Math.round(data.calories),
+      protein: Math.round(data.protein),
+      carbs: Math.round(data.carbs),
+      fat: Math.round(data.fat),
+      fiber: typeof data.fiber === "number" ? Math.round(data.fiber * 10) / 10 : undefined,
+      sugar: typeof data.sugar === "number" ? Math.round(data.sugar * 10) / 10 : undefined,
+      sodium: typeof data.sodium === "number" ? Math.round(data.sodium) : undefined,
+      saturatedFat: typeof data.saturatedFat === "number" ? Math.round(data.saturatedFat * 10) / 10 : undefined,
+      cholesterol: typeof data.cholesterol === "number" ? Math.round(data.cholesterol) : undefined,
+      healthScore: Math.round(data.healthScore),
+      confidence: data.confidence,
+    });
+    if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
+    if (typeof data.daily_used === "number") {
+      setDailyUsed(data.daily_used);
+      if (data.daily_used >= DAILY_LIMIT) setLimitReached(true);
+    }
+  };
+
+  const runManualSearch = async () => {
+    const q = searchQuery.trim();
+    if (q.length < 2) {
+      toast.error("Type at least 2 characters");
+      return;
+    }
+    const quota = await refreshQuota();
+    if (!quota.premium) {
+      toast.error("Premium required");
+      nav("/premium");
+      return;
+    }
+    if (quota.daily >= DAILY_LIMIT) {
+      setLimitReached(true);
+      setSearchOpen(false);
+      toast.error("Daily limit reached");
+      return;
+    }
+    setSearching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("food-search", { body: { query: q } });
+      if (error || !data) {
+        const s = (error as any)?.context?.status;
+        if (s === 403) { toast.error("Premium required"); nav("/premium"); }
+        else if (s === 429) {
+          let payload: any = null;
+          try { payload = await (error as any)?.context?.json?.(); } catch {}
+          if (payload?.error === "rate_limited") toast.error("Slow down", { description: payload?.message });
+          else { await refreshQuota(); toast.error("Daily limit reached"); }
+        }
+        else toast.error("Search failed", { description: (error as any)?.message ?? "Unknown error" });
+        return;
+      }
+      applyResult(data);
+      setSearchOpen(false);
+      setSearchQuery("");
+      setStep("result");
+    } catch (err: any) {
+      toast.error("Search failed", { description: err?.message ?? "Unknown error" });
+    } finally {
+      setSearching(false);
+    }
+  };
+
   const callScan = async (imgs: string[], strategy: "primary" | "fallback") => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 45000);
