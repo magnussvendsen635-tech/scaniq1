@@ -345,6 +345,68 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // ---- Auth ----
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData.user) {
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userId = userData.user.id;
+    const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // ---- Quota / rate limit ----
+    const { data: profile } = await adminClient
+      .from("profiles")
+      .select("is_premium, daily_scan_count, last_scan_date, last_scan_at, scan_count")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const isPremium = profile?.is_premium ?? false;
+    if (!isPremium) {
+      return new Response(
+        JSON.stringify({ error: "premium_required", message: "Scanning is a Premium feature." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const today = todayUTC();
+    const dailyUsed = profile?.last_scan_date === today ? (profile?.daily_scan_count ?? 0) : 0;
+
+    if (profile?.last_scan_at) {
+      const elapsed = (Date.now() - new Date(profile.last_scan_at).getTime()) / 1000;
+      if (elapsed < SCAN_COOLDOWN_SECONDS) {
+        const retryAfter = Math.ceil(SCAN_COOLDOWN_SECONDS - elapsed);
+        return new Response(
+          JSON.stringify({ error: "rate_limited", message: `Please wait ${retryAfter}s before scanning again.`, retry_after: retryAfter }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(retryAfter) } },
+        );
+      }
+    }
+
+    if (dailyUsed >= DAILY_SCAN_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: "daily_scan_limit_reached", message: `Daily scan limit reached (${DAILY_SCAN_LIMIT}/day).`, daily_used: dailyUsed, daily_limit: DAILY_SCAN_LIMIT }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    // ---- Input ----
     const body = await req.json().catch(() => null);
     const barcode = String(body?.barcode ?? "").trim();
     if (!/^\d{8,14}$/.test(barcode)) {
@@ -355,7 +417,27 @@ Deno.serve(async (req) => {
     }
 
     const product = await lookupBarcode(barcode);
-    return new Response(JSON.stringify({ product }), {
+
+    // Only count successful lookups against quota
+    if (product) {
+      const newDaily = dailyUsed + 1;
+      await adminClient
+        .from("profiles")
+        .update({
+          scan_count: (profile?.scan_count ?? 0) + 1,
+          daily_scan_count: newDaily,
+          last_scan_date: today,
+          last_scan_at: new Date().toISOString(),
+        })
+        .eq("id", userId);
+
+      return new Response(
+        JSON.stringify({ product, daily_used: newDaily, daily_limit: DAILY_SCAN_LIMIT }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    return new Response(JSON.stringify({ product: null }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
