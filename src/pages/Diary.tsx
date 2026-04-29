@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
-import { useKStore, caloriesToday, macrosToday, micronutrientsToday, type MealCategory } from "@/store/useKStore";
-import { Camera, Heart, Sun, UtensilsCrossed, Moon, Cookie, Plus, Star, Trash2 } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { useKStore, type MealCategory } from "@/store/useKStore";
+import { Camera, Heart, Sun, UtensilsCrossed, Moon, Cookie, Plus, Star, Trash2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const CATEGORIES: { key: MealCategory; label: string; Icon: any }[] = [
   { key: "breakfast", label: "Breakfast", Icon: Sun },
@@ -11,25 +13,98 @@ const CATEGORIES: { key: MealCategory; label: string; Icon: any }[] = [
   { key: "snack", label: "Snacks", Icon: Cookie },
 ];
 
+const ymd = (d: Date) => d.toISOString().slice(0, 10);
+const startOfWeek = (d: Date) => {
+  const x = new Date(d);
+  const day = (x.getDay() + 6) % 7; // Monday = 0
+  x.setDate(x.getDate() - day);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
+
 export default function Diary() {
   const t = useT();
-  const { meals, user, removeMeal } = useKStore();
-  const today = new Date().toISOString().slice(0, 10);
-  const todayMeals = meals.filter((m) => new Date(m.at).toISOString().slice(0, 10) === today);
-  const cal = caloriesToday(meals);
-  const m = macrosToday(meals);
-  const micro = micronutrientsToday(meals);
+  const { meals, user, removeMeal, language } = useKStore() as any;
+  const [selected, setSelected] = useState<Date>(new Date());
+  const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date()));
+  const [summary, setSummary] = useState<string>("");
+  const [loadingSummary, setLoadingSummary] = useState(false);
+
+  const selectedKey = ymd(selected);
+  const isToday = selectedKey === ymd(new Date());
+
+  const dayMeals = useMemo(
+    () => meals.filter((m: any) => ymd(new Date(m.at)) === selectedKey),
+    [meals, selectedKey]
+  );
+
+  const cal = dayMeals.reduce((a: number, b: any) => a + b.calories, 0);
+  const macros = dayMeals.reduce(
+    (acc: any, m: any) => ({ protein: acc.protein + m.protein, carbs: acc.carbs + m.carbs, fat: acc.fat + m.fat }),
+    { protein: 0, carbs: 0, fat: 0 }
+  );
+  const micro = dayMeals.reduce(
+    (acc: any, m: any) => ({
+      fiber: acc.fiber + (m.fiber ?? 0),
+      sugar: acc.sugar + (m.sugar ?? 0),
+      sodium: acc.sodium + (m.sodium ?? 0),
+      saturatedFat: acc.saturatedFat + (m.saturatedFat ?? 0),
+      cholesterol: acc.cholesterol + (m.cholesterol ?? 0),
+    }),
+    { fiber: 0, sugar: 0, sodium: 0, saturatedFat: 0, cholesterol: 0 }
+  );
   const hasMicro = micro.fiber + micro.sugar + micro.sodium + micro.saturatedFat + micro.cholesterol > 0;
 
-  const grouped: Record<MealCategory, typeof todayMeals> = { breakfast: [], lunch: [], dinner: [], snack: [] };
-  for (const meal of todayMeals) {
+  const grouped: Record<MealCategory, any[]> = { breakfast: [], lunch: [], dinner: [], snack: [] };
+  for (const meal of dayMeals) {
     const cat = (meal.category ?? "snack") as MealCategory;
     grouped[cat].push(meal);
   }
 
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    return d;
+  });
+
+  const fetchSummary = async () => {
+    if (dayMeals.length === 0) {
+      setSummary("");
+      return;
+    }
+    setLoadingSummary(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("diary-summary", {
+        body: {
+          meals: dayMeals,
+          target: user.calories,
+          macros: { ...macros, targetP: user.protein, targetC: user.carbs, targetF: user.fat },
+          micro,
+          language: language || "en",
+        },
+      });
+      if (error) throw error;
+      setSummary(data?.summary || "");
+    } catch (e: any) {
+      console.error("summary error", e);
+      toast.error("Couldn't load insight");
+    } finally {
+      setLoadingSummary(false);
+    }
+  };
+
+  // Auto-load summary when day or meal count changes
+  useEffect(() => {
+    setSummary("");
+    if (dayMeals.length > 0) fetchSummary();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedKey, dayMeals.length]);
+
+  const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+
   return (
     <div className="k-page">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-semibold tracking-tight">{t("diary.title")}</h1>
         <Link to="/favorites" className="k-tap flex items-center gap-1.5 px-3 py-2 rounded-full bg-card border border-border/60 text-sm">
           <Star className="w-4 h-4 text-primary-glow" />
@@ -37,19 +112,107 @@ export default function Diary() {
         </Link>
       </div>
 
-      <div className="k-card p-5 mb-5 bg-gradient-surface">
+      {/* Week date picker */}
+      <div className="k-card p-3 mb-4">
+        <div className="flex items-center justify-between mb-2 px-1">
+          <button
+            onClick={() => {
+              const d = new Date(weekStart);
+              d.setDate(d.getDate() - 7);
+              setWeekStart(d);
+            }}
+            className="k-tap w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <div className="text-sm font-medium">
+            {selected.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
+          </div>
+          <button
+            onClick={() => {
+              const d = new Date(weekStart);
+              d.setDate(d.getDate() + 7);
+              setWeekStart(d);
+            }}
+            className="k-tap w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="grid grid-cols-7 gap-1">
+          {weekDays.map((d, i) => {
+            const key = ymd(d);
+            const isSel = key === selectedKey;
+            const isTod = key === ymd(new Date());
+            const dayCals = meals
+              .filter((m: any) => ymd(new Date(m.at)) === key)
+              .reduce((a: number, b: any) => a + b.calories, 0);
+            return (
+              <button
+                key={key}
+                onClick={() => setSelected(d)}
+                className={`k-tap flex flex-col items-center py-2 rounded-xl transition-all ${
+                  isSel ? "bg-gradient-primary text-primary-foreground" : "hover:bg-muted"
+                }`}
+              >
+                <span className={`text-[10px] uppercase tracking-widest ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
+                  {dayLabels[i]}
+                </span>
+                <span className={`text-base font-semibold mt-0.5 ${isTod && !isSel ? "text-primary-glow" : ""}`}>
+                  {d.getDate()}
+                </span>
+                {dayCals > 0 && (
+                  <span className={`text-[9px] mt-0.5 ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
+                    {dayCals}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="k-card p-5 mb-4 bg-gradient-surface">
         <div className="flex items-baseline justify-between mb-4">
           <div>
-            <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("common.today")}</div>
-            <div className="text-4xl font-semibold k-gradient-text">{cal}<span className="text-base text-muted-foreground"> / {user.calories} {t("common.kcal")}</span></div>
+            <div className="text-xs text-muted-foreground tracking-widest uppercase">
+              {isToday ? t("common.today") : selected.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
+            </div>
+            <div className="text-4xl font-semibold k-gradient-text">
+              {cal}
+              <span className="text-base text-muted-foreground"> / {user.calories} {t("common.kcal")}</span>
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <T label={t("home.protein")} v={Math.round(m.protein)} />
-          <T label={t("home.carbs")} v={Math.round(m.carbs)} />
-          <T label={t("home.fat")} v={Math.round(m.fat)} />
+          <T label={t("home.protein")} v={Math.round(macros.protein)} />
+          <T label={t("home.carbs")} v={Math.round(macros.carbs)} />
+          <T label={t("home.fat")} v={Math.round(macros.fat)} />
         </div>
       </div>
+
+      {/* AI insight */}
+      {dayMeals.length > 0 && (
+        <div className="k-card p-4 mb-4 bg-gradient-soft border-primary/20">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-primary flex items-center justify-center shrink-0">
+              <Sparkles className="w-4 h-4 text-primary-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">AI insight</div>
+              {loadingSummary ? (
+                <div className="text-sm text-muted-foreground animate-pulse">Analyzing your day…</div>
+              ) : summary ? (
+                <div className="text-sm leading-relaxed">{summary}</div>
+              ) : (
+                <button onClick={fetchSummary} className="text-sm text-primary-glow font-medium k-tap">
+                  Get today's insight
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {hasMicro && (
         <div className="k-card p-4 mb-5">
@@ -64,7 +227,7 @@ export default function Diary() {
         </div>
       )}
 
-      {todayMeals.length === 0 ? (
+      {dayMeals.length === 0 ? (
         <Link to="/scan" className="k-card k-tap p-8 flex flex-col items-center text-center gap-3">
           <div className="w-14 h-14 rounded-2xl bg-gradient-soft flex items-center justify-center">
             <Camera className="w-6 h-6 text-primary-glow" />
@@ -97,7 +260,7 @@ export default function Diary() {
                   </Link>
                 ) : (
                   <div className="space-y-2">
-                    {list.map((meal) => (
+                    {list.map((meal: any) => (
                       <div key={meal.id} className="k-card p-3 flex items-center gap-3 group">
                         <div className="w-10 h-10 rounded-2xl bg-gradient-soft flex items-center justify-center shrink-0">
                           <span className="text-sm font-semibold">{meal.name.charAt(0).toUpperCase()}</span>
