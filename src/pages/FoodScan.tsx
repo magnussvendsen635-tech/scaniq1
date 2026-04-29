@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, caloriesToday, categoryForNow, type MealCategory } from "@/store/useKStore";
-import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Star, Sun, UtensilsCrossed, Moon, Cookie } from "lucide-react";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Star, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
@@ -42,7 +43,7 @@ export default function FoodScan() {
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
@@ -51,10 +52,16 @@ export default function FoodScan() {
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const REQUIRED_PHOTOS = 2;
+  const MAX_PHOTOS = 3;
   const DAILY_LIMIT = 30;
   const todayUTC = () => new Date().toISOString().slice(0, 10);
   const canScan = isPremiumServer;
+  const preview = previews[previews.length - 1] ?? null;
 
   const refreshQuota = async () => {
     if (!profile) return { daily: dailyUsed, premium: isPremiumServer };
@@ -126,19 +133,94 @@ export default function FoodScan() {
     }
 
     const dataUrl = await fileToDataUrl(file);
-    setPreview(dataUrl);
-    setResult(null);
-    setStep("capture");
-    await scan(dataUrl);
     e.target.value = "";
+    setResult(null);
+    setPreviews((prev) => {
+      const next = [...prev, dataUrl].slice(0, MAX_PHOTOS);
+      return next;
+    });
+    setStep("capture");
   };
 
-  const callScan = async (img: string, strategy: "primary" | "fallback") => {
+  const removePhoto = (idx: number) => {
+    setPreviews((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const applyResult = (data: any) => {
+    setResult({
+      name: data.name,
+      items: Array.isArray(data.items)
+        ? data.items.map((it: any) => ({ name: String(it.name), calories: Math.round(Number(it.calories) || 0) }))
+        : undefined,
+      calories: Math.round(data.calories),
+      protein: Math.round(data.protein),
+      carbs: Math.round(data.carbs),
+      fat: Math.round(data.fat),
+      fiber: typeof data.fiber === "number" ? Math.round(data.fiber * 10) / 10 : undefined,
+      sugar: typeof data.sugar === "number" ? Math.round(data.sugar * 10) / 10 : undefined,
+      sodium: typeof data.sodium === "number" ? Math.round(data.sodium) : undefined,
+      saturatedFat: typeof data.saturatedFat === "number" ? Math.round(data.saturatedFat * 10) / 10 : undefined,
+      cholesterol: typeof data.cholesterol === "number" ? Math.round(data.cholesterol) : undefined,
+      healthScore: Math.round(data.healthScore),
+      confidence: data.confidence,
+    });
+    if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
+    if (typeof data.daily_used === "number") {
+      setDailyUsed(data.daily_used);
+      if (data.daily_used >= DAILY_LIMIT) setLimitReached(true);
+    }
+  };
+
+  const runManualSearch = async () => {
+    const q = searchQuery.trim();
+    if (q.length < 2) {
+      toast.error("Type at least 2 characters");
+      return;
+    }
+    const quota = await refreshQuota();
+    if (!quota.premium) {
+      toast.error("Premium required");
+      nav("/premium");
+      return;
+    }
+    if (quota.daily >= DAILY_LIMIT) {
+      setLimitReached(true);
+      setSearchOpen(false);
+      toast.error("Daily limit reached");
+      return;
+    }
+    setSearching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("food-search", { body: { query: q } });
+      if (error || !data) {
+        const s = (error as any)?.context?.status;
+        if (s === 403) { toast.error("Premium required"); nav("/premium"); }
+        else if (s === 429) {
+          let payload: any = null;
+          try { payload = await (error as any)?.context?.json?.(); } catch {}
+          if (payload?.error === "rate_limited") toast.error("Slow down", { description: payload?.message });
+          else { await refreshQuota(); toast.error("Daily limit reached"); }
+        }
+        else toast.error("Search failed", { description: (error as any)?.message ?? "Unknown error" });
+        return;
+      }
+      applyResult(data);
+      setSearchOpen(false);
+      setSearchQuery("");
+      setStep("result");
+    } catch (err: any) {
+      toast.error("Search failed", { description: err?.message ?? "Unknown error" });
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const callScan = async (imgs: string[], strategy: "primary" | "fallback") => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 35000);
+    const timeout = setTimeout(() => controller.abort(), 45000);
     try {
       const invokePromise = supabase.functions.invoke("scan-food", {
-        body: { image: img, portion, strategy },
+        body: { images: imgs, portion, strategy },
       });
       const { data, error } = await Promise.race([
         invokePromise,
@@ -152,17 +234,16 @@ export default function FoodScan() {
     }
   };
 
-  const scan = async (image?: string) => {
-    const img = image ?? preview;
-    if (!img) {
-      fileRef.current?.click();
+  const scan = async () => {
+    if (previews.length < REQUIRED_PHOTOS) {
+      toast.error(`Need ${REQUIRED_PHOTOS} photos`, { description: "Take photos from different angles for accurate analysis." });
       return;
     }
     const quota = await refreshQuota();
     if (quota.daily >= DAILY_LIMIT) {
       setLimitReached(true);
       setStep("portion");
-      setPreview(null);
+      setPreviews([]);
       setResult(null);
       setScanStatus("");
       toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today. Try again tomorrow.` });
@@ -172,7 +253,7 @@ export default function FoodScan() {
     setResult(null);
     setScanStatus("🔍 Analyzing your food…");
     try {
-      let { data, error } = await callScan(img, "primary");
+      let { data, error } = await callScan(previews, "primary");
 
       // Retry with stronger model + OCR-focused prompt on failure / timeout / low confidence
       const status = (error as any)?.context?.status;
@@ -181,7 +262,7 @@ export default function FoodScan() {
 
       if (shouldRetry) {
         setScanStatus("🤔 First try wasn't confident — retrying with smarter model…");
-        const retry = await callScan(img, "fallback");
+        const retry = await callScan(previews, "fallback");
         if (!retry.error) {
           data = retry.data;
           error = null;
@@ -195,7 +276,7 @@ export default function FoodScan() {
         if (s === 403) {
           toast.error("Premium required", { description: "Scanning is a Premium feature." });
           setStep("portion");
-          setPreview(null);
+          setPreviews([]);
           setResult(null);
           nav("/premium");
         } else if (s === 429) {
@@ -209,7 +290,7 @@ export default function FoodScan() {
             if (q.daily >= DAILY_LIMIT) {
               setLimitReached(true);
               setStep("portion");
-              setPreview(null);
+              setPreviews([]);
               setResult(null);
               toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today.` });
             } else {
@@ -225,28 +306,7 @@ export default function FoodScan() {
       }
 
       setScanStatus("✅ Done");
-      setResult({
-        name: data.name,
-        items: Array.isArray(data.items)
-          ? data.items.map((it: any) => ({ name: String(it.name), calories: Math.round(Number(it.calories) || 0) }))
-          : undefined,
-        calories: Math.round(data.calories),
-        protein: Math.round(data.protein),
-        carbs: Math.round(data.carbs),
-        fat: Math.round(data.fat),
-        fiber: typeof data.fiber === "number" ? Math.round(data.fiber * 10) / 10 : undefined,
-        sugar: typeof data.sugar === "number" ? Math.round(data.sugar * 10) / 10 : undefined,
-        sodium: typeof data.sodium === "number" ? Math.round(data.sodium) : undefined,
-        saturatedFat: typeof data.saturatedFat === "number" ? Math.round(data.saturatedFat * 10) / 10 : undefined,
-        cholesterol: typeof data.cholesterol === "number" ? Math.round(data.cholesterol) : undefined,
-        healthScore: Math.round(data.healthScore),
-        confidence: data.confidence,
-      });
-      if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
-      if (typeof data.daily_used === "number") {
-        setDailyUsed(data.daily_used);
-        if (data.daily_used >= DAILY_LIMIT) setLimitReached(true);
-      }
+      applyResult(data);
       setStep("result");
     } catch (err: any) {
       toast.error("Scan failed", { description: err?.message ?? "Unknown error" });
@@ -410,17 +470,69 @@ export default function FoodScan() {
                 className="hidden"
                 onChange={onPick}
               />
-              <Button
-                onClick={() => {
-                  // IMPORTANT: must be sync to preserve the user gesture so the
-                  // browser opens the camera/file picker. No awaits before .click().
-                  fileRef.current?.click();
-                }}
-                className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
+
+              {/* Photo thumbnails */}
+              {previews.length > 0 && (
+                <div className="k-card p-4 mb-3">
+                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
+                    Photos {previews.length}/{REQUIRED_PHOTOS} required
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {previews.map((src, i) => (
+                      <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-border">
+                        <img src={src} alt="" className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => removePhoto(i)}
+                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
+                          aria-label="Remove photo"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                    {previews.length < MAX_PHOTOS && (
+                      <button
+                        onClick={() => fileRef.current?.click()}
+                        className="aspect-square rounded-xl border-2 border-dashed border-border flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                      >
+                        <Plus className="w-6 h-6" />
+                      </button>
+                    )}
+                  </div>
+                  {previews.length < REQUIRED_PHOTOS && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      📸 Take {REQUIRED_PHOTOS - previews.length} more photo{REQUIRED_PHOTOS - previews.length === 1 ? "" : "s"} from a different angle (top + side) for accurate analysis.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {previews.length >= REQUIRED_PHOTOS ? (
+                <Button
+                  onClick={() => scan()}
+                  disabled={scanning}
+                  className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
+                >
+                  <Sparkles className="w-5 h-5 mr-1" />
+                  Analyze {previews.length} photos
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => fileRef.current?.click()}
+                  className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
+                >
+                  <Camera className="w-5 h-5 mr-1" />
+                  {previews.length === 0 ? `Take photo 1 of ${REQUIRED_PHOTOS}` : `Take photo ${previews.length + 1} of ${REQUIRED_PHOTOS}`}
+                </Button>
+              )}
+
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="k-tap w-full mt-3 h-12 rounded-2xl border-2 border-border bg-card text-sm font-semibold flex items-center justify-center gap-2 hover:border-primary transition-colors"
               >
-                <Camera className="w-5 h-5 mr-1" />
-                {t("scan.cta")}
-              </Button>
+                <Search className="w-4 h-4" />
+                Search manually instead
+              </button>
             </div>
           )}
 
@@ -567,7 +679,7 @@ export default function FoodScan() {
                   variant="outline"
                   onClick={() => {
                     setResult(null);
-                    setPreview(null);
+                    setPreviews([]);
                     setStep("portion");
                   }}
                   className="h-12 rounded-2xl border-border bg-card"
@@ -581,6 +693,56 @@ export default function FoodScan() {
             </div>
           )}
         </>
+      )}
+
+      {/* Manual search dialog */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in p-4">
+          <div className="w-full max-w-md bg-card border-2 border-border rounded-3xl p-5 shadow-card animate-scale-in">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold">Search food manually</h3>
+              <button
+                onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
+                className="k-tap w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Type the food + portion. Examples: "medium apple", "1 ispind", "200g pasta carbonara", "glas appelsinjuice".
+            </p>
+            <Input
+              autoFocus
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && !searching) runManualSearch(); }}
+              placeholder="e.g. medium banana"
+              maxLength={200}
+              className="h-12 rounded-2xl mb-3"
+            />
+            <Button
+              onClick={runManualSearch}
+              disabled={searching || searchQuery.trim().length < 2}
+              className="w-full h-12 rounded-2xl bg-gradient-primary font-semibold shadow-glow"
+            >
+              {searching ? (
+                <>
+                  <Sparkles className="w-4 h-4 mr-1 animate-pulse" />
+                  Looking up…
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-1" />
+                  Search
+                </>
+              )}
+            </Button>
+            <p className="text-[11px] text-muted-foreground mt-3 text-center">
+              Counts as 1 scan toward your daily limit ({dailyUsed}/{DAILY_LIMIT})
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

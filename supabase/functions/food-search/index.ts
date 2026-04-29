@@ -1,5 +1,5 @@
-// Edge function: analyze a food image with Lovable AI Gateway (Gemini)
-// AI food scanner — scans are currently free and unlimited.
+// Edge function: manual food search — returns nutrition for a free-text query
+// Same auth + premium + cooldown + daily-limit rules as scan-food.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -9,13 +9,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Daily scan cap for premium users (covers food + barcode combined).
 const DAILY_SCAN_LIMIT = 30;
-// Minimum seconds between scans (anti-bot rate limit, shared with barcode lookup).
 const SCAN_COOLDOWN_SECONDS = 10;
 
 function todayUTC(): string {
-  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  return new Date().toISOString().slice(0, 10);
 }
 
 Deno.serve(async (req) => {
@@ -24,7 +22,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // ---- Auth ----
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Not authenticated" }), {
@@ -51,7 +48,6 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // ---- Quota check ----
     const { data: profile, error: profErr } = await adminClient
       .from("profiles")
       .select("scan_count, is_premium, daily_scan_count, last_scan_date, last_scan_at")
@@ -59,7 +55,6 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (profErr) {
-      console.error("profile fetch error", profErr);
       return new Response(JSON.stringify({ error: "Profile lookup failed" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -70,31 +65,26 @@ Deno.serve(async (req) => {
     const scanCount = profile?.scan_count ?? 0;
     const isPremium = profile?.is_premium ?? false;
     const lastDate = profile?.last_scan_date ?? null;
-    // Reset daily counter if it's a new day
     const dailyUsed = lastDate === today ? (profile?.daily_scan_count ?? 0) : 0;
 
-    // Premium required to scan at all
     if (!isPremium) {
       return new Response(
         JSON.stringify({
           error: "premium_required",
-          message: "Scanning is a Premium feature. Upgrade to start scanning.",
-          is_premium: false,
+          message: "Search is a Premium feature. Upgrade to start.",
         }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // Rate limit: enforce cooldown between scans (anti-bot)
     if (profile?.last_scan_at) {
-      const lastMs = new Date(profile.last_scan_at).getTime();
-      const elapsedSec = (Date.now() - lastMs) / 1000;
+      const elapsedSec = (Date.now() - new Date(profile.last_scan_at).getTime()) / 1000;
       if (elapsedSec < SCAN_COOLDOWN_SECONDS) {
         const retryAfter = Math.ceil(SCAN_COOLDOWN_SECONDS - elapsedSec);
         return new Response(
           JSON.stringify({
             error: "rate_limited",
-            message: `Please wait ${retryAfter}s before scanning again.`,
+            message: `Please wait ${retryAfter}s before searching again.`,
             retry_after: retryAfter,
           }),
           {
@@ -113,48 +103,21 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({
           error: "daily_scan_limit_reached",
-          message: `Daily scan limit reached (${DAILY_SCAN_LIMIT}/day). Try again tomorrow.`,
+          message: `Daily limit reached (${DAILY_SCAN_LIMIT}/day). Try again tomorrow.`,
           daily_used: dailyUsed,
           daily_limit: DAILY_SCAN_LIMIT,
-          is_premium: isPremium,
         }),
         { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // ---- Input ----
-    const body = await req.json();
-    const { portion, strategy } = body;
-    // Accept either `images: string[]` (preferred, multi-angle) or legacy `image: string`
-    let images: string[] = [];
-    if (Array.isArray(body.images)) {
-      images = body.images.filter((x: unknown) => typeof x === "string" && x.length > 0);
-    } else if (typeof body.image === "string") {
-      images = [body.image];
-    }
-    if (images.length === 0) {
-      return new Response(JSON.stringify({ error: "Missing images (data URLs)" }), {
+    const { query } = await req.json();
+    if (!query || typeof query !== "string" || query.trim().length < 2 || query.length > 200) {
+      return new Response(JSON.stringify({ error: "Query must be 2-200 characters" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    // Cap to 3 images max to control payload size
-    images = images.slice(0, 3);
-
-    const portionLabel: "small" | "medium" | "large" =
-      portion === "small" || portion === "large" ? portion : "medium";
-    const portionHint = {
-      small: "The user indicates this is a SMALL portion (~60-70% of a typical serving). Scale calories and macros accordingly.",
-      medium: "The user indicates this is a MEDIUM/typical portion size.",
-      large: "The user indicates this is a LARGE portion (~140-160% of a typical serving). Scale calories and macros accordingly.",
-    }[portionLabel];
-
-    // Retry strategy: "fallback" uses the stronger Pro model + OCR-focused prompt
-    const useFallback = strategy === "fallback";
-    const model = useFallback ? "google/gemini-2.5-pro" : "google/gemini-2.5-flash";
-    const extraHint = useFallback
-      ? " RETRY MODE: previous attempt failed or was low-confidence. Look EXTRA carefully — read any text/labels/brands on packaging (OCR), zoom mentally on the product, and make your best guess even if partial. NEVER refuse."
-      : "";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -164,7 +127,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ---- AI call ----
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -172,33 +134,21 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model,
+        model: "google/gemini-2.5-flash",
         messages: [
           {
             role: "system",
             content:
-              "You are an expert nutritionist with deep visual food recognition skills. You analyze ANY food: homemade meals (kartofler+sovs, lasagne, gryderet), restaurant dishes, packaged snacks (chips, slik, vingummi, chokolade), drinks (sodavand, juice, øl), bakery, fruit, raw ingredients — Danish, Nordic, European, US, Asian, Middle Eastern. Never refuse. " +
-              "STEP 1 — IDENTIFY: Look carefully and list EVERY visible item separately. " +
-              "  • Plate of food → name each component (e.g. 'kogte kartofler', 'brun sovs', 'frikadelle', 'agurkesalat'). " +
-              "  • Packaged product → read brand + product name from label if visible (e.g. 'Haribo Mix', 'Matilde kakaomælk', 'Lays Paprika'). If only the bag/wrapper is visible, infer typical product. " +
-              "  • Bowl/glass → identify content + estimate volume. " +
-              "  • Candy/sweets bag → identify type (vingummi, lakrids, chokolade) and estimate weight of bag or visible portion. " +
-              "STEP 2 — WEIGH: Estimate grams (or ml for drinks) per item using visual reference (plate ~26cm, fork ~20cm, hand, standard glass ~250ml, candy bag ~150-300g). Apply portion modifier (small=70%, medium=100%, large=150%). " +
-              "STEP 3 — NUTRITION: Use accurate USDA/European/Nordic database values per 100g. Realistic ranges: dinner plate 400-900 kcal, candy bag 100g ~350 kcal, soda 330ml ~140 kcal, chips 30g ~160 kcal. Compute totals for actual estimated weight. " +
-              "STEP 4 — HEALTH SCORE 1-10: " +
-              "  10 = whole foods, vegetables, lean protein. 7-8 = mostly healthy with refined carbs. 4-6 = mixed (pasta+sauce, burger). 2-3 = candy, chips, soda, pastries, fast food. 1 = pure sugar/deep-fried. " +
-              "  Penalize: sat fat >10g, added sugar >15g, sodium >800mg. Reward: fiber >5g, protein, vegetables. " +
-              "ALWAYS call report_nutrition with your best estimate even if uncertain — lower the confidence value instead of refusing.",
+              "You are a nutrition database expert with knowledge of USDA, European, and Nordic food data. " +
+              "The user describes a food in free text (Danish, English, or any language) — possibly with a quantity (e.g. 'medium apple', '1 ispind', '200g pasta carbonara', 'glas appelsinjuice', 'Haribo Mix 100g'). " +
+              "Parse: identify the food + parse the portion size (default to a typical/medium serving if not specified). " +
+              "Return ACCURATE nutrition values for that exact portion. Use realistic database values per 100g, then scale to the requested portion. " +
+              "Health score 1-10: 10=whole foods/vegetables/lean protein, 7-8=mostly healthy, 4-6=mixed, 2-3=candy/chips/soda/pastries, 1=pure sugar/deep-fried. " +
+              "Always call report_nutrition. Set confidence based on how specific the query was (vague=0.5, specific with weight=0.95).",
           },
           {
             role: "user",
-            content: [
-              {
-                type: "text",
-                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size (depth, volume, plate coverage). Do NOT count items twice.` : ""} ${portionHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive.`,
-              },
-              ...images.map((url) => ({ type: "image_url", image_url: { url } })),
-            ],
+            content: `Look up nutrition for: "${query.trim()}"`,
           },
         ],
         tools: [
@@ -206,35 +156,34 @@ Deno.serve(async (req) => {
             type: "function",
             function: {
               name: "report_nutrition",
-              description: "Report estimated nutrition facts for the identified food.",
+              description: "Return nutrition facts for the described food and portion.",
               parameters: {
                 type: "object",
                 properties: {
-                  name: { type: "string", description: "Short descriptive name including main components" },
+                  name: { type: "string", description: "Cleaned-up name of the food incl. portion (e.g. 'Medium apple (~180g)')" },
                   items: {
                     type: "array",
-                    description: "List of individual food items identified",
                     items: {
                       type: "object",
                       properties: {
-                        name: { type: "string", description: "Name of the food item" },
-                        calories: { type: "number", description: "kcal for this item" },
+                        name: { type: "string" },
+                        calories: { type: "number" },
                       },
                       required: ["name", "calories"],
                       additionalProperties: false,
                     },
                   },
-                  calories: { type: "number", description: "Total kcal for the portion shown" },
-                  protein: { type: "number", description: "Total grams of protein" },
-                  carbs: { type: "number", description: "Total grams of carbohydrates" },
-                  fat: { type: "number", description: "Total grams of fat" },
-                  fiber: { type: "number", description: "Total grams of dietary fiber" },
-                  sugar: { type: "number", description: "Total grams of sugar" },
-                  sodium: { type: "number", description: "Total milligrams of sodium" },
-                  saturatedFat: { type: "number", description: "Total grams of saturated fat" },
-                  cholesterol: { type: "number", description: "Total milligrams of cholesterol" },
-                  healthScore: { type: "number", description: "1-10 health rating" },
-                  confidence: { type: "number", description: "0-1 confidence in the estimate" },
+                  calories: { type: "number" },
+                  protein: { type: "number" },
+                  carbs: { type: "number" },
+                  fat: { type: "number" },
+                  fiber: { type: "number" },
+                  sugar: { type: "number" },
+                  sodium: { type: "number" },
+                  saturatedFat: { type: "number" },
+                  cholesterol: { type: "number" },
+                  healthScore: { type: "number" },
+                  confidence: { type: "number" },
                 },
                 required: ["name", "items", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence"],
                 additionalProperties: false,
@@ -254,7 +203,7 @@ Deno.serve(async (req) => {
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Add funds to continue." }), {
+        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -278,7 +227,6 @@ Deno.serve(async (req) => {
 
     const parsed = JSON.parse(toolCall.function.arguments);
 
-    // ---- Increment counters after successful scan ----
     const newDaily = dailyUsed + 1;
     await adminClient
       .from("profiles")
@@ -301,7 +249,7 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
-    console.error("scan-food error:", e);
+    console.error("food-search error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
