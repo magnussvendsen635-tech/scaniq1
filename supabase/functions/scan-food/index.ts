@@ -123,13 +123,23 @@ Deno.serve(async (req) => {
     }
 
     // ---- Input ----
-    const { image, portion, strategy } = await req.json();
-    if (!image || typeof image !== "string") {
-      return new Response(JSON.stringify({ error: "Missing image (data URL)" }), {
+    const body = await req.json();
+    const { portion, strategy } = body;
+    // Accept either `images: string[]` (preferred, multi-angle) or legacy `image: string`
+    let images: string[] = [];
+    if (Array.isArray(body.images)) {
+      images = body.images.filter((x: unknown) => typeof x === "string" && x.length > 0);
+    } else if (typeof body.image === "string") {
+      images = [body.image];
+    }
+    if (images.length === 0) {
+      return new Response(JSON.stringify({ error: "Missing images (data URLs)" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    // Cap to 3 images max to control payload size
+    images = images.slice(0, 3);
 
     const portionLabel: "small" | "medium" | "large" =
       portion === "small" || portion === "large" ? portion : "medium";
