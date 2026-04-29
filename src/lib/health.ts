@@ -92,12 +92,12 @@ export async function readTodayHealth(): Promise<HealthSnapshot> {
 
     if (platform === "android") {
       const { HealthConnect } = await import("capacitor-health-connect");
-      const time = { startTime: start.toISOString(), endTime: end.toISOString() } as any;
-      const steps: any = await HealthConnect.readRecords({ type: "Steps", timeRangeFilter: time }).catch(() => null);
-      const cal: any = await HealthConnect.readRecords({ type: "ActiveCaloriesBurned", timeRangeFilter: time }).catch(() => null);
-      const weight: any = await HealthConnect.readRecords({
+      const time: any = { startTime: start, endTime: end };
+      const steps: any = await (HealthConnect as any).readRecords({ type: "Steps", timeRangeFilter: time }).catch(() => null);
+      const cal: any = await (HealthConnect as any).readRecords({ type: "ActiveCaloriesBurned", timeRangeFilter: time }).catch(() => null);
+      const weight: any = await (HealthConnect as any).readRecords({
         type: "Weight",
-        timeRangeFilter: { startTime: new Date(Date.now() - 86400000 * 30).toISOString(), endTime: end.toISOString() },
+        timeRangeFilter: { startTime: new Date(Date.now() - 86400000 * 30), endTime: end },
       }).catch(() => null);
 
       const totalSteps = (steps?.records ?? []).reduce((a: number, b: any) => a + (b.count ?? 0), 0);
