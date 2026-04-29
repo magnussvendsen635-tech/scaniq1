@@ -54,7 +54,7 @@ export default function FoodScan() {
   const fileRef = useRef<HTMLInputElement>(null);
   const DAILY_LIMIT = 20;
   const todayUTC = () => new Date().toISOString().slice(0, 10);
-  const canScan = true;
+  const canScan = isPremiumServer;
 
   const refreshQuota = async () => {
     if (!profile) return { daily: dailyUsed, premium: isPremiumServer };
