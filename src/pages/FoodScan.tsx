@@ -579,7 +579,7 @@ export default function FoodScan() {
                   variant="outline"
                   onClick={() => {
                     setResult(null);
-                    setPreview(null);
+                    setPreviews([]);
                     setStep("portion");
                   }}
                   className="h-12 rounded-2xl border-border bg-card"
