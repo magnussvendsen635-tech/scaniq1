@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     // ---- Quota check ----
     const { data: profile, error: profErr } = await adminClient
       .from("profiles")
-      .select("scan_count, is_premium, daily_scan_count, last_scan_date")
+      .select("scan_count, is_premium, daily_scan_count, last_scan_date, last_scan_at")
       .eq("id", userId)
       .maybeSingle();
 
