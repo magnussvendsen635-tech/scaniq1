@@ -491,17 +491,69 @@ export default function FoodScan() {
                 className="hidden"
                 onChange={onPick}
               />
-              <Button
-                onClick={() => {
-                  // IMPORTANT: must be sync to preserve the user gesture so the
-                  // browser opens the camera/file picker. No awaits before .click().
-                  fileRef.current?.click();
-                }}
-                className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
+
+              {/* Photo thumbnails */}
+              {previews.length > 0 && (
+                <div className="k-card p-4 mb-3">
+                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
+                    Photos {previews.length}/{REQUIRED_PHOTOS} required
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {previews.map((src, i) => (
+                      <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-border">
+                        <img src={src} alt="" className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => removePhoto(i)}
+                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
+                          aria-label="Remove photo"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                    {previews.length < MAX_PHOTOS && (
+                      <button
+                        onClick={() => fileRef.current?.click()}
+                        className="aspect-square rounded-xl border-2 border-dashed border-border flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                      >
+                        <Plus className="w-6 h-6" />
+                      </button>
+                    )}
+                  </div>
+                  {previews.length < REQUIRED_PHOTOS && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      📸 Take {REQUIRED_PHOTOS - previews.length} more photo{REQUIRED_PHOTOS - previews.length === 1 ? "" : "s"} from a different angle (top + side) for accurate analysis.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {previews.length >= REQUIRED_PHOTOS ? (
+                <Button
+                  onClick={() => scan()}
+                  disabled={scanning}
+                  className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
+                >
+                  <Sparkles className="w-5 h-5 mr-1" />
+                  Analyze {previews.length} photos
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => fileRef.current?.click()}
+                  className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
+                >
+                  <Camera className="w-5 h-5 mr-1" />
+                  {previews.length === 0 ? `Take photo 1 of ${REQUIRED_PHOTOS}` : `Take photo ${previews.length + 1} of ${REQUIRED_PHOTOS}`}
+                </Button>
+              )}
+
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="k-tap w-full mt-3 h-12 rounded-2xl border-2 border-border bg-card text-sm font-semibold flex items-center justify-center gap-2 hover:border-primary transition-colors"
               >
-                <Camera className="w-5 h-5 mr-1" />
-                {t("scan.cta")}
-              </Button>
+                <Search className="w-4 h-4" />
+                Search manually instead
+              </button>
             </div>
           )}
 
