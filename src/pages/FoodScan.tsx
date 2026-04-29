@@ -153,13 +153,13 @@ export default function FoodScan() {
       return;
     }
     const quota = await refreshQuota();
-    if (!quota.premium && quota.scans >= FREE_LIMIT) {
+    if (quota.daily >= DAILY_LIMIT) {
       setLimitReached(true);
       setStep("portion");
       setPreview(null);
       setResult(null);
       setScanStatus("");
-      toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
+      toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today. Try again tomorrow.` });
       return;
     }
     setScanning(true);
