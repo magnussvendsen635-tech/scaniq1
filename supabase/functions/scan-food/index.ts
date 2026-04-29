@@ -85,6 +85,30 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Rate limit: enforce cooldown between scans (anti-bot)
+    if (profile?.last_scan_at) {
+      const lastMs = new Date(profile.last_scan_at).getTime();
+      const elapsedSec = (Date.now() - lastMs) / 1000;
+      if (elapsedSec < SCAN_COOLDOWN_SECONDS) {
+        const retryAfter = Math.ceil(SCAN_COOLDOWN_SECONDS - elapsedSec);
+        return new Response(
+          JSON.stringify({
+            error: "rate_limited",
+            message: `Please wait ${retryAfter}s before scanning again.`,
+            retry_after: retryAfter,
+          }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json",
+              "Retry-After": String(retryAfter),
+            },
+          },
+        );
+      }
+    }
+
     if (dailyUsed >= DAILY_SCAN_LIMIT) {
       return new Response(
         JSON.stringify({
