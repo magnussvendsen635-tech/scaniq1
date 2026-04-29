@@ -224,9 +224,10 @@ export default function FoodScan() {
         healthScore: Math.round(data.healthScore),
         confidence: data.confidence,
       });
-      if (typeof data.scans_used === "number") {
-        setScansUsed(data.scans_used);
-        if (!data.is_premium && data.scans_used >= FREE_LIMIT) setLimitReached(true);
+      if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
+      if (typeof data.daily_used === "number") {
+        setDailyUsed(data.daily_used);
+        if (data.daily_used >= DAILY_LIMIT) setLimitReached(true);
       }
       setStep("result");
     } catch (err: any) {
