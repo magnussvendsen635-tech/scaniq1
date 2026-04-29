@@ -133,11 +133,17 @@ export default function FoodScan() {
     }
 
     const dataUrl = await fileToDataUrl(file);
-    setPreview(dataUrl);
-    setResult(null);
-    setStep("capture");
-    await scan(dataUrl);
     e.target.value = "";
+    setResult(null);
+    setPreviews((prev) => {
+      const next = [...prev, dataUrl].slice(0, MAX_PHOTOS);
+      return next;
+    });
+    setStep("capture");
+  };
+
+  const removePhoto = (idx: number) => {
+    setPreviews((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const callScan = async (img: string, strategy: "primary" | "fallback") => {
