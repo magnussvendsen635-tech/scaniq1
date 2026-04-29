@@ -195,9 +195,9 @@ Deno.serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Analyze this food image. ${portionHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive.`,
+                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size (depth, volume, plate coverage). Do NOT count items twice.` : ""} ${portionHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive.`,
               },
-              { type: "image_url", image_url: { url: image } },
+              ...images.map((url) => ({ type: "image_url", image_url: { url } })),
             ],
           },
         ],
