@@ -186,15 +186,18 @@ export default function FoodScan() {
 
       if (error || !data) {
         const s = (error as any)?.context?.status;
-        if (s === 403) {
-          setLimitReached(true);
-          setStep("portion");
-          setPreview(null);
-          setResult(null);
-          setScansUsed(FREE_LIMIT);
-          toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
-        } else if (s === 429) {
-          toast.error("Rate limit", { description: "Try again in a moment." });
+        if (s === 429) {
+          // Could be daily cap or rate limit — refresh quota and decide
+          const q = await refreshQuota();
+          if (q.daily >= DAILY_LIMIT) {
+            setLimitReached(true);
+            setStep("portion");
+            setPreview(null);
+            setResult(null);
+            toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today.` });
+          } else {
+            toast.error("Rate limit", { description: "Try again in a moment." });
+          }
         } else if (s === 402) {
           toast.error("Out of AI credits", { description: "Add funds to continue." });
         } else {
