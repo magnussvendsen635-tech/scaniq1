@@ -2,3 +2,6 @@ project_id = "uqnwhypjrisbfkouwcge"
 
 [functions.meal-suggest]
 verify_jwt = false
+
+[functions.diary-summary]
+verify_jwt = false
