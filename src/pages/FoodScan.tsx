@@ -111,6 +111,12 @@ export default function FoodScan() {
     if (!file) return;
 
     const quota = await refreshQuota();
+    if (!quota.premium) {
+      toast.error("Premium required", { description: "Scanning is a Premium feature." });
+      e.target.value = "";
+      nav("/premium");
+      return;
+    }
     if (quota.daily >= DAILY_LIMIT) {
       setLimitReached(true);
       setStep("portion");
