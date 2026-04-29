@@ -71,6 +71,18 @@ Deno.serve(async (req) => {
     // Reset daily counter if it's a new day
     const dailyUsed = lastDate === today ? (profile?.daily_scan_count ?? 0) : 0;
 
+    // Premium required to scan at all
+    if (!isPremium) {
+      return new Response(
+        JSON.stringify({
+          error: "premium_required",
+          message: "Scanning is a Premium feature. Upgrade to start scanning.",
+          is_premium: false,
+        }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     if (dailyUsed >= DAILY_SCAN_LIMIT) {
       return new Response(
         JSON.stringify({

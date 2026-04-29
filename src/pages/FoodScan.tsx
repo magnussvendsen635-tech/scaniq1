@@ -54,7 +54,7 @@ export default function FoodScan() {
   const fileRef = useRef<HTMLInputElement>(null);
   const DAILY_LIMIT = 20;
   const todayUTC = () => new Date().toISOString().slice(0, 10);
-  const canScan = true;
+  const canScan = isPremiumServer;
 
   const refreshQuota = async () => {
     if (!profile) return { daily: dailyUsed, premium: isPremiumServer };
@@ -111,6 +111,12 @@ export default function FoodScan() {
     if (!file) return;
 
     const quota = await refreshQuota();
+    if (!quota.premium) {
+      toast.error("Premium required", { description: "Scanning is a Premium feature." });
+      e.target.value = "";
+      nav("/premium");
+      return;
+    }
     if (quota.daily >= DAILY_LIMIT) {
       setLimitReached(true);
       setStep("portion");
@@ -186,7 +192,13 @@ export default function FoodScan() {
 
       if (error || !data) {
         const s = (error as any)?.context?.status;
-        if (s === 429) {
+        if (s === 403) {
+          toast.error("Premium required", { description: "Scanning is a Premium feature." });
+          setStep("portion");
+          setPreview(null);
+          setResult(null);
+          nav("/premium");
+        } else if (s === 429) {
           // Could be daily cap or rate limit — refresh quota and decide
           const q = await refreshQuota();
           if (q.daily >= DAILY_LIMIT) {
