@@ -52,7 +52,7 @@ export default function FoodScan() {
   const [limitReached, setLimitReached] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
-  const DAILY_LIMIT = 20;
+  const DAILY_LIMIT = 30;
   const todayUTC = () => new Date().toISOString().slice(0, 10);
   const canScan = isPremiumServer;
 
@@ -177,7 +177,7 @@ export default function FoodScan() {
       // Retry with stronger model + OCR-focused prompt on failure / timeout / low confidence
       const status = (error as any)?.context?.status;
       const lowConfidence = data && typeof data.confidence === "number" && data.confidence < 0.35;
-      const shouldRetry = (error && status !== 403 && status !== 402) || lowConfidence;
+      const shouldRetry = (error && status !== 403 && status !== 402 && status !== 429) || lowConfidence;
 
       if (shouldRetry) {
         setScanStatus("🤔 First try wasn't confident — retrying with smarter model…");
@@ -199,16 +199,22 @@ export default function FoodScan() {
           setResult(null);
           nav("/premium");
         } else if (s === 429) {
-          // Could be daily cap or rate limit — refresh quota and decide
-          const q = await refreshQuota();
-          if (q.daily >= DAILY_LIMIT) {
-            setLimitReached(true);
-            setStep("portion");
-            setPreview(null);
-            setResult(null);
-            toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today.` });
+          // Could be daily cap or rate limit — read payload and refresh quota
+          let payload: any = null;
+          try { payload = await (error as any)?.context?.json?.(); } catch {}
+          if (payload?.error === "rate_limited") {
+            toast.error("Slow down", { description: payload?.message || "Please wait a moment before scanning again." });
           } else {
-            toast.error("Rate limit", { description: "Try again in a moment." });
+            const q = await refreshQuota();
+            if (q.daily >= DAILY_LIMIT) {
+              setLimitReached(true);
+              setStep("portion");
+              setPreview(null);
+              setResult(null);
+              toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today.` });
+            } else {
+              toast.error("Rate limit", { description: "Try again in a moment." });
+            }
           }
         } else if (s === 402) {
           toast.error("Out of AI credits", { description: "Add funds to continue." });

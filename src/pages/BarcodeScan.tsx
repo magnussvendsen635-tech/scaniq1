@@ -105,14 +105,42 @@ export default function BarcodeScan() {
   const handleCode = async (code: string) => {
     setScannedCode(code);
     setStep("loading");
-    const p = await lookupBarcode(code);
-    if (!p) {
+    try {
+      const p = await lookupBarcode(code);
+      if (!p) {
+        setStep("notfound");
+        return;
+      }
+      setProduct(p);
+      setServings(1);
+      setStep("result");
+    } catch (err: any) {
+      const ctx = err?.context;
+      let payload: any = null;
+      try {
+        if (ctx && typeof ctx.json === "function") payload = await ctx.json();
+      } catch {}
+      const status = ctx?.status;
+      const errCode = payload?.error;
+      if (status === 403 || errCode === "premium_required") {
+        toast.error("Premium required", { description: "Upgrade to scan barcodes." });
+        nav("/premium");
+        return;
+      }
+      if (errCode === "rate_limited") {
+        toast.error("Slow down", { description: payload?.message || "Please wait a moment before scanning again." });
+        setStep("scan");
+        startCamera();
+        return;
+      }
+      if (errCode === "daily_scan_limit_reached") {
+        toast.error("Daily limit reached", { description: "You've used all 30 scans today. Try again tomorrow." });
+        setStep("scan");
+        return;
+      }
+      toast.error("Lookup failed", { description: err?.message || "Try again." });
       setStep("notfound");
-      return;
     }
-    setProduct(p);
-    setServings(1);
-    setStep("result");
   };
 
   const submitManual = (e: React.FormEvent) => {

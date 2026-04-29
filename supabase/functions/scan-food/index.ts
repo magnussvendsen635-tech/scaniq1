@@ -9,8 +9,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Daily scan cap applies to ALL users (free + premium).
-const DAILY_SCAN_LIMIT = 20;
+// Daily scan cap for premium users (covers food + barcode combined).
+const DAILY_SCAN_LIMIT = 30;
+// Minimum seconds between scans (anti-bot rate limit, shared with barcode lookup).
+const SCAN_COOLDOWN_SECONDS = 10;
 
 function todayUTC(): string {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -52,7 +54,7 @@ Deno.serve(async (req) => {
     // ---- Quota check ----
     const { data: profile, error: profErr } = await adminClient
       .from("profiles")
-      .select("scan_count, is_premium, daily_scan_count, last_scan_date")
+      .select("scan_count, is_premium, daily_scan_count, last_scan_date, last_scan_at")
       .eq("id", userId)
       .maybeSingle();
 
@@ -81,6 +83,30 @@ Deno.serve(async (req) => {
         }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
+    }
+
+    // Rate limit: enforce cooldown between scans (anti-bot)
+    if (profile?.last_scan_at) {
+      const lastMs = new Date(profile.last_scan_at).getTime();
+      const elapsedSec = (Date.now() - lastMs) / 1000;
+      if (elapsedSec < SCAN_COOLDOWN_SECONDS) {
+        const retryAfter = Math.ceil(SCAN_COOLDOWN_SECONDS - elapsedSec);
+        return new Response(
+          JSON.stringify({
+            error: "rate_limited",
+            message: `Please wait ${retryAfter}s before scanning again.`,
+            retry_after: retryAfter,
+          }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json",
+              "Retry-After": String(retryAfter),
+            },
+          },
+        );
+      }
     }
 
     if (dailyUsed >= DAILY_SCAN_LIMIT) {
@@ -250,6 +276,7 @@ Deno.serve(async (req) => {
         scan_count: scanCount + 1,
         daily_scan_count: newDaily,
         last_scan_date: today,
+        last_scan_at: new Date().toISOString(),
       })
       .eq("id", userId);
 
