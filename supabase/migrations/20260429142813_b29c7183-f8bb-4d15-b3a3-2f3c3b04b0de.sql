@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.prevent_premium_self_upgrade() FROM PUBLIC, anon, authenticated;
