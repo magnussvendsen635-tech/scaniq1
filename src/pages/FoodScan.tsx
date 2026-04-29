@@ -306,28 +306,7 @@ export default function FoodScan() {
       }
 
       setScanStatus("✅ Done");
-      setResult({
-        name: data.name,
-        items: Array.isArray(data.items)
-          ? data.items.map((it: any) => ({ name: String(it.name), calories: Math.round(Number(it.calories) || 0) }))
-          : undefined,
-        calories: Math.round(data.calories),
-        protein: Math.round(data.protein),
-        carbs: Math.round(data.carbs),
-        fat: Math.round(data.fat),
-        fiber: typeof data.fiber === "number" ? Math.round(data.fiber * 10) / 10 : undefined,
-        sugar: typeof data.sugar === "number" ? Math.round(data.sugar * 10) / 10 : undefined,
-        sodium: typeof data.sodium === "number" ? Math.round(data.sodium) : undefined,
-        saturatedFat: typeof data.saturatedFat === "number" ? Math.round(data.saturatedFat * 10) / 10 : undefined,
-        cholesterol: typeof data.cholesterol === "number" ? Math.round(data.cholesterol) : undefined,
-        healthScore: Math.round(data.healthScore),
-        confidence: data.confidence,
-      });
-      if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
-      if (typeof data.daily_used === "number") {
-        setDailyUsed(data.daily_used);
-        if (data.daily_used >= DAILY_LIMIT) setLimitReached(true);
-      }
+      applyResult(data);
       setStep("result");
     } catch (err: any) {
       toast.error("Scan failed", { description: err?.message ?? "Unknown error" });
