@@ -146,12 +146,12 @@ export default function FoodScan() {
     setPreviews((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const callScan = async (img: string, strategy: "primary" | "fallback") => {
+  const callScan = async (imgs: string[], strategy: "primary" | "fallback") => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 35000);
+    const timeout = setTimeout(() => controller.abort(), 45000);
     try {
       const invokePromise = supabase.functions.invoke("scan-food", {
-        body: { image: img, portion, strategy },
+        body: { images: imgs, portion, strategy },
       });
       const { data, error } = await Promise.race([
         invokePromise,
@@ -165,17 +165,16 @@ export default function FoodScan() {
     }
   };
 
-  const scan = async (image?: string) => {
-    const img = image ?? preview;
-    if (!img) {
-      fileRef.current?.click();
+  const scan = async () => {
+    if (previews.length < REQUIRED_PHOTOS) {
+      toast.error(`Need ${REQUIRED_PHOTOS} photos`, { description: "Take photos from different angles for accurate analysis." });
       return;
     }
     const quota = await refreshQuota();
     if (quota.daily >= DAILY_LIMIT) {
       setLimitReached(true);
       setStep("portion");
-      setPreview(null);
+      setPreviews([]);
       setResult(null);
       setScanStatus("");
       toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today. Try again tomorrow.` });
@@ -185,7 +184,7 @@ export default function FoodScan() {
     setResult(null);
     setScanStatus("🔍 Analyzing your food…");
     try {
-      let { data, error } = await callScan(img, "primary");
+      let { data, error } = await callScan(previews, "primary");
 
       // Retry with stronger model + OCR-focused prompt on failure / timeout / low confidence
       const status = (error as any)?.context?.status;
