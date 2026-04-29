@@ -199,16 +199,22 @@ export default function FoodScan() {
           setResult(null);
           nav("/premium");
         } else if (s === 429) {
-          // Could be daily cap or rate limit — refresh quota and decide
-          const q = await refreshQuota();
-          if (q.daily >= DAILY_LIMIT) {
-            setLimitReached(true);
-            setStep("portion");
-            setPreview(null);
-            setResult(null);
-            toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today.` });
+          // Could be daily cap or rate limit — read payload and refresh quota
+          let payload: any = null;
+          try { payload = await (error as any)?.context?.json?.(); } catch {}
+          if (payload?.error === "rate_limited") {
+            toast.error("Slow down", { description: payload?.message || "Please wait a moment before scanning again." });
           } else {
-            toast.error("Rate limit", { description: "Try again in a moment." });
+            const q = await refreshQuota();
+            if (q.daily >= DAILY_LIMIT) {
+              setLimitReached(true);
+              setStep("portion");
+              setPreview(null);
+              setResult(null);
+              toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today.` });
+            } else {
+              toast.error("Rate limit", { description: "Try again in a moment." });
+            }
           }
         } else if (s === 402) {
           toast.error("Out of AI credits", { description: "Add funds to continue." });
