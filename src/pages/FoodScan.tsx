@@ -177,7 +177,7 @@ export default function FoodScan() {
       // Retry with stronger model + OCR-focused prompt on failure / timeout / low confidence
       const status = (error as any)?.context?.status;
       const lowConfidence = data && typeof data.confidence === "number" && data.confidence < 0.35;
-      const shouldRetry = (error && status !== 403 && status !== 402) || lowConfidence;
+      const shouldRetry = (error && status !== 403 && status !== 402 && status !== 429) || lowConfidence;
 
       if (shouldRetry) {
         setScanStatus("🤔 First try wasn't confident — retrying with smarter model…");
