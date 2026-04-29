@@ -9,7 +9,12 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const FREE_SCAN_LIMIT = Number.POSITIVE_INFINITY;
+// Daily scan cap applies to ALL users (free + premium).
+const DAILY_SCAN_LIMIT = 20;
+
+function todayUTC(): string {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -47,7 +52,7 @@ Deno.serve(async (req) => {
     // ---- Quota check ----
     const { data: profile, error: profErr } = await adminClient
       .from("profiles")
-      .select("scan_count, is_premium")
+      .select("scan_count, is_premium, daily_scan_count, last_scan_date")
       .eq("id", userId)
       .maybeSingle();
 
@@ -59,18 +64,23 @@ Deno.serve(async (req) => {
       });
     }
 
+    const today = todayUTC();
     const scanCount = profile?.scan_count ?? 0;
     const isPremium = profile?.is_premium ?? false;
+    const lastDate = profile?.last_scan_date ?? null;
+    // Reset daily counter if it's a new day
+    const dailyUsed = lastDate === today ? (profile?.daily_scan_count ?? 0) : 0;
 
-    if (!isPremium && Number.isFinite(FREE_SCAN_LIMIT) && scanCount >= FREE_SCAN_LIMIT) {
+    if (dailyUsed >= DAILY_SCAN_LIMIT) {
       return new Response(
         JSON.stringify({
-          error: "scan_limit_reached",
-          message: "Free scan used. Upgrade to premium for unlimited scans.",
-          scan_count: scanCount,
-          limit: FREE_SCAN_LIMIT,
+          error: "daily_scan_limit_reached",
+          message: `Daily scan limit reached (${DAILY_SCAN_LIMIT}/day). Try again tomorrow.`,
+          daily_used: dailyUsed,
+          daily_limit: DAILY_SCAN_LIMIT,
+          is_premium: isPremium,
         }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -220,19 +230,23 @@ Deno.serve(async (req) => {
 
     const parsed = JSON.parse(toolCall.function.arguments);
 
-    // ---- Increment scan_count after successful scan ----
-    if (!isPremium) {
-      await adminClient
-        .from("profiles")
-        .update({ scan_count: scanCount + 1 })
-        .eq("id", userId);
-    }
+    // ---- Increment counters after successful scan ----
+    const newDaily = dailyUsed + 1;
+    await adminClient
+      .from("profiles")
+      .update({
+        scan_count: scanCount + 1,
+        daily_scan_count: newDaily,
+        last_scan_date: today,
+      })
+      .eq("id", userId);
 
     return new Response(
       JSON.stringify({
         ...parsed,
-        scans_used: isPremium ? null : scanCount + 1,
-        scan_limit: isPremium ? null : FREE_SCAN_LIMIT,
+        scans_used: scanCount + 1,
+        daily_used: newDaily,
+        daily_limit: DAILY_SCAN_LIMIT,
         is_premium: isPremium,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },

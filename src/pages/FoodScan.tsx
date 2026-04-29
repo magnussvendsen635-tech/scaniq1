@@ -47,26 +47,31 @@ export default function FoodScan() {
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
   const [scansUsed, setScansUsed] = useState<number>(0);
+  const [dailyUsed, setDailyUsed] = useState<number>(0);
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
-  const FREE_LIMIT = Number.POSITIVE_INFINITY;
+  const DAILY_LIMIT = 20;
+  const todayUTC = () => new Date().toISOString().slice(0, 10);
   const canScan = true;
 
   const refreshQuota = async () => {
-    if (!profile) return { scans: scansUsed, premium: isPremiumServer };
+    if (!profile) return { daily: dailyUsed, premium: isPremiumServer };
     const { data } = await supabase
       .from("profiles")
-      .select("scan_count, is_premium")
+      .select("scan_count, is_premium, daily_scan_count, last_scan_date")
       .eq("id", profile.id)
       .maybeSingle();
     const scans = data?.scan_count ?? scansUsed;
     const serverPremium = !!data?.is_premium;
+    const today = todayUTC();
+    const daily = data?.last_scan_date === today ? (data?.daily_scan_count ?? 0) : 0;
     setScansUsed(scans);
+    setDailyUsed(daily);
     setIsPremiumServer(serverPremium);
-    if (!serverPremium && scans >= FREE_LIMIT) setLimitReached(true);
-    return { scans, premium: serverPremium };
+    setLimitReached(daily >= DAILY_LIMIT);
+    return { daily, premium: serverPremium };
   };
 
   // Fetch scan quota from server
@@ -106,10 +111,10 @@ export default function FoodScan() {
     if (!file) return;
 
     const quota = await refreshQuota();
-    if (!quota.premium && quota.scans >= FREE_LIMIT) {
+    if (quota.daily >= DAILY_LIMIT) {
       setLimitReached(true);
       setStep("portion");
-      toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
+      toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today. Try again tomorrow.` });
       e.target.value = "";
       return;
     }
@@ -148,13 +153,13 @@ export default function FoodScan() {
       return;
     }
     const quota = await refreshQuota();
-    if (!quota.premium && quota.scans >= FREE_LIMIT) {
+    if (quota.daily >= DAILY_LIMIT) {
       setLimitReached(true);
       setStep("portion");
       setPreview(null);
       setResult(null);
       setScanStatus("");
-      toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
+      toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today. Try again tomorrow.` });
       return;
     }
     setScanning(true);
@@ -181,15 +186,18 @@ export default function FoodScan() {
 
       if (error || !data) {
         const s = (error as any)?.context?.status;
-        if (s === 403) {
-          setLimitReached(true);
-          setStep("portion");
-          setPreview(null);
-          setResult(null);
-          setScansUsed(FREE_LIMIT);
-          toast.error("Free scans used", { description: "Upgrade to premium for unlimited scans." });
-        } else if (s === 429) {
-          toast.error("Rate limit", { description: "Try again in a moment." });
+        if (s === 429) {
+          // Could be daily cap or rate limit — refresh quota and decide
+          const q = await refreshQuota();
+          if (q.daily >= DAILY_LIMIT) {
+            setLimitReached(true);
+            setStep("portion");
+            setPreview(null);
+            setResult(null);
+            toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today.` });
+          } else {
+            toast.error("Rate limit", { description: "Try again in a moment." });
+          }
         } else if (s === 402) {
           toast.error("Out of AI credits", { description: "Add funds to continue." });
         } else {
@@ -216,9 +224,10 @@ export default function FoodScan() {
         healthScore: Math.round(data.healthScore),
         confidence: data.confidence,
       });
-      if (typeof data.scans_used === "number") {
-        setScansUsed(data.scans_used);
-        if (!data.is_premium && data.scans_used >= FREE_LIMIT) setLimitReached(true);
+      if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
+      if (typeof data.daily_used === "number") {
+        setDailyUsed(data.daily_used);
+        if (data.daily_used >= DAILY_LIMIT) setLimitReached(true);
       }
       setStep("result");
     } catch (err: any) {
@@ -264,7 +273,7 @@ export default function FoodScan() {
   };
 
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (result?.calories ?? 0));
-  const showPremiumGate = !isPremiumServer && !canScan && step !== "result";
+  
 
   return (
     <div className="k-page">
@@ -291,25 +300,22 @@ export default function FoodScan() {
         </button>
         <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("scan.title")}</h1>
         <span className="text-xs px-2.5 py-1 rounded-full bg-card border border-border/60 text-muted-foreground">
-          Free scans
+          {dailyUsed}/{DAILY_LIMIT} today
         </span>
       </header>
 
-      {showPremiumGate ? (
+      {limitReached ? (
         <div className="k-card p-6 text-center bg-gradient-soft animate-fade-in">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-primary flex items-center justify-center mb-4 shadow-glow">
             <Crown className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold mb-2">You've used your 2 free scans</h2>
+          <h2 className="text-xl font-bold mb-2">Daily scan limit reached</h2>
           <p className="text-sm text-muted-foreground mb-5">
-            Upgrade to Premium for <span className="text-foreground font-semibold">unlimited AI food scans</span>, plus all premium features.
+            You've used all <span className="text-foreground font-semibold">{DAILY_LIMIT} scans</span> for today. The counter resets at midnight (UTC).
           </p>
-          <Link to="/premium">
-            <Button className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
-              <Crown className="w-5 h-5 mr-2" />
-              Get Premium
-            </Button>
-          </Link>
+          <Button onClick={() => nav("/diary")} className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
+            View diary
+          </Button>
         </div>
       ) : !canScan ? (
         <PremiumLock>

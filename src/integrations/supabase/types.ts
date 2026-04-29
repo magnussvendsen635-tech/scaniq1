@@ -18,30 +18,36 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          daily_scan_count: number
           display_name: string | null
           email: string | null
           id: string
           is_premium: boolean
+          last_scan_date: string | null
           scan_count: number
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          daily_scan_count?: number
           display_name?: string | null
           email?: string | null
           id: string
           is_premium?: boolean
+          last_scan_date?: string | null
           scan_count?: number
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          daily_scan_count?: number
           display_name?: string | null
           email?: string | null
           id?: string
           is_premium?: boolean
+          last_scan_date?: string | null
           scan_count?: number
           updated_at?: string
         }
