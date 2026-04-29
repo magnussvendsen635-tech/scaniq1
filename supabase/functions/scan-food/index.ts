@@ -276,6 +276,7 @@ Deno.serve(async (req) => {
         scan_count: scanCount + 1,
         daily_scan_count: newDaily,
         last_scan_date: today,
+        last_scan_at: new Date().toISOString(),
       })
       .eq("id", userId);
 
