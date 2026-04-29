@@ -230,19 +230,23 @@ Deno.serve(async (req) => {
 
     const parsed = JSON.parse(toolCall.function.arguments);
 
-    // ---- Increment scan_count after successful scan ----
-    if (!isPremium) {
-      await adminClient
-        .from("profiles")
-        .update({ scan_count: scanCount + 1 })
-        .eq("id", userId);
-    }
+    // ---- Increment counters after successful scan ----
+    const newDaily = dailyUsed + 1;
+    await adminClient
+      .from("profiles")
+      .update({
+        scan_count: scanCount + 1,
+        daily_scan_count: newDaily,
+        last_scan_date: today,
+      })
+      .eq("id", userId);
 
     return new Response(
       JSON.stringify({
         ...parsed,
-        scans_used: isPremium ? null : scanCount + 1,
-        scan_limit: isPremium ? null : FREE_SCAN_LIMIT,
+        scans_used: scanCount + 1,
+        daily_used: newDaily,
+        daily_limit: DAILY_SCAN_LIMIT,
         is_premium: isPremium,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
