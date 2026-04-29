@@ -47,26 +47,31 @@ export default function FoodScan() {
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
   const [scansUsed, setScansUsed] = useState<number>(0);
+  const [dailyUsed, setDailyUsed] = useState<number>(0);
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
-  const FREE_LIMIT = Number.POSITIVE_INFINITY;
+  const DAILY_LIMIT = 20;
+  const todayUTC = () => new Date().toISOString().slice(0, 10);
   const canScan = true;
 
   const refreshQuota = async () => {
-    if (!profile) return { scans: scansUsed, premium: isPremiumServer };
+    if (!profile) return { daily: dailyUsed, premium: isPremiumServer };
     const { data } = await supabase
       .from("profiles")
-      .select("scan_count, is_premium")
+      .select("scan_count, is_premium, daily_scan_count, last_scan_date")
       .eq("id", profile.id)
       .maybeSingle();
     const scans = data?.scan_count ?? scansUsed;
     const serverPremium = !!data?.is_premium;
+    const today = todayUTC();
+    const daily = data?.last_scan_date === today ? (data?.daily_scan_count ?? 0) : 0;
     setScansUsed(scans);
+    setDailyUsed(daily);
     setIsPremiumServer(serverPremium);
-    if (!serverPremium && scans >= FREE_LIMIT) setLimitReached(true);
-    return { scans, premium: serverPremium };
+    setLimitReached(daily >= DAILY_LIMIT);
+    return { daily, premium: serverPremium };
   };
 
   // Fetch scan quota from server
