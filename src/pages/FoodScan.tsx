@@ -300,25 +300,22 @@ export default function FoodScan() {
         </button>
         <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("scan.title")}</h1>
         <span className="text-xs px-2.5 py-1 rounded-full bg-card border border-border/60 text-muted-foreground">
-          Free scans
+          {dailyUsed}/{DAILY_LIMIT} today
         </span>
       </header>
 
-      {showPremiumGate ? (
+      {limitReached ? (
         <div className="k-card p-6 text-center bg-gradient-soft animate-fade-in">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-primary flex items-center justify-center mb-4 shadow-glow">
             <Crown className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold mb-2">You've used your 2 free scans</h2>
+          <h2 className="text-xl font-bold mb-2">Daily scan limit reached</h2>
           <p className="text-sm text-muted-foreground mb-5">
-            Upgrade to Premium for <span className="text-foreground font-semibold">unlimited AI food scans</span>, plus all premium features.
+            You've used all <span className="text-foreground font-semibold">{DAILY_LIMIT} scans</span> for today. The counter resets at midnight (UTC).
           </p>
-          <Link to="/premium">
-            <Button className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
-              <Crown className="w-5 h-5 mr-2" />
-              Get Premium
-            </Button>
-          </Link>
+          <Button onClick={() => nav("/diary")} className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
+            View diary
+          </Button>
         </div>
       ) : !canScan ? (
         <PremiumLock>
