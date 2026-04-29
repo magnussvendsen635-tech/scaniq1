@@ -193,7 +193,7 @@ export default function FoodScan() {
 
       if (shouldRetry) {
         setScanStatus("🤔 First try wasn't confident — retrying with smarter model…");
-        const retry = await callScan(img, "fallback");
+        const retry = await callScan(previews, "fallback");
         if (!retry.error) {
           data = retry.data;
           error = null;
@@ -207,7 +207,7 @@ export default function FoodScan() {
         if (s === 403) {
           toast.error("Premium required", { description: "Scanning is a Premium feature." });
           setStep("portion");
-          setPreview(null);
+          setPreviews([]);
           setResult(null);
           nav("/premium");
         } else if (s === 429) {
@@ -221,7 +221,7 @@ export default function FoodScan() {
             if (q.daily >= DAILY_LIMIT) {
               setLimitReached(true);
               setStep("portion");
-              setPreview(null);
+              setPreviews([]);
               setResult(null);
               toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today.` });
             } else {
