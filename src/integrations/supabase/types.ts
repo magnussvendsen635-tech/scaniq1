@@ -23,6 +23,7 @@ export type Database = {
           email: string | null
           id: string
           is_premium: boolean
+          last_scan_at: string | null
           last_scan_date: string | null
           scan_count: number
           updated_at: string
@@ -35,6 +36,7 @@ export type Database = {
           email?: string | null
           id: string
           is_premium?: boolean
+          last_scan_at?: string | null
           last_scan_date?: string | null
           scan_count?: number
           updated_at?: string
@@ -47,6 +49,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_premium?: boolean
+          last_scan_at?: string | null
           last_scan_date?: string | null
           scan_count?: number
           updated_at?: string
