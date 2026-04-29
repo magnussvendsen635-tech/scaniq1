@@ -26,15 +26,14 @@ export default function Premium() {
   const [plan, setPlan] = useState<"month" | "year">("year");
 
   const upgrade = async () => {
-    if (user) {
-      const { error } = await supabase.from("profiles").update({ is_premium: true }).eq("id", user.id);
-      if (error) {
-        toast.error("Upgrade failed", { description: "Please try again." });
-        return;
-      }
-    }
-    setPremium(true);
-    toast.success(t("premium.welcome"), { description: t("premium.welcome_sub") });
+    // NOTE: is_premium is server-controlled and can only be set by a backend
+    // payment flow (Stripe webhook / edge function). The local flag below is
+    // for UI feedback only — it does NOT grant real premium until the backend
+    // updates the profile.
+    toast.info("Payment flow not configured", {
+      description: "Connect a payment provider to enable real upgrades.",
+    });
+    setPremium(true); // local-only preview
     nav("/profile");
   };
 
