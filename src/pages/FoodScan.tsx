@@ -192,7 +192,13 @@ export default function FoodScan() {
 
       if (error || !data) {
         const s = (error as any)?.context?.status;
-        if (s === 429) {
+        if (s === 403) {
+          toast.error("Premium required", { description: "Scanning is a Premium feature." });
+          setStep("portion");
+          setPreview(null);
+          setResult(null);
+          nav("/premium");
+        } else if (s === 429) {
           // Could be daily cap or rate limit — refresh quota and decide
           const q = await refreshQuota();
           if (q.daily >= DAILY_LIMIT) {
