@@ -273,7 +273,7 @@ export default function FoodScan() {
   };
 
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (result?.calories ?? 0));
-  const showPremiumGate = !isPremiumServer && !canScan && step !== "result";
+  
 
   return (
     <div className="k-page">
