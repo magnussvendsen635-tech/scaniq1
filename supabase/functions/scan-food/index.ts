@@ -9,8 +9,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Daily scan cap applies to ALL users (free + premium).
-const DAILY_SCAN_LIMIT = 20;
+// Daily scan cap for premium users (covers food + barcode combined).
+const DAILY_SCAN_LIMIT = 30;
+// Minimum seconds between scans (anti-bot rate limit, shared with barcode lookup).
+const SCAN_COOLDOWN_SECONDS = 10;
 
 function todayUTC(): string {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
