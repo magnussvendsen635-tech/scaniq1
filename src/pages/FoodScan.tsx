@@ -52,7 +52,7 @@ export default function FoodScan() {
   const [limitReached, setLimitReached] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
-  const DAILY_LIMIT = 20;
+  const DAILY_LIMIT = 30;
   const todayUTC = () => new Date().toISOString().slice(0, 10);
   const canScan = isPremiumServer;
 
