@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, caloriesToday, categoryForNow, type MealCategory } from "@/store/useKStore";
-import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Star, Sun, UtensilsCrossed, Moon, Cookie } from "lucide-react";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Star, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
@@ -42,7 +43,7 @@ export default function FoodScan() {
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
@@ -51,10 +52,16 @@ export default function FoodScan() {
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const REQUIRED_PHOTOS = 2;
+  const MAX_PHOTOS = 3;
   const DAILY_LIMIT = 30;
   const todayUTC = () => new Date().toISOString().slice(0, 10);
   const canScan = isPremiumServer;
+  const preview = previews[previews.length - 1] ?? null;
 
   const refreshQuota = async () => {
     if (!profile) return { daily: dailyUsed, premium: isPremiumServer };
