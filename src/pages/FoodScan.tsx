@@ -252,6 +252,7 @@ export default function FoodScan() {
     }
     setScanning(true);
     setResult(null);
+    setStep("capture");
     setScanStatus("🔍 Analyzing your food…");
     try {
       let { data, error } = await callScan(previews, "primary");
