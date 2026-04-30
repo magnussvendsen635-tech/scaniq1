@@ -14,6 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
+      favorites: {
+        Row: {
+          calories: number
+          carbs: number
+          cholesterol: number | null
+          created_at: string
+          fat: number
+          fiber: number | null
+          health_score: number
+          id: string
+          name: string
+          protein: number
+          saturated_fat: number | null
+          sodium: number | null
+          sugar: number | null
+          user_id: string
+        }
+        Insert: {
+          calories?: number
+          carbs?: number
+          cholesterol?: number | null
+          created_at?: string
+          fat?: number
+          fiber?: number | null
+          health_score?: number
+          id?: string
+          name: string
+          protein?: number
+          saturated_fat?: number | null
+          sodium?: number | null
+          sugar?: number | null
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          cholesterol?: number | null
+          created_at?: string
+          fat?: number
+          fiber?: number | null
+          health_score?: number
+          id?: string
+          name?: string
+          protein?: number
+          saturated_fat?: number | null
+          sodium?: number | null
+          sugar?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meals: {
+        Row: {
+          calories: number
+          carbs: number
+          category: string | null
+          cholesterol: number | null
+          created_at: string
+          eaten_at: string
+          fat: number
+          fiber: number | null
+          health_score: number
+          id: string
+          name: string
+          protein: number
+          saturated_fat: number | null
+          sodium: number | null
+          sugar: number | null
+          user_id: string
+        }
+        Insert: {
+          calories?: number
+          carbs?: number
+          category?: string | null
+          cholesterol?: number | null
+          created_at?: string
+          eaten_at?: string
+          fat?: number
+          fiber?: number | null
+          health_score?: number
+          id?: string
+          name: string
+          protein?: number
+          saturated_fat?: number | null
+          sodium?: number | null
+          sugar?: number | null
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          category?: string | null
+          cholesterol?: number | null
+          created_at?: string
+          eaten_at?: string
+          fat?: number
+          fiber?: number | null
+          health_score?: number
+          id?: string
+          name?: string
+          protein?: number
+          saturated_fat?: number | null
+          sodium?: number | null
+          sugar?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -122,6 +230,168 @@ export type Database = {
           user_id?: string
           water?: boolean
           weight?: boolean
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          activity: string
+          age: number
+          auto_adjust_goal: boolean
+          calories_target: number
+          carbs_target: number
+          created_at: string
+          diet: string
+          fat_target: number
+          frequency: string
+          goal: string
+          height_cm: number
+          language: string
+          last_active_date: string | null
+          onboarded: boolean
+          pace: string
+          protein_target: number
+          reminders_enabled: boolean
+          reminders_meals: boolean
+          reminders_water: boolean
+          reminders_weight: boolean
+          streak: number
+          target_weight_kg: number
+          updated_at: string
+          user_id: string
+          water_goal_ml: number
+          weight_kg: number
+        }
+        Insert: {
+          activity?: string
+          age?: number
+          auto_adjust_goal?: boolean
+          calories_target?: number
+          carbs_target?: number
+          created_at?: string
+          diet?: string
+          fat_target?: number
+          frequency?: string
+          goal?: string
+          height_cm?: number
+          language?: string
+          last_active_date?: string | null
+          onboarded?: boolean
+          pace?: string
+          protein_target?: number
+          reminders_enabled?: boolean
+          reminders_meals?: boolean
+          reminders_water?: boolean
+          reminders_weight?: boolean
+          streak?: number
+          target_weight_kg?: number
+          updated_at?: string
+          user_id: string
+          water_goal_ml?: number
+          weight_kg?: number
+        }
+        Update: {
+          activity?: string
+          age?: number
+          auto_adjust_goal?: boolean
+          calories_target?: number
+          carbs_target?: number
+          created_at?: string
+          diet?: string
+          fat_target?: number
+          frequency?: string
+          goal?: string
+          height_cm?: number
+          language?: string
+          last_active_date?: string | null
+          onboarded?: boolean
+          pace?: string
+          protein_target?: number
+          reminders_enabled?: boolean
+          reminders_meals?: boolean
+          reminders_water?: boolean
+          reminders_weight?: boolean
+          streak?: number
+          target_weight_kg?: number
+          updated_at?: string
+          user_id?: string
+          water_goal_ml?: number
+          weight_kg?: number
+        }
+        Relationships: []
+      }
+      water_logs: {
+        Row: {
+          day: string
+          ml: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          day: string
+          ml?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          day?: string
+          ml?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weights: {
+        Row: {
+          created_at: string
+          id: string
+          logged_at: string
+          user_id: string
+          weight_kg: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logged_at?: string
+          user_id: string
+          weight_kg: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logged_at?: string
+          user_id?: string
+          weight_kg?: number
+        }
+        Relationships: []
+      }
+      workouts: {
+        Row: {
+          calories_burned: number
+          created_at: string
+          id: string
+          minutes: number
+          name: string
+          performed_at: string
+          user_id: string
+        }
+        Insert: {
+          calories_burned?: number
+          created_at?: string
+          id?: string
+          minutes?: number
+          name: string
+          performed_at?: string
+          user_id: string
+        }
+        Update: {
+          calories_burned?: number
+          created_at?: string
+          id?: string
+          minutes?: number
+          name?: string
+          performed_at?: string
+          user_id?: string
         }
         Relationships: []
       }
