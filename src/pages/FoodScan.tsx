@@ -139,7 +139,8 @@ export default function FoodScan() {
       const next = [...prev, dataUrl].slice(0, MAX_PHOTOS);
       return next;
     });
-    setStep("capture");
+    // Stay on portion step so user can see thumbnails + Analyze button.
+    // We only switch to "capture" view once scanning actually starts.
   };
 
   const removePhoto = (idx: number) => {
@@ -251,6 +252,7 @@ export default function FoodScan() {
     }
     setScanning(true);
     setResult(null);
+    setStep("capture");
     setScanStatus("🔍 Analyzing your food…");
     try {
       let { data, error } = await callScan(previews, "primary");
