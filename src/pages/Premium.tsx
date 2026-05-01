@@ -1,13 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { useKStore } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Crown, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, Crown, Check, Sparkles, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 const featureKeys: TKey[] = [
   "premium.feat_scans",
@@ -21,24 +22,31 @@ const featureKeys: TKey[] = [
 export default function Premium() {
   const nav = useNavigate();
   const t = useT();
-  const { setPremium, premium } = useKStore();
   const { user } = useAuth();
+  const { isActive } = useSubscription();
+  const { openCheckout, loading } = usePaddleCheckout();
   const [plan, setPlan] = useState<"month" | "year">("year");
 
   const upgrade = async () => {
-    // NOTE: is_premium is server-controlled and can only be set by a backend
-    // payment flow (Stripe webhook / edge function). The local flag below is
-    // for UI feedback only — it does NOT grant real premium until the backend
-    // updates the profile.
-    toast.info("Payment flow not configured", {
-      description: "Connect a payment provider to enable real upgrades.",
-    });
-    setPremium(true); // local-only preview
-    nav("/profile");
+    if (!user) {
+      toast.error("Du skal være logget ind");
+      return;
+    }
+    try {
+      await openCheckout({
+        priceId: plan === "month" ? "kcally_premium_monthly" : "kcally_premium_yearly",
+        customerEmail: user.email,
+        customData: { userId: user.id },
+        successUrl: `${window.location.origin}/profile?checkout=success`,
+      });
+    } catch (e: any) {
+      toast.error("Kunne ikke åbne betaling", { description: e?.message });
+    }
   };
 
   return (
     <div className="k-page">
+      <PaymentTestModeBanner />
       <header className="flex items-center gap-3 mb-6">
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
@@ -87,11 +95,11 @@ export default function Premium() {
 
       <Button
         onClick={upgrade}
-        disabled={premium}
+        disabled={isActive || loading}
         className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
       >
-        <Sparkles className="w-5 h-5 mr-2" />
-        {premium ? t("premium.youre_premium") : t("premium.upgrade_now")}
+        {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Sparkles className="w-5 h-5 mr-2" />}
+        {isActive ? t("premium.youre_premium") : t("premium.upgrade_now")}
       </Button>
     </div>
   );
