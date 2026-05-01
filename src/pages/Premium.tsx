@@ -22,20 +22,26 @@ const featureKeys: TKey[] = [
 export default function Premium() {
   const nav = useNavigate();
   const t = useT();
-  const { setPremium, premium } = useKStore();
   const { user } = useAuth();
+  const { isActive } = useSubscription();
+  const { openCheckout, loading } = usePaddleCheckout();
   const [plan, setPlan] = useState<"month" | "year">("year");
 
   const upgrade = async () => {
-    // NOTE: is_premium is server-controlled and can only be set by a backend
-    // payment flow (Stripe webhook / edge function). The local flag below is
-    // for UI feedback only — it does NOT grant real premium until the backend
-    // updates the profile.
-    toast.info("Payment flow not configured", {
-      description: "Connect a payment provider to enable real upgrades.",
-    });
-    setPremium(true); // local-only preview
-    nav("/profile");
+    if (!user) {
+      toast.error("Du skal være logget ind");
+      return;
+    }
+    try {
+      await openCheckout({
+        priceId: plan === "month" ? "kcally_premium_monthly" : "kcally_premium_yearly",
+        customerEmail: user.email,
+        customData: { userId: user.id },
+        successUrl: `${window.location.origin}/profile?checkout=success`,
+      });
+    } catch (e: any) {
+      toast.error("Kunne ikke åbne betaling", { description: e?.message });
+    }
   };
 
   return (
