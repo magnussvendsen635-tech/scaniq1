@@ -1,13 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { useKStore } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Crown, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, Crown, Check, Sparkles, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 const featureKeys: TKey[] = [
   "premium.feat_scans",
