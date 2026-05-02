@@ -1,21 +1,50 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { remainingCal, remainingProtein, remainingCarbs, remainingFat, diet, mealType } = await req.json();
+    // ---- Auth ----
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData.user) {
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const body = await req.json();
+    const remainingCal = Math.max(0, Math.min(10000, Number(body.remainingCal) || 0));
+    const remainingProtein = Math.max(0, Math.min(1000, Number(body.remainingProtein) || 0));
+    const remainingCarbs = Math.max(0, Math.min(1000, Number(body.remainingCarbs) || 0));
+    const remainingFat = Math.max(0, Math.min(1000, Number(body.remainingFat) || 0));
+    const diet = typeof body.diet === "string" ? body.diet.slice(0, 50) : "";
+    const mealType = typeof body.mealType === "string" ? body.mealType.slice(0, 50) : "";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not set");
 
     const dietHint = diet && diet !== "none" ? `Diet preference: ${diet}.` : "";
-    const prompt = `Suggest 3 ${mealType ?? "meal"} ideas for someone who has roughly:
+    const prompt = `Suggest 3 ${mealType || "meal"} ideas for someone who has roughly:
 - ${remainingCal} kcal remaining today
 - ${remainingProtein}g protein, ${remainingCarbs}g carbs, ${remainingFat}g fat remaining
 ${dietHint}
