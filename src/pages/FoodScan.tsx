@@ -637,6 +637,21 @@ export default function FoodScan() {
                 )}
               </div>
 
+              {(result.satietyHours || result.energyEffect) && (
+                <div className="k-card p-4 bg-gradient-soft border border-primary/20">
+                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Real life score</div>
+                  {result.satietyHours !== undefined && (
+                    <div className="flex items-center justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Mæthed</span>
+                      <span className="font-semibold">~{result.satietyHours.toFixed(1)} timer</span>
+                    </div>
+                  )}
+                  {result.energyEffect && (
+                    <p className="text-sm text-foreground mt-1">⚡ {result.energyEffect}</p>
+                  )}
+                </div>
+              )}
+
               {result.items && result.items.length > 0 && (
                 <div className="k-card p-4">
                   <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Items</div>
