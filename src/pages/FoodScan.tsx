@@ -30,6 +30,8 @@ interface Result {
   cholesterol?: number;
   healthScore: number;
   confidence?: number;
+  satietyHours?: number;
+  energyEffect?: string;
 }
 
 type Portion = "small" | "medium" | "large";
@@ -164,6 +166,8 @@ export default function FoodScan() {
       cholesterol: typeof data.cholesterol === "number" ? Math.round(data.cholesterol) : undefined,
       healthScore: Math.round(data.healthScore),
       confidence: data.confidence,
+      satietyHours: typeof data.satietyHours === "number" ? data.satietyHours : undefined,
+      energyEffect: typeof data.energyEffect === "string" ? data.energyEffect : undefined,
     });
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
