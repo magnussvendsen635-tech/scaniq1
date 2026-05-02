@@ -104,6 +104,20 @@ export default function Settings() {
         >
           {t("settings.save_changes")}
         </Button>
+
+        <Section title="About">
+          <button
+            onClick={() => nav("/privacy")}
+            className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
+          >
+            <span className="text-sm">Privacy Policy</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <div className="px-5 py-3 flex items-center justify-between gap-4">
+            <span className="text-sm">Developer</span>
+            <span className="text-sm text-muted-foreground">Prime Studio</span>
+          </div>
+        </Section>
       </div>
 
       <Dialog open={langOpen} onOpenChange={setLangOpen}>

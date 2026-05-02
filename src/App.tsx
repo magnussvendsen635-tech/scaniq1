@@ -24,6 +24,7 @@ import Premium from "./pages/Premium";
 import Weight from "./pages/Weight";
 import Favorites from "./pages/Favorites";
 import Recipes from "./pages/Recipes";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="/onboarding" element={<Onboarding />} />
             {loading ? (
               <Route path="*" element={<div className="min-h-screen bg-background" />} />

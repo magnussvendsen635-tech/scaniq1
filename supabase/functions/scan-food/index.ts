@@ -12,7 +12,7 @@ const corsHeaders = {
 // Daily scan cap for premium users (covers food + barcode combined).
 const DAILY_SCAN_LIMIT = 30;
 // Minimum seconds between scans (anti-bot rate limit, shared with barcode lookup).
-const SCAN_COOLDOWN_SECONDS = 10;
+const SCAN_COOLDOWN_SECONDS = 5;
 
 function todayUTC(): string {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -177,17 +177,22 @@ Deno.serve(async (req) => {
           {
             role: "system",
             content:
-              "You are an expert nutritionist with deep visual food recognition skills. You analyze ANY food: homemade meals (kartofler+sovs, lasagne, gryderet), restaurant dishes, packaged snacks (chips, slik, vingummi, chokolade), drinks (sodavand, juice, øl), bakery, fruit, raw ingredients — Danish, Nordic, European, US, Asian, Middle Eastern. Never refuse. " +
-              "STEP 1 — IDENTIFY: Look carefully and list EVERY visible item separately. " +
-              "  • Plate of food → name each component (e.g. 'kogte kartofler', 'brun sovs', 'frikadelle', 'agurkesalat'). " +
-              "  • Packaged product → read brand + product name from label if visible (e.g. 'Haribo Mix', 'Matilde kakaomælk', 'Lays Paprika'). If only the bag/wrapper is visible, infer typical product. " +
+              "You are an expert nutritionist with world-class visual food recognition. You analyze ANY food: homemade meals, restaurant dishes, packaged snacks, drinks, bakery, fruit, raw ingredients — Danish, Nordic, European, US, Asian, Middle Eastern. Never refuse. " +
+              "STEP 1 — IDENTIFY (be EXTREMELY careful, do NOT confuse similar foods): " +
+              "  • SOUP vs YOGHURT vs SKYR vs PORRIDGE — critical distinction:" +
+              "    - SOUP (suppe): liquid surface, often steaming, served in bowl, broth visible, may contain vegetables/meat/noodles, color varies (orange=tomato/carrot, green=spinach/pea, brown=beef/onion, yellow=chicken). USE ~50-80 kcal/100g." +
+              "    - SKYR: thick Icelandic dairy, very white, matte/grainy surface, often with berries/granola on top, served cold in bowl/cup. USE ~60-70 kcal/100g (high protein 10-12g)." +
+              "    - YOGHURT (yoghurt): smoother shinier surface than skyr, white/cream colored, may have fruit. USE ~60-100 kcal/100g (lower protein 4-6g)." +
+              "    - PORRIDGE (havregrød/risengrød): visible grains/oats, thick, off-white/beige. USE ~80-110 kcal/100g." +
+              "  • If you see a HOT bowl with liquid, steam, or chunks of vegetables/meat → it is SOUP, NOT yoghurt. " +
+              "  • If thick white dairy is matte and grainy → SKYR. If shinier and smoother → YOGHURT. " +
+              "  • Plate of food → name each component (e.g. 'kogte kartofler', 'brun sovs', 'frikadelle'). " +
+              "  • Packaged product → read brand + product name from label (OCR). " +
               "  • Bowl/glass → identify content + estimate volume. " +
-              "  • Candy/sweets bag → identify type (vingummi, lakrids, chokolade) and estimate weight of bag or visible portion. " +
-              "STEP 2 — WEIGH: Estimate grams (or ml for drinks) per item using visual reference (plate ~26cm, fork ~20cm, hand, standard glass ~250ml, candy bag ~150-300g). Apply portion modifier (small=70%, medium=100%, large=150%). " +
-              "STEP 3 — NUTRITION: Use accurate USDA/European/Nordic database values per 100g. Realistic ranges: dinner plate 400-900 kcal, candy bag 100g ~350 kcal, soda 330ml ~140 kcal, chips 30g ~160 kcal. Compute totals for actual estimated weight. " +
-              "STEP 4 — HEALTH SCORE 1-10: " +
-              "  10 = whole foods, vegetables, lean protein. 7-8 = mostly healthy with refined carbs. 4-6 = mixed (pasta+sauce, burger). 2-3 = candy, chips, soda, pastries, fast food. 1 = pure sugar/deep-fried. " +
-              "  Penalize: sat fat >10g, added sugar >15g, sodium >800mg. Reward: fiber >5g, protein, vegetables. " +
+              "STEP 2 — WEIGH: Estimate grams (or ml for liquids) using visual reference (plate ~26cm, fork ~20cm, standard bowl ~300-400ml, glass ~250ml, mug ~250ml). Apply portion modifier (small=70%, medium=100%, large=150%). " +
+              "STEP 3 — NUTRITION: Use accurate USDA/European/Nordic database values per 100g. Realistic ranges: dinner plate 400-900 kcal, soup bowl 150-350 kcal, skyr 150g ~100 kcal, yoghurt 150g ~120 kcal, candy bag 100g ~350 kcal, soda 330ml ~140 kcal. " +
+              "STEP 4 — HEALTH SCORE 1-10: 10=whole foods/vegetables/lean protein. 8-9=skyr, soup with vegetables, oatmeal. 7=yoghurt with fruit. 4-6=mixed (pasta+sauce, burger). 2-3=candy, chips, soda, pastries. 1=pure sugar/deep-fried. " +
+              "STEP 5 — REAL-LIFE EFFECT: Estimate satiety_hours (how many hours user stays full: high protein/fiber/fat = 3-5h, sugar/refined carbs = 0.5-1.5h) and energy_effect (one short Danish sentence like 'Stabil energi i 3 timer' or 'Lav energi efter 1 time pga. sukker' or 'Mæt og fokuseret i 4 timer'). " +
               "ALWAYS call report_nutrition with your best estimate even if uncertain — lower the confidence value instead of refusing.",
           },
           {
@@ -235,8 +240,10 @@ Deno.serve(async (req) => {
                   cholesterol: { type: "number", description: "Total milligrams of cholesterol" },
                   healthScore: { type: "number", description: "1-10 health rating" },
                   confidence: { type: "number", description: "0-1 confidence in the estimate" },
+                  satietyHours: { type: "number", description: "Estimated hours user stays full (0.5-5)" },
+                  energyEffect: { type: "string", description: "Short Danish sentence about real-life energy effect, e.g. 'Stabil energi i 3 timer' or 'Lav energi efter 1 time'" },
                 },
-                required: ["name", "items", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence"],
+                required: ["name", "items", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "satietyHours", "energyEffect"],
                 additionalProperties: false,
               },
             },

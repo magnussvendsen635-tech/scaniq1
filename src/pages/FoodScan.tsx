@@ -30,6 +30,8 @@ interface Result {
   cholesterol?: number;
   healthScore: number;
   confidence?: number;
+  satietyHours?: number;
+  energyEffect?: string;
 }
 
 type Portion = "small" | "medium" | "large";
@@ -164,6 +166,8 @@ export default function FoodScan() {
       cholesterol: typeof data.cholesterol === "number" ? Math.round(data.cholesterol) : undefined,
       healthScore: Math.round(data.healthScore),
       confidence: data.confidence,
+      satietyHours: typeof data.satietyHours === "number" ? data.satietyHours : undefined,
+      energyEffect: typeof data.energyEffect === "string" ? data.energyEffect : undefined,
     });
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
@@ -632,6 +636,21 @@ export default function FoodScan() {
                   </p>
                 )}
               </div>
+
+              {(result.satietyHours || result.energyEffect) && (
+                <div className="k-card p-4 bg-gradient-soft border border-primary/20">
+                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Real life score</div>
+                  {result.satietyHours !== undefined && (
+                    <div className="flex items-center justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Mæthed</span>
+                      <span className="font-semibold">~{result.satietyHours.toFixed(1)} timer</span>
+                    </div>
+                  )}
+                  {result.energyEffect && (
+                    <p className="text-sm text-foreground mt-1">⚡ {result.energyEffect}</p>
+                  )}
+                </div>
+              )}
 
               {result.items && result.items.length > 0 && (
                 <div className="k-card p-4">
