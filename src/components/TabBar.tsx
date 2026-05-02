@@ -24,7 +24,7 @@ export const TabBar = () => {
             end={to === "/"}
             className={({ isActive }) =>
               cn(
-                "flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-full transition-all duration-300",
+                "flex-1 flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-full transition-all duration-300 leading-none",
                 isActive ? "bg-gradient-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:text-foreground"
               )
             }
