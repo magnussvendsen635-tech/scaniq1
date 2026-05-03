@@ -48,6 +48,21 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+    // Block check (IP + user_id + device fingerprint)
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || null;
+    const device = req.headers.get("x-device-fingerprint") || null;
+    const { data: blocked } = await adminClient.rpc("is_blocked", {
+      _user_id: userId,
+      _ip: ip,
+      _device: device,
+    });
+    if (blocked) {
+      return new Response(JSON.stringify({ error: "blocked", message: "Your access has been blocked." }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: profile, error: profErr } = await adminClient
       .from("profiles")
       .select("scan_count, is_premium, daily_scan_count, last_scan_date, last_scan_at")

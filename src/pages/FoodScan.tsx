@@ -56,6 +56,7 @@ export default function FoodScan() {
   const [scanStatus, setScanStatus] = useState<string>("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchGrams, setSearchGrams] = useState<string>("");
   const [searching, setSearching] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const REQUIRED_PHOTOS = 2;
@@ -178,10 +179,12 @@ export default function FoodScan() {
 
   const runManualSearch = async () => {
     const q = searchQuery.trim();
+    const grams = searchGrams.trim();
     if (q.length < 2) {
       toast.error("Type at least 2 characters");
       return;
     }
+    const fullQuery = grams ? `${grams}g ${q}` : q;
     const quota = await refreshQuota();
     if (!quota.premium) {
       toast.error("Premium required");
@@ -196,7 +199,7 @@ export default function FoodScan() {
     }
     setSearching(true);
     try {
-      const { data, error } = await supabase.functions.invoke("food-search", { body: { query: q } });
+      const { data, error } = await supabase.functions.invoke("food-search", { body: { query: fullQuery } });
       if (error || !data) {
         const s = (error as any)?.context?.status;
         if (s === 403) { toast.error("Premium required"); nav("/premium"); }
@@ -212,6 +215,7 @@ export default function FoodScan() {
       applyResult(data);
       setSearchOpen(false);
       setSearchQuery("");
+      setSearchGrams("");
       setStep("result");
     } catch (err: any) {
       toast.error("Search failed", { description: err?.message ?? "Unknown error" });
@@ -731,17 +735,45 @@ export default function FoodScan() {
               </button>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Type the food + portion. Examples: "medium apple", "1 ispind", "200g pasta carbonara", "glas appelsinjuice".
+              Type the food name, and optionally exact grams. Examples: "apple", "pasta carbonara", "skyr".
             </p>
             <Input
               autoFocus
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !searching) runManualSearch(); }}
-              placeholder="e.g. medium banana"
+              placeholder="e.g. banana"
               maxLength={200}
-              className="h-12 rounded-2xl mb-3"
+              className="h-12 rounded-2xl mb-2"
             />
+            <div className="flex items-center gap-2 mb-3">
+              <Input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={5000}
+                value={searchGrams}
+                onChange={(e) => setSearchGrams(e.target.value)}
+                placeholder="grams (optional)"
+                className="h-12 rounded-2xl flex-1"
+              />
+              <span className="text-sm text-muted-foreground">g</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {[50, 100, 150, 200, 250, 300].map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setSearchGrams(String(g))}
+                  className={`k-tap text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                    searchGrams === String(g)
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card border-border text-muted-foreground hover:border-primary"
+                  }`}
+                >
+                  {g}g
+                </button>
+              ))}
+            </div>
             <Button
               onClick={runManualSearch}
               disabled={searching || searchQuery.trim().length < 2}
