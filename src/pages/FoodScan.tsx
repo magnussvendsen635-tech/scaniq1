@@ -215,6 +215,7 @@ export default function FoodScan() {
       applyResult(data);
       setSearchOpen(false);
       setSearchQuery("");
+      setSearchGrams("");
       setStep("result");
     } catch (err: any) {
       toast.error("Search failed", { description: err?.message ?? "Unknown error" });
