@@ -24,13 +24,18 @@ export const TabBar = () => {
             end={to === "/"}
             className={({ isActive }) =>
               cn(
-                "flex-1 flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-full transition-all duration-300 leading-none",
+                "flex-1 flex items-center justify-center gap-2 h-11 px-3 rounded-full transition-all duration-300 leading-none",
                 isActive ? "bg-gradient-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:text-foreground"
               )
             }
           >
-            <Icon className="w-5 h-5" strokeWidth={2.2} />
-            <span className="text-[10px] font-medium tracking-wide">{t(key)}</span>
+            {({ isActive }) => (
+              isActive ? (
+                <span className="text-xs font-semibold tracking-wide whitespace-nowrap">{t(key)}</span>
+              ) : (
+                <Icon className="w-5 h-5" strokeWidth={2.2} />
+              )
+            )}
           </NavLink>
         ))}
       </div>
