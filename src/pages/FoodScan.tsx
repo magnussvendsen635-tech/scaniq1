@@ -56,6 +56,7 @@ export default function FoodScan() {
   const [scanStatus, setScanStatus] = useState<string>("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchGrams, setSearchGrams] = useState<string>("");
   const [searching, setSearching] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const REQUIRED_PHOTOS = 2;
