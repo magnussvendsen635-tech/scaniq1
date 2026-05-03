@@ -735,17 +735,45 @@ export default function FoodScan() {
               </button>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Type the food + portion. Examples: "medium apple", "1 ispind", "200g pasta carbonara", "glas appelsinjuice".
+              Type the food name, and optionally exact grams. Examples: "apple", "pasta carbonara", "skyr".
             </p>
             <Input
               autoFocus
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !searching) runManualSearch(); }}
-              placeholder="e.g. medium banana"
+              placeholder="e.g. banana"
               maxLength={200}
-              className="h-12 rounded-2xl mb-3"
+              className="h-12 rounded-2xl mb-2"
             />
+            <div className="flex items-center gap-2 mb-3">
+              <Input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={5000}
+                value={searchGrams}
+                onChange={(e) => setSearchGrams(e.target.value)}
+                placeholder="grams (optional)"
+                className="h-12 rounded-2xl flex-1"
+              />
+              <span className="text-sm text-muted-foreground">g</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {[50, 100, 150, 200, 250, 300].map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setSearchGrams(String(g))}
+                  className={`k-tap text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                    searchGrams === String(g)
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card border-border text-muted-foreground hover:border-primary"
+                  }`}
+                >
+                  {g}g
+                </button>
+              ))}
+            </div>
             <Button
               onClick={runManualSearch}
               disabled={searching || searchQuery.trim().length < 2}
