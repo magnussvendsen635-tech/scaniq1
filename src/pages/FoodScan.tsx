@@ -32,6 +32,16 @@ interface Result {
   confidence?: number;
   satietyHours?: number;
   energyEffect?: string;
+  vitaminA?: number;
+  vitaminC?: number;
+  vitaminD?: number;
+  vitaminE?: number;
+  vitaminB12?: number;
+  calcium?: number;
+  iron?: number;
+  magnesium?: number;
+  potassium?: number;
+  zinc?: number;
 }
 
 type Portion = "small" | "medium" | "large";
@@ -151,6 +161,7 @@ export default function FoodScan() {
   };
 
   const applyResult = (data: any) => {
+    const num = (v: any) => (typeof v === "number" && isFinite(v) ? v : undefined);
     setResult({
       name: data.name,
       items: Array.isArray(data.items)
@@ -169,6 +180,16 @@ export default function FoodScan() {
       confidence: data.confidence,
       satietyHours: typeof data.satietyHours === "number" ? data.satietyHours : undefined,
       energyEffect: typeof data.energyEffect === "string" ? data.energyEffect : undefined,
+      vitaminA: num(data.vitaminA),
+      vitaminC: num(data.vitaminC),
+      vitaminD: num(data.vitaminD),
+      vitaminE: num(data.vitaminE),
+      vitaminB12: num(data.vitaminB12),
+      calcium: num(data.calcium),
+      iron: num(data.iron),
+      magnesium: num(data.magnesium),
+      potassium: num(data.potassium),
+      zinc: num(data.zinc),
     });
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
@@ -698,6 +719,47 @@ export default function FoodScan() {
                   </div>
                 </div>
               )}
+
+              {(() => {
+                const vitamins: { label: string; value?: number; unit: string }[] = [
+                  { label: "Vitamin A", value: result.vitaminA, unit: "µg" },
+                  { label: "Vitamin C", value: result.vitaminC, unit: "mg" },
+                  { label: "Vitamin D", value: result.vitaminD, unit: "µg" },
+                  { label: "Vitamin E", value: result.vitaminE, unit: "mg" },
+                  { label: "Vitamin B12", value: result.vitaminB12, unit: "µg" },
+                ];
+                const minerals: { label: string; value?: number; unit: string }[] = [
+                  { label: "Calcium", value: result.calcium, unit: "mg" },
+                  { label: "Iron", value: result.iron, unit: "mg" },
+                  { label: "Magnesium", value: result.magnesium, unit: "mg" },
+                  { label: "Potassium", value: result.potassium, unit: "mg" },
+                  { label: "Zinc", value: result.zinc, unit: "mg" },
+                ];
+                const hasAny = [...vitamins, ...minerals].some((x) => x.value !== undefined);
+                if (!hasAny) return null;
+                const fmt = (n: number) => (n >= 10 ? Math.round(n).toString() : (Math.round(n * 10) / 10).toString());
+                return (
+                  <div className="k-card p-4">
+                    <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Vitamins & minerals</div>
+                    <div className="mb-3">
+                      <div className="text-[11px] font-semibold text-foreground/70 mb-1.5">Vitamins</div>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        {vitamins.filter(v => v.value !== undefined).map((v) => (
+                          <Micro key={v.label} label={v.label} value={`${fmt(v.value!)}${v.unit}`} />
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-semibold text-foreground/70 mb-1.5">Minerals</div>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        {minerals.filter(v => v.value !== undefined).map((v) => (
+                          <Micro key={v.label} label={v.label} value={`${fmt(v.value!)}${v.unit}`} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <Button

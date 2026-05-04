@@ -158,6 +158,7 @@ Deno.serve(async (req) => {
               "The user describes a food in free text (Danish, English, or any language) — possibly with a quantity (e.g. 'medium apple', '1 ispind', '200g pasta carbonara', 'glas appelsinjuice', 'Haribo Mix 100g'). " +
               "Parse: identify the food + parse the portion size (default to a typical/medium serving if not specified). " +
               "Return ACCURATE nutrition values for that exact portion. Use realistic database values per 100g, then scale to the requested portion. " +
+              "Also estimate vitamins (A µg RAE, C mg, D µg, E mg, B12 µg) and minerals (calcium mg, iron mg, magnesium mg, potassium mg, zinc mg) for the portion. Use 0 if truly absent. " +
               "Health score 1-10: 10=whole foods/vegetables/lean protein, 7-8=mostly healthy, 4-6=mixed, 2-3=candy/chips/soda/pastries, 1=pure sugar/deep-fried. " +
               "Always call report_nutrition. Set confidence based on how specific the query was (vague=0.5, specific with weight=0.95).",
           },
@@ -199,8 +200,18 @@ Deno.serve(async (req) => {
                   cholesterol: { type: "number" },
                   healthScore: { type: "number" },
                   confidence: { type: "number" },
+                  vitaminA: { type: "number", description: "Vitamin A in µg RAE" },
+                  vitaminC: { type: "number", description: "Vitamin C in mg" },
+                  vitaminD: { type: "number", description: "Vitamin D in µg" },
+                  vitaminE: { type: "number", description: "Vitamin E in mg" },
+                  vitaminB12: { type: "number", description: "Vitamin B12 in µg" },
+                  calcium: { type: "number", description: "Calcium in mg" },
+                  iron: { type: "number", description: "Iron in mg" },
+                  magnesium: { type: "number", description: "Magnesium in mg" },
+                  potassium: { type: "number", description: "Potassium in mg" },
+                  zinc: { type: "number", description: "Zinc in mg" },
                 },
-                required: ["name", "items", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence"],
+                required: ["name", "items", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "vitaminA", "vitaminC", "vitaminD", "vitaminE", "vitaminB12", "calcium", "iron", "magnesium", "potassium", "zinc"],
                 additionalProperties: false,
               },
             },

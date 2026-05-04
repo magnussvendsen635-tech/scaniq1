@@ -208,6 +208,7 @@ Deno.serve(async (req) => {
               "STEP 3 — NUTRITION: Use accurate USDA/European/Nordic database values per 100g. Realistic ranges: dinner plate 400-900 kcal, soup bowl 150-350 kcal, skyr 150g ~100 kcal, yoghurt 150g ~120 kcal, candy bag 100g ~350 kcal, soda 330ml ~140 kcal. " +
               "STEP 4 — HEALTH SCORE 1-10: 10=whole foods/vegetables/lean protein. 8-9=skyr, soup with vegetables, oatmeal. 7=yoghurt with fruit. 4-6=mixed (pasta+sauce, burger). 2-3=candy, chips, soda, pastries. 1=pure sugar/deep-fried. " +
               "STEP 5 — REAL-LIFE EFFECT: Estimate satiety_hours (how many hours user stays full: high protein/fiber/fat = 3-5h, sugar/refined carbs = 0.5-1.5h) and energy_effect (one short Danish sentence like 'Stabil energi i 3 timer' or 'Lav energi efter 1 time pga. sukker' or 'Mæt og fokuseret i 4 timer'). " +
+              "STEP 6 — VITAMINS & MINERALS: Estimate realistic values per portion using USDA/Nordic data: vitaminA (µg RAE), vitaminC (mg), vitaminD (µg), vitaminE (mg), vitaminB12 (µg), calcium (mg), iron (mg), magnesium (mg), potassium (mg), zinc (mg). Use 0 if truly absent. " +
               "ALWAYS call report_nutrition with your best estimate even if uncertain — lower the confidence value instead of refusing.",
           },
           {
@@ -257,8 +258,18 @@ Deno.serve(async (req) => {
                   confidence: { type: "number", description: "0-1 confidence in the estimate" },
                   satietyHours: { type: "number", description: "Estimated hours user stays full (0.5-5)" },
                   energyEffect: { type: "string", description: "Short Danish sentence about real-life energy effect, e.g. 'Stabil energi i 3 timer' or 'Lav energi efter 1 time'" },
+                  vitaminA: { type: "number", description: "Vitamin A in micrograms (µg RAE)" },
+                  vitaminC: { type: "number", description: "Vitamin C in milligrams (mg)" },
+                  vitaminD: { type: "number", description: "Vitamin D in micrograms (µg)" },
+                  vitaminE: { type: "number", description: "Vitamin E in milligrams (mg)" },
+                  vitaminB12: { type: "number", description: "Vitamin B12 in micrograms (µg)" },
+                  calcium: { type: "number", description: "Calcium in milligrams (mg)" },
+                  iron: { type: "number", description: "Iron in milligrams (mg)" },
+                  magnesium: { type: "number", description: "Magnesium in milligrams (mg)" },
+                  potassium: { type: "number", description: "Potassium in milligrams (mg)" },
+                  zinc: { type: "number", description: "Zinc in milligrams (mg)" },
                 },
-                required: ["name", "items", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "satietyHours", "energyEffect"],
+                required: ["name", "items", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "satietyHours", "energyEffect", "vitaminA", "vitaminC", "vitaminD", "vitaminE", "vitaminB12", "calcium", "iron", "magnesium", "potassium", "zinc"],
                 additionalProperties: false,
               },
             },
