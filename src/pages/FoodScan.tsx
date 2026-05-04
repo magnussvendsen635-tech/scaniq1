@@ -32,6 +32,16 @@ interface Result {
   confidence?: number;
   satietyHours?: number;
   energyEffect?: string;
+  vitaminA?: number;
+  vitaminC?: number;
+  vitaminD?: number;
+  vitaminE?: number;
+  vitaminB12?: number;
+  calcium?: number;
+  iron?: number;
+  magnesium?: number;
+  potassium?: number;
+  zinc?: number;
 }
 
 type Portion = "small" | "medium" | "large";
@@ -151,6 +161,7 @@ export default function FoodScan() {
   };
 
   const applyResult = (data: any) => {
+    const num = (v: any) => (typeof v === "number" && isFinite(v) ? v : undefined);
     setResult({
       name: data.name,
       items: Array.isArray(data.items)
@@ -169,6 +180,16 @@ export default function FoodScan() {
       confidence: data.confidence,
       satietyHours: typeof data.satietyHours === "number" ? data.satietyHours : undefined,
       energyEffect: typeof data.energyEffect === "string" ? data.energyEffect : undefined,
+      vitaminA: num(data.vitaminA),
+      vitaminC: num(data.vitaminC),
+      vitaminD: num(data.vitaminD),
+      vitaminE: num(data.vitaminE),
+      vitaminB12: num(data.vitaminB12),
+      calcium: num(data.calcium),
+      iron: num(data.iron),
+      magnesium: num(data.magnesium),
+      potassium: num(data.potassium),
+      zinc: num(data.zinc),
     });
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
