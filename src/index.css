@@ -50,7 +50,7 @@
     /* Hard offset shadows — the brutalism signature */
     --shadow-card: 4px 4px 0 hsl(222 30% 6%);
     --shadow-card-lg: 6px 6px 0 hsl(222 30% 6%);
-    --shadow-glow: 4px 4px 0 hsl(14 100% 60%);
+    --shadow-glow: none;
     --shadow-soft: 3px 3px 0 hsl(222 30% 6%);
 
     --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
@@ -132,8 +132,7 @@
     @apply transition-all duration-150 ease-out;
   }
   .k-tap:active {
-    transform: translate(3px, 3px);
-    box-shadow: 0 0 0 hsl(var(--foreground)) !important;
+    transform: scale(0.98);
   }
   /* Brutalism: solid bold ink text instead of rainbow gradient */
   .k-gradient-text {
