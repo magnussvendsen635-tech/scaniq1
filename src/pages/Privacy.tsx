@@ -24,7 +24,7 @@ export default function Privacy() {
         <Section title="1. Who we are">
           <p>
             KCALLY is operated by Prime Studio. If you have any questions about this policy or
-            your data, contact us at <a className="text-primary-glow underline" href="mailto:magnussvendsen635@gmail.com">magnussvendsen635@gmail.com</a>.
+            your data, contact us at <a className="text-primary-glow underline" href="mailto:support.kcally@gmail.com">support.kcally@gmail.com</a>.
           </p>
         </Section>
 
@@ -98,7 +98,7 @@ export default function Privacy() {
             <li>File a complaint with your local data protection authority (in Denmark: Datatilsynet).</li>
           </ul>
           <p className="mt-2">
-            To use any of these rights, email <a className="text-primary-glow underline" href="mailto:magnussvendsen635@gmail.com">magnussvendsen635@gmail.com</a>.
+            To use any of these rights, email <a className="text-primary-glow underline" href="mailto:support.kcally@gmail.com">support.kcally@gmail.com</a>.
             We respond within 30 days.
           </p>
         </Section>
@@ -135,7 +135,7 @@ export default function Privacy() {
 
         <Section title="13. Contact">
           <p>
-            Prime Studio · <a className="text-primary-glow underline" href="mailto:magnussvendsen635@gmail.com">magnussvendsen635@gmail.com</a>
+            Prime Studio · <a className="text-primary-glow underline" href="mailto:support.kcally@gmail.com">support.kcally@gmail.com</a>
           </p>
         </Section>
       </div>
