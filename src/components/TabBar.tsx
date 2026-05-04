@@ -16,7 +16,7 @@ export const TabBar = () => {
   const t = useT();
   return (
     <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[min(420px,92%)]">
-      <div className="k-card !rounded-full backdrop-blur-xl bg-card/85 border-border/70 px-2 py-2 flex items-center justify-between">
+      <div className="rounded-full backdrop-blur-xl bg-card/95 border-[3px] border-foreground px-2 py-2 flex items-center justify-between shadow-none">
         {items.map(({ to, key, Icon }) => (
           <NavLink
             key={to}
@@ -25,7 +25,7 @@ export const TabBar = () => {
             className={({ isActive }) =>
               cn(
                 "flex-1 flex items-center justify-center gap-2 h-11 px-3 rounded-full transition-all duration-300 leading-none",
-                isActive ? "bg-gradient-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:text-foreground"
+                isActive ? "bg-gradient-primary text-primary-foreground shadow-none" : "text-muted-foreground hover:text-foreground"
               )
             }
           >
