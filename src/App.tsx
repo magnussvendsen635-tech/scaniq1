@@ -25,6 +25,7 @@ import Weight from "./pages/Weight";
 import Favorites from "./pages/Favorites";
 import Recipes from "./pages/Recipes";
 import Privacy from "./pages/Privacy";
+import Help from "./pages/Help";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
