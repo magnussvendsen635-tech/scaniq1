@@ -78,6 +78,7 @@ const App = () => {
                 <Route path="/weight" element={<Shell><Weight /></Shell>} />
                 <Route path="/favorites" element={<Shell><Favorites /></Shell>} />
                 <Route path="/recipes" element={<Shell><Recipes /></Shell>} />
+                <Route path="/help" element={<Shell><Help /></Shell>} />
                 <Route path="*" element={<NotFound />} />
               </>
             )}
