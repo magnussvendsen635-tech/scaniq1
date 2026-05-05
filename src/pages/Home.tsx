@@ -20,10 +20,11 @@ export default function Home() {
   const remaining = Math.max(0, user.calories - eaten + burned);
   const m = macrosToday(meals);
   const motivation = t("app.tagline");
+  const lastMeal = meals.length ? [...meals].sort((a, b) => b.at - a.at)[0] : null;
 
   return (
-    <div className="k-page">
-      <header className="flex items-center justify-between mb-6">
+    <div className="k-page pb-32">
+      <header className="flex items-center justify-between mb-4">
         <Logo size={40} withText />
         <Link to="/profile" className="k-tap flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border/60">
           <Flame className="w-4 h-4 text-primary-glow" />
@@ -31,7 +32,31 @@ export default function Home() {
         </Link>
       </header>
 
-      <p className="text-sm text-muted-foreground mb-6 italic">{motivation}</p>
+      {/* PRIMARY CTA — AI food scan is the hero of the app */}
+      <Link
+        to="/scan?auto=1"
+        className="k-tap relative block mb-5 rounded-3xl overflow-hidden bg-gradient-primary p-6 border-[3px] border-foreground shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.55)] active:scale-[0.98] transition-transform"
+      >
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative flex items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-background/25 backdrop-blur flex items-center justify-center border-[3px] border-foreground shrink-0">
+            <ScanLine className="w-8 h-8 text-foreground" strokeWidth={2.6} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] uppercase tracking-widest text-foreground/80 font-bold mb-0.5">AI food scan</div>
+            <div className="font-bold text-foreground text-xl leading-tight">
+              {lastMeal ? "Tap to scan your food 📸" : "Scan your first meal 📸"}
+            </div>
+            {lastMeal && (
+              <div className="text-xs text-foreground/85 mt-1 font-medium truncate">
+                Last scan: {lastMeal.calories} kcal · {lastMeal.name}
+              </div>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      <p className="text-xs text-muted-foreground mb-5 italic px-1">{motivation}</p>
 
       {/* Streak card */}
       <StreakCard />
@@ -77,35 +102,21 @@ export default function Home() {
       {/* Water tracking */}
       <WaterCard />
 
-      {/* AI Scanner — primary action (placed high so it's always tappable) */}
+      {/* Barcode Scanner — secondary scan option */}
       <Link
-        to="/scan"
-        className="k-card k-tap p-5 mb-3 mt-2 flex items-center gap-4 bg-gradient-primary shadow-glow group relative z-10"
+        to="/barcode"
+        className="k-card k-tap p-4 mb-5 flex items-center gap-4 bg-card group relative z-10"
       >
-        <div className="w-12 h-12 rounded-2xl bg-background/20 backdrop-blur flex items-center justify-center border-[3px] border-foreground shrink-0">
-          <ScanLine className="w-6 h-6 text-foreground" strokeWidth={2.5} />
+        <div className="w-11 h-11 rounded-2xl bg-accent flex items-center justify-center border-[3px] border-foreground shrink-0">
+          <Barcode className="w-5 h-5 text-foreground" strokeWidth={2.5} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-foreground">{t("home.scan_food")}</div>
-          <div className="text-xs text-foreground/80">{t("home.scan_food_sub")}</div>
+          <div className="font-bold text-foreground text-sm">Scan barcode</div>
+          <div className="text-xs text-muted-foreground">Packaged food nutrition</div>
         </div>
         <ChevronRight className="w-5 h-5 text-foreground" />
       </Link>
 
-      {/* Barcode Scanner */}
-      <Link
-        to="/barcode"
-        className="k-card k-tap p-5 mb-5 flex items-center gap-4 bg-card group relative z-10"
-      >
-        <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center border-[3px] border-foreground shrink-0">
-          <Barcode className="w-6 h-6 text-foreground" strokeWidth={2.5} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-bold text-foreground">Scan barcode</div>
-          <div className="text-xs text-muted-foreground">Get instant nutrition from packaged food</div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-foreground" />
-      </Link>
 
       {/* Macros */}
       {premium ? (
@@ -168,12 +179,12 @@ export default function Home() {
       {/* Health sync (Apple Health / Google Fit) */}
       <HealthSyncCard />
 
-      {/* Quick actions */}
+      {/* Quick actions — secondary features */}
       <div className="grid grid-cols-2 gap-3">
-        <ActionCard to="/recipes" Icon={ChefHat} title="Recipes" sub="Browse & generate with AI" />
-        <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
         <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
         <ActionCard to="/weight" Icon={Scale} title="Weight" sub="Track & log progress" />
+        <ActionCard to="/recipes" Icon={ChefHat} title="Recipes" sub="Browse & generate with AI" />
+        <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
         <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
       </div>
     </div>
