@@ -179,12 +179,12 @@ export default function Home() {
       {/* Health sync (Apple Health / Google Fit) */}
       <HealthSyncCard />
 
-      {/* Quick actions */}
+      {/* Quick actions — secondary features */}
       <div className="grid grid-cols-2 gap-3">
-        <ActionCard to="/recipes" Icon={ChefHat} title="Recipes" sub="Browse & generate with AI" />
-        <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
         <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
         <ActionCard to="/weight" Icon={Scale} title="Weight" sub="Track & log progress" />
+        <ActionCard to="/recipes" Icon={ChefHat} title="Recipes" sub="Browse & generate with AI" />
+        <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
         <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
       </div>
     </div>
