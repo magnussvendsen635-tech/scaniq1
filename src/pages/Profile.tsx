@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import profileAvatar from "@/assets/profile-avatar.png";
-import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database } from "lucide-react";
+import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
@@ -94,6 +94,7 @@ export default function Profile() {
         <Row Icon={Scale} title="Weight tracker" sub="Log weight & see your trend" onClick={() => nav("/weight")} />
         <Row Icon={Star} title="Favorites & recent" sub="Quick-add saved meals" onClick={() => nav("/favorites")} />
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
+        <Row Icon={LifeBuoy} title="Hjælp & support" sub="Kontakt, FAQ, om os, slet konto" onClick={() => nav("/help")} />
         <BackendRow />
         <Row
           Icon={RotateCcw}

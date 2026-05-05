@@ -25,6 +25,7 @@ import Weight from "./pages/Weight";
 import Favorites from "./pages/Favorites";
 import Recipes from "./pages/Recipes";
 import Privacy from "./pages/Privacy";
+import Help from "./pages/Help";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -77,6 +78,7 @@ const App = () => {
                 <Route path="/weight" element={<Shell><Weight /></Shell>} />
                 <Route path="/favorites" element={<Shell><Favorites /></Shell>} />
                 <Route path="/recipes" element={<Shell><Recipes /></Shell>} />
+                <Route path="/help" element={<Shell><Help /></Shell>} />
                 <Route path="*" element={<NotFound />} />
               </>
             )}
