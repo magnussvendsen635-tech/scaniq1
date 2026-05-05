@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useKStore, caloriesToday, categoryForNow, type MealCategory } from "@/store/useKStore";
 import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Star, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -94,11 +94,26 @@ export default function FoodScan() {
     return { daily, premium: serverPremium };
   };
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   // Fetch scan quota from server
   useEffect(() => {
     if (!profile) return;
     refreshQuota();
   }, [profile]);
+
+  // Auto-open camera when arriving via ?auto=1 (from bottom-nav scan button)
+  useEffect(() => {
+    if (searchParams.get("auto") !== "1") return;
+    if (!profile) return;
+    const timer = setTimeout(() => {
+      fileRef.current?.click();
+      const next = new URLSearchParams(searchParams);
+      next.delete("auto");
+      setSearchParams(next, { replace: true });
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [profile, searchParams, setSearchParams]);
 
   const fileToDataUrl = (file: File) =>
     new Promise<string>((resolve, reject) => {
