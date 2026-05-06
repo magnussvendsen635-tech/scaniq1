@@ -10,7 +10,7 @@ const SUPPORT_EMAIL = "support.kcally@gmail.com";
 const FAQS = [
   {
     q: "Hvordan scanner jeg mad?",
-    a: "Tryk på den store orange scan-knap i bunden af skærmen. Tag et billede af din mad, og AI'en analyserer kalorier og næringsstoffer automatisk.",
+    a: "Tryk på den store orange scan-knap i bunden af skærmen. Tag et billede af din mad, så analyserer appen kalorier og næringsstoffer automatisk. Bemærk: resultater er estimater.",
   },
   {
     q: "Er mine data private?",
@@ -21,8 +21,12 @@ const FAQS = [
     a: "Gå til Profil → Go Premium. Premium giver dig ubegrænsede scanninger, AI-måltidsforslag og avancerede analyser.",
   },
   {
-    q: "Hvor præcis er AI-scanningen?",
-    a: "AI'en er meget præcis for almindelige fødevarer, men du kan altid justere portionsstørrelse og næringsindhold manuelt efter scanning.",
+    q: "Hvor præcis er scanningen?",
+    a: "Scanneren giver gode estimater for almindelige fødevarer, men resultater er estimater og kan afvige. Du kan altid justere portionsstørrelse og næringsindhold manuelt efter scanning.",
+  },
+  {
+    q: "Er Kcally medicinsk rådgivning?",
+    a: "Nej. Kcally er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist. Resultater og kalorieanslag er estimater. Tal med en sundhedsprofessionel før du foretager større ændringer i kost eller træning.",
   },
   {
     q: "Kan jeg bruge appen offline?",
