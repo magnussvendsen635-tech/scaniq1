@@ -75,6 +75,14 @@ export default function Help() {
         <h1 className="text-2xl font-semibold tracking-tight">Hjælp</h1>
       </header>
 
+      {/* Health disclaimer */}
+      <div className="mb-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
+        <b className="block mb-1 text-amber-300">Sundhedsforbehold</b>
+        Kcally er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist.
+        Kalorier og næringsindhold er estimater og kan være unøjagtige. Tal med en
+        sundhedsprofessionel før du foretager større ændringer i kost eller træning.
+      </div>
+
       {/* Contact support */}
       <Section>
         <a href={mailto("Kcally support")} className="row">
