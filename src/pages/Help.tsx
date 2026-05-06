@@ -10,7 +10,7 @@ const SUPPORT_EMAIL = "support.kcally@gmail.com";
 const FAQS = [
   {
     q: "Hvordan scanner jeg mad?",
-    a: "Tryk på den store orange scan-knap i bunden af skærmen. Tag et billede af din mad, og AI'en analyserer kalorier og næringsstoffer automatisk.",
+    a: "Tryk på den store orange scan-knap i bunden af skærmen. Tag et billede af din mad, så analyserer appen kalorier og næringsstoffer automatisk. Bemærk: resultater er estimater.",
   },
   {
     q: "Er mine data private?",
@@ -21,8 +21,12 @@ const FAQS = [
     a: "Gå til Profil → Go Premium. Premium giver dig ubegrænsede scanninger, AI-måltidsforslag og avancerede analyser.",
   },
   {
-    q: "Hvor præcis er AI-scanningen?",
-    a: "AI'en er meget præcis for almindelige fødevarer, men du kan altid justere portionsstørrelse og næringsindhold manuelt efter scanning.",
+    q: "Hvor præcis er scanningen?",
+    a: "Scanneren giver gode estimater for almindelige fødevarer, men resultater er estimater og kan afvige. Du kan altid justere portionsstørrelse og næringsindhold manuelt efter scanning.",
+  },
+  {
+    q: "Er Kcally medicinsk rådgivning?",
+    a: "Nej. Kcally er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist. Resultater og kalorieanslag er estimater. Tal med en sundhedsprofessionel før du foretager større ændringer i kost eller træning.",
   },
   {
     q: "Kan jeg bruge appen offline?",
@@ -70,6 +74,14 @@ export default function Help() {
         </button>
         <h1 className="text-2xl font-semibold tracking-tight">Hjælp</h1>
       </header>
+
+      {/* Health disclaimer */}
+      <div className="mb-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
+        <b className="block mb-1 text-amber-300">Sundhedsforbehold</b>
+        Kcally er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist.
+        Kalorier og næringsindhold er estimater og kan være unøjagtige. Tal med en
+        sundhedsprofessionel før du foretager større ændringer i kost eller træning.
+      </div>
 
       {/* Contact support */}
       <Section>
@@ -124,7 +136,7 @@ export default function Help() {
         <div className="px-4 py-4 space-y-2">
           <div className="font-medium">Kcally</div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Kcally er en AI-drevet kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. Bygget af Prime Studio for at hjælpe dig med at nå dine helbredsmål.
+            Kcally er en kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. Bygget af Prime Studio for at hjælpe dig med at nå dine helbredsmål.
           </p>
           <div className="text-xs text-muted-foreground">Version 1.0.0 • © 2026 Prime Studio</div>
           <button onClick={() => nav("/privacy")} className="text-xs text-primary-glow underline">Privatlivspolitik</button>

@@ -12,7 +12,15 @@ export default function Privacy() {
       </header>
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
-        <p className="text-xs text-muted-foreground">Last updated: 2 May 2026 · Developer: Prime Studio</p>
+        <p className="text-xs text-muted-foreground">Last updated: 6 May 2026 · Developer: Prime Studio</p>
+
+        <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
+          <b className="block mb-1 text-amber-300">Health disclaimer</b>
+          KCALLY is not medical advice and does not replace consultation with a doctor or
+          dietitian. Calorie and nutrition results are estimates and may be inaccurate. Consult a
+          healthcare professional before making significant changes to your diet, exercise, or
+          health routine.
+        </div>
 
         <p>
           KCALLY ("we", "us", "the app") is a mobile fitness app that helps you track calories,
