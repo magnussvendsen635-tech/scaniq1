@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronDown, Mail, Info, Trash2, Bug, HelpCircle, Activity, ExternalLink } from "lucide-react";
+import { ArrowLeft, ChevronDown, Mail, Info, Trash2, Bug, HelpCircle, Activity, ExternalLink, Download } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,6 +39,36 @@ export default function Help() {
   const { user, signOut } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    if (!user) return;
+    setExporting(true);
+    try {
+      const tables = ["profiles", "user_settings", "meals", "favorites", "workouts", "weights", "water_logs", "reminder_preferences", "subscriptions"] as const;
+      const data: Record<string, any> = {
+        exported_at: new Date().toISOString(),
+        user: { id: user.id, email: user.email },
+      };
+      for (const t of tables) {
+        const col = t === "profiles" ? "id" : "user_id";
+        const { data: rows } = await (supabase.from(t as any).select("*").eq(col, user.id) as any);
+        data[t] = rows ?? [];
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kcally-data-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Dine data er downloadet");
+    } catch (e: any) {
+      toast.error("Kunne ikke eksportere data");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const mailto = (subject: string, body = "") =>
     `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -143,8 +173,17 @@ export default function Help() {
         </div>
       </Section>
 
-      {/* Delete account */}
+      {/* Account */}
       <Section title="Konto">
+        <button onClick={handleExport} disabled={exporting} className="row disabled:opacity-50">
+          <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gradient-soft">
+            <Download className="w-4.5 h-4.5 text-primary-glow" />
+          </div>
+          <div className="flex-1 text-left">
+            <div className="font-medium">Eksportér mine data</div>
+            <div className="text-xs text-muted-foreground">Download alle dine data som JSON (GDPR)</div>
+          </div>
+        </button>
         <button onClick={handleDelete} disabled={deleting} className="row hover:bg-destructive/10 disabled:opacity-50">
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-destructive/15">
             <Trash2 className="w-4.5 h-4.5 text-destructive" />
