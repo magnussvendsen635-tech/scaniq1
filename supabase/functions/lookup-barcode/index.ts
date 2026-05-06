@@ -378,12 +378,6 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     const isPremium = profile?.is_premium ?? false;
-    if (!isPremium) {
-      return new Response(
-        JSON.stringify({ error: "premium_required", message: "Scanning is a Premium feature." }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
 
     const today = todayUTC();
     const dailyUsed = profile?.last_scan_date === today ? (profile?.daily_scan_count ?? 0) : 0;
