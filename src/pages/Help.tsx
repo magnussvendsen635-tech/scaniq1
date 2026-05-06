@@ -124,7 +124,7 @@ export default function Help() {
         <div className="px-4 py-4 space-y-2">
           <div className="font-medium">Kcally</div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Kcally er en AI-drevet kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. Bygget af Prime Studio for at hjælpe dig med at nå dine helbredsmål.
+            Kcally er en kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. Bygget af Prime Studio for at hjælpe dig med at nå dine helbredsmål.
           </p>
           <div className="text-xs text-muted-foreground">Version 1.0.0 • © 2026 Prime Studio</div>
           <button onClick={() => nav("/privacy")} className="text-xs text-primary-glow underline">Privatlivspolitik</button>

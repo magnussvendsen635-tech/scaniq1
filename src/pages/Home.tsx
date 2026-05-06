@@ -43,7 +43,7 @@ export default function Home() {
             <ScanLine className="w-8 h-8 text-foreground" strokeWidth={2.6} />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] uppercase tracking-widest text-foreground/80 font-bold mb-0.5">AI food scan</div>
+            <div className="text-[10px] uppercase tracking-widest text-foreground/80 font-bold mb-0.5">Food scan</div>
             <div className="font-bold text-foreground text-xl leading-tight">
               {lastMeal ? "Tap to scan your food 📸" : "Scan your first meal 📸"}
             </div>
@@ -183,7 +183,7 @@ export default function Home() {
       <div className="grid grid-cols-2 gap-3">
         <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
         <ActionCard to="/weight" Icon={Scale} title="Weight" sub="Track & log progress" />
-        <ActionCard to="/recipes" Icon={ChefHat} title="Recipes" sub="Browse & generate with AI" />
+        <ActionCard to="/recipes" Icon={ChefHat} title="Recipes" sub="Browse & generate" />
         <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
         <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
       </div>
