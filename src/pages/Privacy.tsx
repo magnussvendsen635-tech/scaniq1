@@ -16,14 +16,14 @@ export default function Privacy() {
 
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
           <b className="block mb-1 text-amber-300">Health disclaimer</b>
-          KCALLY is not medical advice and does not replace consultation with a doctor or
+          Scaniq is not medical advice and does not replace consultation with a doctor or
           dietitian. Calorie and nutrition results are estimates and may be inaccurate. Consult a
           healthcare professional before making significant changes to your diet, exercise, or
           health routine.
         </div>
 
         <p>
-          KCALLY ("we", "us", "the app") is a mobile fitness app that helps you track calories,
+          Scaniq ("we", "us", "the app") is a mobile fitness app that helps you track calories,
           scan meals, log workouts, and monitor progress. We respect your privacy and we are
           committed to protecting your personal data in line with the EU General Data Protection
           Regulation (GDPR).
@@ -31,7 +31,7 @@ export default function Privacy() {
 
         <Section title="1. Who we are">
           <p>
-            KCALLY is operated by Prime Studio. If you have any questions about this policy or
+            Scaniq is operated by Prime Studio. If you have any questions about this policy or
             your data, contact us at <a className="text-primary-glow underline" href="mailto:support.kcally@gmail.com">support.kcally@gmail.com</a>.
           </p>
         </Section>
@@ -123,7 +123,7 @@ export default function Privacy() {
         </Section>
 
         <Section title="10. Children">
-          <p>KCALLY is not intended for users under 16. If you believe a child has used the app, contact us and we will delete the account.</p>
+          <p>Scaniq is not intended for users under 16. If you believe a child has used the app, contact us and we will delete the account.</p>
         </Section>
 
         <Section title="11. International transfers">
