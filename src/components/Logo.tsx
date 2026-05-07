@@ -4,7 +4,7 @@ export const Logo = ({ size = 40, withText = false }: { size?: number; withText?
   <div className="flex items-center gap-3">
     <img
       src={logo}
-      alt="KCALLY app icon"
+      alt="Scaniq app icon"
       width={size}
       height={size}
       loading="lazy"
@@ -12,7 +12,7 @@ export const Logo = ({ size = 40, withText = false }: { size?: number; withText?
       style={{ width: size, height: size }}
     />
     {withText && (
-      <span className="text-xl font-semibold tracking-[0.2em] k-gradient-text">KCALLY</span>
+      <span className="text-xl font-semibold tracking-[0.2em] k-gradient-text">Scaniq</span>
     )}
   </div>
 );
