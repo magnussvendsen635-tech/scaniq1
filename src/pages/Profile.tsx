@@ -14,9 +14,12 @@ const goalKey: Record<string, TKey> = { lose: "goal.lose", gain: "goal.gain", ma
 export default function Profile() {
   const nav = useNavigate();
   const t = useT();
-  const { signOut } = useAuth();
+  const { signOut, user: authUser } = useAuth();
   const { user, streak, premium, avatar, setAvatar } = useKStore();
-  const isAdmin = typeof window !== "undefined" && window.localStorage.getItem("scaniq_admin") === "1";
+  const ADMIN_EMAILS = ["magnussvendsen635@gmail.com"];
+  const isAdmin =
+    (authUser?.email && ADMIN_EMAILS.includes(authUser.email)) ||
+    (typeof window !== "undefined" && window.localStorage.getItem("scaniq_admin") === "1");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,12 +95,11 @@ export default function Profile() {
       )}
 
       <div className="k-card divide-y divide-border/60 overflow-hidden">
-        <Row Icon={Dumbbell} title="Workouts" sub="Track exercises & calories burned" onClick={() => nav("/workouts")} />
         <Row Icon={Scale} title="Weight tracker" sub="Log weight & see your trend" onClick={() => nav("/weight")} />
         <Row Icon={Star} title="Favorites & recent" sub="Quick-add saved meals" onClick={() => nav("/favorites")} />
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
         <Row Icon={LifeBuoy} title="Hjælp & support" sub="Kontakt, FAQ, om os, slet konto" onClick={() => nav("/help")} />
-        {isAdmin && <BackendRow />}
+        {isAdmin && <Row Icon={Database} title="Admin panel" sub="Brugere, måltider & data" onClick={() => nav("/admin")} />}
         <Row
           Icon={LogOut}
           title={t("profile.logout")}
