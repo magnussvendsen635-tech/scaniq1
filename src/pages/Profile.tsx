@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import profileAvatar from "@/assets/profile-avatar.png";
-import { Flame, Settings as SettingsIcon, RotateCcw, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy } from "lucide-react";
+import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy, Dumbbell } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
@@ -15,7 +15,8 @@ export default function Profile() {
   const nav = useNavigate();
   const t = useT();
   const { signOut } = useAuth();
-  const { user, streak, premium, resetDay, avatar, setAvatar } = useKStore();
+  const { user, streak, premium, avatar, setAvatar } = useKStore();
+  const isAdmin = typeof window !== "undefined" && window.localStorage.getItem("scaniq_admin") === "1";
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,20 +92,12 @@ export default function Profile() {
       )}
 
       <div className="k-card divide-y divide-border/60 overflow-hidden">
+        <Row Icon={Dumbbell} title="Workouts" sub="Track exercises & calories burned" onClick={() => nav("/workouts")} />
         <Row Icon={Scale} title="Weight tracker" sub="Log weight & see your trend" onClick={() => nav("/weight")} />
         <Row Icon={Star} title="Favorites & recent" sub="Quick-add saved meals" onClick={() => nav("/favorites")} />
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
         <Row Icon={LifeBuoy} title="Hjælp & support" sub="Kontakt, FAQ, om os, slet konto" onClick={() => nav("/help")} />
-        <BackendRow />
-        <Row
-          Icon={RotateCcw}
-          title={t("profile.reset_day")}
-          sub={t("profile.reset_day_sub")}
-          onClick={() => {
-            resetDay();
-            toast.success(t("profile.day_reset"));
-          }}
-        />
+        {isAdmin && <BackendRow />}
         <Row
           Icon={LogOut}
           title={t("profile.logout")}
