@@ -8,6 +8,17 @@ import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const goalKey: Record<string, TKey> = { lose: "goal.lose", gain: "goal.gain", maintain: "goal.maintain" };
 
@@ -100,16 +111,39 @@ export default function Profile() {
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
         <Row Icon={LifeBuoy} title="Hjælp & support" sub="Kontakt, FAQ, om os, slet konto" onClick={() => nav("/help")} />
         {isAdmin && <Row Icon={Database} title="Admin panel" sub="Brugere, måltider & data" onClick={() => nav("/admin")} />}
-        <Row
-          Icon={LogOut}
-          title={t("profile.logout")}
-          sub={t("profile.logout_sub")}
-          danger
-          onClick={async () => {
-            await signOut();
-            nav("/auth", { replace: true });
-          }}
-        />
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="w-full p-4 flex items-center gap-4 hover:bg-surface-2 transition-colors text-left">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-destructive/15">
+                <LogOut className="w-4.5 h-4.5 text-destructive" />
+              </div>
+              <div className="flex-1">
+                <div className="font-medium text-destructive">{t("profile.logout")}</div>
+                <div className="text-xs text-muted-foreground">{t("profile.logout_sub")}</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("profile.logout")}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Du bliver logget ud af din konto.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={async () => {
+                  await signOut();
+                  nav("/auth", { replace: true });
+                }}
+              >
+                Log out
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
