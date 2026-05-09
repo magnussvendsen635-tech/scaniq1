@@ -197,3 +197,35 @@
   0% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.5); }
   100% { box-shadow: 0 0 0 16px hsl(var(--accent) / 0); }
 }
+
+/* Exercise figure animations */
+@keyframes ex-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes ex-jump { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-12px); } 60% { transform: translateY(-12px); } }
+@keyframes ex-squat { 0%,100% { transform: translateY(0) scaleY(1); } 50% { transform: translateY(8px) scaleY(0.85); } }
+@keyframes ex-sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+@keyframes ex-lift-arm { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-60deg); } }
+@keyframes ex-arm-swing-l { 0%,100% { transform: rotate(20deg); } 50% { transform: rotate(-20deg); } }
+@keyframes ex-arm-swing-r { 0%,100% { transform: rotate(-20deg); } 50% { transform: rotate(20deg); } }
+@keyframes ex-leg-l { 0%,100% { transform: rotate(15deg); } 50% { transform: rotate(-15deg); } }
+@keyframes ex-leg-r { 0%,100% { transform: rotate(-15deg); } 50% { transform: rotate(15deg); } }
+@keyframes ex-kick { 0%,60%,100% { transform: rotate(0); } 80% { transform: rotate(-50deg); } }
+
+.anim-run { animation: ex-bob 0.5s ease-in-out infinite; transform-origin: center; }
+.anim-run .arm-l { animation: ex-arm-swing-l 0.5s ease-in-out infinite; transform-origin: 50px 38px; }
+.anim-run .arm-r { animation: ex-arm-swing-r 0.5s ease-in-out infinite; transform-origin: 50px 38px; }
+.anim-run .leg-l { animation: ex-leg-l 0.5s ease-in-out infinite; transform-origin: 50px 65px; }
+.anim-run .leg-r { animation: ex-leg-r 0.5s ease-in-out infinite; transform-origin: 50px 65px; }
+
+.anim-jump { animation: ex-jump 0.9s ease-in-out infinite; transform-origin: center; }
+.anim-jump .arm-l { animation: ex-lift-arm 0.9s ease-in-out infinite; transform-origin: 50px 38px; }
+.anim-jump .arm-r { animation: ex-lift-arm 0.9s ease-in-out infinite reverse; transform-origin: 50px 38px; }
+
+.anim-squat { animation: ex-squat 1.1s ease-in-out infinite; transform-origin: center bottom; }
+
+.anim-stretch { animation: ex-sway 2s ease-in-out infinite; transform-origin: 50px 95px; }
+.anim-stretch .arm-l { animation: ex-lift-arm 2s ease-in-out infinite; transform-origin: 50px 38px; }
+
+.anim-lift .arm-l { animation: ex-lift-arm 1.1s ease-in-out infinite; transform-origin: 50px 38px; }
+.anim-lift .arm-r { animation: ex-lift-arm 1.1s ease-in-out infinite; transform-origin: 50px 38px; }
+
+.anim-kick .leg-r { animation: ex-kick 1.2s ease-in-out infinite; transform-origin: 50px 65px; }
