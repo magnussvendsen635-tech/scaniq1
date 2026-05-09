@@ -174,7 +174,9 @@ export default function Workouts() {
               <X className="w-4 h-4" />
             </button>
             <div className="text-xs uppercase tracking-widest text-muted-foreground">{active.category}</div>
-            <h2 className="text-2xl font-semibold mt-1 mb-6">{active.name}</h2>
+            <h2 className="text-2xl font-semibold mt-1 mb-4">{active.name}</h2>
+
+            <ExerciseFigure exercise={active} />
 
             <div className="flex flex-col items-center mb-6">
               <Ring value={elapsed / (duration * 60)} size={210}>
