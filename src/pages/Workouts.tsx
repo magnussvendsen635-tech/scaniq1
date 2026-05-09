@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { PremiumLock } from "@/components/PremiumLock";
+import { ExerciseFigure } from "@/components/ExerciseFigure";
 
 const CATS = ["All", "Cardio", "HIIT", "Strength", "Mobility", "Sport"] as const;
 const CAT_KEYS: Record<(typeof CATS)[number], TKey> = {
