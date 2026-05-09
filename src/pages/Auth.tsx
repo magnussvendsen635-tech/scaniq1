@@ -125,6 +125,23 @@ export default function Auth() {
               className="w-full h-12 rounded-2xl bg-card border border-border/60 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/60"
             />
           </div>
+          {mode === "signup" && (
+            <label className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed pt-1">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                className="mt-0.5 accent-primary"
+              />
+              <span>
+                Jeg accepterer{" "}
+                <a href="/privacy" target="_blank" rel="noopener" className="text-primary-glow underline">
+                  privatlivspolitikken
+                </a>{" "}
+                og giver samtykke til behandling af mine data (GDPR).
+              </span>
+            </label>
+          )}
           <Button
             type="submit"
             disabled={busy}
