@@ -52,9 +52,9 @@ export function ExerciseFigure({ exercise }: { exercise: Exercise }) {
         </svg>
         <div className="flex-1 min-w-0">
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-            {t("workouts.howto") || "Sådan gør du"}
+            Sådan gør du
           </div>
-          <p className="text-sm leading-snug">{howToKey[anim]}</p>
+          <p className="text-sm leading-snug">{howTo[anim]}</p>
         </div>
       </div>
     </div>
