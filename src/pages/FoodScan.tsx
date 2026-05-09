@@ -308,6 +308,8 @@ export default function FoodScan() {
 
       if (shouldRetry) {
         setScanStatus("🤔 First try wasn't confident — retrying with smarter model…");
+        // Wait out the server-side scan cooldown (5s) before retrying
+        await new Promise((r) => setTimeout(r, 5500));
         const retry = await callScan(previews, "fallback");
         if (!retry.error) {
           data = retry.data;
