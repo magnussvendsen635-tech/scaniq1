@@ -17,6 +17,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   if (loading) return null;
   if (session) return <Navigate to="/" replace />;
@@ -24,6 +25,10 @@ export default function Auth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
+    if (mode === "signup" && !consent) {
+      toast.error("Du skal acceptere privatlivspolitikken for at oprette en konto.");
+      return;
+    }
     setBusy(true);
     try {
       if (mode === "signup") {
