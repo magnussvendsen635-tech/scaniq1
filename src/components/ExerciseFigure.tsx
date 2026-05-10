@@ -1,5 +1,36 @@
 import type { Exercise } from "@/data/exercises";
 
+import imgRun from "@/assets/exercises/run.jpg";
+import imgWalk from "@/assets/exercises/walk.jpg";
+import imgSprint from "@/assets/exercises/sprint.jpg";
+import imgKnees from "@/assets/exercises/knees.jpg";
+import imgJump from "@/assets/exercises/jump.jpg";
+import imgJack from "@/assets/exercises/jack.jpg";
+import imgSquat from "@/assets/exercises/squat.jpg";
+import imgJumpsquat from "@/assets/exercises/jumpsquat.jpg";
+import imgLunge from "@/assets/exercises/lunge.jpg";
+import imgPushup from "@/assets/exercises/pushup.jpg";
+import imgPullup from "@/assets/exercises/pullup.jpg";
+import imgPress from "@/assets/exercises/press.jpg";
+import imgDeadlift from "@/assets/exercises/deadlift.jpg";
+import imgRow from "@/assets/exercises/row.jpg";
+import imgCurl from "@/assets/exercises/curl.jpg";
+import imgCycle from "@/assets/exercises/cycle.jpg";
+import imgRope from "@/assets/exercises/rope.jpg";
+import imgSwim from "@/assets/exercises/swim.jpg";
+import imgPunch from "@/assets/exercises/punch.jpg";
+import imgKick from "@/assets/exercises/kick.jpg";
+import imgStretch from "@/assets/exercises/stretch.jpg";
+import imgPlank from "@/assets/exercises/plank.jpg";
+import imgSitup from "@/assets/exercises/situp.jpg";
+import imgClimb from "@/assets/exercises/climb.jpg";
+import imgDance from "@/assets/exercises/dance.jpg";
+import imgSki from "@/assets/exercises/ski.jpg";
+import imgBurpee from "@/assets/exercises/burpee.jpg";
+import imgCarry from "@/assets/exercises/carry.jpg";
+import imgBag from "@/assets/exercises/bag.jpg";
+import imgBall from "@/assets/exercises/ball.jpg";
+
 type Anim =
   | "run" | "walk" | "sprint" | "knees" | "jump" | "jack" | "squat" | "jumpsquat"
   | "lunge" | "pushup" | "pullup" | "press" | "deadlift" | "row" | "curl"
@@ -10,7 +41,7 @@ function pickAnim(ex: Exercise): Anim {
   const n = ex.name.toLowerCase();
   const c = ex.category;
 
-  // Specific keywords first
+  if (n.includes("plank") || n.includes("hollow") || n.includes("dead bug") || n.includes("bird dog")) return "plank";
   if (n.includes("rope") || n.includes("skipping")) return "rope";
   if (n.includes("cycl") || n.includes("bike") || n.includes("spin")) return "cycle";
   if (n.includes("row")) return "row";
@@ -27,7 +58,6 @@ function pickAnim(ex: Exercise): Anim {
   if (n.includes("deadlift") || n.includes("clean") || n.includes("snatch") || n.includes("good morning") || n.includes("stone")) return "deadlift";
   if (n.includes("press") || n.includes("thruster") || n.includes("overhead") || n.includes("jerk")) return "press";
   if (n.includes("curl")) return "curl";
-  if (n.includes("plank") || n.includes("hollow") || n.includes("dead bug") || n.includes("bird dog")) return "plank";
   if (n.includes("sit-up") || n.includes("situp") || n.includes("crunch") || n.includes("twist") || n.includes("ab wheel") || n.includes("toes-to-bar") || n.includes("leg raise")) return "situp";
   if (n.includes("punch") || n.includes("shadow box") || n.includes("boxing") || n.includes("muay") || n.includes("mma") || n.includes("kickbox")) return n.includes("kick") ? "kick" : "bag";
   if (n.includes("kick")) return "kick";
@@ -35,19 +65,28 @@ function pickAnim(ex: Exercise): Anim {
   if (n.includes("climb") || n.includes("boulder") || n.includes("wall walk")) return "climb";
   if (n.includes("danc") || n.includes("zumba") || n.includes("salsa") || n.includes("aerobic")) return "dance";
   if (n.includes("ski") || n.includes("skate") || n.includes("snowboard") || n.includes("surf") || n.includes("board")) return "ski";
-  if (n.includes("carry") || n.includes("yoke") || n.includes("walk") && n.includes("farmer")) return "carry";
+  if (n.includes("carry") || n.includes("yoke") || (n.includes("walk") && n.includes("farmer"))) return "carry";
   if (n.includes("ball") || n.includes("basketball") || n.includes("volley") || n.includes("tennis") || n.includes("padel") || n.includes("badminton") || n.includes("squash") || n.includes("ping") || n.includes("pickle")) return "ball";
-  if (n.includes("sprint") || n.includes("hill") || n.includes("interval") && c === "Cardio") return "sprint";
+  if (n.includes("sprint") || n.includes("hill") || (n.includes("interval") && c === "Cardio")) return "sprint";
   if (n.includes("walk") || n.includes("hike") || n.includes("nordic")) return "walk";
   if (n.includes("run") || n.includes("jog")) return "run";
 
-  // Fallback by category
   if (c === "Cardio") return "run";
   if (c === "HIIT") return "jumpsquat";
   if (c === "Strength") return "press";
   if (c === "Mobility") return "stretch";
   return "run";
 }
+
+const IMAGES: Record<Anim, string> = {
+  run: imgRun, walk: imgWalk, sprint: imgSprint, knees: imgKnees, jump: imgJump,
+  jack: imgJack, squat: imgSquat, jumpsquat: imgJumpsquat, lunge: imgLunge,
+  pushup: imgPushup, pullup: imgPullup, press: imgPress, deadlift: imgDeadlift,
+  row: imgRow, curl: imgCurl, cycle: imgCycle, rope: imgRope, swim: imgSwim,
+  punch: imgPunch, kick: imgKick, stretch: imgStretch, plank: imgPlank,
+  situp: imgSitup, climb: imgClimb, dance: imgDance, ski: imgSki,
+  burpee: imgBurpee, carry: imgCarry, bag: imgBag, ball: imgBall,
+};
 
 const HOW_TO: Record<Anim, string> = {
   run: "Hold opret holdning. Lette skridt, pump armene afslappet og land på forfoden.",
@@ -85,81 +124,17 @@ const HOW_TO: Record<Anim, string> = {
 export function ExerciseFigure({ exercise }: { exercise: Exercise }) {
   const anim = pickAnim(exercise);
 
-  // Decide which props to render
-  const showBar = anim === "deadlift" || anim === "press";
-  const showRope = anim === "rope";
-  const showBag = anim === "bag";
-  const showBall = anim === "ball";
-  const showDumbbells = anim === "curl" || anim === "row" || anim === "carry";
-
   return (
     <div className="rounded-2xl bg-gradient-soft border border-border/50 p-4 mb-5">
       <div className="flex items-center gap-4">
-        <svg
-          viewBox="0 0 100 120"
-          className={`w-28 h-32 shrink-0 anim-${anim}`}
-          fill="none"
-          stroke="hsl(var(--primary-glow))"
-          strokeWidth={3}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          {/* Ground line */}
-          <line x1="5" y1="100" x2="95" y2="100" stroke="hsl(var(--border))" strokeWidth={1.5} />
-
-          {/* Boxing bag (drawn before figure) */}
-          {showBag && (
-            <g className="prop-bag">
-              <line x1="88" y1="10" x2="88" y2="22" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} />
-              <rect x="80" y="22" width="16" height="32" rx="4" fill="hsl(var(--primary) / 0.25)" stroke="hsl(var(--primary-glow))" />
-            </g>
-          )}
-
-          {/* Figure */}
-          <g>
-            {/* Head */}
-            <circle cx="50" cy="20" r="9" />
-            {/* Torso */}
-            <line x1="50" y1="29" x2="50" y2="65" />
-            {/* Arms */}
-            <line className="arm-l" x1="50" y1="38" x2="32" y2="55" />
-            <line className="arm-r" x1="50" y1="38" x2="68" y2="55" />
-            {/* Legs */}
-            <line className="leg-l" x1="50" y1="65" x2="38" y2="95" />
-            <line className="leg-r" x1="50" y1="65" x2="62" y2="95" />
-            {/* Feet */}
-            <line x1="33" y1="95" x2="42" y2="95" />
-            <line x1="58" y1="95" x2="67" y2="95" />
-          </g>
-
-          {/* Barbell across hands */}
-          {showBar && (
-            <g className="prop-bar">
-              <line x1="22" y1="55" x2="78" y2="55" strokeWidth={4} />
-              <circle cx="22" cy="55" r="5" fill="hsl(var(--primary) / 0.3)" />
-              <circle cx="78" cy="55" r="5" fill="hsl(var(--primary) / 0.3)" />
-            </g>
-          )}
-
-          {/* Dumbbells in each hand */}
-          {showDumbbells && (
-            <g>
-              <circle cx="32" cy="55" r="4" fill="hsl(var(--primary) / 0.3)" />
-              <circle cx="68" cy="55" r="4" fill="hsl(var(--primary) / 0.3)" />
-            </g>
-          )}
-
-          {/* Jump rope arc */}
-          {showRope && (
-            <ellipse className="prop-rope" cx="50" cy="60" rx="32" ry="42" stroke="hsl(var(--primary-glow))" strokeWidth={1.5} strokeDasharray="3 4" />
-          )}
-
-          {/* Ball */}
-          {showBall && (
-            <circle className="prop-ball" cx="50" cy="80" r="6" fill="hsl(var(--primary) / 0.4)" stroke="hsl(var(--primary-glow))" />
-          )}
-        </svg>
-
+        <img
+          src={IMAGES[anim]}
+          alt={exercise.name}
+          loading="lazy"
+          width={512}
+          height={512}
+          className="w-32 h-32 shrink-0 rounded-xl object-contain bg-background"
+        />
         <div className="flex-1 min-w-0">
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
             Sådan gør du
