@@ -8,7 +8,7 @@ import { translate, type TKey } from "@/i18n/translations";
 import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const TOTAL_QUESTIONS = 10; // steps 0..9 (0 = language)
+const TOTAL_QUESTIONS = 11; // steps 0..10 (0 = language, 1 = name)
 
 export default function Onboarding() {
   const nav = useNavigate();
@@ -16,6 +16,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(0);
   const [lang, setLang] = useState(language);
   const tt = (k: TKey) => translate(lang, k);
+  const [name, setName] = useState(user.name ?? "");
   const [goal, setGoal] = useState<Goal>(user.goal);
   const [age, setAge] = useState(user.age);
   const [weight, setWeight] = useState(user.weight);
@@ -81,7 +82,7 @@ export default function Onboarding() {
   const finish = () => {
     if (!plan) return;
     setLanguage(lang);
-    updateUser({ age, weight, targetWeight, height, goal, activity, pace, frequency, diet, ...plan });
+    updateUser({ name: name.trim(), age, weight, targetWeight, height, goal, activity, pace, frequency, diet, ...plan });
     setOnboarded(true);
     nav("/premium", { replace: true });
   };
