@@ -164,7 +164,7 @@ export default function Recipes() {
     if (isPremium) return false;
     let h = 0;
     for (let i = 0; i < r.id.length; i++) h = (h * 31 + r.id.charCodeAt(i)) >>> 0;
-    return (h % 10) >= 6; // 40% locked
+    return (h % 10) >= 2; // 80% locked behind premium
   };
 
   const filteredByQ = useMemo(() => {
