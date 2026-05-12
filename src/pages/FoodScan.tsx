@@ -679,6 +679,35 @@ export default function FoodScan() {
                 )}
               </div>
 
+              {(() => {
+                const nova = estimateNova(result);
+                const meta = NOVA_META[nova];
+                return (
+                  <div className={`k-card p-4 border-2 ${meta.border}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-xs text-muted-foreground tracking-widest uppercase">Forarbejdningsgrad</div>
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${meta.badge}`}>
+                        NOVA {nova}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl ${meta.icon}`}>
+                        {meta.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-sm">{meta.title}</div>
+                        <div className="text-xs text-muted-foreground leading-snug">{meta.desc}</div>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex gap-1">
+                      {[1, 2, 3, 4].map((n) => (
+                        <div key={n} className={`h-1.5 flex-1 rounded-full ${n <= nova ? meta.bar : "bg-muted"}`} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
               {(result.satietyHours || result.energyEffect) && (
                 <div className="k-card p-4 bg-gradient-soft border border-primary/20">
                   <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Real life score</div>
