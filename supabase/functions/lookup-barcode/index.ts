@@ -201,8 +201,13 @@ async function lookupDirect(host: string, code: string, version: "v3" | "v2" | "
 }
 
 async function firstValid(promises: Promise<Product | null>[]) {
+  // Attach a catch to every promise so losing branches can't bubble up
+  // as unhandled rejections (which crash the Deno isolate).
+  const safe = promises.map((p) =>
+    p.catch(() => null).then((value) => (value ? value : Promise.reject())),
+  );
   try {
-    return await Promise.any(promises.map((p) => p.then((value) => (value ? value : Promise.reject()))));
+    return await Promise.any(safe);
   } catch {
     return null;
   }
