@@ -21,11 +21,22 @@ export default function Home() {
   const m = macrosToday(meals);
   const motivation = t("app.tagline");
   const lastMeal = meals.length ? [...meals].sort((a, b) => b.at - a.at)[0] : null;
+  const firstName = (user.name ?? "").trim().split(/\s+/)[0];
+  const hour = new Date().getHours();
+  const greet = hour < 10 ? "God morgen" : hour < 14 ? "God dag" : hour < 18 ? "God eftermiddag" : "God aften";
 
   return (
     <div className="k-page pb-32">
       <header className="flex items-center justify-between mb-4">
-        <Logo size={40} withText />
+        <div className="flex items-center gap-3 min-w-0">
+          <Logo size={40} withText={!firstName} />
+          {firstName && (
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{greet}</div>
+              <div className="text-base font-bold leading-tight truncate">{firstName} 👋</div>
+            </div>
+          )}
+        </div>
         <Link to="/profile" className="k-tap flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border/60">
           <Flame className="w-4 h-4 text-primary-glow" />
           <span className="text-sm font-semibold">{streak}</span>
