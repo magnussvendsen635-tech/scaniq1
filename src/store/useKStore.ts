@@ -56,6 +56,7 @@ export interface WeightEntry {
 }
 
 export interface UserProfile {
+  name: string;
   age: number;
   weight: number; // kg
   targetWeight: number; // kg
@@ -128,6 +129,7 @@ export const useKStore = create<KState>()(
       onboarded: false,
       language: "en",
       user: {
+        name: "",
         age: 28,
         weight: 75,
         targetWeight: 70,

@@ -47,6 +47,76 @@ interface Result {
 type Portion = "small" | "medium" | "large";
 type Step = "portion" | "capture" | "result";
 
+// NOVA-style processing classification (1 = whole food, 4 = ultra-processed).
+// Heuristic based on name keywords + nutrition profile.
+function estimateNova(r: Result): 1 | 2 | 3 | 4 {
+  const name = (r.name || "").toLowerCase();
+  const items = (r.items || []).map((i) => i.name.toLowerCase()).join(" ");
+  const text = `${name} ${items}`;
+
+  const ultra = /(chips|cola|sodavand|energidrik|nugget|pizza|burger|hotdog|pølse|bacon|salami|donut|cookie|kiks|chokoladebar|slik|candy|gummi|cereal|cornflakes|frosties|fastfood|nudler|noodles|instant|microwave|færdigret|pommes|frites|nuggets|kebab|shawarma|ramen|mcdonald|burger king|kfc|domino|pringles|doritos|nutella|sirup|softice|milkshake)/i;
+  const processed = /(brød|cheese|ost|skinke|tun i dåse|dåse|bacon|røget|saltet|marmelade|smør|olie|pasta|sukker|honning|saft|juice|wrap|tortilla|pita|bolle)/i;
+  const minimal = /(mælk|yoghurt|skyr|hytteost|ris|havre|gryn|mel|kartoffel|bønner|linser|nødder|frø|tørret)/i;
+  const whole = /(æg|kylling|kød|oksekød|laks|fisk|tun|rejer|tofu|broccoli|spinat|salat|tomat|agurk|gulerod|peberfrugt|squash|asparges|avocado|æble|banan|bær|appelsin|frugt|grøntsag|svamp)/i;
+
+  if (ultra.test(text)) return 4;
+
+  let score = 0;
+  if ((r.sugar ?? 0) > 18) score += 2;
+  else if ((r.sugar ?? 0) > 10) score += 1;
+  if ((r.sodium ?? 0) > 600) score += 2;
+  else if ((r.sodium ?? 0) > 350) score += 1;
+  if ((r.saturatedFat ?? 0) > 10) score += 1;
+  if ((r.healthScore ?? 10) <= 4) score += 2;
+  else if ((r.healthScore ?? 10) <= 6) score += 1;
+
+  if (score >= 4) return 4;
+  if (score >= 2 || processed.test(text)) return 3;
+  if (minimal.test(text) || score === 1) return 2;
+  if (whole.test(text)) return 1;
+  return 2;
+}
+
+const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: string; icon: string; bar: string; badge: string; border: string }> = {
+  1: {
+    title: "Uforarbejdet mad",
+    desc: "Hele, naturlige råvarer. Den sundeste kategori — spis frit.",
+    emoji: "🥦",
+    icon: "bg-emerald-500/15 text-emerald-600",
+    bar: "bg-emerald-500",
+    badge: "bg-emerald-500/15 text-emerald-700",
+    border: "border-emerald-500/30",
+  },
+  2: {
+    title: "Let bearbejdet",
+    desc: "Råvarer + simple ingredienser som olie, salt eller mel. Helt fint i en sund kost.",
+    emoji: "🌾",
+    icon: "bg-lime-500/15 text-lime-700",
+    bar: "bg-lime-500",
+    badge: "bg-lime-500/15 text-lime-700",
+    border: "border-lime-500/30",
+  },
+  3: {
+    title: "Forarbejdet",
+    desc: "Industrielt tilberedt med tilsat sukker, salt eller fedt. Spis i moderate mængder.",
+    emoji: "🥫",
+    icon: "bg-amber-500/15 text-amber-700",
+    bar: "bg-amber-500",
+    badge: "bg-amber-500/15 text-amber-700",
+    border: "border-amber-500/30",
+  },
+  4: {
+    title: "Ultra-processeret",
+    desc: "Industriel formel med mange tilsætningsstoffer. Begræns hvis muligt.",
+    emoji: "⚠️",
+    icon: "bg-red-500/15 text-red-600",
+    bar: "bg-red-500",
+    badge: "bg-red-500/15 text-red-700",
+    border: "border-red-500/40",
+  },
+};
+
+
 export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
@@ -678,6 +748,35 @@ export default function FoodScan() {
                   </p>
                 )}
               </div>
+
+              {(() => {
+                const nova = estimateNova(result);
+                const meta = NOVA_META[nova];
+                return (
+                  <div className={`k-card p-4 border-2 ${meta.border}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-xs text-muted-foreground tracking-widest uppercase">Forarbejdningsgrad</div>
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${meta.badge}`}>
+                        NOVA {nova}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl ${meta.icon}`}>
+                        {meta.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-sm">{meta.title}</div>
+                        <div className="text-xs text-muted-foreground leading-snug">{meta.desc}</div>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex gap-1">
+                      {[1, 2, 3, 4].map((n) => (
+                        <div key={n} className={`h-1.5 flex-1 rounded-full ${n <= nova ? meta.bar : "bg-muted"}`} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {(result.satietyHours || result.energyEffect) && (
                 <div className="k-card p-4 bg-gradient-soft border border-primary/20">

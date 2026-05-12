@@ -14,10 +14,11 @@ const featureKeys: TKey[] = [
   "premium.feat_scans",
   "premium.feat_macros",
   "premium.feat_workouts",
-  
   "premium.feat_trends",
   "premium.feat_priority",
 ];
+
+const RECIPES_FEATURE = "Adgang til 600+ premium opskrifter — pasta, bowls, smoothies, desserter & meget mere";
 
 export default function Premium() {
   const nav = useNavigate();
@@ -63,6 +64,12 @@ export default function Premium() {
       </div>
 
       <div className="space-y-2 mb-5">
+        <div className="k-card p-4 flex items-center gap-3 ring-2 ring-primary/40 bg-gradient-soft">
+          <div className="w-7 h-7 rounded-full bg-gradient-primary flex items-center justify-center">
+            <Check className="w-4 h-4 text-primary-foreground" />
+          </div>
+          <span className="text-sm font-semibold">{RECIPES_FEATURE}</span>
+        </div>
         {featureKeys.map((k) => (
           <div key={k} className="k-card p-4 flex items-center gap-3">
             <div className="w-7 h-7 rounded-full bg-gradient-soft flex items-center justify-center">
