@@ -514,6 +514,10 @@ function RecipeDialog({
               <div className="flex gap-2 flex-wrap text-xs">
                 <Badge variant="secondary" className="rounded-full">{open.category}</Badge>
                 <Badge variant="secondary" className="rounded-full"><Clock className="w-3 h-3 mr-1" />{open.minutes} min</Badge>
+                <Badge variant="secondary" className="rounded-full"><Users className="w-3 h-3 mr-1" />{open.servings} portion{open.servings > 1 ? "er" : ""}</Badge>
+                {open.tempC && (
+                  <Badge variant="secondary" className="rounded-full"><Thermometer className="w-3 h-3 mr-1" />{open.tempC}°C</Badge>
+                )}
                 {open.tags.map((t) => <Badge key={t} variant="outline" className="rounded-full">{t}</Badge>)}
               </div>
               <div>
