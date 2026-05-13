@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft, Search, Sparkles, Plus, Clock, Flame, Loader2,
+  ArrowLeft, Search, Sparkles, Plus, Clock, Flame, Loader2, Thermometer, Users,
   Crown, Lock, ChevronRight, Dumbbell, Leaf, Zap, Heart, Target, Salad, Beef, Apple,
+  GlassWater, IceCream, CupSoda, Package,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,10 @@ const CATEGORIES: Category[] = [
   { id: "high-protein",label: "Højt protein",  sub: "30g+ protein",           filter: (r) => r.protein >= 28, hero: "photo-1532550907401-a500c9a57435", icon: Beef },
   { id: "low-cal",     label: "Lav kalorie",   sub: "Under 400 kcal",         filter: (r) => r.calories <= 400, hero: "photo-1512621776951-a57141f2eefd", icon: Target },
   { id: "muscle",      label: "Muskelopbygning", sub: "Højt protein + carbs", filter: (r) => r.protein >= 24 && r.calories >= 450, hero: "photo-1546964124-0cce460f38ef", icon: Dumbbell },
+  { id: "smoothies",   label: "Smoothies",     sub: "Bær, protein & frugt",   filter: (r) => r.category === "smoothie", hero: "photo-1502741224143-90386d7f8c7e", icon: GlassWater },
+  { id: "desserts",    label: "Desserter",     sub: "Sundere søde sager",     filter: (r) => r.category === "dessert", hero: "photo-1606313564200-e75d5e30476c", icon: IceCream },
+  { id: "drinks",      label: "Drinks",        sub: "Mocktails & latte",      filter: (r) => r.category === "drink", hero: "photo-1556679343-c7306c1976bc", icon: CupSoda },
+  { id: "mealprep",    label: "Meal prep",     sub: "Lav én gang, spis hele ugen", filter: (r) => r.tags.includes("mealprep"), hero: "photo-1543339308-43e59d6b73a6", icon: Package },
   { id: "snacks",      label: "Sunde snacks",  sub: "Smart i farten",         filter: (r) => r.category === "snack", hero: "photo-1606312619070-d48b4c652a52", icon: Apple },
   { id: "quick",       label: "Hurtige måltider", sub: "Under 15 min",        filter: (r) => r.minutes <= 12, hero: "photo-1551183053-bf91a1d81141", icon: Zap },
   { id: "vegetarian",  label: "Vegetar",       sub: "Plantebaseret",          filter: (r) => r.tags.includes("vegetarian"), hero: "photo-1540420773420-3366772f4999", icon: Leaf },
@@ -509,6 +514,10 @@ function RecipeDialog({
               <div className="flex gap-2 flex-wrap text-xs">
                 <Badge variant="secondary" className="rounded-full">{open.category}</Badge>
                 <Badge variant="secondary" className="rounded-full"><Clock className="w-3 h-3 mr-1" />{open.minutes} min</Badge>
+                <Badge variant="secondary" className="rounded-full"><Users className="w-3 h-3 mr-1" />{open.servings} portion{open.servings > 1 ? "er" : ""}</Badge>
+                {open.tempC && (
+                  <Badge variant="secondary" className="rounded-full"><Thermometer className="w-3 h-3 mr-1" />{open.tempC}°C</Badge>
+                )}
                 {open.tags.map((t) => <Badge key={t} variant="outline" className="rounded-full">{t}</Badge>)}
               </div>
               <div>

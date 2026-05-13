@@ -18,15 +18,17 @@ export type Recipe = {
   fat: number;
   ingredients: string[];
   steps: string[];
+  /** Oven/pan temperature in °C, when relevant. */
+  tempC?: number;
 };
 
 const r = (
   id: string, name: string, emoji: string, category: RecipeCategory, tags: RecipeTag[],
   minutes: number, cal: number, p: number, c: number, f: number,
-  ingredients: string[], steps: string[]
+  ingredients: string[], steps: string[], tempC?: number,
 ): Recipe => ({
   id, name, emoji, category, tags, minutes, servings: 1,
-  calories: cal, protein: p, carbs: c, fat: f, ingredients, steps,
+  calories: cal, protein: p, carbs: c, fat: f, ingredients, steps, tempC,
 });
 
 export const RECIPES: Recipe[] = [
@@ -595,4 +597,62 @@ export const RECIPES: Recipe[] = [
   r("mp048","Mealprep zoodles med kylling","🥒","dinner",["high-protein","low-carb","mealprep","chicken"],25,400,42,18,18,["Zoodles","Kylling","Pesto","Cherrytomat"],["Saml.","Pak."]),
   r("mp049","Mealprep cauliflower-rice-bowls","🥦","lunch",["high-protein","low-carb","mealprep","chicken"],25,420,42,18,22,["Blomkålsris","Kylling","Avocado","Salsa"],["Saml."]),
   r("mp050","Mealprep pork-bowl","🥩","dinner",["high-protein","mealprep","asian"],35,580,42,52,22,["Pulled pork","Ris","Slaw","Sriracha"],["Saml.","Pak."]),
+
+  // ============ EXTRA SMOOTHIES (15) ============
+  r("sm001","Jordbær-banan-skyr smoothie","🍓","smoothie",["high-protein","quick"],4,320,28,38,4,["100g jordbær","1 banan","150g skyr","150ml mælk","1 tsk honning"],["Skyl jordbær.","Blend alle ingredienser i 30 sek til glat.","Hæld i glas og server kold."]),
+  r("sm002","Blåbær-mandel smoothie","🫐","smoothie",["high-protein","quick","vegetarian"],3,280,22,32,8,["100g blåbær","30g vaniljeprotein","200ml mandelmælk","1 spsk mandelsmør"],["Blend i 30 sek.","Server straks i højt glas."]),
+  r("sm003","Mango-passion smoothie","🥭","smoothie",["quick","vegetarian"],3,260,8,52,3,["½ mango","1 passionsfrugt","200ml appelsinjuice","100g vaniljeyoghurt"],["Skrab passionsfrugt ud.","Blend alt 30 sek.","Server kold."]),
+  r("sm004","Chokolade-peanutbutter shake","🍫","smoothie",["high-protein","quick"],3,420,34,38,16,["1 banan","30g chokoladeprotein","1 spsk peanutbutter","250ml mælk","Isterninger"],["Blend i 45 sek.","Server i højt glas."]),
+  r("sm005","Grøn ananas-spinat smoothie","🍍","smoothie",["vegetarian","low-cal","quick"],4,220,6,46,3,["100g spinat","100g ananas","½ banan","200ml kokosvand"],["Blend i 30 sek.","Sigt om ønsket."]),
+  r("sm006","Hindbær-lime smoothie","🍇","smoothie",["quick","low-cal","vegetarian"],3,200,12,32,3,["120g hindbær","½ lime saft","200ml mælk","1 tsk honning"],["Blend kort.","Server med isterninger."]),
+  r("sm007","Avocado-kakao smoothie","🥑","smoothie",["high-protein","vegetarian"],4,360,26,28,18,["½ avocado","20g kakao","30g protein","250ml mælk","Dadel"],["Blend 45 sek til cremet.","Smag til med dadel."]),
+  r("sm008","Kaffe-protein smoothie","☕","smoothie",["high-protein","quick"],3,260,30,18,6,["1 shot espresso, kølet","30g protein","200ml mælk","Isterninger"],["Blend 30 sek.","Server straks."]),
+  r("sm009","Kirsebær-mandel smoothie","🍒","smoothie",["high-protein","quick"],3,300,24,34,8,["120g kirsebær uden sten","30g protein","200ml mandelmælk","1 spsk havregryn"],["Blend 45 sek til glat."]),
+  r("sm010","Tropisk grøn smoothie","🌴","smoothie",["vegetarian","quick"],4,260,8,52,4,["½ mango","½ banan","Spinat","200ml kokosvand","Lime"],["Blend 30 sek.","Pres lime over."]),
+  r("sm011","Ferskenfløde smoothie","🍑","smoothie",["high-protein","quick"],3,290,22,38,5,["1 fersken","150g græsk yoghurt","200ml mælk","1 tsk honning"],["Blend 30 sek."]),
+  r("sm012","Banan-havre power smoothie","💪","smoothie",["high-protein"],4,420,30,52,10,["1 banan","30g havregryn","30g protein","250ml mælk","1 spsk PB"],["Blend 45 sek."]),
+  r("sm013","Vandmelon-mynte smoothie","🍉","smoothie",["low-cal","quick","vegetarian"],4,160,3,38,1,["200g vandmelon","Mynte","½ lime","Isterninger"],["Blend 20 sek.","Server i krukke."]),
+  r("sm014","Beetroot-bær smoothie","🥬","smoothie",["vegetarian"],5,260,12,42,4,["50g kogt rødbede","100g bær","½ banan","200ml mælk"],["Blend 45 sek til glat."]),
+  r("sm015","Vanilje-kanel proteinshake","🥛","smoothie",["high-protein","quick"],2,240,32,16,4,["30g vaniljeprotein","250ml mælk","Kanel","Isterninger"],["Ryst i shaker 20 sek."]),
+
+  // ============ EXTRA DESSERTS (15) ============
+  r("ds001","Chokolade-protein mousse","🍫","dessert",["high-protein"],10,260,28,18,8,["200g skyr","20g kakao","30g chokoladeprotein","Honning","Bær"],["Pisk skyr, kakao og protein.","Stil i køl 5 min.","Top med bær."]),
+  r("ds002","No-bake proteinkugler","⚫","dessert",["high-protein","mealprep"],15,180,12,18,8,["80g havregryn","2 spsk PB","20g protein","Honning","Kakao"],["Bland alt i skål.","Rul til 8 kugler.","Stil i køl 30 min."]),
+  r("ds003","Banan-nicecream","🍌","dessert",["vegetarian","quick"],5,220,4,52,2,["2 frosne bananer","Splash mælk","Vanilje"],["Blend bananer i foodprocessor 2 min.","Server straks som soft-ice."]),
+  r("ds004","Jordbær-cheesecake i glas","🍓","dessert",["high-protein"],15,320,18,32,14,["100g cottage cheese","60g flødeost","Jordbær","Smuldrede mariekiks","Vanilje"],["Pisk oste glat.","Lag med jordbær og kiks."]),
+  r("ds005","Saftige proteinbrownies","🍫","dessert",["high-protein","mealprep"],30,200,14,18,10,["1 banan","2 æg","30g protein","20g kakao","30g havregryn","Chokoladestykker"],["Bland dej.","Hæld i form.","Bag 22 min."],180),
+  r("ds006","Æbletærte i fad","🥧","dessert",["vegetarian"],50,360,5,52,15,["3 æbler","60g havregryn","30g smør","Kanel","Brun farin"],["Skær æbler i fad.","Drys havregryn-smuld over.","Bag 35 min."],180),
+  r("ds007","Chokolade-chiapudding","🍫","dessert",["mealprep","vegetarian"],5,300,12,32,16,["3 spsk chiafrø","250ml mælk","20g kakao","Honning"],["Bland alt.","Stil i køl 4 timer."]),
+  r("ds008","Yoghurtparfait med granola","🍨","dessert",["high-protein","quick"],5,310,20,38,8,["200g yoghurt","Granola","Bær","Honning"],["Lag yoghurt, granola, bær."]),
+  r("ds009","Protein-cookie dough","🍪","dessert",["high-protein","quick"],8,260,18,22,10,["50g havregryn","30g protein","2 spsk PB","Mælk","Chokoladestykker"],["Bland til en dej.","Spis straks med ske."]),
+  r("ds010","Frosne yoghurtbark","🍦","dessert",["high-protein","mealprep"],10,150,12,18,3,["300g græsk yoghurt","Bær","Honning","Granola"],["Bred yoghurt på bageplade.","Top med bær.","Frys 3 timer.","Bræk i stykker."]),
+  r("ds011","Chokolade-avocado mousse","🥑","dessert",["vegetarian"],10,280,8,28,18,["1 avocado","20g kakao","2 spsk ahornsirup","Vanilje"],["Blend alt i foodprocessor til silkeglat.","Stil i køl 30 min."]),
+  r("ds012","Bagte kanel-æbler","🍎","dessert",["vegetarian","quick"],25,200,3,42,4,["2 æbler","Kanel","Brun farin","Smør"],["Halver æbler.","Drys kanel og farin på.","Bag 20 min."],180),
+  r("ds013","Skyr-citrontærte (uden bagning)","🍋","dessert",["high-protein"],20,300,18,32,10,["200g skyr","Mariekiks","Smør","Citron","Honning"],["Pres kiks-bund i form.","Bland skyr og citron, fyld i.","Stil i køl 2 timer."]),
+  r("ds014","Hjemmelavet chokoladebark","🍫","dessert",["mealprep","vegetarian"],15,180,3,18,12,["100g mørk chokolade","Mandler","Tørrede tranebær","Havsalt"],["Smelt chokolade.","Bred på bageplade.","Top med toppings.","Frys 30 min."]),
+  r("ds015","Proteinpandekager med sirup","🥞","dessert",["high-protein","quick"],12,360,32,28,12,["30g protein","2 æg","30g havregryn","Banan","Sirup"],["Blend dej.","Steg som små pandekager 2 min/side.","Top med sirup."]),
+
+  // ============ EXTRA DRINKS (10) ============
+  r("dr001","Iskaffe med protein","🧊","drink",["high-protein","quick"],3,180,28,8,3,["1 shot espresso","30g vaniljeprotein","200ml mælk","Isterninger"],["Bland alt i shaker.","Hæld over is."]),
+  r("dr002","Matcha latte","🍵","drink",["quick","vegetarian"],5,140,6,18,4,["1 tsk matcha","250ml mælk","Honning"],["Pisk matcha med 50ml varmt vand.","Tilsæt varm mælk og honning."]),
+  r("dr003","Hjemmelavet kombucha-mocktail","🍹","drink",["quick"],5,80,1,18,0,["200ml kombucha","Lime","Mynte","Isterninger"],["Mudd mynte i glas.","Tilsæt is, lime og kombucha."]),
+  r("dr004","Hindbær-lemonade","🍋","drink",["quick","low-cal","vegetarian"],5,90,1,22,0,["100g hindbær","½ citron","250ml danskvand","Honning"],["Mos hindbær.","Sigt over is.","Top med danskvand."]),
+  r("dr005","Detox-vand","💧","drink",["quick","low-cal"],5,20,0,4,0,["500ml vand","Agurk","Citron","Mynte"],["Skær frugt i skiver.","Læg i kande med vand.","Stil i køl 1 time."]),
+  r("dr006","Chai-latte","🍂","drink",["vegetarian"],10,160,7,22,4,["1 chai-tebrev","250ml mælk","Honning","Kanel"],["Lav stærk chai med 100ml vand.","Tilsæt varm mælk og honning."]),
+  r("dr007","Frozen kakao","🍫","drink",["high-protein","quick"],5,260,26,28,4,["30g chokoladeprotein","250ml mælk","20g kakao","Isterninger"],["Blend alt i 45 sek.","Server straks."]),
+  r("dr008","Iste med fersken","🍑","drink",["quick","low-cal","vegetarian"],8,80,1,18,0,["2 sortte tebreve","½ fersken","Honning","500ml vand","Is"],["Bryg te.","Køl ned.","Bland med fersken og honning."]),
+  r("dr009","Æble-ingefær-shot","🍎","drink",["quick","vegetarian"],5,60,1,14,0,["1 æble","20g ingefær","½ citron"],["Juice eller blend og sigt.","Drik som shot."]),
+  r("dr010","Varm citron-honning","🍋","drink",["quick","vegetarian"],5,40,0,10,0,["Saft af ½ citron","1 tsk honning","250ml varmt vand"],["Bland alt i krus.","Drik straks."]),
+
+  // ============ EXTRA MAIN DISHES (10) ============
+  r("mn001","Honning-soja kylling med jasminris","🍗","dinner",["high-protein","asian","chicken"],25,580,42,62,14,["180g kyllingebryst","100g jasminris","2 spsk soja","1 spsk honning","Hvidløg","Forårsløg","Sesam"],["Skær kylling i tern.","Steg på pande 6 min.","Tilsæt soja, honning, hvidløg.","Server over kogt ris med sesam."]),
+  r("mn002","Bagt laks med citron & dild","🐟","dinner",["high-protein","low-carb","fish"],25,460,38,8,28,["180g laksefilet","Citron","Dild","Olivenolie","Asparges"],["Læg laks på bagepapir med asparges.","Drys citron, dild, olie.","Bag 15 min."],200),
+  r("mn003","Burgerbowl med oksekød","🍔","dinner",["high-protein","beef"],20,580,42,32,28,["150g hakket oksekød","Burgerkrydderi","Salat","Tomat","Cheddar","Burgersauce"],["Form bøffer.","Steg 3 min/side på pande.","Anret med salat og sauce i bowl."]),
+  r("mn004","Sprød kyllingewrap","🌯","dinner",["high-protein","quick","chicken"],15,540,38,52,16,["150g paneret kylling","Tortilla","Salat","Tomat","Hvidløgssauce"],["Bag kylling 12 min.","Skær i strimler.","Saml i wrap."],200),
+  r("mn005","Tikka masala med kylling","🍛","dinner",["high-protein","chicken"],30,560,42,42,22,["180g kylling","2 spsk tikka-pasta","200ml flødeost","Tomat","Ris","Koriander"],["Steg kylling.","Tilsæt pasta, tomat, fløde.","Simr 12 min.","Server med ris."]),
+  r("mn006","Pasta carbonara","🍝","dinner",["high-protein","pasta"],20,640,32,72,24,["100g spaghetti","60g pancetta","2 æggeblommer","30g parmesan","Peber"],["Kog pasta.","Steg pancetta sprød.","Vend pasta i æg, parmesan, pancetta uden varme."]),
+  r("mn007","Healthy hjemmelavet pizza","🍕","dinner",["high-protein","vegetarian"],25,540,28,62,18,["Fuldkorns-pizzabund","Tomatsauce","Mozzarella","Spinat","Cherrytomat"],["Smør sauce på bund.","Top med ost og grønt.","Bag 12 min."],230),
+  r("mn008","Tacoaften med kylling","🌮","dinner",["high-protein","chicken"],25,580,38,58,18,["150g kylling","Tacokrydderi","6 små tortillas","Salsa","Avocado","Cheddar"],["Steg kylling med krydderi.","Server i tortillas med toppings."]),
+  r("mn009","Asian beef bowl","🥢","dinner",["high-protein","asian","beef"],20,560,38,52,18,["150g hakket okse","Ris","Soja","Hvidløg","Ingefær","Spidskål","Sesam"],["Steg okse med soja, hvidløg, ingefær.","Server over ris med rå spidskål og sesam."]),
+  r("mn010","Bagte krydrede kyllingewings","🍗","dinner",["high-protein","low-carb","chicken"],40,520,42,8,32,["8 kyllingewings","Paprika","Hvidløg","Olie","Salt","Peber"],["Vend wings i krydderier.","Læg på rist.","Bag 35 min, vend halvvejs."],220),
 ];
