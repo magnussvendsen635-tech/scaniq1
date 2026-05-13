@@ -18,15 +18,17 @@ export type Recipe = {
   fat: number;
   ingredients: string[];
   steps: string[];
+  /** Oven/pan temperature in °C, when relevant. */
+  tempC?: number;
 };
 
 const r = (
   id: string, name: string, emoji: string, category: RecipeCategory, tags: RecipeTag[],
   minutes: number, cal: number, p: number, c: number, f: number,
-  ingredients: string[], steps: string[]
+  ingredients: string[], steps: string[], tempC?: number,
 ): Recipe => ({
   id, name, emoji, category, tags, minutes, servings: 1,
-  calories: cal, protein: p, carbs: c, fat: f, ingredients, steps,
+  calories: cal, protein: p, carbs: c, fat: f, ingredients, steps, tempC,
 });
 
 export const RECIPES: Recipe[] = [
