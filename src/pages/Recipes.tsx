@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft, Search, Sparkles, Plus, Clock, Flame, Loader2,
+  ArrowLeft, Search, Sparkles, Plus, Clock, Flame, Loader2, Thermometer, Users,
   Crown, Lock, ChevronRight, Dumbbell, Leaf, Zap, Heart, Target, Salad, Beef, Apple,
+  GlassWater, IceCream, CupSoda, Package,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
