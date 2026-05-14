@@ -9,7 +9,7 @@ import { StreakCard } from "@/components/StreakCard";
 import { HealthScoreCard } from "@/components/HealthScoreCard";
 import { HealthSyncCard } from "@/components/HealthSyncCard";
 import { WaterCard } from "@/components/WaterCard";
-import { MealSuggestions } from "@/components/MealSuggestions";
+
 import { RemindersCard } from "@/components/RemindersCard";
 
 export default function Home() {
@@ -181,8 +181,6 @@ export default function Home() {
         <ChevronRight className="w-5 h-5 text-foreground" />
       </Link>
 
-      {/* AI meal suggestions (premium) */}
-      <MealSuggestions />
 
       {/* Reminders */}
       <RemindersCard />
