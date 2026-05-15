@@ -515,6 +515,54 @@ function UpgradeBanner() {
   );
 }
 
+/* ================== RECIPE VARIANTS (regel-baseret) ================== */
+
+type Variant = "normal" | "lowcal" | "vegetar";
+
+const VEG_SWAP = (s: string) =>
+  s
+    .replace(/kyllingebryst|kyllingelår|kylling/gi, "tofu")
+    .replace(/oksekød|hakket okse|hakkebøf|bøf/gi, "linser")
+    .replace(/laks|tun|torsk|rejer|fisk/gi, "halloumi")
+    .replace(/bacon|skinke|svinekød|pulled pork/gi, "røget tempeh");
+
+function applyVariant(r: Recipe, v: Variant): Recipe {
+  if (v === "normal") return r;
+  if (v === "lowcal") {
+    return {
+      ...r,
+      calories: Math.round(r.calories * 0.7),
+      carbs: Math.round(r.carbs * 0.65),
+      fat: Math.round(r.fat * 0.55),
+      protein: Math.round(r.protein * 0.95),
+      ingredients: r.ingredients.map((i) =>
+        i
+          .replace(/(\d+)\s*g\s+(pasta|ris|nudler|kartoffel|kartofler|brød)/gi, (_m, n, food) =>
+            `${Math.round(Number(n) * 0.65)}g ${food} (mindre portion)`,
+          )
+          .replace(/olie/gi, "lidt olie / spray"),
+      ),
+      steps: r.steps,
+    };
+  }
+  // vegetar
+  return {
+    ...r,
+    name: r.name + " (vegetar)",
+    protein: Math.round(r.protein * 0.85),
+    fat: Math.round(r.fat * 0.95),
+    ingredients: r.ingredients.map(VEG_SWAP),
+    steps: r.steps.map(VEG_SWAP),
+    tags: Array.from(new Set([...r.tags, "vegetarian"])),
+  };
+}
+
+const VARIANTS: { id: Variant; label: string }[] = [
+  { id: "normal",  label: "Normal" },
+  { id: "lowcal",  label: "Lav kalorie" },
+  { id: "vegetar", label: "Vegetar" },
+];
+
 /* ================== RECIPE DETAIL ================== */
 
 function RecipeDialog({
@@ -524,10 +572,14 @@ function RecipeDialog({
   setOpen: (r: Recipe | null) => void;
   logRecipe: (r: Recipe) => void;
 }) {
+  const [variant, setVariant] = useState<Variant>("normal");
+  // reset variant when opening a new recipe
+  useEffect(() => { setVariant("normal"); }, [open?.id]);
+  const adjusted = open ? applyVariant(open, variant) : null;
   return (
     <Dialog open={!!open} onOpenChange={(v) => !v && setOpen(null)}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-0 rounded-3xl border-2 border-foreground/15">
-        {open && (
+        {open && adjusted && (
           <>
             {/* Premium hero */}
             <div className="relative h-64">
