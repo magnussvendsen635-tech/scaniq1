@@ -88,58 +88,150 @@ const IMAGES: Record<Anim, string> = {
   burpee: imgBurpee, carry: imgCarry, bag: imgBag, ball: imgBall,
 };
 
-const HOW_TO: Record<Anim, string> = {
-  run: "Hold opret holdning. Lette skridt, pump armene afslappet og land på forfoden.",
-  walk: "Gå i jævnt tempo med lange skridt. Hold skuldrene tilbage og kig frem.",
-  sprint: "Eksplosivt fra start — drev knæene højt og pump armene kraftigt.",
-  knees: "Løft knæene højt skiftevis i hurtigt tempo. Hold kernen spændt.",
-  jump: "Bøj knæene let og spring eksplosivt op. Land blødt med bøjede knæ.",
-  jack: "Spring fødderne ud og samtidigt armene op. Saml igen i ét hop.",
-  squat: "Fødder i skulderbredde. Sænk hoften som om du sætter dig — ryggen lige.",
-  jumpsquat: "Squat ned, eksplodér op i et hop, land blødt og gentag flydende.",
-  lunge: "Tag et stort skridt frem og sænk bagerste knæ mod gulvet. Skift ben.",
-  pushup: "Hænder lidt bredere end skuldre. Sænk brystet kontrolleret og pres op.",
-  pullup: "Greb i skulderbredde. Træk dig op til hagen er over stangen, sænk roligt.",
-  press: "Pres vægten lige op over hovedet. Lås albuerne, sænk kontrolleret.",
-  deadlift: "Lige ryg, brystet frem. Løft ved at strække hofter og knæ samtidig.",
-  row: "Træk håndtaget mod maven, klem skulderbladene sammen, sænk roligt.",
-  curl: "Albuerne ind til siden. Curl vægten op uden at gynge med kroppen.",
-  cycle: "Sid stabilt og tråd jævnt rundt. Hold tempoet og træk vejret roligt.",
-  rope: "Hold håndledene afslappede. Små hop på forfoden — sjippetovet drejes med håndleddene.",
-  swim: "Lange roterende armtag, smalle benspark og rolig vejrtrækning til siden.",
-  punch: "Stå i kampstilling. Slå skiftevis venstre/højre — vrid hoften med hvert slag.",
-  kick: "Stå i balance på ét ben. Spark eksplosivt og kontrolleret tilbage til start.",
-  stretch: "Bevæg dig langsomt og kontrolleret. Hold positionen og træk vejret roligt.",
-  plank: "Spænd hele kroppen. Lige linje fra hæl til hoved — træk vejret roligt.",
-  situp: "Læg dig på ryggen, bøj knæene. Rul kontrolleret op, og sænk langsomt ned.",
-  climb: "Tre punkter på væggen — flyt én lem ad gangen. Hold hofterne tæt på væggen.",
-  dance: "Følg rytmen, hold kernen aktiv og bevæg hofter, arme og fødder flydende.",
-  ski: "Bøj let i knæene, hold balancen og overfør vægten side til side.",
-  burpee: "Squat ned, hop ud i planke, push-up, hop ind igen og spring op med hænderne over hovedet.",
-  carry: "Stå opret, spændt kerne, små stabile skridt. Hold vægten tæt på kroppen.",
-  bag: "Stå i kampstilling. Slå serier på sækken — træk vejret med hvert slag.",
-  ball: "Hold blikket på bolden. Følg igennem med hele kroppen i hvert slag/kast.",
+// Steps som korte numererede punkter (max 4)
+const STEPS: Record<Anim, string[]> = {
+  run: ["Start i let tempo", "Land på forfoden", "Pump armene afslappet", "Hold opret holdning"],
+  walk: ["Lange skridt i jævnt tempo", "Skuldre tilbage, kig frem", "Rul af på foden"],
+  sprint: ["Eksplosivt fra start", "Drev knæene højt", "Pump armene kraftigt"],
+  knees: ["Stå opret med spændt kerne", "Løft knæene op til hoftehøjde", "Skift hurtigt mellem ben"],
+  jump: ["Bøj let i knæene", "Spring eksplosivt op", "Land blødt med bøjede knæ"],
+  jack: ["Stå med fødder samlet", "Spring fødder ud, arme op", "Saml igen i ét hop"],
+  squat: ["Fødder i skulderbredde", "Sænk hoften som i en stol", "Hold ryggen lige", "Pres op gennem hælene"],
+  jumpsquat: ["Squat ned med kontrol", "Eksplodér op i et hop", "Land blødt og gentag"],
+  lunge: ["Tag et stort skridt frem", "Sænk bagerste knæ mod gulvet", "Pres op og skift ben"],
+  pushup: ["Hænder lidt bredere end skuldre", "Sænk brystet til lige over gulvet", "Pres op og lås albuerne"],
+  pullup: ["Greb i skulderbredde", "Træk dig op til hagen er over stangen", "Sænk roligt og kontrolleret"],
+  press: ["Hold vægten ved skuldre", "Pres lige op over hovedet", "Lås albuerne, sænk kontrolleret"],
+  deadlift: ["Fødder i hoftebredde, vægt over midtfoden", "Brystet frem, ryggen lige", "Løft ved at strække hofter og knæ", "Sænk kontrolleret tilbage"],
+  row: ["Bøj let i knæene", "Træk håndtaget mod maven", "Klem skulderbladene sammen", "Sænk roligt"],
+  curl: ["Albuerne ind til siden", "Curl vægten op uden at gynge", "Sænk langsomt til start"],
+  cycle: ["Sid stabilt på sadlen", "Tråd jævnt rundt", "Hold tempoet og træk vejret roligt"],
+  rope: ["Hold håndledene afslappede", "Små hop på forfoden", "Drej tovet med håndleddene"],
+  swim: ["Lange roterende armtag", "Smalle, rolige benspark", "Træk vejret til siden hver 3. tag"],
+  punch: ["Stå i kampstilling", "Slå skiftevis venstre/højre", "Vrid hoften med hvert slag"],
+  kick: ["Stå i balance på ét ben", "Spark eksplosivt", "Kontrolleret retur til start"],
+  stretch: ["Bevæg dig langsomt og kontrolleret", "Hold positionen 20-30 sek", "Træk vejret roligt"],
+  plank: ["Spænd hele kroppen", "Hold lige linje fra hæl til hoved", "Træk vejret roligt"],
+  situp: ["Lig på ryggen, bøj knæene", "Rul kontrolleret op", "Sænk langsomt ned"],
+  climb: ["Tre punkter på væggen", "Flyt én lem ad gangen", "Hold hofterne tæt på væggen"],
+  dance: ["Følg rytmen", "Hold kernen aktiv", "Bevæg hofter, arme og fødder flydende"],
+  ski: ["Bøj let i knæene", "Hold balancen", "Overfør vægten side til side"],
+  burpee: ["Squat ned, hænder i gulvet", "Hop ud i planke + push-up", "Hop ind igen", "Spring op med hænderne over hovedet"],
+  carry: ["Stå opret med spændt kerne", "Hold vægten tæt på kroppen", "Små stabile skridt"],
+  bag: ["Stå i kampstilling", "Slå serier på sækken", "Træk vejret med hvert slag"],
+  ball: ["Hold blikket på bolden", "Følg igennem med hele kroppen", "Hold balancen efter slaget"],
 };
+
+// Hvilke muskler øvelsen primært rammer
+const MUSCLES: Record<Anim, string[]> = {
+  run: ["Ben", "Glutes", "Kondition"],
+  walk: ["Ben", "Kondition"],
+  sprint: ["Ben", "Glutes", "Kondition"],
+  knees: ["Mave", "Hofter", "Kondition"],
+  jump: ["Ben", "Glutes", "Eksplosiv kraft"],
+  jack: ["Helkrop", "Kondition"],
+  squat: ["Quads", "Glutes", "Mave"],
+  jumpsquat: ["Quads", "Glutes", "Eksplosiv kraft"],
+  lunge: ["Quads", "Glutes", "Balance"],
+  pushup: ["Bryst", "Triceps", "Skuldre"],
+  pullup: ["Ryg", "Biceps", "Underarme"],
+  press: ["Skuldre", "Triceps", "Mave"],
+  deadlift: ["Ryg", "Glutes", "Baglår"],
+  row: ["Ryg", "Biceps", "Bagre skuldre"],
+  curl: ["Biceps", "Underarme"],
+  cycle: ["Ben", "Glutes", "Kondition"],
+  rope: ["Lægge", "Skuldre", "Kondition"],
+  swim: ["Helkrop", "Ryg", "Skuldre"],
+  punch: ["Skuldre", "Mave", "Kondition"],
+  kick: ["Ben", "Hofter", "Mave"],
+  stretch: ["Mobilitet", "Restitution"],
+  plank: ["Mave", "Skuldre", "Glutes"],
+  situp: ["Mave", "Hoftebøjer"],
+  climb: ["Underarme", "Ryg", "Mave"],
+  dance: ["Helkrop", "Kondition"],
+  ski: ["Quads", "Glutes", "Balance"],
+  burpee: ["Helkrop", "Kondition"],
+  carry: ["Greb", "Mave", "Skuldre"],
+  bag: ["Skuldre", "Mave", "Kondition"],
+  ball: ["Helkrop", "Koordination"],
+};
+
+// Foreslået reps × sæt baseret på kategori
+function repsSets(ex: Exercise): { reps: string; sets: string } | null {
+  switch (ex.category) {
+    case "Strength":
+      return { reps: "8-12 reps", sets: "3-4 sæt" };
+    case "HIIT":
+      return { reps: "30-45 sek", sets: "4-6 runder" };
+    case "Mobility":
+      return { reps: "20-30 sek hold", sets: "2-3 runder" };
+    case "Cardio":
+    case "Sport":
+    default:
+      return null;
+  }
+}
 
 export function ExerciseFigure({ exercise }: { exercise: Exercise }) {
   const anim = pickAnim(exercise);
+  const steps = STEPS[anim];
+  const muscles = MUSCLES[anim];
+  const rs = repsSets(exercise);
 
   return (
-    <div className="rounded-2xl bg-gradient-soft border border-border/50 p-4 mb-5">
-      <div className="flex items-center gap-4">
+    <div className="rounded-2xl bg-gradient-soft border border-border/50 overflow-hidden mb-5">
+      <div className="aspect-[16/10] bg-background/40 flex items-center justify-center">
         <img
           src={IMAGES[anim]}
           alt={exercise.name}
           loading="lazy"
           width={512}
           height={512}
-          className="w-32 h-32 shrink-0 rounded-xl object-contain bg-background"
+          className="max-h-full max-w-full object-contain"
         />
-        <div className="flex-1 min-w-0">
-          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+      </div>
+      <div className="p-4 space-y-3">
+        {/* Muskelgrupper */}
+        <div className="flex flex-wrap gap-1.5">
+          {muscles.map((m) => (
+            <span
+              key={m}
+              className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold"
+            >
+              {m}
+            </span>
+          ))}
+        </div>
+
+        {/* Reps + sæt */}
+        {rs && (
+          <div className="flex gap-2">
+            <div className="flex-1 rounded-xl bg-card/60 border border-border/50 px-3 py-2">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Reps</div>
+              <div className="text-sm font-semibold">{rs.reps}</div>
+            </div>
+            <div className="flex-1 rounded-xl bg-card/60 border border-border/50 px-3 py-2">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Sæt</div>
+              <div className="text-sm font-semibold">{rs.sets}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Step-by-step */}
+        <div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">
             Sådan gør du
           </div>
-          <p className="text-sm leading-snug">{HOW_TO[anim]}</p>
+          <ol className="space-y-1.5">
+            {steps.map((s, i) => (
+              <li key={i} className="flex gap-2.5 text-sm leading-snug">
+                <span className="shrink-0 w-5 h-5 rounded-full bg-primary/15 text-primary text-[11px] font-bold flex items-center justify-center mt-0.5">
+                  {i + 1}
+                </span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </div>
