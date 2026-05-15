@@ -515,6 +515,54 @@ function UpgradeBanner() {
   );
 }
 
+/* ================== RECIPE VARIANTS (regel-baseret) ================== */
+
+type Variant = "normal" | "lowcal" | "vegetar";
+
+const VEG_SWAP = (s: string) =>
+  s
+    .replace(/kyllingebryst|kyllingelår|kylling/gi, "tofu")
+    .replace(/oksekød|hakket okse|hakkebøf|bøf/gi, "linser")
+    .replace(/laks|tun|torsk|rejer|fisk/gi, "halloumi")
+    .replace(/bacon|skinke|svinekød|pulled pork/gi, "røget tempeh");
+
+function applyVariant(r: Recipe, v: Variant): Recipe {
+  if (v === "normal") return r;
+  if (v === "lowcal") {
+    return {
+      ...r,
+      calories: Math.round(r.calories * 0.7),
+      carbs: Math.round(r.carbs * 0.65),
+      fat: Math.round(r.fat * 0.55),
+      protein: Math.round(r.protein * 0.95),
+      ingredients: r.ingredients.map((i) =>
+        i
+          .replace(/(\d+)\s*g\s+(pasta|ris|nudler|kartoffel|kartofler|brød)/gi, (_m, n, food) =>
+            `${Math.round(Number(n) * 0.65)}g ${food} (mindre portion)`,
+          )
+          .replace(/olie/gi, "lidt olie / spray"),
+      ),
+      steps: r.steps,
+    };
+  }
+  // vegetar
+  return {
+    ...r,
+    name: r.name + " (vegetar)",
+    protein: Math.round(r.protein * 0.85),
+    fat: Math.round(r.fat * 0.95),
+    ingredients: r.ingredients.map(VEG_SWAP),
+    steps: r.steps.map(VEG_SWAP),
+    tags: Array.from(new Set([...r.tags, "vegetarian"])),
+  };
+}
+
+const VARIANTS: { id: Variant; label: string }[] = [
+  { id: "normal",  label: "Normal" },
+  { id: "lowcal",  label: "Lav kalorie" },
+  { id: "vegetar", label: "Vegetar" },
+];
+
 /* ================== RECIPE DETAIL ================== */
 
 function RecipeDialog({
@@ -524,10 +572,14 @@ function RecipeDialog({
   setOpen: (r: Recipe | null) => void;
   logRecipe: (r: Recipe) => void;
 }) {
+  const [variant, setVariant] = useState<Variant>("normal");
+  // reset variant when opening a new recipe
+  useEffect(() => { setVariant("normal"); }, [open?.id]);
+  const adjusted = open ? applyVariant(open, variant) : null;
   return (
     <Dialog open={!!open} onOpenChange={(v) => !v && setOpen(null)}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-0 rounded-3xl border-2 border-foreground/15">
-        {open && (
+        {open && adjusted && (
           <>
             {/* Premium hero */}
             <div className="relative h-64">
@@ -540,19 +592,38 @@ function RecipeDialog({
               )}
               <div className="absolute bottom-3 left-4 right-4">
                 <DialogHeader className="text-left">
-                  <DialogTitle className="text-2xl font-bold leading-tight">{open.name}</DialogTitle>
+                  <DialogTitle className="text-2xl font-bold leading-tight">{adjusted.name}</DialogTitle>
                 </DialogHeader>
               </div>
             </div>
 
             <div className="p-5 space-y-4">
+              {/* Variant pills */}
+              <div className="flex gap-1.5 p-1 rounded-2xl bg-surface-2/60 border-2 border-foreground/10">
+                {VARIANTS.map((v) => {
+                  const on = variant === v.id;
+                  return (
+                    <button
+                      key={v.id}
+                      onClick={() => setVariant(v.id)}
+                      className={[
+                        "flex-1 k-tap rounded-xl px-2 py-2 text-xs font-semibold transition-colors",
+                        on ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground",
+                      ].join(" ")}
+                    >
+                      {v.label}
+                    </button>
+                  );
+                })}
+              </div>
+
               {/* Macros */}
               <div className="grid grid-cols-4 gap-2 text-center">
                 {[
-                  { l: "Kcal", v: open.calories },
-                  { l: "Protein", v: `${open.protein}g` },
-                  { l: "Kulhydrat", v: `${open.carbs}g` },
-                  { l: "Fedt", v: `${open.fat}g` },
+                  { l: "Kcal", v: adjusted.calories },
+                  { l: "Protein", v: `${adjusted.protein}g` },
+                  { l: "Kulhydrat", v: `${adjusted.carbs}g` },
+                  { l: "Fedt", v: `${adjusted.fat}g` },
                 ].map((s) => (
                   <div key={s.l} className="rounded-2xl bg-surface-2/60 border-2 border-foreground/10 p-2">
                     <div className="text-[9px] uppercase tracking-widest text-muted-foreground">{s.l}</div>
@@ -563,12 +634,12 @@ function RecipeDialog({
 
               {/* Meta badges */}
               <div className="flex gap-2 flex-wrap text-xs">
-                <Badge variant="secondary" className="rounded-full"><Clock className="w-3 h-3 mr-1" />{open.minutes} min</Badge>
-                <Badge variant="secondary" className="rounded-full"><Users className="w-3 h-3 mr-1" />{open.servings} portion{open.servings > 1 ? "er" : ""}</Badge>
-                {open.tempC && (
-                  <Badge variant="secondary" className="rounded-full"><Thermometer className="w-3 h-3 mr-1" />{open.tempC}°C</Badge>
+                <Badge variant="secondary" className="rounded-full"><Clock className="w-3 h-3 mr-1" />{adjusted.minutes} min</Badge>
+                <Badge variant="secondary" className="rounded-full"><Users className="w-3 h-3 mr-1" />{adjusted.servings} portion{adjusted.servings > 1 ? "er" : ""}</Badge>
+                {adjusted.tempC && (
+                  <Badge variant="secondary" className="rounded-full"><Thermometer className="w-3 h-3 mr-1" />{adjusted.tempC}°C</Badge>
                 )}
-                {open.tags.filter((t) => t !== "worldcuisine").slice(0, 4).map((t) => (
+                {adjusted.tags.filter((t) => t !== "worldcuisine").slice(0, 4).map((t) => (
                   <Badge key={t} variant="outline" className="rounded-full">{t}</Badge>
                 ))}
               </div>
@@ -577,7 +648,7 @@ function RecipeDialog({
               <div>
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Ingredienser</div>
                 <ul className="text-sm space-y-1.5">
-                  {open.ingredients.map((i, n) => (
+                  {adjusted.ingredients.map((i, n) => (
                     <li key={n} className="flex gap-2 items-start">
                       <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
                       <span>{i}</span>
@@ -590,7 +661,7 @@ function RecipeDialog({
               <div>
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Sådan gør du</div>
                 <ol className="space-y-2">
-                  {open.steps.map((s, n) => (
+                  {adjusted.steps.map((s, n) => (
                     <li key={n} className="flex gap-3 items-start rounded-2xl bg-surface-2/50 border border-foreground/10 p-3">
                       <span className="shrink-0 w-7 h-7 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-bold">{n + 1}</span>
                       <span className="text-sm leading-snug">{s}</span>
@@ -599,7 +670,7 @@ function RecipeDialog({
                 </ol>
               </div>
 
-              <Button className="w-full rounded-2xl h-12 text-base font-semibold" onClick={() => logRecipe(open)}>
+              <Button className="w-full rounded-2xl h-12 text-base font-semibold" onClick={() => logRecipe(adjusted)}>
                 <Plus className="w-4 h-4 mr-1" /> Log i dagbog
               </Button>
             </div>

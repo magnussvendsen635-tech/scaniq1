@@ -129,6 +129,7 @@ export default function FoodScan() {
   const [portion, setPortion] = useState<Portion>("medium");
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
+  const [foodSource, setFoodSource] = useState<"homemade" | "store" | "restaurant">("homemade");
   const [scansUsed, setScansUsed] = useState<number>(0);
   const [dailyUsed, setDailyUsed] = useState<number>(0);
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
@@ -574,6 +575,31 @@ export default function FoodScan() {
                       }`}
                     >
                       <Icon className="w-4 h-4" />
+                      <span className="text-[11px] font-semibold">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="k-card p-5 mb-5">
+                <h2 className="text-lg font-semibold mb-1">Food source</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  This helps AI detect ultra-processed foods and improve calorie accuracy.
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    ["homemade",  "🏠", "Homemade"],
+                    ["store",     "🛒", "Store-bought"],
+                    ["restaurant","🍴", "Restaurant"],
+                  ] as const).map(([s, emoji, label]) => (
+                    <button
+                      key={s}
+                      onClick={() => setFoodSource(s)}
+                      className={`k-tap rounded-2xl p-3 border-2 transition-all flex flex-col items-center gap-1 ${
+                        foodSource === s ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-card"
+                      }`}
+                    >
+                      <span className="text-2xl">{emoji}</span>
                       <span className="text-[11px] font-semibold">{label}</span>
                     </button>
                   ))}
