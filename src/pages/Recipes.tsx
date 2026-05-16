@@ -73,7 +73,9 @@ function RecipeCard({
   r: Recipe; onClick: () => void; size?: "lg" | "sm" | "row"; locked?: boolean;
 }) {
   const w = size === "row" ? 360 : size === "lg" ? 600 : 360;
-  const img = recipeImage(r.name, w);
+  const fallback = recipeImage(r.name, w);
+  const img = `/recipes/${r.id}.jpg`;
+  const onErr = (e: any) => { if (e.currentTarget.src !== fallback) e.currentTarget.src = fallback; };
   const dim =
     size === "row" ? "w-full h-28"
     : size === "lg" ? "w-56 h-72"
