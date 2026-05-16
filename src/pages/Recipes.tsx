@@ -582,7 +582,7 @@ function RecipeDialog({
           <>
             {/* Premium hero */}
             <div className="relative h-64">
-              <img src={recipeImage(open.name, 1000)} alt={open.name} className="absolute inset-0 w-full h-full object-cover" />
+              <img src={`/recipes/${open.id}.jpg`} onError={(e:any)=>{e.currentTarget.src = recipeImage(open.name, 1000);}} alt={open.name} className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
               {open.cuisine && (
                 <div className="absolute top-3 left-3 inline-flex items-center gap-1 text-[10px] uppercase tracking-widest font-semibold bg-background/90 backdrop-blur px-2.5 py-1 rounded-full border border-foreground/10">
