@@ -89,7 +89,7 @@ function RecipeCard({
       {size === "row" ? (
         <>
           <div className="relative w-28 h-28 shrink-0">
-            <img src={img} alt={r.name} loading="lazy" className={`w-full h-full object-cover ${locked ? "blur-md scale-110" : ""}`} />
+            <img src={img} onError={onErr} alt={r.name} loading="lazy" className={`w-full h-full object-cover ${locked ? "blur-md scale-110" : ""}`} />
           </div>
           <div className="flex-1 p-3 flex flex-col justify-center min-w-0">
             <div className="text-sm font-semibold leading-tight line-clamp-2">{r.name}</div>
@@ -105,7 +105,7 @@ function RecipeCard({
         </>
       ) : (
         <>
-          <img src={img} alt={r.name} loading="lazy" className={`absolute inset-0 w-full h-full object-cover ${locked ? "blur-md scale-110" : ""}`} />
+          <img src={img} onError={onErr} alt={r.name} loading="lazy" className={`absolute inset-0 w-full h-full object-cover ${locked ? "blur-md scale-110" : ""}`} />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
           <div className="absolute top-2 left-2 inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-widest bg-background/85 backdrop-blur px-2 py-1 rounded-full text-foreground border border-foreground/10">
             <Clock className="w-3 h-3" /> {r.minutes} min
