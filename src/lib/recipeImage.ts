@@ -236,3 +236,15 @@ export function recipeImage(name: string, w = 600): string {
   }
   return url(pickFromPool(FALLBACK_POOL, name), w);
 }
+
+/** Returns a recipe-specific AI-generated image URL if it exists locally,
+ *  otherwise falls back to a curated Unsplash photo. */
+export function recipeImageById(id: string, name: string, w = 600): string {
+  // Vite serves /public at the site root. Generated images live in /public/recipes/{id}.jpg.
+  // We optimistically return the local path; the <img onError> handler can swap to the fallback.
+  return `/recipes/${id}.jpg`;
+}
+
+export function recipeImageFallback(name: string, w = 600): string {
+  return recipeImage(name, w);
+}
