@@ -333,9 +333,6 @@ export default function Recipes() {
         </div>
       </div>
 
-      {/* Sticky filter pills */}
-      <FilterBar active={activeFilter} setActive={setActiveFilter} sticky scrolled={scrolled} />
-
       {/* Find your plan – AI hero */}
       <section className="px-5 mt-4">
         <div className="relative overflow-hidden rounded-3xl border-2 border-foreground/15 bg-foreground text-background">
