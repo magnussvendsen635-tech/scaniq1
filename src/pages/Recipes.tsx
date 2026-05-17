@@ -1,9 +1,8 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft, Search, Sparkles, Plus, Clock, Flame, Loader2, Thermometer, Users,
-  Crown, Lock, ChevronRight, Dumbbell, Leaf, Zap, Heart, Target, Beef, Apple,
-  GlassWater, IceCream, CupSoda, Package, Sun, Sandwich, ChefHat, Cookie, Globe2,
+  ArrowLeft, Search, Plus, Clock, Flame, Thermometer, Users,
+  ChevronRight, Sun, Sandwich, ChefHat, Cookie, GlassWater, IceCream, CupSoda, Globe2, Minus,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,10 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RECIPES, type Recipe } from "@/data/recipes";
 import { useKStore, categoryForNow } from "@/store/useKStore";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { recipeImage } from "@/lib/recipeImage";
-import { useSubscription } from "@/hooks/useSubscription";
 
 /* ================== TYPES ================== */
 
@@ -35,10 +32,7 @@ const FILTERS: { id: FilterId; label: string; test: (r: Recipe) => boolean }[] =
 
 type MealCategory = {
   id: "breakfast" | "lunch" | "dinner" | "snack" | "smoothie" | "dessert" | "drink";
-  label: string;
-  sub: string;
-  icon: any;
-  hero: string;
+  label: string; sub: string; icon: any; hero: string;
 };
 
 const MEAL_CATEGORIES: MealCategory[] = [
@@ -65,12 +59,27 @@ const COUNTRIES: { id: string; name: string; flag: string; hero: string }[] = [
 const heroUrl = (id: string, w = 1200) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
 
+/* ================== ALPHABETICAL SORT (starts-with priority) ================== */
+
+function sortBySearch(list: Recipe[], q: string): Recipe[] {
+  const k = q.trim().toLowerCase();
+  if (!k) return [...list].sort((a, b) => a.name.localeCompare(b.name, "da"));
+  return [...list].sort((a, b) => {
+    const an = a.name.toLowerCase();
+    const bn = b.name.toLowerCase();
+    const aStarts = an.startsWith(k) ? 0 : an.split(/\s+/).some(w => w.startsWith(k)) ? 1 : 2;
+    const bStarts = bn.startsWith(k) ? 0 : bn.split(/\s+/).some(w => w.startsWith(k)) ? 1 : 2;
+    if (aStarts !== bStarts) return aStarts - bStarts;
+    return an.localeCompare(bn, "da");
+  });
+}
+
 /* ================== CARDS ================== */
 
 function RecipeCard({
-  r, onClick, size = "lg", locked,
+  r, onClick, size = "lg",
 }: {
-  r: Recipe; onClick: () => void; size?: "lg" | "sm" | "row"; locked?: boolean;
+  r: Recipe; onClick: () => void; size?: "lg" | "sm" | "row";
 }) {
   const w = size === "row" ? 360 : size === "lg" ? 600 : 360;
   const fallback = recipeImage(r.name, w);
@@ -89,7 +98,7 @@ function RecipeCard({
       {size === "row" ? (
         <>
           <div className="relative w-28 h-28 shrink-0">
-            <img src={img} onError={onErr} alt={r.name} loading="lazy" className={`w-full h-full object-cover ${locked ? "blur-md scale-110" : ""}`} />
+            <img src={img} onError={onErr} alt={r.name} loading="lazy" className="w-full h-full object-cover" />
           </div>
           <div className="flex-1 p-3 flex flex-col justify-center min-w-0">
             <div className="text-sm font-semibold leading-tight line-clamp-2">{r.name}</div>
@@ -101,11 +110,11 @@ function RecipeCard({
               <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {r.minutes}m</span>
             </div>
           </div>
-          {locked && <LockBadge />}
+          <ChevronRight className="w-4 h-4 text-muted-foreground self-center mr-3 shrink-0" />
         </>
       ) : (
         <>
-          <img src={img} onError={onErr} alt={r.name} loading="lazy" className={`absolute inset-0 w-full h-full object-cover ${locked ? "blur-md scale-110" : ""}`} />
+          <img src={img} onError={onErr} alt={r.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
           <div className="absolute top-2 left-2 inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-widest bg-background/85 backdrop-blur px-2 py-1 rounded-full text-foreground border border-foreground/10">
             <Clock className="w-3 h-3" /> {r.minutes} min
@@ -121,58 +130,25 @@ function RecipeCard({
               <Flame className="w-3 h-3" /> {r.calories} kcal
             </div>
           </div>
-          {locked && <LockOverlay />}
         </>
       )}
     </button>
   );
 }
 
-function LockBadge() {
-  return (
-    <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg">
-      <Lock className="w-3.5 h-3.5" />
-    </div>
-  );
-}
-
-function LockOverlay() {
-  return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-background/30 backdrop-blur-[2px]">
-      <div className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-xl">
-        <Lock className="w-4 h-4" />
-      </div>
-      <div className="text-[10px] uppercase tracking-widest font-semibold text-background bg-foreground/80 px-2 py-1 rounded-full">
-        Premium
-      </div>
-    </div>
-  );
-}
-
 /* ================== PAGE ================== */
 
 export default function Recipes() {
-  const { addMeal, language } = useKStore();
-  const { isActive: isPremium } = useSubscription();
+  const { addMeal } = useKStore();
   const [q, setQ] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterId>("all");
   const [view, setView] = useState<
     | { kind: "category"; cat: MealCategory }
     | { kind: "country"; id: string; name: string; hero: string }
-    | { kind: "search" }
     | null
   >(null);
   const [open, setOpen] = useState<Recipe | null>(null);
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
   const [visible, setVisible] = useState(40);
-
-  const isLocked = (r: Recipe) => {
-    if (isPremium) return false;
-    let h = 0;
-    for (let i = 0; i < r.id.length; i++) h = (h * 31 + r.id.charCodeAt(i)) >>> 0;
-    return (h % 10) >= 2; // ~80% locked
-  };
 
   /* ---------- Sticky filter shadow on scroll ---------- */
   const [scrolled, setScrolled] = useState(false);
@@ -182,20 +158,20 @@ export default function Recipes() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* ---------- Apply filter to a recipe set ---------- */
   const applyFilter = (list: Recipe[]) => {
     const f = FILTERS.find((x) => x.id === activeFilter)!;
     return list.filter(f.test);
   };
 
-  const filteredByQ = useMemo(() => {
+  const searchResults = useMemo(() => {
     const k = q.trim().toLowerCase();
-    if (!k) return RECIPES;
-    return RECIPES.filter((r) =>
+    if (!k) return [];
+    const matched = RECIPES.filter((r) =>
       r.name.toLowerCase().includes(k) ||
       r.ingredients.join(" ").toLowerCase().includes(k) ||
       (r.cuisine && r.cuisine.toLowerCase().includes(k)),
     );
+    return sortBySearch(matched, q);
   }, [q]);
 
   const featured = useMemo(
@@ -203,13 +179,7 @@ export default function Recipes() {
     [],
   );
 
-  const openRecipe = (r: Recipe) => {
-    if (isLocked(r)) {
-      toast({ title: "Premium opskrift", description: "Opgrader for at låse op for alle opskrifter." });
-      return;
-    }
-    setOpen(r);
-  };
+  const openRecipe = (r: Recipe) => setOpen(r);
 
   const logRecipe = (r: Recipe) => {
     addMeal({
@@ -221,52 +191,31 @@ export default function Recipes() {
     setOpen(null);
   };
 
-  const generate = async () => {
-    if (!aiPrompt.trim()) return;
-    setAiLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("recipe-generate", { body: { prompt: aiPrompt, language } });
-      if (error) throw error;
-      const rec = data?.recipe;
-      if (!rec) throw new Error("Ingen opskrift");
-      setOpen({
-        id: `ai-${Date.now()}`, name: rec.name, emoji: rec.emoji || "🍽️", category: rec.category,
-        tags: ["quick"], minutes: rec.minutes, servings: rec.servings,
-        calories: rec.calories, protein: rec.protein, carbs: rec.carbs, fat: rec.fat,
-        ingredients: rec.ingredients, steps: rec.steps,
-      });
-      setAiPrompt("");
-    } catch (e: any) {
-      toast({ title: "AI fejl", description: e?.message ?? "Prøv igen", variant: "destructive" });
-    } finally {
-      setAiLoading(false);
-    }
-  };
+  /* ---------- Reusable search input (rendered ONCE per view to preserve focus) ---------- */
+  const SearchInput = (
+    <div className="relative">
+      <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        className="pl-10 h-12 rounded-2xl bg-surface border-2 border-foreground/10"
+        placeholder="Søg opskrifter, ingredienser, lande…"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        autoComplete="off"
+      />
+    </div>
+  );
 
-  /* ================== VIEW: Category / Country / Search ================== */
+  /* ================== VIEW: Category / Country ================== */
   if (view) {
-    let baseList: Recipe[] = [];
-    let title = "";
-    let sub = "";
-    let heroId = "photo-1546069901-ba9599a7e63c";
+    let baseList: Recipe[] =
+      view.kind === "category"
+        ? RECIPES.filter((r) => r.category === view.cat.id)
+        : RECIPES.filter((r) => r.cuisine === view.id);
+    const title = view.kind === "category" ? view.cat.label : view.name;
+    const sub = view.kind === "category" ? view.cat.sub : "Autentisk-inspirerede opskrifter";
+    const heroId = view.kind === "category" ? view.cat.hero : view.hero;
 
-    if (view.kind === "category") {
-      baseList = RECIPES.filter((r) => r.category === view.cat.id);
-      title = view.cat.label;
-      sub = view.cat.sub;
-      heroId = view.cat.hero;
-    } else if (view.kind === "country") {
-      baseList = RECIPES.filter((r) => r.cuisine === view.id);
-      title = view.name;
-      sub = "Autentisk-inspirerede opskrifter";
-      heroId = view.hero;
-    } else {
-      baseList = filteredByQ;
-      title = q ? `“${q}”` : "Søgning";
-      sub = `${baseList.length} resultater`;
-    }
-
-    const list = applyFilter(baseList);
+    const list = sortBySearch(applyFilter(baseList), "");
 
     return (
       <div className="min-h-screen bg-background pb-32">
@@ -274,7 +223,7 @@ export default function Recipes() {
           <img src={heroUrl(heroId, 1400)} alt={title} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-background/0" />
           <button
-            onClick={() => { setView(null); setVisible(40); setQ(""); }}
+            onClick={() => { setView(null); setVisible(40); }}
             className="absolute top-10 left-4 k-tap w-10 h-10 rounded-full bg-background/90 backdrop-blur border-2 border-foreground/10 flex items-center justify-center"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -290,7 +239,7 @@ export default function Recipes() {
 
         <div className="px-5 mt-4 space-y-3">
           {list.slice(0, visible).map((r) => (
-            <RecipeCard key={r.id} r={r} onClick={() => openRecipe(r)} size="row" locked={isLocked(r)} />
+            <RecipeCard key={r.id} r={r} onClick={() => openRecipe(r)} size="row" />
           ))}
           {list.length > visible && (
             <Button
@@ -304,8 +253,6 @@ export default function Recipes() {
           {list.length === 0 && (
             <div className="text-center text-sm text-muted-foreground py-10">Ingen opskrifter matcher.</div>
           )}
-
-          {!isPremium && <UpgradeBanner />}
         </div>
 
         <RecipeDialog open={open} setOpen={setOpen} logRecipe={logRecipe} />
@@ -314,6 +261,8 @@ export default function Recipes() {
   }
 
   /* ================== MAIN VIEW ================== */
+  const showingSearch = q.trim().length > 0;
+
   return (
     <div className="min-h-screen bg-background pb-32">
       <div className="px-5 pt-12 pb-3 flex items-center gap-3">
@@ -322,125 +271,94 @@ export default function Recipes() {
         <div className="ml-auto text-xs text-muted-foreground">{RECIPES.length}</div>
       </div>
 
-      {/* Search */}
-      <div className="px-5">
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            className="pl-10 h-12 rounded-2xl bg-surface border-2 border-foreground/10"
-            placeholder="Søg opskrifter, ingredienser, lande…"
-            value={q}
-            onChange={(e) => { setQ(e.target.value); if (e.target.value) setView({ kind: "search" }); }}
-          />
-        </div>
-      </div>
+      <div className="px-5">{SearchInput}</div>
 
-      {/* Find your plan – AI hero */}
-      <section className="px-5 mt-4">
-        <div className="relative overflow-hidden rounded-3xl border-2 border-foreground/15 bg-foreground text-background">
-          <img src={heroUrl("photo-1490645935967-10de6ba17061", 1200)} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-br from-foreground/90 via-foreground/70 to-accent/40" />
-          <div className="relative p-5">
-            <div className="text-[10px] uppercase tracking-widest font-semibold opacity-90 inline-flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" /> AI Plan Finder
-            </div>
-            <h2 className="text-2xl font-bold mt-1 leading-tight">Find din plan</h2>
-            <p className="text-sm opacity-90 mt-1">Filtrér efter mål — vi viser opskrifter der passer.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Meal categories */}
-      <section className="mt-5 px-5">
-        <h2 className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Kategorier</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {MEAL_CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => { setView({ kind: "category", cat: c }); setVisible(40); }}
-              className="k-tap relative h-36 rounded-3xl overflow-hidden border-2 border-foreground/15 text-left shadow-[0_8px_22px_-12px_hsl(var(--foreground)/0.35)] transition-transform active:scale-[0.98]"
+      {showingSearch ? (
+        <div className="px-5 mt-4 space-y-3">
+          <div className="text-xs text-muted-foreground">{searchResults.length} resultater for "{q}"</div>
+          {searchResults.slice(0, visible).map((r) => (
+            <RecipeCard key={r.id} r={r} onClick={() => openRecipe(r)} size="row" />
+          ))}
+          {searchResults.length > visible && (
+            <Button
+              variant="outline"
+              className="w-full rounded-2xl border-2 border-foreground/15"
+              onClick={() => setVisible((n) => n + 40)}
             >
-              <img src={heroUrl(c.hero, 600)} alt={c.label} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
-              <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-background/90 backdrop-blur flex items-center justify-center border border-foreground/10">
-                <c.icon className="w-4 h-4 text-foreground" />
-              </div>
-              <div className="absolute bottom-3 left-3 right-3 text-background">
-                <div className="text-base font-bold leading-tight">{c.label}</div>
-                <div className="text-[11px] opacity-90">{c.sub}</div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* World Cuisine */}
-      <section className="mt-6">
-        <div className="px-5 flex items-center justify-between mb-3">
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground font-semibold inline-flex items-center gap-1.5">
-            <Globe2 className="w-3.5 h-3.5" /> World Cuisine
-          </h2>
-          <span className="text-[10px] text-muted-foreground">Bladr efter land</span>
-        </div>
-        <div className="flex gap-3 overflow-x-auto px-5 pb-2 snap-x">
-          {COUNTRIES.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => { setView({ kind: "country", id: c.id, name: c.name, hero: c.hero }); setVisible(40); }}
-              className="k-tap snap-start shrink-0 w-40 h-48 rounded-3xl overflow-hidden border-2 border-foreground/15 relative text-left shadow-[0_8px_22px_-12px_hsl(var(--foreground)/0.35)]"
-            >
-              <img src={heroUrl(c.hero, 500)} alt={c.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
-              <div className="absolute top-2 left-2 text-2xl">{c.flag}</div>
-              <div className="absolute bottom-3 left-3 right-3 text-background">
-                <div className="text-base font-bold leading-tight">{c.name}</div>
-                <div className="text-[10px] opacity-90 uppercase tracking-widest">Autentisk</div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured */}
-      <section className="mt-6">
-        <div className="px-5 flex items-center justify-between mb-2">
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Anbefalet til dig</h2>
-        </div>
-        <div className="flex gap-3 overflow-x-auto px-5 pb-2 snap-x">
-          {featured.map((r) => (
-            <div key={r.id} className="snap-start">
-              <RecipeCard r={r} onClick={() => openRecipe(r)} size="lg" locked={isLocked(r)} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* AI generator */}
-      <section className="mt-6 px-5">
-        <div className="rounded-3xl p-4 border-2 border-foreground/15 bg-gradient-to-br from-accent/15 via-surface to-surface">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-accent" />
-            <div className="text-sm font-semibold">AI opskriftsgenerator</div>
-          </div>
-          <div className="flex gap-2">
-            <Input
-              placeholder="fx 'højt protein pasta under 600 kcal'"
-              value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && generate()}
-              className="rounded-2xl border-2 border-foreground/10"
-            />
-            <Button onClick={generate} disabled={aiLoading || !aiPrompt.trim()} className="rounded-2xl">
-              {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Generér"}
+              Vis flere ({searchResults.length - visible} tilbage)
             </Button>
-          </div>
+          )}
+          {searchResults.length === 0 && (
+            <div className="text-center text-sm text-muted-foreground py-10">Ingen opskrifter matcher "{q}".</div>
+          )}
         </div>
-      </section>
+      ) : (
+        <>
+          {/* Meal categories */}
+          <section className="mt-5 px-5">
+            <h2 className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Kategorier</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {MEAL_CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => { setView({ kind: "category", cat: c }); setVisible(40); }}
+                  className="k-tap relative h-36 rounded-3xl overflow-hidden border-2 border-foreground/15 text-left shadow-[0_8px_22px_-12px_hsl(var(--foreground)/0.35)] transition-transform active:scale-[0.98]"
+                >
+                  <img src={heroUrl(c.hero, 600)} alt={c.label} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
+                  <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-background/90 backdrop-blur flex items-center justify-center border border-foreground/10">
+                    <c.icon className="w-4 h-4 text-foreground" />
+                  </div>
+                  <div className="absolute bottom-3 left-3 right-3 text-background">
+                    <div className="text-base font-bold leading-tight">{c.label}</div>
+                    <div className="text-[11px] opacity-90">{c.sub}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
 
-      {!isPremium && (
-        <div className="px-5 mt-5">
-          <UpgradeBanner />
-        </div>
+          {/* World Cuisine */}
+          <section className="mt-6">
+            <div className="px-5 flex items-center justify-between mb-3">
+              <h2 className="text-xs uppercase tracking-widest text-muted-foreground font-semibold inline-flex items-center gap-1.5">
+                <Globe2 className="w-3.5 h-3.5" /> World Cuisine
+              </h2>
+              <span className="text-[10px] text-muted-foreground">Bladr efter land</span>
+            </div>
+            <div className="flex gap-3 overflow-x-auto px-5 pb-2 snap-x">
+              {COUNTRIES.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => { setView({ kind: "country", id: c.id, name: c.name, hero: c.hero }); setVisible(40); }}
+                  className="k-tap snap-start shrink-0 w-40 h-48 rounded-3xl overflow-hidden border-2 border-foreground/15 relative text-left shadow-[0_8px_22px_-12px_hsl(var(--foreground)/0.35)]"
+                >
+                  <img src={heroUrl(c.hero, 500)} alt={c.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
+                  <div className="absolute top-2 left-2 text-2xl">{c.flag}</div>
+                  <div className="absolute bottom-3 left-3 right-3 text-background">
+                    <div className="text-base font-bold leading-tight">{c.name}</div>
+                    <div className="text-[10px] opacity-90 uppercase tracking-widest">Autentisk</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Featured */}
+          <section className="mt-6">
+            <div className="px-5 flex items-center justify-between mb-2">
+              <h2 className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Anbefalet til dig</h2>
+            </div>
+            <div className="flex gap-3 overflow-x-auto px-5 pb-2 snap-x">
+              {featured.map((r) => (
+                <div key={r.id} className="snap-start">
+                  <RecipeCard r={r} onClick={() => openRecipe(r)} size="lg" />
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
       )}
 
       <RecipeDialog open={open} setOpen={setOpen} logRecipe={logRecipe} />
@@ -487,33 +405,6 @@ function FilterBar({
   );
 }
 
-/* ================== UPGRADE BANNER ================== */
-
-function UpgradeBanner() {
-  return (
-    <Link
-      to="/premium"
-      className="k-tap relative block overflow-hidden rounded-3xl border-2 border-foreground/15 p-5 bg-foreground text-background"
-    >
-      <img src={heroUrl("photo-1490645935967-10de6ba17061", 800)} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-      <div className="absolute inset-0 bg-gradient-to-br from-foreground/90 to-accent/30" />
-      <div className="relative flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-accent text-accent-foreground flex items-center justify-center shadow-lg">
-          <Crown className="w-6 h-6" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] uppercase tracking-widest font-semibold opacity-90">Lås alle opskrifter op</div>
-          <div className="text-base font-bold leading-tight">Unlock all recipes</div>
-          <div className="text-xs opacity-80 mt-0.5">300 unikke opskrifter inkl. World Cuisine</div>
-        </div>
-        <div className="bg-accent text-accent-foreground font-semibold text-sm px-3 py-2 rounded-full whitespace-nowrap">
-          Get Premium
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 /* ================== RECIPE VARIANTS (regel-baseret) ================== */
 
 type Variant = "normal" | "lowcal" | "vegetar";
@@ -544,7 +435,6 @@ function applyVariant(r: Recipe, v: Variant): Recipe {
       steps: r.steps,
     };
   }
-  // vegetar
   return {
     ...r,
     name: r.name + " (vegetar)",
@@ -552,7 +442,7 @@ function applyVariant(r: Recipe, v: Variant): Recipe {
     fat: Math.round(r.fat * 0.95),
     ingredients: r.ingredients.map(VEG_SWAP),
     steps: r.steps.map(VEG_SWAP),
-    tags: Array.from(new Set([...r.tags, "vegetarian"])),
+    tags: Array.from(new Set([...r.tags, "vegetarian" as const])),
   };
 }
 
@@ -561,6 +451,49 @@ const VARIANTS: { id: Variant; label: string }[] = [
   { id: "lowcal",  label: "Lav kalorie" },
   { id: "vegetar", label: "Vegetar" },
 ];
+
+/* ================== SERVINGS SCALER ================== */
+
+const FRACTIONS: Record<string, number> = { "½": 0.5, "¼": 0.25, "¾": 0.75, "⅓": 1/3, "⅔": 2/3 };
+
+function fmtQty(n: number): string {
+  if (n < 1 && n > 0) {
+    if (Math.abs(n - 0.5) < 0.05) return "½";
+    if (Math.abs(n - 0.25) < 0.05) return "¼";
+    if (Math.abs(n - 0.75) < 0.05) return "¾";
+    return n.toFixed(2).replace(/\.?0+$/, "");
+  }
+  if (Math.abs(n - Math.round(n)) < 0.05) return String(Math.round(n));
+  return (Math.round(n * 10) / 10).toString();
+}
+
+/** Scale leading numeric quantity in an ingredient string by multiplier. */
+function scaleIngredient(line: string, mult: number): string {
+  // Pattern: optional unicode fraction OR number (int/decimal), then unit/space
+  return line.replace(
+    /^(\s*)(½|¼|¾|⅓|⅔|\d+(?:[.,]\d+)?)(\s*)(g|kg|ml|dl|l|stk|spsk|tsk|knsp\.?|skiver?|skive|fed|dåse|dåser|pose|poser|kop|kopper|håndfuld|håndfulde)?\b/i,
+    (_m, lead, num, sp, unit) => {
+      const base = FRACTIONS[num] ?? Number(String(num).replace(",", "."));
+      if (!isFinite(base)) return _m;
+      const scaled = base * mult;
+      return `${lead}${fmtQty(scaled)}${sp || " "}${unit || ""}`.trimEnd() + (unit ? "" : "");
+    },
+  );
+}
+
+function scaleRecipe(r: Recipe, servings: number): Recipe {
+  const baseServ = r.servings || 1;
+  const mult = servings / baseServ;
+  return {
+    ...r,
+    servings,
+    calories: Math.round(r.calories * mult),
+    protein: Math.round(r.protein * mult),
+    carbs: Math.round(r.carbs * mult),
+    fat: Math.round(r.fat * mult),
+    ingredients: r.ingredients.map((i) => scaleIngredient(i, mult)),
+  };
+}
 
 /* ================== RECIPE DETAIL ================== */
 
@@ -572,15 +505,19 @@ function RecipeDialog({
   logRecipe: (r: Recipe) => void;
 }) {
   const [variant, setVariant] = useState<Variant>("normal");
-  // reset variant when opening a new recipe
-  useEffect(() => { setVariant("normal"); }, [open?.id]);
-  const adjusted = open ? applyVariant(open, variant) : null;
+  const [servings, setServings] = useState(1);
+  useEffect(() => { setVariant("normal"); setServings(1); }, [open?.id]);
+
+  const adjusted = useMemo(() => {
+    if (!open) return null;
+    return scaleRecipe(applyVariant(open, variant), servings);
+  }, [open, variant, servings]);
+
   return (
     <Dialog open={!!open} onOpenChange={(v) => !v && setOpen(null)}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-0 rounded-3xl border-2 border-foreground/15">
         {open && adjusted && (
           <>
-            {/* Premium hero */}
             <div className="relative h-64">
               <img src={`/recipes/${open.id}.jpg`} onError={(e:any)=>{e.currentTarget.src = recipeImage(open.name, 1000);}} alt={open.name} className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
@@ -616,7 +553,33 @@ function RecipeDialog({
                 })}
               </div>
 
-              {/* Macros */}
+              {/* Servings counter */}
+              <div className="flex items-center justify-between rounded-2xl bg-surface-2/60 border-2 border-foreground/10 p-2 pl-4">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <div className="text-sm font-semibold">Antal personer</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setServings((s) => Math.max(1, s - 1))}
+                    className="k-tap w-9 h-9 rounded-xl bg-background border-2 border-foreground/15 flex items-center justify-center disabled:opacity-40"
+                    disabled={servings <= 1}
+                    aria-label="Færre personer"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <div className="min-w-[2ch] text-center text-base font-bold tabular-nums">{servings}</div>
+                  <button
+                    onClick={() => setServings((s) => Math.min(20, s + 1))}
+                    className="k-tap w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center"
+                    aria-label="Flere personer"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Macros (scaled) */}
               <div className="grid grid-cols-4 gap-2 text-center">
                 {[
                   { l: "Kcal", v: adjusted.calories },
@@ -630,11 +593,13 @@ function RecipeDialog({
                   </div>
                 ))}
               </div>
+              <div className="text-[10px] text-muted-foreground text-center -mt-2">
+                Total for {servings} {servings === 1 ? "person" : "personer"}
+              </div>
 
               {/* Meta badges */}
               <div className="flex gap-2 flex-wrap text-xs">
                 <Badge variant="secondary" className="rounded-full"><Clock className="w-3 h-3 mr-1" />{adjusted.minutes} min</Badge>
-                <Badge variant="secondary" className="rounded-full"><Users className="w-3 h-3 mr-1" />{adjusted.servings} portion{adjusted.servings > 1 ? "er" : ""}</Badge>
                 {adjusted.tempC && (
                   <Badge variant="secondary" className="rounded-full"><Thermometer className="w-3 h-3 mr-1" />{adjusted.tempC}°C</Badge>
                 )}
@@ -656,7 +621,7 @@ function RecipeDialog({
                 </ul>
               </div>
 
-              {/* Steps — next-step style */}
+              {/* Steps */}
               <div>
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Sådan gør du</div>
                 <ol className="space-y-2">
