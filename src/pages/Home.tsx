@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useKStore, caloriesToday, macrosToday, caloriesBurnedToday } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Ring } from "@/components/Ring";
-import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine, Barcode, Star, Scale, ChefHat } from "lucide-react";
+import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine, Star, Scale, ChefHat } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 import { StreakCard } from "@/components/StreakCard";
@@ -113,20 +113,8 @@ export default function Home() {
       {/* Water tracking */}
       <WaterCard />
 
-      {/* Barcode Scanner — secondary scan option */}
-      <Link
-        to="/barcode"
-        className="k-card k-tap p-4 mb-5 flex items-center gap-4 bg-card group relative z-10"
-      >
-        <div className="w-11 h-11 rounded-2xl bg-accent flex items-center justify-center border-[3px] border-foreground shrink-0">
-          <Barcode className="w-5 h-5 text-foreground" strokeWidth={2.5} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-bold text-foreground text-sm">Scan barcode</div>
-          <div className="text-xs text-muted-foreground">Packaged food nutrition</div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-foreground" />
-      </Link>
+
+
 
 
       {/* Macros */}

@@ -14,7 +14,7 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
 import FoodScan from "./pages/FoodScan";
-import BarcodeScan from "./pages/BarcodeScan";
+
 import Diary from "./pages/Diary";
 import Workouts from "./pages/Workouts";
 import Progress from "./pages/Progress";
@@ -69,7 +69,7 @@ const App = () => {
               <>
                 <Route path="/" element={<Shell><Home /></Shell>} />
                 <Route path="/scan" element={<Shell><FoodScan /></Shell>} />
-                <Route path="/barcode" element={<Shell><BarcodeScan /></Shell>} />
+                
                 <Route path="/diary" element={<Shell><Diary /></Shell>} />
                 <Route path="/workouts" element={<Shell><Workouts /></Shell>} />
                 <Route path="/progress" element={<Shell><Progress /></Shell>} />

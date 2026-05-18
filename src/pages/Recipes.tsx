@@ -570,7 +570,7 @@ function RecipeDialog({
                   </button>
                   <div className="min-w-[2ch] text-center text-base font-bold tabular-nums">{servings}</div>
                   <button
-                    onClick={() => setServings((s) => Math.min(20, s + 1))}
+                    onClick={() => setServings((s) => Math.min(100, s + 1))}
                     className="k-tap w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center"
                     aria-label="Flere personer"
                   >
