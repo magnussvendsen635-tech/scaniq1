@@ -14,7 +14,7 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
 import FoodScan from "./pages/FoodScan";
-import BarcodeScan from "./pages/BarcodeScan";
+
 import Diary from "./pages/Diary";
 import Workouts from "./pages/Workouts";
 import Progress from "./pages/Progress";
