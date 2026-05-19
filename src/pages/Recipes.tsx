@@ -39,8 +39,7 @@ const MEAL_CATEGORIES: MealCategory[] = [
   { id: "breakfast", label: "Morgenmad",  sub: "Start dagen rigtigt", icon: Sun,        hero: "photo-1490645935967-10de6ba17061" },
   { id: "lunch",     label: "Frokost",    sub: "Hurtigt & mættende",  icon: Sandwich,   hero: "photo-1551248429-40975aa4de74" },
   { id: "dinner",    label: "Aftensmad",  sub: "Premium retter",      icon: ChefHat,    hero: "photo-1467003909585-2f8a72700288" },
-  { id: "snack",     label: "Snacks",     sub: "Smart i farten",      icon: Cookie,     hero: "photo-1606312619070-d48b4c652a52" },
-  { id: "smoothie",  label: "Smoothies",  sub: "Bær & protein",       icon: GlassWater, hero: "photo-1502741224143-90386d7f8c7e" },
+  { id: "snack",     label: "Snacks",     sub: "Smoothies, bær & smart i farten", icon: Cookie, hero: "photo-1606312619070-d48b4c652a52" },
   { id: "dessert",   label: "Desserter",  sub: "Sundere søde sager",  icon: IceCream,   hero: "photo-1606313564200-e75d5e30476c" },
   { id: "drink",     label: "Drinks",     sub: "Mocktails & latte",   icon: CupSoda,    hero: "photo-1556679343-c7306c1976bc" },
 ];
@@ -51,13 +50,15 @@ const COUNTRIES: { id: string; name: string; flag: string; hero: string }[] = [
   { id: "Japan",    name: "Japan",    flag: "🇯🇵", hero: "photo-1579871494447-9811cf80d66c" },
   { id: "Mexico",   name: "Mexico",   flag: "🇲🇽", hero: "photo-1565299585323-38d6b0865b47" },
   { id: "Thailand", name: "Thailand", flag: "🇹🇭", hero: "photo-1559314809-0d155014e29e" },
-  { id: "Korea",    name: "Korea",    flag: "🇰🇷", hero: "photo-1583224994076-ae3e1c81c1e0" },
+  { id: "Korea",    name: "Korea",    flag: "🇰🇷", hero: "/recipes/category-korea.jpg" },
   { id: "USA",      name: "USA",      flag: "🇺🇸", hero: "photo-1568901346375-23c9450c58cd" },
   { id: "Greece",   name: "Grækenland", flag: "🇬🇷", hero: "photo-1540189549336-e6e99c3679fe" },
 ];
 
 const heroUrl = (id: string, w = 1200) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+  id.startsWith("/") || id.startsWith("http")
+    ? id
+    : `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 /* ================== ALPHABETICAL SORT (starts-with priority) ================== */
 
@@ -209,7 +210,11 @@ export default function Recipes() {
   if (view) {
     let baseList: Recipe[] =
       view.kind === "category"
-        ? RECIPES.filter((r) => r.category === view.cat.id)
+        ? RECIPES.filter((r) =>
+            view.cat.id === "snack"
+              ? r.category === "snack" || r.category === "smoothie"
+              : r.category === view.cat.id
+          )
         : RECIPES.filter((r) => r.cuisine === view.id);
     const title = view.kind === "category" ? view.cat.label : view.name;
     const sub = view.kind === "category" ? view.cat.sub : "Autentisk-inspirerede opskrifter";
