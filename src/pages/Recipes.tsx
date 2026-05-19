@@ -210,7 +210,11 @@ export default function Recipes() {
   if (view) {
     let baseList: Recipe[] =
       view.kind === "category"
-        ? RECIPES.filter((r) => r.category === view.cat.id)
+        ? RECIPES.filter((r) =>
+            view.cat.id === "snack"
+              ? r.category === "snack" || r.category === "smoothie"
+              : r.category === view.cat.id
+          )
         : RECIPES.filter((r) => r.cuisine === view.id);
     const title = view.kind === "category" ? view.cat.label : view.name;
     const sub = view.kind === "category" ? view.cat.sub : "Autentisk-inspirerede opskrifter";
