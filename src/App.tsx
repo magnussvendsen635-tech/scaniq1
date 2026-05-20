@@ -25,9 +25,12 @@ import Weight from "./pages/Weight";
 import Favorites from "./pages/Favorites";
 import Recipes from "./pages/Recipes";
 import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import DataPrivacy from "./pages/DataPrivacy";
 import Help from "./pages/Help";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound.tsx";
+import { CookieConsent } from "@/components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +61,7 @@ const App = () => {
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/onboarding" element={<Onboarding />} />
             {loading ? (
               <Route path="*" element={<div className="min-h-screen bg-background" />} />
@@ -80,11 +84,13 @@ const App = () => {
                 <Route path="/favorites" element={<Shell><Favorites /></Shell>} />
                 <Route path="/recipes" element={<Shell><Recipes /></Shell>} />
                 <Route path="/help" element={<Shell><Help /></Shell>} />
+                <Route path="/data-privacy" element={<Shell><DataPrivacy /></Shell>} />
                 <Route path="/admin" element={<Shell><Admin /></Shell>} />
                 <Route path="*" element={<NotFound />} />
               </>
             )}
           </Routes>
+          <CookieConsent />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
