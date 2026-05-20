@@ -130,9 +130,75 @@ export default function Premium() {
         {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Sparkles className="w-5 h-5 mr-2" />}
         {isActive ? t("premium.youre_premium") : t("premium.upgrade_now")}
       </Button>
+
+      {/* Subscription info & management */}
+      <div className="mt-5 k-card overflow-hidden">
+        <div className="px-5 pt-4 pb-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+          Abonnement
+        </div>
+        <div className="divide-y divide-border/60">
+          <InfoRow label="Månedlig pris" value="$19 / md" />
+          <InfoRow label="Årlig pris" value="$179 / år" />
+          <InfoRow
+            label="Auto-fornyelse"
+            value={
+              subscription
+                ? subscription.cancel_at_period_end
+                  ? "Slået fra"
+                  : "Slået til"
+            : "—"
+            }
+          />
+          {subscription?.current_period_end && (
+            <InfoRow
+              label={subscription.cancel_at_period_end ? "Adgang udløber" : "Fornyes"}
+              value={new Date(subscription.current_period_end).toLocaleDateString("da-DK")}
+            />
+          )}
+        </div>
+
+        <div className="p-3 grid grid-cols-1 gap-2">
+          <button
+            onClick={restore}
+            disabled={restoring}
+            className="k-tap w-full h-11 rounded-2xl bg-surface-2 border border-border/60 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {restoring ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+            Restore Purchase
+          </button>
+          <button
+            onClick={manageSubscription}
+            className="k-tap w-full h-11 rounded-2xl bg-surface-2 border border-border/60 text-sm font-semibold flex items-center justify-center gap-2"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Administrer abonnement
+          </button>
+        </div>
+
+        <div className="px-5 py-3 border-t border-border/60 flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed">
+          <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <p>
+            Restore Purchase gendanner et eksisterende abonnement, hvis du skifter telefon,
+            geninstallerer appen eller logger ind igen. Det giver hverken refusioner eller
+            gratis Premium. Ved opsigelse beholder du Premium frem til betalingsperiodens
+            udløb — derefter stoppes fornyelsen automatisk.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
+
+const InfoRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="px-5 py-3 flex items-center justify-between gap-4">
+    <span className="text-sm text-muted-foreground">{label}</span>
+    <span className="text-sm font-medium">{value}</span>
+  </div>
+);
 
 const PlanOption = ({
   active,
