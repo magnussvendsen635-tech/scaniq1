@@ -107,10 +107,24 @@ export default function Settings() {
 
         <Section title="About">
           <button
+            onClick={() => nav("/data-privacy")}
+            className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
+          >
+            <span className="text-sm">Data & privatliv</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <button
             onClick={() => nav("/privacy")}
             className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
           >
-            <span className="text-sm">Privacy Policy</span>
+            <span className="text-sm">Privatlivspolitik</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <button
+            onClick={() => nav("/terms")}
+            className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
+          >
+            <span className="text-sm">Servicevilkår</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
           <div className="px-5 py-3 flex items-center justify-between gap-4">

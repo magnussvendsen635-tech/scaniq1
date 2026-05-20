@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Crown, Check, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, Crown, Check, Sparkles, Loader2, RefreshCw, ExternalLink, Info } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -18,15 +18,43 @@ const featureKeys: TKey[] = [
   "premium.feat_priority",
 ];
 
-const RECIPES_FEATURE = "Adgang til 600+ premium opskrifter — pasta, bowls, smoothies, desserter & meget mere";
+
 
 export default function Premium() {
   const nav = useNavigate();
   const t = useT();
   const { user } = useAuth();
-  const { isActive } = useSubscription();
+  const { isActive, subscription, refetch } = useSubscription();
   const { openCheckout, loading } = usePaddleCheckout();
   const [plan, setPlan] = useState<"month" | "year">("year");
+  const [restoring, setRestoring] = useState(false);
+
+  const restore = async () => {
+    setRestoring(true);
+    try {
+      await refetch();
+      toast.success(
+        isActive ? "Dit abonnement er gendannet" : "Intet aktivt abonnement fundet på din konto"
+      );
+    } catch {
+      toast.error("Kunne ikke gendanne — prøv igen senere");
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const manageSubscription = () => {
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    if (isIOS) {
+      window.location.href = "https://apps.apple.com/account/subscriptions";
+    } else if (isAndroid) {
+      window.location.href = "https://play.google.com/store/account/subscriptions";
+    } else {
+      toast.info("Åbn App Store / Google Play på din telefon for at administrere abonnementet");
+    }
+  };
 
   const upgrade = async () => {
     if (!user) {
@@ -64,12 +92,6 @@ export default function Premium() {
       </div>
 
       <div className="space-y-2 mb-5">
-        <div className="k-card p-4 flex items-center gap-3 ring-2 ring-primary/40 bg-gradient-soft">
-          <div className="w-7 h-7 rounded-full bg-gradient-primary flex items-center justify-center">
-            <Check className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="text-sm font-semibold">{RECIPES_FEATURE}</span>
-        </div>
         {featureKeys.map((k) => (
           <div key={k} className="k-card p-4 flex items-center gap-3">
             <div className="w-7 h-7 rounded-full bg-gradient-soft flex items-center justify-center">
@@ -108,9 +130,75 @@ export default function Premium() {
         {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Sparkles className="w-5 h-5 mr-2" />}
         {isActive ? t("premium.youre_premium") : t("premium.upgrade_now")}
       </Button>
+
+      {/* Subscription info & management */}
+      <div className="mt-5 k-card overflow-hidden">
+        <div className="px-5 pt-4 pb-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+          Abonnement
+        </div>
+        <div className="divide-y divide-border/60">
+          <InfoRow label="Månedlig pris" value="$19 / md" />
+          <InfoRow label="Årlig pris" value="$179 / år" />
+          <InfoRow
+            label="Auto-fornyelse"
+            value={
+              subscription
+                ? subscription.cancel_at_period_end
+                  ? "Slået fra"
+                  : "Slået til"
+            : "—"
+            }
+          />
+          {subscription?.current_period_end && (
+            <InfoRow
+              label={subscription.cancel_at_period_end ? "Adgang udløber" : "Fornyes"}
+              value={new Date(subscription.current_period_end).toLocaleDateString("da-DK")}
+            />
+          )}
+        </div>
+
+        <div className="p-3 grid grid-cols-1 gap-2">
+          <button
+            onClick={restore}
+            disabled={restoring}
+            className="k-tap w-full h-11 rounded-2xl bg-surface-2 border border-border/60 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {restoring ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+            Restore Purchase
+          </button>
+          <button
+            onClick={manageSubscription}
+            className="k-tap w-full h-11 rounded-2xl bg-surface-2 border border-border/60 text-sm font-semibold flex items-center justify-center gap-2"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Administrer abonnement
+          </button>
+        </div>
+
+        <div className="px-5 py-3 border-t border-border/60 flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed">
+          <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <p>
+            Restore Purchase gendanner et eksisterende abonnement, hvis du skifter telefon,
+            geninstallerer appen eller logger ind igen. Det giver hverken refusioner eller
+            gratis Premium. Ved opsigelse beholder du Premium frem til betalingsperiodens
+            udløb — derefter stoppes fornyelsen automatisk.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
+
+const InfoRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="px-5 py-3 flex items-center justify-between gap-4">
+    <span className="text-sm text-muted-foreground">{label}</span>
+    <span className="text-sm font-medium">{value}</span>
+  </div>
+);
 
 const PlanOption = ({
   active,
