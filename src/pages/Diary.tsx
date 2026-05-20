@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { useKStore, type MealCategory } from "@/store/useKStore";
-import { Camera, Heart, Sun, UtensilsCrossed, Moon, Cookie, Plus, Star, Trash2, ChevronLeft, ChevronRight, Sparkles, ChefHat, Lock } from "lucide-react";
+import { Camera, Heart, Sun, UtensilsCrossed, Moon, Cookie, Plus, Star, Trash2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -112,32 +112,6 @@ export default function Diary() {
         </Link>
       </div>
 
-      {/* Recipes shortcut — premium-locked library */}
-      <Link
-        to="/recipes"
-        className="k-tap relative block mb-4 rounded-3xl overflow-hidden border-[3px] border-foreground shadow-[0_10px_28px_-10px_hsl(var(--foreground)/0.45)] active:scale-[0.98] transition-transform"
-      >
-        <img
-          src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80"
-          alt=""
-          loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/55 to-foreground/20" />
-        <div className="relative p-5 flex items-center gap-4 text-background">
-          <div className="w-14 h-14 rounded-2xl bg-accent text-accent-foreground flex items-center justify-center border-[3px] border-background shrink-0">
-            <ChefHat className="w-7 h-7" strokeWidth={2.5} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[10px] uppercase tracking-widest font-bold opacity-90 inline-flex items-center gap-1.5">
-              <Lock className="w-3 h-3" /> 600+ Premium opskrifter
-            </div>
-            <div className="font-bold text-lg leading-tight mt-0.5">Find dagens måltid</div>
-            <div className="text-xs opacity-90 mt-0.5">Pasta, bowls, smoothies, desserter & meget mere</div>
-          </div>
-          <ChevronRight className="w-5 h-5" />
-        </div>
-      </Link>
 
       {/* Week date picker */}
       <div className="k-card p-3 mb-4">
