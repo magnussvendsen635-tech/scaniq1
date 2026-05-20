@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Crown, Check, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, Crown, Check, Sparkles, Loader2, RefreshCw, ExternalLink, Info } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -18,15 +18,43 @@ const featureKeys: TKey[] = [
   "premium.feat_priority",
 ];
 
-const RECIPES_FEATURE = "Adgang til 600+ premium opskrifter — pasta, bowls, smoothies, desserter & meget mere";
+
 
 export default function Premium() {
   const nav = useNavigate();
   const t = useT();
   const { user } = useAuth();
-  const { isActive } = useSubscription();
+  const { isActive, subscription, refetch } = useSubscription();
   const { openCheckout, loading } = usePaddleCheckout();
   const [plan, setPlan] = useState<"month" | "year">("year");
+  const [restoring, setRestoring] = useState(false);
+
+  const restore = async () => {
+    setRestoring(true);
+    try {
+      await refetch();
+      toast.success(
+        isActive ? "Dit abonnement er gendannet" : "Intet aktivt abonnement fundet på din konto"
+      );
+    } catch {
+      toast.error("Kunne ikke gendanne — prøv igen senere");
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const manageSubscription = () => {
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    if (isIOS) {
+      window.location.href = "https://apps.apple.com/account/subscriptions";
+    } else if (isAndroid) {
+      window.location.href = "https://play.google.com/store/account/subscriptions";
+    } else {
+      toast.info("Åbn App Store / Google Play på din telefon for at administrere abonnementet");
+    }
+  };
 
   const upgrade = async () => {
     if (!user) {
@@ -64,12 +92,6 @@ export default function Premium() {
       </div>
 
       <div className="space-y-2 mb-5">
-        <div className="k-card p-4 flex items-center gap-3 ring-2 ring-primary/40 bg-gradient-soft">
-          <div className="w-7 h-7 rounded-full bg-gradient-primary flex items-center justify-center">
-            <Check className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="text-sm font-semibold">{RECIPES_FEATURE}</span>
-        </div>
         {featureKeys.map((k) => (
           <div key={k} className="k-card p-4 flex items-center gap-3">
             <div className="w-7 h-7 rounded-full bg-gradient-soft flex items-center justify-center">
