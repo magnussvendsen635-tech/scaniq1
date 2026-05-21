@@ -133,6 +133,20 @@ export default function Profile() {
         <Row Icon={Scale} title="Weight tracker" sub="Log weight & see your trend" onClick={() => nav("/weight")} />
         <Row Icon={Star} title="Favorites & recent" sub="Quick-add saved meals" onClick={() => nav("/favorites")} />
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
+        <Row
+          Icon={RefreshCw}
+          title={restoring ? "Gendanner…" : "Restore Purchase"}
+          sub="Gendan et eksisterende abonnement"
+          onClick={restorePurchase}
+        />
+        <Row
+          Icon={ExternalLink}
+          title="Manage Subscription"
+          sub="Administrer i App Store / Google Play"
+          onClick={manageSubscription}
+        />
+        <Row Icon={Shield} title="Privacy Policy" sub="Sådan bruger vi dine data" onClick={() => nav("/privacy")} />
+        <Row Icon={FileText} title="Terms of Service" sub="Vilkår og betingelser" onClick={() => nav("/terms")} />
         <Row Icon={LifeBuoy} title="Hjælp & support" sub="Kontakt, FAQ, om os, slet konto" onClick={() => nav("/help")} />
         {isAdmin && <Row Icon={Database} title="Admin panel" sub="Brugere, måltider & data" onClick={() => nav("/admin")} />}
         <AlertDialog>
