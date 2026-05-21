@@ -1,5 +1,7 @@
-// Languages we have full translations for. Add more here only after adding
-// a complete dictionary entry in src/i18n/translations.ts.
+// Languages list. Full UI translations exist for the first ~26 languages.
+// Additional languages are available for selection and the app language/dir
+// attribute is set correctly, but the UI falls back to English until a
+// translation dictionary is added in src/i18n/translations.ts.
 export interface Language {
   code: string;
   name: string; // English name
@@ -10,6 +12,7 @@ export interface Language {
 // Ordered by approximate number of native + secondary speakers worldwide
 // (most popular first, least popular last).
 export const LANGUAGES: Language[] = [
+  // Fully translated
   { code: "en", name: "English", native: "English", flag: "🇬🇧" },
   { code: "zh", name: "Mandarin Chinese", native: "中文", flag: "🇨🇳" },
   { code: "hi", name: "Hindi", native: "हिन्दी", flag: "🇮🇳" },
@@ -36,4 +39,87 @@ export const LANGUAGES: Language[] = [
   { code: "vi", name: "Vietnamese", native: "Tiếng Việt", flag: "🇻🇳" },
   { code: "th", name: "Thai", native: "ไทย", flag: "🇹🇭" },
   { code: "ms", name: "Malay", native: "Bahasa Melayu", flag: "🇲🇾" },
+
+  // Extended world languages (English fallback until translations added)
+  { code: "fil", name: "Filipino", native: "Filipino", flag: "🇵🇭" },
+  { code: "sw", name: "Swahili", native: "Kiswahili", flag: "🇰🇪" },
+  { code: "ha", name: "Hausa", native: "Hausa", flag: "🇳🇬" },
+  { code: "yo", name: "Yoruba", native: "Yorùbá", flag: "🇳🇬" },
+  { code: "ig", name: "Igbo", native: "Igbo", flag: "🇳🇬" },
+  { code: "am", name: "Amharic", native: "አማርኛ", flag: "🇪🇹" },
+  { code: "zu", name: "Zulu", native: "isiZulu", flag: "🇿🇦" },
+  { code: "xh", name: "Xhosa", native: "isiXhosa", flag: "🇿🇦" },
+  { code: "af", name: "Afrikaans", native: "Afrikaans", flag: "🇿🇦" },
+  { code: "so", name: "Somali", native: "Soomaali", flag: "🇸🇴" },
+  { code: "rw", name: "Kinyarwanda", native: "Kinyarwanda", flag: "🇷🇼" },
+  { code: "mg", name: "Malagasy", native: "Malagasy", flag: "🇲🇬" },
+  { code: "sn", name: "Shona", native: "chiShona", flag: "🇿🇼" },
+  { code: "ny", name: "Chichewa", native: "Chichewa", flag: "🇲🇼" },
+
+  { code: "fa", name: "Persian", native: "فارسی", flag: "🇮🇷" },
+  { code: "he", name: "Hebrew", native: "עברית", flag: "🇮🇱" },
+  { code: "ps", name: "Pashto", native: "پښتو", flag: "🇦🇫" },
+  { code: "ku", name: "Kurdish", native: "Kurdî", flag: "🏳️" },
+  { code: "az", name: "Azerbaijani", native: "Azərbaycan", flag: "🇦🇿" },
+  { code: "kk", name: "Kazakh", native: "Қазақша", flag: "🇰🇿" },
+  { code: "uz", name: "Uzbek", native: "Oʻzbek", flag: "🇺🇿" },
+  { code: "ky", name: "Kyrgyz", native: "Кыргызча", flag: "🇰🇬" },
+  { code: "tg", name: "Tajik", native: "Тоҷикӣ", flag: "🇹🇯" },
+  { code: "tk", name: "Turkmen", native: "Türkmençe", flag: "🇹🇲" },
+  { code: "mn", name: "Mongolian", native: "Монгол", flag: "🇲🇳" },
+  { code: "hy", name: "Armenian", native: "Հայերեն", flag: "🇦🇲" },
+  { code: "ka", name: "Georgian", native: "ქართული", flag: "🇬🇪" },
+
+  { code: "ta", name: "Tamil", native: "தமிழ்", flag: "🇮🇳" },
+  { code: "te", name: "Telugu", native: "తెలుగు", flag: "🇮🇳" },
+  { code: "mr", name: "Marathi", native: "मराठी", flag: "🇮🇳" },
+  { code: "gu", name: "Gujarati", native: "ગુજરાતી", flag: "🇮🇳" },
+  { code: "kn", name: "Kannada", native: "ಕನ್ನಡ", flag: "🇮🇳" },
+  { code: "ml", name: "Malayalam", native: "മലയാളം", flag: "🇮🇳" },
+  { code: "pa", name: "Punjabi", native: "ਪੰਜਾਬੀ", flag: "🇮🇳" },
+  { code: "or", name: "Odia", native: "ଓଡ଼ିଆ", flag: "🇮🇳" },
+  { code: "as", name: "Assamese", native: "অসমীয়া", flag: "🇮🇳" },
+  { code: "ne", name: "Nepali", native: "नेपाली", flag: "🇳🇵" },
+  { code: "si", name: "Sinhala", native: "සිංහල", flag: "🇱🇰" },
+  { code: "my", name: "Burmese", native: "မြန်မာ", flag: "🇲🇲" },
+  { code: "km", name: "Khmer", native: "ភាសាខ្មែរ", flag: "🇰🇭" },
+  { code: "lo", name: "Lao", native: "ລາວ", flag: "🇱🇦" },
+
+  { code: "uk", name: "Ukrainian", native: "Українська", flag: "🇺🇦" },
+  { code: "be", name: "Belarusian", native: "Беларуская", flag: "🇧🇾" },
+  { code: "ro", name: "Romanian", native: "Română", flag: "🇷🇴" },
+  { code: "hu", name: "Hungarian", native: "Magyar", flag: "🇭🇺" },
+  { code: "cs", name: "Czech", native: "Čeština", flag: "🇨🇿" },
+  { code: "sk", name: "Slovak", native: "Slovenčina", flag: "🇸🇰" },
+  { code: "sl", name: "Slovenian", native: "Slovenščina", flag: "🇸🇮" },
+  { code: "hr", name: "Croatian", native: "Hrvatski", flag: "🇭🇷" },
+  { code: "sr", name: "Serbian", native: "Српски", flag: "🇷🇸" },
+  { code: "bs", name: "Bosnian", native: "Bosanski", flag: "🇧🇦" },
+  { code: "mk", name: "Macedonian", native: "Македонски", flag: "🇲🇰" },
+  { code: "sq", name: "Albanian", native: "Shqip", flag: "🇦🇱" },
+  { code: "bg", name: "Bulgarian", native: "Български", flag: "🇧🇬" },
+  { code: "el", name: "Greek", native: "Ελληνικά", flag: "🇬🇷" },
+  { code: "lt", name: "Lithuanian", native: "Lietuvių", flag: "🇱🇹" },
+  { code: "lv", name: "Latvian", native: "Latviešu", flag: "🇱🇻" },
+  { code: "et", name: "Estonian", native: "Eesti", flag: "🇪🇪" },
+  { code: "mt", name: "Maltese", native: "Malti", flag: "🇲🇹" },
+  { code: "ga", name: "Irish", native: "Gaeilge", flag: "🇮🇪" },
+  { code: "cy", name: "Welsh", native: "Cymraeg", flag: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
+  { code: "gd", name: "Scottish Gaelic", native: "Gàidhlig", flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿" },
+  { code: "eu", name: "Basque", native: "Euskara", flag: "🏳️" },
+  { code: "ca", name: "Catalan", native: "Català", flag: "🏳️" },
+  { code: "gl", name: "Galician", native: "Galego", flag: "🏳️" },
+  { code: "lb", name: "Luxembourgish", native: "Lëtzebuergesch", flag: "🇱🇺" },
+  { code: "fo", name: "Faroese", native: "Føroyskt", flag: "🇫🇴" },
+
+  { code: "yue", name: "Cantonese", native: "粵語", flag: "🇭🇰" },
+  { code: "ht", name: "Haitian Creole", native: "Kreyòl Ayisyen", flag: "🇭🇹" },
+  { code: "qu", name: "Quechua", native: "Runa Simi", flag: "🇵🇪" },
+  { code: "gn", name: "Guarani", native: "Avañeʼẽ", flag: "🇵🇾" },
+  { code: "sm", name: "Samoan", native: "Gagana Sāmoa", flag: "🇼🇸" },
+  { code: "to", name: "Tongan", native: "Lea faka-Tonga", flag: "🇹🇴" },
+  { code: "mi", name: "Maori", native: "Te Reo Māori", flag: "🇳🇿" },
+  { code: "haw", name: "Hawaiian", native: "ʻŌlelo Hawaiʻi", flag: "🇺🇸" },
+  { code: "fj", name: "Fijian", native: "Vosa Vakaviti", flag: "🇫🇯" },
+  { code: "eo", name: "Esperanto", native: "Esperanto", flag: "🌍" },
 ];

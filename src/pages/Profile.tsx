@@ -1,13 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import profileAvatar from "@/assets/profile-avatar.png";
-import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy } from "lucide-react";
+import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,11 +28,34 @@ export default function Profile() {
   const t = useT();
   const { signOut, user: authUser } = useAuth();
   const { user, streak, premium, avatar, setAvatar } = useKStore();
+  const { isActive, refetch } = useSubscription();
+  const [restoring, setRestoring] = useState(false);
   const ADMIN_EMAILS = ["magnussvendsen635@gmail.com"];
   const isAdmin =
     (authUser?.email && ADMIN_EMAILS.includes(authUser.email)) ||
     (typeof window !== "undefined" && window.localStorage.getItem("scaniq_admin") === "1");
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const restorePurchase = async () => {
+    setRestoring(true);
+    try {
+      await refetch();
+      toast.success(isActive ? "Dit abonnement er gendannet" : "Intet aktivt abonnement fundet");
+    } catch {
+      toast.error("Kunne ikke gendanne — prøv igen senere");
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const manageSubscription = () => {
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    if (isIOS) window.location.href = "https://apps.apple.com/account/subscriptions";
+    else if (isAndroid) window.location.href = "https://play.google.com/store/account/subscriptions";
+    else toast.info("Åbn App Store / Google Play på din telefon for at administrere abonnementet");
+  };
 
   const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,6 +133,20 @@ export default function Profile() {
         <Row Icon={Scale} title="Weight tracker" sub="Log weight & see your trend" onClick={() => nav("/weight")} />
         <Row Icon={Star} title="Favorites & recent" sub="Quick-add saved meals" onClick={() => nav("/favorites")} />
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
+        <Row
+          Icon={RefreshCw}
+          title={restoring ? "Gendanner…" : "Restore Purchase"}
+          sub="Gendan et eksisterende abonnement"
+          onClick={restorePurchase}
+        />
+        <Row
+          Icon={ExternalLink}
+          title="Manage Subscription"
+          sub="Administrer i App Store / Google Play"
+          onClick={manageSubscription}
+        />
+        <Row Icon={Shield} title="Privacy Policy" sub="Sådan bruger vi dine data" onClick={() => nav("/privacy")} />
+        <Row Icon={FileText} title="Terms of Service" sub="Vilkår og betingelser" onClick={() => nav("/terms")} />
         <Row Icon={LifeBuoy} title="Hjælp & support" sub="Kontakt, FAQ, om os, slet konto" onClick={() => nav("/help")} />
         {isAdmin && <Row Icon={Database} title="Admin panel" sub="Brugere, måltider & data" onClick={() => nav("/admin")} />}
         <AlertDialog>
