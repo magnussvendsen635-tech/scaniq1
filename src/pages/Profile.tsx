@@ -28,11 +28,34 @@ export default function Profile() {
   const t = useT();
   const { signOut, user: authUser } = useAuth();
   const { user, streak, premium, avatar, setAvatar } = useKStore();
+  const { isActive, refetch } = useSubscription();
+  const [restoring, setRestoring] = useState(false);
   const ADMIN_EMAILS = ["magnussvendsen635@gmail.com"];
   const isAdmin =
     (authUser?.email && ADMIN_EMAILS.includes(authUser.email)) ||
     (typeof window !== "undefined" && window.localStorage.getItem("scaniq_admin") === "1");
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const restorePurchase = async () => {
+    setRestoring(true);
+    try {
+      await refetch();
+      toast.success(isActive ? "Dit abonnement er gendannet" : "Intet aktivt abonnement fundet");
+    } catch {
+      toast.error("Kunne ikke gendanne — prøv igen senere");
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const manageSubscription = () => {
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    if (isIOS) window.location.href = "https://apps.apple.com/account/subscriptions";
+    else if (isAndroid) window.location.href = "https://play.google.com/store/account/subscriptions";
+    else toast.info("Åbn App Store / Google Play på din telefon for at administrere abonnementet");
+  };
 
   const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
