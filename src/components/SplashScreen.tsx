@@ -44,11 +44,9 @@ export function SplashScreen() {
         </div>
 
         <h1 className="mt-6 text-2xl font-semibold tracking-[0.18em] k-gradient-text">
-          Scaniq Pro
+          Scaniq
         </h1>
-        <p className="mt-2 text-xs text-muted-foreground tracking-wide">
-          Smart nutrition powered by AI
-        </p>
+
 
         {/* Spinner */}
         <div className="mt-8 w-7 h-7 rounded-full border-2 border-white/10 border-t-[#F59E5B] animate-spin" />
