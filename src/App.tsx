@@ -31,11 +31,14 @@ import Help from "./pages/Help";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound.tsx";
 import { CookieConsent } from "@/components/CookieConsent";
+import { UpgradeFab } from "@/components/UpgradeFab";
+import { SplashScreen } from "@/components/SplashScreen";
 
 const queryClient = new QueryClient();
 
 const Shell = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-background">
+    <UpgradeFab />
     {children}
     <TabBar />
   </div>
@@ -92,6 +95,7 @@ const App = () => {
           </Routes>
           <CookieConsent />
         </BrowserRouter>
+        <SplashScreen />
       </TooltipProvider>
     </QueryClientProvider>
   );
