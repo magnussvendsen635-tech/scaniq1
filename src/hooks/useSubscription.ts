@@ -39,10 +39,10 @@ export function useSubscription() {
   useEffect(() => {
     fetchSub();
     if (!user) return;
-    const channel = supabase
-      .channel(`sub-${user.id}`)
+    const channel = supabase.channel(`sub-${user.id}`);
+    channel
       .on(
-        "postgres_changes",
+        "postgres_changes" as any,
         { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${user.id}` },
         () => fetchSub()
       )
