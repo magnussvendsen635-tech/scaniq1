@@ -12,7 +12,7 @@ export const Logo = ({ size = 40, withText = false }: { size?: number; withText?
       style={{ width: size, height: size }}
     />
     {withText && (
-      <span className="text-xl font-semibold tracking-[0.18em] k-gradient-text">Scaniq Pro</span>
+      <span className="text-xl font-semibold tracking-[0.18em] k-gradient-text">ScanIQ</span>
     )}
   </div>
 );
