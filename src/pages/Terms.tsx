@@ -18,7 +18,7 @@ export default function Terms() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 20. maj 2026 · Udvikler: Prime Studio · Kontakt: support.kcally@gmail.com
+          Sidst opdateret: 20. maj 2026 · Udvikler: By Kinetix Intelligence · Kontakt: support.kcally@gmail.com
         </p>
 
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
@@ -72,7 +72,7 @@ export default function Terms() {
 
         <Section title="6. Ansvarsbegrænsning">
           <p>
-            I det omfang loven tillader det, er Prime Studios samlede ansvar begrænset til det
+            I det omfang loven tillader det, er By Kinetix Intelligence samlede ansvar begrænset til det
             beløb du har betalt for Premium de seneste 12 måneder. Vi er ikke ansvarlige for
             indirekte tab eller helbredsmæssige konsekvenser af din brug af appen.
           </p>
@@ -98,7 +98,7 @@ export default function Terms() {
 
         <Section title="10. Kontakt">
           <p>
-            Prime Studio ·{" "}
+            By Kinetix Intelligence ·{" "}
             <a className="text-primary-glow underline" href="mailto:support.kcally@gmail.com">
               support.kcally@gmail.com
             </a>
