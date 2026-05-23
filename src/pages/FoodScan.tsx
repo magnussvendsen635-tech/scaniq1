@@ -48,39 +48,46 @@ type Portion = "small" | "medium" | "large";
 type Step = "portion" | "capture" | "result";
 
 // NOVA-style processing classification (1 = whole food, 4 = ultra-processed).
-// Heuristic based on name keywords + nutrition profile.
+// Conservative heuristic: only clearly industrial products land in NOVA 4.
+// Whole/raw foods (fruit, vegetables, eggs, meat, fish) almost always stay at NOVA 1.
 function estimateNova(r: Result): 1 | 2 | 3 | 4 {
   const name = (r.name || "").toLowerCase();
   const items = (r.items || []).map((i) => i.name.toLowerCase()).join(" ");
-  const text = `${name} ${items}`;
+  const text = ` ${name} ${items} `;
 
-  const ultra = /(chips|cola|sodavand|energidrik|nugget|pizza|burger|hotdog|pølse|bacon|salami|donut|cookie|kiks|chokoladebar|slik|candy|gummi|cereal|cornflakes|frosties|fastfood|nudler|noodles|instant|microwave|færdigret|pommes|frites|nuggets|kebab|shawarma|ramen|mcdonald|burger king|kfc|domino|pringles|doritos|nutella|sirup|softice|milkshake)/i;
-  const processed = /(brød|cheese|ost|skinke|tun i dåse|dåse|bacon|røget|saltet|marmelade|smør|olie|pasta|sukker|honning|saft|juice|wrap|tortilla|pita|bolle)/i;
-  const minimal = /(mælk|yoghurt|skyr|hytteost|ris|havre|gryn|mel|kartoffel|bønner|linser|nødder|frø|tørret)/i;
-  const whole = /(æg|kylling|kød|oksekød|laks|fisk|tun|rejer|tofu|broccoli|spinat|salat|tomat|agurk|gulerod|peberfrugt|squash|asparges|avocado|æble|banan|bær|appelsin|frugt|grøntsag|svamp)/i;
+  // Clearly industrial / ultra-processed products only.
+  const ultra = /\b(chips|crisps|cola|sodavand|soda|energidrik|energy drink|slik|candy|gummi|haribo|cornflakes|frosties|instant noodle|instant nudler|færdigret|ready meal|frozen meal|pringles|doritos|nutella|softice|milkshake|protein bar|chokoladebar|mars|snickers|twix|kitkat|oreo|donut|donuts|mcdonald|burger king|kfc|domino)\b/i;
+
+  // Homemade/whole single ingredients — keep at NOVA 1.
+  const whole = /\b(æble|banan|pære|appelsin|citron|bær|jordbær|blåbær|hindbær|drue|kiwi|melon|mango|ananas|avocado|tomat|agurk|gulerod|peberfrugt|squash|asparges|broccoli|spinat|salat|kål|løg|hvidløg|svamp|kartoffel|ris|havregryn|quinoa|bønner|linser|kikærter|æg|kylling|kalkun|oksekød|svinekød|laks|torsk|rejer|tofu|nødder|mandler|valnødder|frø|fruit|vegetable|apple|banana|egg|chicken|beef|salmon|rice|oats)\b/i;
+
+  // Group 2 — minimally processed (oils, flour, butter, plain dairy, bread, pasta, cheese).
+  const minimal = /\b(mælk|yoghurt|skyr|hytteost|ost|cheese|smør|olie|mel|flour|pasta|brød|bread|rugbrød|honning|honey|sukker|salt)\b/i;
+
+  // Group 3 — homemade or simple processed dishes with several ingredients.
+  const processed = /\b(pizza|burger|sandwich|wrap|tortilla|pita|bolle|frikadelle|lasagne|gryderet|stew|suppe|soup|risotto|omelet|pandekage|wok|pålæg|skinke|bacon|pølse|marmelade|saft|juice)\b/i;
 
   if (ultra.test(text)) return 4;
+  if (whole.test(text)) return 1;
 
+  // Use nutrition signals only as a tiebreaker — never to push whole foods upward.
   let score = 0;
-  if ((r.sugar ?? 0) > 18) score += 2;
-  else if ((r.sugar ?? 0) > 10) score += 1;
-  if ((r.sodium ?? 0) > 600) score += 2;
-  else if ((r.sodium ?? 0) > 350) score += 1;
-  if ((r.saturatedFat ?? 0) > 10) score += 1;
-  if ((r.healthScore ?? 10) <= 4) score += 2;
-  else if ((r.healthScore ?? 10) <= 6) score += 1;
+  if ((r.sugar ?? 0) > 25) score += 2;
+  else if ((r.sugar ?? 0) > 15) score += 1;
+  if ((r.sodium ?? 0) > 800) score += 2;
+  else if ((r.sodium ?? 0) > 500) score += 1;
+  if ((r.saturatedFat ?? 0) > 12) score += 1;
 
   if (score >= 4) return 4;
-  if (score >= 2 || processed.test(text)) return 3;
+  if (processed.test(text) || score >= 2) return 3;
   if (minimal.test(text) || score === 1) return 2;
-  if (whole.test(text)) return 1;
   return 2;
 }
 
 const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: string; icon: string; bar: string; badge: string; border: string }> = {
   1: {
-    title: "Uforarbejdet mad",
-    desc: "Hele, naturlige råvarer. Den sundeste kategori — spis frit.",
+    title: "Hele råvarer",
+    desc: "Naturlige, uforarbejdede ingredienser. Et godt grundlag i din kost.",
     emoji: "🥦",
     icon: "bg-emerald-500/15 text-emerald-600",
     bar: "bg-emerald-500",
@@ -89,7 +96,7 @@ const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: str
   },
   2: {
     title: "Let bearbejdet",
-    desc: "Råvarer + simple ingredienser som olie, salt eller mel. Helt fint i en sund kost.",
+    desc: "Hele råvarer kombineret med enkle ting som olie, mel eller salt. Helt fint i en balanceret kost.",
     emoji: "🌾",
     icon: "bg-lime-500/15 text-lime-700",
     bar: "bg-lime-500",
@@ -98,7 +105,7 @@ const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: str
   },
   3: {
     title: "Forarbejdet",
-    desc: "Industrielt tilberedt med tilsat sukker, salt eller fedt. Spis i moderate mængder.",
+    desc: "Mere bearbejdet end hele råvarer, men helt fint i moderate mængder.",
     emoji: "🥫",
     icon: "bg-amber-500/15 text-amber-700",
     bar: "bg-amber-500",
@@ -106,13 +113,13 @@ const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: str
     border: "border-amber-500/30",
   },
   4: {
-    title: "Ultra-processeret",
-    desc: "Industriel formel med mange tilsætningsstoffer. Begræns hvis muligt.",
-    emoji: "⚠️",
-    icon: "bg-red-500/15 text-red-600",
-    bar: "bg-red-500",
-    badge: "bg-red-500/15 text-red-700",
-    border: "border-red-500/40",
+    title: "Ultra-forarbejdet",
+    desc: "Industrielt fremstillet med tilsætningsstoffer. Nydes bedst en gang imellem som en del af en varieret kost.",
+    emoji: "🏭",
+    icon: "bg-orange-500/15 text-orange-700",
+    bar: "bg-orange-500",
+    badge: "bg-orange-500/15 text-orange-700",
+    border: "border-orange-500/40",
   },
 };
 
@@ -129,7 +136,7 @@ export default function FoodScan() {
   const [portion, setPortion] = useState<Portion>("medium");
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
-  const [foodSource, setFoodSource] = useState<"homemade" | "store" | "restaurant">("homemade");
+  
   const [scansUsed, setScansUsed] = useState<number>(0);
   const [dailyUsed, setDailyUsed] = useState<number>(0);
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
@@ -535,31 +542,8 @@ export default function FoodScan() {
           {step === "portion" && !result && (
             <div className="animate-fade-in">
               <div className="k-card p-5 mb-5">
-                <h2 className="text-lg font-semibold mb-1">How big is your portion?</h2>
-                <p className="text-sm text-muted-foreground mb-4">This helps the AI estimate calories more accurately.</p>
-                <div className="grid grid-cols-3 gap-3">
-                  {(["small", "medium", "large"] as Portion[]).map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setPortion(p)}
-                      className={`k-tap rounded-2xl p-4 border-2 transition-all ${
-                        portion === p
-                          ? "border-primary bg-primary/10 shadow-glow"
-                          : "border-border bg-card"
-                      }`}
-                    >
-                      <div className="text-3xl mb-1">
-                        {p === "small" ? "🥄" : p === "medium" ? "🍽️" : "🍱"}
-                      </div>
-                      <div className="text-sm font-semibold capitalize">{p}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="k-card p-5 mb-5">
                 <h2 className="text-lg font-semibold mb-1">Meal type</h2>
-                <p className="text-sm text-muted-foreground mb-4">Categorize this meal in your diary.</p>
+                <p className="text-sm text-muted-foreground mb-4">Categorize this meal in your diary. The AI estimates portion size automatically from your photos.</p>
                 <div className="grid grid-cols-4 gap-2">
                   {([
                     ["breakfast", Sun, "Breakfast"],
@@ -581,30 +565,6 @@ export default function FoodScan() {
                 </div>
               </div>
 
-              <div className="k-card p-5 mb-5">
-                <h2 className="text-lg font-semibold mb-1">Food source</h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  This helps AI detect ultra-processed foods and improve calorie accuracy.
-                </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {([
-                    ["homemade",  "🏠", "Homemade"],
-                    ["store",     "🛒", "Store-bought"],
-                    ["restaurant","🍴", "Restaurant"],
-                  ] as const).map(([s, emoji, label]) => (
-                    <button
-                      key={s}
-                      onClick={() => setFoodSource(s)}
-                      className={`k-tap rounded-2xl p-3 border-2 transition-all flex flex-col items-center gap-1 ${
-                        foodSource === s ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-card"
-                      }`}
-                    >
-                      <span className="text-2xl">{emoji}</span>
-                      <span className="text-[11px] font-semibold">{label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               <input
                 ref={fileRef}
@@ -770,7 +730,7 @@ export default function FoodScan() {
                 </p>
                 {typeof result.confidence === "number" && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    AI confidence: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span> · Portion: <span className="capitalize text-foreground font-medium">{portion}</span>
+                    {result.confidence >= 0.75 ? "AI confidence" : "Estimated"}: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span>
                   </p>
                 )}
               </div>
