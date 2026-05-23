@@ -136,7 +136,7 @@ export default function FoodScan() {
   const [portion, setPortion] = useState<Portion>("medium");
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
-  const [foodSource, setFoodSource] = useState<"homemade" | "store" | "restaurant">("homemade");
+  
   const [scansUsed, setScansUsed] = useState<number>(0);
   const [dailyUsed, setDailyUsed] = useState<number>(0);
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
