@@ -7,17 +7,20 @@ import logo from "@/assets/scaniq-leaf-logo.png";
  * the user's background preference.
  */
 export function SplashScreen() {
-  const [visible, setVisible] = useState(true);
+  const alreadyShown = typeof sessionStorage !== "undefined" && sessionStorage.getItem("scaniq.splashShown") === "1";
+  const [visible, setVisible] = useState(!alreadyShown);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    if (alreadyShown) return;
+    try { sessionStorage.setItem("scaniq.splashShown", "1"); } catch {}
     const fadeT = setTimeout(() => setFading(true), 1500);
     const hideT = setTimeout(() => setVisible(false), 2000);
     return () => {
       clearTimeout(fadeT);
       clearTimeout(hideT);
     };
-  }, []);
+  }, [alreadyShown]);
 
   if (!visible) return null;
 
