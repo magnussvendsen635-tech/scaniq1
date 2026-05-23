@@ -129,7 +129,7 @@ export default function Settings() {
           </button>
           <div className="px-5 py-3 flex items-center justify-between gap-4">
             <span className="text-sm">Developer</span>
-            <span className="text-sm text-muted-foreground">Prime Studio</span>
+            <span className="text-sm text-muted-foreground">By Kinetix Intelligence</span>
           </div>
         </Section>
       </div>

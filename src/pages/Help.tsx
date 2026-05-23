@@ -166,9 +166,9 @@ export default function Help() {
         <div className="px-4 py-4 space-y-2">
           <div className="font-medium">Scaniq</div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Scaniq er en kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. Bygget af Prime Studio for at hjælpe dig med at nå dine helbredsmål.
+            Scaniq er en kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. Bygget af By Kinetix Intelligence for at hjælpe dig med at nå dine helbredsmål.
           </p>
-          <div className="text-xs text-muted-foreground">Version 1.0.0 • © 2026 Prime Studio</div>
+          <div className="text-xs text-muted-foreground">Version 1.0.0 • © 2026 By Kinetix Intelligence</div>
           <button onClick={() => nav("/privacy")} className="text-xs text-primary-glow underline">Privatlivspolitik</button>
         </div>
       </Section>

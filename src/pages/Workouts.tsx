@@ -168,8 +168,8 @@ export default function Workouts() {
 
       {/* Active exercise modal */}
       {active && (
-        <div className="fixed inset-0 z-[60] bg-background/90 backdrop-blur-xl animate-fade-in flex items-end md:items-center justify-center p-4">
-          <div className="w-full max-w-md k-card p-6 bg-gradient-surface relative">
+        <div className="fixed inset-0 z-[60] bg-background/90 backdrop-blur-xl animate-fade-in flex items-end md:items-center justify-center p-4 overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: "touch" }}>
+          <div className="w-full max-w-md k-card p-6 bg-gradient-surface relative my-auto max-h-[calc(100vh-2rem)] overflow-y-auto">
             <button onClick={close} className="absolute top-4 right-4 w-9 h-9 rounded-full bg-card border border-border/60 flex items-center justify-center k-tap">
               <X className="w-4 h-4" />
             </button>
