@@ -730,7 +730,7 @@ export default function FoodScan() {
                 </p>
                 {typeof result.confidence === "number" && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    AI confidence: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span> · Portion: <span className="capitalize text-foreground font-medium">{portion}</span>
+                    {result.confidence >= 0.75 ? "AI confidence" : "Estimated"}: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span>
                   </p>
                 )}
               </div>
