@@ -542,31 +542,8 @@ export default function FoodScan() {
           {step === "portion" && !result && (
             <div className="animate-fade-in">
               <div className="k-card p-5 mb-5">
-                <h2 className="text-lg font-semibold mb-1">How big is your portion?</h2>
-                <p className="text-sm text-muted-foreground mb-4">This helps the AI estimate calories more accurately.</p>
-                <div className="grid grid-cols-3 gap-3">
-                  {(["small", "medium", "large"] as Portion[]).map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setPortion(p)}
-                      className={`k-tap rounded-2xl p-4 border-2 transition-all ${
-                        portion === p
-                          ? "border-primary bg-primary/10 shadow-glow"
-                          : "border-border bg-card"
-                      }`}
-                    >
-                      <div className="text-3xl mb-1">
-                        {p === "small" ? "🥄" : p === "medium" ? "🍽️" : "🍱"}
-                      </div>
-                      <div className="text-sm font-semibold capitalize">{p}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="k-card p-5 mb-5">
                 <h2 className="text-lg font-semibold mb-1">Meal type</h2>
-                <p className="text-sm text-muted-foreground mb-4">Categorize this meal in your diary.</p>
+                <p className="text-sm text-muted-foreground mb-4">Categorize this meal in your diary. The AI estimates portion size automatically from your photos.</p>
                 <div className="grid grid-cols-4 gap-2">
                   {([
                     ["breakfast", Sun, "Breakfast"],
@@ -588,30 +565,6 @@ export default function FoodScan() {
                 </div>
               </div>
 
-              <div className="k-card p-5 mb-5">
-                <h2 className="text-lg font-semibold mb-1">Food source</h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  This helps AI detect ultra-processed foods and improve calorie accuracy.
-                </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {([
-                    ["homemade",  "🏠", "Homemade"],
-                    ["store",     "🛒", "Store-bought"],
-                    ["restaurant","🍴", "Restaurant"],
-                  ] as const).map(([s, emoji, label]) => (
-                    <button
-                      key={s}
-                      onClick={() => setFoodSource(s)}
-                      className={`k-tap rounded-2xl p-3 border-2 transition-all flex flex-col items-center gap-1 ${
-                        foodSource === s ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-card"
-                      }`}
-                    >
-                      <span className="text-2xl">{emoji}</span>
-                      <span className="text-[11px] font-semibold">{label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               <input
                 ref={fileRef}
