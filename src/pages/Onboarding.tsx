@@ -286,7 +286,7 @@ export default function Onboarding() {
       </div>
 
       <div className="pt-8 flex gap-3">
-        {step < TOTAL_QUESTIONS && step > 0 && (
+        {step < TOTAL_QUESTIONS && step > 0 && step !== 11 && (
           <Button
             size="lg"
             variant="outline"
@@ -297,13 +297,13 @@ export default function Onboarding() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
         )}
-        {step < TOTAL_QUESTIONS && (
+        {step < TOTAL_QUESTIONS && step !== 11 && (
           <Button
             size="lg"
             className="group flex-1 h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
-            onClick={isLastQuestion ? generate : next}
+            onClick={next}
           >
-            <span className="text-white">{isLastQuestion ? tt("onboarding.create_plan") : tt("common.continue")}</span>
+            <span className="text-white">{tt("common.continue")}</span>
             <span className="ml-2 inline-flex items-center -space-x-2 transition-transform group-hover:translate-x-1">
               <ChevronRight className="w-5 h-5 text-white" strokeWidth={2.75} />
               <ChevronRight className="w-5 h-5 text-white opacity-60" strokeWidth={2.75} />
