@@ -191,32 +191,29 @@ export default function Workouts() {
 
             <div className="mb-6">
               <div className="flex justify-between text-xs text-muted-foreground mb-2">
-                <span>{t("workouts.duration")}</span>
+                <span>Varighed</span>
                 <span>
                   {duration < 60
                     ? `${duration} min`
                     : duration % 60 === 0
-                    ? `${duration / 60} h`
-                    : `${Math.floor(duration / 60)} h ${duration % 60} min`}
+                    ? `${duration / 60} t`
+                    : `${Math.floor(duration / 60)} t ${duration % 60} min`}
                 </span>
               </div>
               <input
                 type="range"
                 min={1}
-                max={80}
-                value={duration <= 60 ? duration : 60 + (duration - 60) / 15}
+                max={360}
+                step={1}
+                value={duration}
                 disabled={running}
-                onChange={(e) => {
-                  const idx = Number(e.target.value);
-                  const mins = idx <= 60 ? idx : 60 + (idx - 60) * 15;
-                  setDuration(mins);
-                }}
+                onChange={(e) => setDuration(Number(e.target.value))}
                 className="w-full accent-[hsl(var(--primary))]"
               />
               <div className="flex justify-between text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">
                 <span>1 min</span>
-                <span>1 h</span>
-                <span>6 h</span>
+                <span>1 t</span>
+                <span>6 t</span>
               </div>
             </div>
 
