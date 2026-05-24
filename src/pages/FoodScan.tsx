@@ -45,44 +45,47 @@ interface Result {
 }
 
 type Portion = "small" | "medium" | "large";
+type FoodSource = "homemade" | "store" | "restaurant";
 type Step = "portion" | "capture" | "result";
 
 // NOVA-style processing classification (1 = whole food, 4 = ultra-processed).
-// Conservative heuristic: only clearly industrial products land in NOVA 4.
-// Whole/raw foods (fruit, vegetables, eggs, meat, fish) almost always stay at NOVA 1.
-function estimateNova(r: Result): 1 | 2 | 3 | 4 {
+// Source-aware:
+//   - homemade   → never NOVA 4 (capped at 3)
+//   - restaurant → minimum NOVA 3 (added oils/fats/culinary prep)
+//   - store      → can be 3 or 4 depending on signals
+function estimateNova(r: Result, source: FoodSource = "homemade"): 1 | 2 | 3 | 4 {
   const name = (r.name || "").toLowerCase();
   const items = (r.items || []).map((i) => i.name.toLowerCase()).join(" ");
   const text = ` ${name} ${items} `;
 
-  // Clearly industrial / ultra-processed products only.
   const ultra = /\b(chips|crisps|cola|sodavand|soda|energidrik|energy drink|slik|candy|gummi|haribo|cornflakes|frosties|instant noodle|instant nudler|færdigret|ready meal|frozen meal|pringles|doritos|nutella|softice|milkshake|protein bar|chokoladebar|mars|snickers|twix|kitkat|oreo|donut|donuts|mcdonald|burger king|kfc|domino)\b/i;
-
-  // Homemade/whole single ingredients — keep at NOVA 1.
   const whole = /\b(æble|banan|pære|appelsin|citron|bær|jordbær|blåbær|hindbær|drue|kiwi|melon|mango|ananas|avocado|tomat|agurk|gulerod|peberfrugt|squash|asparges|broccoli|spinat|salat|kål|løg|hvidløg|svamp|kartoffel|ris|havregryn|quinoa|bønner|linser|kikærter|æg|kylling|kalkun|oksekød|svinekød|laks|torsk|rejer|tofu|nødder|mandler|valnødder|frø|fruit|vegetable|apple|banana|egg|chicken|beef|salmon|rice|oats)\b/i;
+  const culinary = /\b(mælk|yoghurt|skyr|hytteost|ost|cheese|smør|olie|mel|flour|honning|honey|sukker|salt|eddike|krydderi|herbs|butter|oil|sugar)\b/i;
+  const processed = /\b(pizza|burger|sandwich|wrap|tortilla|pita|bolle|frikadelle|lasagne|gryderet|stew|suppe|soup|risotto|omelet|pandekage|wok|pålæg|skinke|bacon|pølse|marmelade|saft|juice|brød|bread|rugbrød|pasta)\b/i;
 
-  // Group 2 — minimally processed (oils, flour, butter, plain dairy, bread, pasta, cheese).
-  const minimal = /\b(mælk|yoghurt|skyr|hytteost|ost|cheese|smør|olie|mel|flour|pasta|brød|bread|rugbrød|honning|honey|sukker|salt)\b/i;
+  let nova: 1 | 2 | 3 | 4 = 2;
+  if (ultra.test(text)) nova = 4;
+  else if (whole.test(text) && !processed.test(text) && !culinary.test(text)) nova = 1;
+  else if (processed.test(text)) nova = 3;
+  else if (culinary.test(text)) nova = 2;
 
-  // Group 3 — homemade or simple processed dishes with several ingredients.
-  const processed = /\b(pizza|burger|sandwich|wrap|tortilla|pita|bolle|frikadelle|lasagne|gryderet|stew|suppe|soup|risotto|omelet|pandekage|wok|pålæg|skinke|bacon|pølse|marmelade|saft|juice)\b/i;
-
-  if (ultra.test(text)) return 4;
-  if (whole.test(text)) return 1;
-
-  // Use nutrition signals only as a tiebreaker — never to push whole foods upward.
+  // Nutrition tiebreaker for ultra-processed signals
   let score = 0;
   if ((r.sugar ?? 0) > 25) score += 2;
   else if ((r.sugar ?? 0) > 15) score += 1;
   if ((r.sodium ?? 0) > 800) score += 2;
   else if ((r.sodium ?? 0) > 500) score += 1;
   if ((r.saturatedFat ?? 0) > 12) score += 1;
+  if (score >= 4 && nova < 4) nova = 4;
 
-  if (score >= 4) return 4;
-  if (processed.test(text) || score >= 2) return 3;
-  if (minimal.test(text) || score === 1) return 2;
-  return 2;
+  // Source-aware overrides
+  if (source === "homemade" && nova === 4) nova = 3; // homemade is never ultra-processed
+  if (source === "restaurant" && nova < 3) nova = 3; // restaurant always has culinary processing
+  // store can be anything 1-4
+
+  return nova;
 }
+
 
 const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: string; icon: string; bar: string; badge: string; border: string }> = {
   1: {
@@ -95,8 +98,8 @@ const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: str
     border: "border-emerald-500/30",
   },
   2: {
-    title: "Let bearbejdet",
-    desc: "Hele råvarer kombineret med enkle ting som olie, mel eller salt. Helt fint i en balanceret kost.",
+    title: "Kulinariske ingredienser",
+    desc: "Hele råvarer kombineret med køkkenets klassikere som olie, smør, salt, sukker eller mel.",
     emoji: "🌾",
     icon: "bg-lime-500/15 text-lime-700",
     bar: "bg-lime-500",
@@ -114,7 +117,7 @@ const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: str
   },
   4: {
     title: "Ultra-forarbejdet",
-    desc: "Industrielt fremstillet med tilsætningsstoffer. Nydes bedst en gang imellem som en del af en varieret kost.",
+    desc: "Industrielt fremstillet med tilsætningsstoffer og smagsforstærkere.",
     emoji: "🏭",
     icon: "bg-orange-500/15 text-orange-700",
     bar: "bg-orange-500",
@@ -134,6 +137,7 @@ export default function FoodScan() {
   const [result, setResult] = useState<Result | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
+  const [foodSource, setFoodSource] = useState<FoodSource>("homemade");
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
   
@@ -343,7 +347,7 @@ export default function FoodScan() {
     const timeout = setTimeout(() => controller.abort(), 45000);
     try {
       const invokePromise = supabase.functions.invoke("scan-food", {
-        body: { images: imgs, portion, strategy },
+        body: { images: imgs, portion, source: foodSource, strategy },
       });
       const { data, error } = await Promise.race([
         invokePromise,
@@ -562,7 +566,31 @@ export default function FoodScan() {
                       <span className="text-[11px] font-semibold">{label}</span>
                     </button>
                   ))}
+              </div>
+
+              <div className="k-card p-5 mb-5">
+                <h2 className="text-lg font-semibold mb-1">{t("scan.source")}</h2>
+                <p className="text-sm text-muted-foreground mb-4">{t("scan.source_sub")}</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    ["homemade", "🏠", t("scan.source_home")],
+                    ["store", "🛒", t("scan.source_store")],
+                    ["restaurant", "🍽️", t("scan.source_restaurant")],
+                  ] as [FoodSource, string, string][]).map(([s, emoji, label]) => (
+                    <button
+                      key={s}
+                      onClick={() => setFoodSource(s)}
+                      className={`k-tap rounded-2xl p-3 border-2 transition-all flex flex-col items-center gap-1 ${
+                        foodSource === s ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-card"
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{emoji}</span>
+                      <span className="text-[11px] font-semibold text-center leading-tight">{label}</span>
+                    </button>
+                  ))}
                 </div>
+              </div>
+
               </div>
 
 
@@ -736,7 +764,7 @@ export default function FoodScan() {
               </div>
 
               {(() => {
-                const nova = estimateNova(result);
+                const nova = estimateNova(result, foodSource);
                 const meta = NOVA_META[nova];
                 return (
                   <div className={`k-card p-4 border-2 ${meta.border}`}>

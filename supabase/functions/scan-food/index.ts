@@ -139,8 +139,7 @@ Deno.serve(async (req) => {
 
     // ---- Input ----
     const body = await req.json();
-    const { portion, strategy } = body;
-    // Accept either `images: string[]` (preferred, multi-angle) or legacy `image: string`
+    const { portion, strategy, source } = body;
     let images: string[] = [];
     if (Array.isArray(body.images)) {
       images = body.images.filter((x: unknown) => typeof x === "string" && x.length > 0);
@@ -153,7 +152,6 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    // Cap to 3 images max to control payload size
     images = images.slice(0, 3);
 
     const portionLabel: "small" | "medium" | "large" =
@@ -164,12 +162,23 @@ Deno.serve(async (req) => {
       large: "The user indicates this is a LARGE portion (~140-160% of a typical serving). Scale calories and macros accordingly.",
     }[portionLabel];
 
-    // Retry strategy: "fallback" uses the stronger Pro model + OCR-focused prompt
+    const sourceLabel: "homemade" | "store" | "restaurant" =
+      source === "store" || source === "restaurant" ? source : "homemade";
+    const sourceHint = {
+      homemade:
+        "FOOD SOURCE = HOMEMADE. Assume the meal is cooked from scratch with fresh ingredients. Homemade meals (pizza, burgers, pasta, soup, bread) MUST NEVER be classified as NOVA 4. They land in NOVA 1, 2 or 3 depending on whether oils/salts/butter are involved — never ultra-processed.",
+      store:
+        "FOOD SOURCE = STORE-BOUGHT (supermarket product). Evaluate as a typical mass-produced supermarket product. If you can see industrial packaging, branded wrappers, or it's a known packaged product, classify as NOVA 3 or NOVA 4 based on visible additives, preservatives or industrial formulation cues.",
+      restaurant:
+        "FOOD SOURCE = RESTAURANT / TAKEOUT. Evaluate as restaurant or takeout food. Restaurant meals typically include added fats, oils and culinary preparation — minimum NOVA 3. Use NOVA 4 only for clearly industrial fast-food items (e.g. fast-food chain burger menus, deep-fried packaged items).",
+    }[sourceLabel];
+
     const useFallback = strategy === "fallback";
     const model = useFallback ? "google/gemini-2.5-pro" : "google/gemini-2.5-flash";
     const extraHint = useFallback
       ? " RETRY MODE: previous attempt failed or was low-confidence. Look EXTRA carefully — read any text/labels/brands on packaging (OCR), zoom mentally on the product, and make your best guess even if partial. NEVER refuse."
       : "";
+
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -192,36 +201,38 @@ Deno.serve(async (req) => {
           {
             role: "system",
             content:
-              "You are an expert nutritionist with world-class visual food recognition. You analyze ANY food: homemade meals, restaurant dishes, packaged snacks, drinks, bakery, fruit, raw ingredients — Danish, Nordic, European, US, Asian, Middle Eastern. Never refuse. " +
-              "TONE — ALWAYS supportive, neutral and non-judgmental. Talk like Lifesum / MyFitnessPal / Yazio. NEVER use fear-based wording such as 'avoid', 'stay away', 'bad food', 'unhealthy', 'dangerous', 'toxic'. Prefer balanced phrasing like 'a great whole-food choice', 'reasonably balanced meal', 'more processed than whole foods, but completely fine in moderation', 'contains some processed ingredients'. " +
-              "INGREDIENT HONESTY — Only list ingredients you can actually SEE in the image. Do NOT assume oil, flour, butter, sugar, additives or preservatives unless they are clearly visible (e.g. a glistening oily surface, a labelled package, visible breading). If unsure, say 'possible ingredients detected' and lower your confidence instead of inventing things. A whole apple has ONE ingredient: apple. A boiled egg has ONE ingredient: egg. " +
-              "PROCESSING LEVEL (NOVA) — Be FAIR and realistic. " +
-              "  • NOVA 1 (whole / unprocessed): single natural foods — apple, banana, egg, plain rice, plain chicken breast, broccoli, fish, raw vegetables, fresh fruit. These are almost ALWAYS NOVA 1. " +
-              "  • NOVA 2 (culinary ingredients): whole foods + simple kitchen ingredients (oil, butter, salt, sugar, flour, herbs). E.g. boiled potatoes with butter, salad with olive oil, plain yoghurt with honey. " +
-              "  • NOVA 3 (processed): homemade or simply-processed dishes combining several real ingredients — homemade pizza, homemade pasta, sandwiches, wraps, bread, cheese, cured meats, canned beans. Homemade meals are NOT automatically ultra-processed. " +
-              "  • NOVA 4 (ultra-processed): ONLY for clearly industrial formulations — soda, chips, candy, instant noodles, ready meals, packaged sweets/pastries, energy drinks, fast-food chain products, hot dogs from factory pølser, cereal like Frosties/Cornflakes. " +
-              "  Default to the LOWER NOVA category if you are unsure. A photo of fruit must never be NOVA 4. " +
-              "STEP 1 — IDENTIFY (be EXTREMELY careful, do NOT confuse similar foods): " +
+              "You are a food data tracker. Your ONLY job is to objectively identify food and report nutrition facts. You are NOT a doctor, dietitian, coach or health advisor. " +
+              "STRICTLY FORBIDDEN — never give dietary, health, medical or lifestyle advice. NEVER tell the user what they should or shouldn't eat. NEVER use words like 'avoid', 'stay away', 'bad', 'unhealthy', 'dangerous', 'toxic', 'junk', 'guilty', 'cheat', 'too much', 'cut down', 'eat instead'. NEVER suggest alternatives or improvements. NEVER warn about health effects. Output must be purely analytical: ingredients, calories, macros, micros, and the NOVA processing category — nothing more. This is required to comply with Apple App Store Medical Guidelines. " +
+              "TONE — strictly neutral, factual, supportive. Describe what the food IS, never what it does to the user's health. " +
+              "INGREDIENT HONESTY — Only list ingredients you can actually SEE. Never assume oil, flour, butter, sugar, additives or preservatives unless clearly visible (oily surface, labelled package, visible breading). If unsure, say 'possible ingredients detected' and lower your confidence. A whole apple has ONE ingredient: apple. " +
+              "PROCESSING LEVEL (NOVA) — Be fair and source-aware. " +
+              "  • NOVA 1 (unprocessed / minimally processed): single natural foods — apple, banana, egg, plain rice, plain chicken breast, broccoli, fish, raw vegetables, fresh fruit. Almost ALWAYS NOVA 1. " +
+              "  • NOVA 2 (processed culinary ingredients): items used in cooking — oil, butter, salt, sugar, flour, vinegar, herbs. Or whole foods combined with them (boiled potatoes with butter, salad with olive oil, plain yoghurt with honey). " +
+              "  • NOVA 3 (processed foods): combinations of NOVA 1 + NOVA 2 made in a kitchen — homemade pizza, homemade pasta, homemade bread, sandwiches, cheese, cured meats, canned beans, a steak fried in butter with salt. " +
+              "  • NOVA 4 (ultra-processed): ONLY clearly industrial formulations with additives, flavour enhancers, emulsifiers, preservatives — soda, chips, candy, instant noodles, ready meals, packaged sweets/pastries, energy drinks, fast-food chain products, factory-made sausages, breakfast cereals like Frosties/Cornflakes. " +
+              "  Default DOWN if unsure. A photo of fruit must never be NOVA 4. " +
+              `  SOURCE-AWARE RULES (the user told us the food source — RESPECT IT): ${sourceHint} ` +
+              "STEP 1 — IDENTIFY (do NOT confuse similar foods): " +
               "  • SOUP vs YOGHURT vs SKYR vs PORRIDGE — critical distinction:" +
-              "    - SOUP (suppe): liquid surface, often steaming, served in bowl, broth visible, may contain vegetables/meat/noodles. USE ~50-80 kcal/100g." +
-              "    - SKYR: thick Icelandic dairy, very white, matte/grainy surface, often with berries/granola on top. USE ~60-70 kcal/100g (high protein 10-12g)." +
-              "    - YOGHURT: smoother shinier surface than skyr, white/cream colored, may have fruit. USE ~60-100 kcal/100g (lower protein 4-6g)." +
-              "    - PORRIDGE (havregrød/risengrød): visible grains/oats, thick, off-white/beige. USE ~80-110 kcal/100g." +
-              "  • Plate of food → name each component honestly (only what you actually see). " +
-              "  • Packaged product → read brand + product name from label (OCR). " +
-              "STEP 2 — WEIGH: Estimate grams (or ml for liquids) from visual cues automatically (plate ~26cm, fork ~20cm, bowl ~300-400ml, glass ~250ml). The user did NOT provide a portion size — you must estimate it yourself from the image. Ignore any hint from the client. " +
-              "STEP 3 — NUTRITION: Use accurate USDA/European/Nordic database values per 100g. Realistic ranges: dinner plate 400-900 kcal, soup bowl 150-350 kcal, skyr 150g ~100 kcal, yoghurt 150g ~120 kcal, candy bag 100g ~350 kcal, soda 330ml ~140 kcal. " +
-              "STEP 4 — HEALTH SCORE 1-10: 10=whole foods/vegetables/lean protein. 8-9=skyr, soup with vegetables, oatmeal, homemade balanced meals. 7=yoghurt with fruit, homemade pizza with veg. 4-6=mixed (pasta+sauce, burger). 2-3=candy, chips, soda, pastries. 1=pure sugar/deep-fried. " +
-              "STEP 5 — REAL-LIFE EFFECT: Estimate satiety_hours (high protein/fiber/fat = 3-5h, sugar/refined carbs = 0.5-1.5h) and energy_effect — one short, neutral, supportive Danish sentence like 'Stabil energi i 3 timer' or 'Giver et hurtigt energiboost, men mætheden falder hurtigt' (NEVER scary or scolding). " +
-              "STEP 6 — VITAMINS & MINERALS: Estimate realistic values per portion using USDA/Nordic data. Use 0 if truly absent. " +
-              "ALWAYS call report_nutrition with your best estimate even if uncertain — lower the confidence value instead of refusing.",
+              "    - SOUP (suppe): liquid surface, broth, often steaming. ~50-80 kcal/100g." +
+              "    - SKYR: thick, matte, very white, often with berries/granola. ~60-70 kcal/100g, high protein 10-12g." +
+              "    - YOGHURT: smoother shinier, white/cream. ~60-100 kcal/100g, protein 4-6g." +
+              "    - PORRIDGE: visible grains/oats, thick, beige. ~80-110 kcal/100g." +
+              "  • Plate → name each component honestly. " +
+              "  • Packaged product → read brand + product name (OCR). " +
+              "STEP 2 — WEIGH: Estimate grams (or ml) automatically from visual cues (plate ~26cm, fork ~20cm, bowl ~300-400ml, glass ~250ml). " +
+              "STEP 3 — NUTRITION: Use accurate USDA/European/Nordic database values per 100g. " +
+              "STEP 4 — HEALTH SCORE 1-10: a NEUTRAL nutrient-density score, NOT a verdict. 10 = nutrient-dense whole foods, 1 = nutrient-poor. Do not interpret it for the user. " +
+              "STEP 5 — REAL-LIFE EFFECT: estimate satiety_hours and a one-sentence neutral energy_effect in Danish describing energy/satiety pattern only (e.g. 'Stabil energi i 3 timer', 'Hurtigt energiboost der falder igen efter ca. 1 time'). NEVER advice, NEVER judgement. " +
+              "STEP 6 — VITAMINS & MINERALS: realistic per-portion values from USDA/Nordic data. 0 if truly absent. " +
+              "ALWAYS call report_nutrition with your best estimate — lower confidence instead of refusing.",
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size (depth, volume, plate coverage). Do NOT count items twice.` : ""} ${portionHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive.`,
+                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size. Do NOT count items twice.` : ""} ${portionHint} ${sourceHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive. NO health advice — only data.`,
               },
               ...images.map((url) => ({ type: "image_url", image_url: { url } })),
             ],

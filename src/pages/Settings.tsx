@@ -9,6 +9,7 @@ import { LanguagePicker } from "@/components/LanguagePicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useT } from "@/i18n/useT";
 import { translate } from "@/i18n/translations";
+import { HealthSyncCard } from "@/components/HealthSyncCard";
 
 export default function Settings() {
   const nav = useNavigate();
@@ -54,6 +55,12 @@ export default function Settings() {
           <Field label={t("settings.weight_kg")}>
             <NumInput value={form.weight} onChange={(n) => set("weight", n)} />
           </Field>
+        </Section>
+
+        <Section title={t("settings.health")}>
+          <div className="px-4 py-3">
+            <HealthSyncCard />
+          </div>
         </Section>
 
         <Section title={t("settings.goal")}>
