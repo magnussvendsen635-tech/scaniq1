@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { translate, type TKey } from "@/i18n/translations";
-import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf } from "lucide-react";
+import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isHealthAvailable, requestHealthPermissions } from "@/lib/health";
+import { toast } from "sonner";
 
-const TOTAL_QUESTIONS = 11; // steps 0..10 (0 = language, 1 = name)
+const TOTAL_QUESTIONS = 12; // steps 0..11 (0 = language, 1 = name, 11 = Apple Health)
 
 export default function Onboarding() {
   const nav = useNavigate();
@@ -223,6 +225,39 @@ export default function Onboarding() {
                   {activity === a.id && <Check className="w-5 h-5 text-primary" />}
                 </button>
               ))}
+            </div>
+          </Step>
+        )}
+
+        {step === 11 && (
+          <Step title={tt("onboarding.health_title")} sub={tt("onboarding.health_sub")}>
+            <div className="k-card p-6 flex flex-col items-center text-center gap-5">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-soft flex items-center justify-center">
+                <Heart className="w-10 h-10 text-primary-glow" fill="currentColor" />
+              </div>
+              <Button
+                size="lg"
+                className="w-full h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
+                onClick={async () => {
+                  if (!isHealthAvailable()) {
+                    toast.info(tt("onboarding.health_later"), { description: "Apple Health er kun tilgængelig i den native app." });
+                    generate();
+                    return;
+                  }
+                  const ok = await requestHealthPermissions();
+                  if (ok) toast.success(tt("settings.health_connected"));
+                  generate();
+                }}
+              >
+                <Heart className="w-5 h-5 mr-2" fill="currentColor" />
+                {tt("onboarding.health_connect")}
+              </Button>
+              <button
+                onClick={generate}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+              >
+                {tt("onboarding.health_later")}
+              </button>
             </div>
           </Step>
         )}
