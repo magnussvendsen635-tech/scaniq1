@@ -98,8 +98,8 @@ const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: str
     border: "border-emerald-500/30",
   },
   2: {
-    title: "Let bearbejdet",
-    desc: "Hele råvarer kombineret med enkle ting som olie, mel eller salt. Helt fint i en balanceret kost.",
+    title: "Kulinariske ingredienser",
+    desc: "Hele råvarer kombineret med køkkenets klassikere som olie, smør, salt, sukker eller mel.",
     emoji: "🌾",
     icon: "bg-lime-500/15 text-lime-700",
     bar: "bg-lime-500",
@@ -117,7 +117,7 @@ const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: str
   },
   4: {
     title: "Ultra-forarbejdet",
-    desc: "Industrielt fremstillet med tilsætningsstoffer. Nydes bedst en gang imellem som en del af en varieret kost.",
+    desc: "Industrielt fremstillet med tilsætningsstoffer og smagsforstærkere.",
     emoji: "🏭",
     icon: "bg-orange-500/15 text-orange-700",
     bar: "bg-orange-500",
@@ -137,6 +137,7 @@ export default function FoodScan() {
   const [result, setResult] = useState<Result | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
+  const [foodSource, setFoodSource] = useState<FoodSource>("homemade");
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
   
@@ -346,7 +347,7 @@ export default function FoodScan() {
     const timeout = setTimeout(() => controller.abort(), 45000);
     try {
       const invokePromise = supabase.functions.invoke("scan-food", {
-        body: { images: imgs, portion, strategy },
+        body: { images: imgs, portion, source: foodSource, strategy },
       });
       const { data, error } = await Promise.race([
         invokePromise,
