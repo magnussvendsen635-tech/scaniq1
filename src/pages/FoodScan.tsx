@@ -566,7 +566,31 @@ export default function FoodScan() {
                       <span className="text-[11px] font-semibold">{label}</span>
                     </button>
                   ))}
+              </div>
+
+              <div className="k-card p-5 mb-5">
+                <h2 className="text-lg font-semibold mb-1">{t("scan.source")}</h2>
+                <p className="text-sm text-muted-foreground mb-4">{t("scan.source_sub")}</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    ["homemade", "🏠", t("scan.source_home")],
+                    ["store", "🛒", t("scan.source_store")],
+                    ["restaurant", "🍽️", t("scan.source_restaurant")],
+                  ] as [FoodSource, string, string][]).map(([s, emoji, label]) => (
+                    <button
+                      key={s}
+                      onClick={() => setFoodSource(s)}
+                      className={`k-tap rounded-2xl p-3 border-2 transition-all flex flex-col items-center gap-1 ${
+                        foodSource === s ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-card"
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{emoji}</span>
+                      <span className="text-[11px] font-semibold text-center leading-tight">{label}</span>
+                    </button>
+                  ))}
                 </div>
+              </div>
+
               </div>
 
 
@@ -740,7 +764,7 @@ export default function FoodScan() {
               </div>
 
               {(() => {
-                const nova = estimateNova(result);
+                const nova = estimateNova(result, foodSource);
                 const meta = NOVA_META[nova];
                 return (
                   <div className={`k-card p-4 border-2 ${meta.border}`}>
