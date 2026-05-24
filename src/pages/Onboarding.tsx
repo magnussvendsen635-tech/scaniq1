@@ -89,7 +89,6 @@ export default function Onboarding() {
     nav("/premium", { replace: true });
   };
 
-  const isLastQuestion = step === TOTAL_QUESTIONS - 1;
   const progressIndex = Math.min(step + 1, TOTAL_QUESTIONS);
 
   return (
