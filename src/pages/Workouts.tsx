@@ -228,7 +228,7 @@ export default function Workouts() {
                 {running ? <><Pause className="w-4 h-4 mr-1" />{t("workouts.pause")}</> : <><Play className="w-4 h-4 mr-1" />{t("workouts.start")}</>}
               </Button>
               <Button onClick={finish} variant="outline" className="h-12 rounded-2xl border-border bg-card font-semibold">
-                {t("common.save")}
+                Gem
               </Button>
             </div>
           </div>
