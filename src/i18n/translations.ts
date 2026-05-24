@@ -81,7 +81,10 @@ export type TKey =
   | "auth.account_created" | "auth.welcome_in"
   | "home.scan_food" | "home.scan_food_sub"
   | "micro.title" | "micro.fiber" | "micro.sugar" | "micro.sodium" | "micro.sat_fat" | "micro.cholesterol"
-  | "water.title" | "water.today" | "water.goal" | "water.add" | "water.reset" | "water.glass" | "water.bottle" | "water.large" | "water.sub" | "water.empty";
+  | "water.title" | "water.today" | "water.goal" | "water.add" | "water.reset" | "water.glass" | "water.bottle" | "water.large" | "water.sub" | "water.empty"
+  | "scan.source" | "scan.source_home" | "scan.source_store" | "scan.source_restaurant" | "scan.source_sub"
+  | "onboarding.health_title" | "onboarding.health_sub" | "onboarding.health_connect" | "onboarding.health_later"
+  | "settings.health" | "settings.health_connect" | "settings.health_connected" | "settings.health_sub";
 
 type Dict = Partial<Record<TKey, string>>;
 
@@ -219,6 +222,19 @@ const en: Record<TKey, string> = {
   "water.add": "Add water", "water.reset": "Reset",
   "water.glass": "Glass", "water.bottle": "Bottle", "water.large": "Large",
   "water.sub": "Stay hydrated all day", "water.empty": "Tap to log your first glass",
+  "scan.source": "Food source",
+  "scan.source_sub": "Helps us classify processing level more accurately.",
+  "scan.source_home": "Homemade",
+  "scan.source_store": "Store-bought",
+  "scan.source_restaurant": "Restaurant",
+  "onboarding.health_title": "Connect with Apple Health",
+  "onboarding.health_sub": "Automatically synchronize your workouts, steps, and body measurements with ScanIQ for the most accurate tracking.",
+  "onboarding.health_connect": "Connect now",
+  "onboarding.health_later": "Set up later in settings",
+  "settings.health": "Apple Health",
+  "settings.health_sub": "Sync workouts, steps and weight",
+  "settings.health_connect": "Connect",
+  "settings.health_connected": "Connected",
 };
 
 const da: Dict = {
@@ -335,6 +351,19 @@ const da: Dict = {
   "water.add": "Tilføj vand", "water.reset": "Nulstil",
   "water.glass": "Glas", "water.bottle": "Flaske", "water.large": "Stor",
   "water.sub": "Hold dig hydreret hele dagen", "water.empty": "Tryk for at logge dit første glas",
+  "scan.source": "Madkilde",
+  "scan.source_sub": "Hjælper os med at vurdere forarbejdningsgraden mere præcist.",
+  "scan.source_home": "Hjemmelavet",
+  "scan.source_store": "Købt i dagligvarebutik",
+  "scan.source_restaurant": "Fra restaurant",
+  "onboarding.health_title": "Forbind med Apple Health (Sundhed)",
+  "onboarding.health_sub": "Synkroniser dine træninger, skridt og kropsmål automatisk med ScanIQ for at få den mest præcise sporing.",
+  "onboarding.health_connect": "Forbind nu",
+  "onboarding.health_later": "Indstil senere i indstillinger",
+  "settings.health": "Apple Health (Sundhed)",
+  "settings.health_sub": "Synkroniser træning, skridt og vægt",
+  "settings.health_connect": "Forbind",
+  "settings.health_connected": "Forbundet",
 };
 
 const es: Dict = {
