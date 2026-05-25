@@ -160,14 +160,14 @@ const MUSCLES: Record<Anim, string[]> = {
 // Foreslået reps × sæt baseret på kategori
 function repsSets(ex: Exercise): { reps: string; sets: string } | null {
   switch (ex.category) {
-    case "Strength":
+    case "Overkrop":
+    case "Underkrop":
       return { reps: "8-12 reps", sets: "3-4 sæt" };
-    case "HIIT":
+    case "Helkrop":
       return { reps: "30-45 sek", sets: "4-6 runder" };
-    case "Mobility":
+    case "Core":
       return { reps: "20-30 sek hold", sets: "2-3 runder" };
     case "Cardio":
-    case "Sport":
     default:
       return null;
   }
