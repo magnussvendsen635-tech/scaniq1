@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
-import { ExerciseFigure } from "@/components/ExerciseFigure";
+
 
 const CATS = ["All", "Overkrop", "Underkrop", "Core", "Helkrop", "Cardio"] as const;
 const CAT_LABELS: Record<(typeof CATS)[number], string> = {
@@ -175,7 +175,6 @@ export default function Workouts() {
             <div className="text-xs uppercase tracking-widest text-muted-foreground">{active.category}</div>
             <h2 className="text-2xl font-semibold mt-1 mb-4">{active.name}</h2>
 
-            <ExerciseFigure exercise={active} />
 
             <div className="flex flex-col items-center mb-6">
               <Ring value={elapsed / (duration * 60)} size={210}>
