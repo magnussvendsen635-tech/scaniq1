@@ -8,18 +8,17 @@ import { Ring } from "@/components/Ring";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/useT";
-import type { TKey } from "@/i18n/translations";
 import { PremiumLock } from "@/components/PremiumLock";
 import { ExerciseFigure } from "@/components/ExerciseFigure";
 
-const CATS = ["All", "Cardio", "HIIT", "Strength", "Mobility", "Sport"] as const;
-const CAT_KEYS: Record<(typeof CATS)[number], TKey> = {
-  All: "workouts.cat_all",
-  Cardio: "workouts.cat_cardio",
-  HIIT: "workouts.cat_hiit",
-  Strength: "workouts.cat_strength",
-  Mobility: "workouts.cat_mobility",
-  Sport: "workouts.cat_sport",
+const CATS = ["All", "Overkrop", "Underkrop", "Core", "Helkrop", "Cardio"] as const;
+const CAT_LABELS: Record<(typeof CATS)[number], string> = {
+  All: "Alle",
+  Overkrop: "Overkrop",
+  Underkrop: "Underkrop",
+  Core: "Core",
+  Helkrop: "Helkrop",
+  Cardio: "Cardio",
 };
 
 export default function Workouts() {
@@ -126,7 +125,7 @@ export default function Workouts() {
               cat === c ? "bg-gradient-primary text-white shadow-glow" : "bg-card border border-border/60 text-muted-foreground"
             )}
           >
-            {t(CAT_KEYS[c])}
+            {CAT_LABELS[c]}
           </button>
         ))}
       </div>
