@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
-import { ExerciseFigure } from "@/components/ExerciseFigure";
+
 
 const CATS = ["All", "Overkrop", "Underkrop", "Core", "Helkrop", "Cardio"] as const;
 const CAT_LABELS: Record<(typeof CATS)[number], string> = {
