@@ -110,7 +110,7 @@ export default function Diary() {
         <h1 className="text-3xl font-semibold tracking-tight">{t("diary.title")}</h1>
         <Link to="/favorites" className="k-tap flex items-center gap-1.5 px-3 py-2 rounded-full bg-card border border-border/60 text-sm">
           <Star className="w-4 h-4 text-primary-glow" />
-          <span className="font-medium">Quick add</span>
+          <span className="font-medium">{t("diary.quick_add")}</span>
         </Link>
       </div>
 
@@ -202,20 +202,23 @@ export default function Diary() {
               <Sparkles className="w-4 h-4 text-primary-foreground" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">AI insight</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">{t("diary.ai_insight")}</div>
               {loadingSummary ? (
-                <div className="text-sm text-muted-foreground animate-pulse">Analyzing your day…</div>
+                <div className="text-sm text-muted-foreground animate-pulse">{t("diary.analyzing")}</div>
               ) : summary ? (
                 <div className="text-sm leading-relaxed">{summary}</div>
               ) : (
                 <button onClick={fetchSummary} className="text-sm text-primary-glow font-medium k-tap">
-                  Get today's insight
+                  {t("diary.get_insight")}
                 </button>
               )}
             </div>
           </div>
         </div>
       )}
+
+      {/* Daily tasks (date-bound) */}
+      <DailyTasks day={selectedKey} />
 
       {hasMicro && (
         <div className="k-card p-4 mb-5">
@@ -240,7 +243,7 @@ export default function Diary() {
         </Link>
       ) : (
         <div className="space-y-5">
-          {CATEGORIES.map(({ key, label, Icon }) => {
+          {CATEGORIES.map(({ key, labelKey, addKey, Icon }) => {
             const list = grouped[key];
             const catCals = list.reduce((a, b) => a + b.calories, 0);
             return (
@@ -250,7 +253,7 @@ export default function Diary() {
                     <div className="w-7 h-7 rounded-xl bg-gradient-soft flex items-center justify-center">
                       <Icon className="w-3.5 h-3.5 text-primary-glow" />
                     </div>
-                    <span className="text-sm font-semibold">{label}</span>
+                    <span className="text-sm font-semibold">{t(labelKey)}</span>
                     {catCals > 0 && <span className="text-xs text-muted-foreground">· {catCals} kcal</span>}
                   </div>
                   <Link to="/scan" className="k-tap w-7 h-7 rounded-full bg-card border border-border/60 flex items-center justify-center">
@@ -259,7 +262,7 @@ export default function Diary() {
                 </div>
                 {list.length === 0 ? (
                   <Link to="/scan" className="k-card k-tap p-3 flex items-center justify-center text-xs text-muted-foreground border-dashed">
-                    + Add {label.toLowerCase()}
+                    {t(addKey)}
                   </Link>
                 ) : (
                   <div className="space-y-2">
@@ -283,7 +286,7 @@ export default function Diary() {
                         <button
                           onClick={() => {
                             removeMeal(meal.id);
-                            toast.success("Meal removed");
+                            toast.success(t("diary.meal_removed"));
                           }}
                           className="k-tap w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-60 hover:opacity-100"
                         >
