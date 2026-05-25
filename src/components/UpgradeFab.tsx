@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { Crown } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
+import logo from "@/assets/scaniq-leaf-logo.png";
 
 /**
  * Small floating "Upgrade" pill sticky in the top-right corner of the app.
@@ -18,9 +18,24 @@ export function UpgradeFab() {
     <Link
       to="/premium"
       aria-label="Upgrade to Scaniq Pro Premium"
-      className="fixed z-50 top-[max(env(safe-area-inset-top),0.75rem)] right-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_6px_18px_-4px_rgba(245,158,91,0.65)] bg-gradient-to-r from-[#F59E5B] to-[#EA6A1F] hover:brightness-110 active:scale-95 transition-all"
+      className="fixed z-50 top-[max(env(safe-area-inset-top),0.75rem)] right-3 inline-flex items-center gap-2 pl-1 pr-4 py-1 rounded-full text-[12px] font-bold uppercase tracking-wider text-white shadow-[0_6px_18px_-4px_rgba(245,158,91,0.65)] bg-gradient-to-r from-[#F59E5B] to-[#EA6A1F] hover:brightness-110 active:scale-95 transition-all"
     >
-      <Crown className="w-3.5 h-3.5" strokeWidth={2.5} />
+      <span
+        className="inline-flex items-center justify-center bg-white overflow-hidden shrink-0"
+        style={{
+          width: 26,
+          height: 26,
+          aspectRatio: "1 / 1",
+          borderRadius: 9999,
+        }}
+      >
+        <img
+          src={logo}
+          alt=""
+          className="w-full h-full"
+          style={{ objectFit: "cover", borderRadius: 9999 }}
+        />
+      </span>
       Upgrade
     </Link>
   );
