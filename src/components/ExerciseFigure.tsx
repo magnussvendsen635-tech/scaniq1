@@ -72,9 +72,10 @@ function pickAnim(ex: Exercise): Anim {
   if (n.includes("run") || n.includes("jog")) return "run";
 
   if (c === "Cardio") return "run";
-  if (c === "HIIT") return "jumpsquat";
-  if (c === "Strength") return "press";
-  if (c === "Mobility") return "stretch";
+  if (c === "Core") return "plank";
+  if (c === "Overkrop") return "press";
+  if (c === "Underkrop") return "squat";
+  if (c === "Helkrop") return "burpee";
   return "run";
 }
 
