@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-const SUPPORT_EMAIL = "support.kcally@gmail.com";
+const SUPPORT_EMAIL = "scaniqapp1@gmail.com";
 
 const FAQS = [
   {
