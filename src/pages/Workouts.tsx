@@ -125,7 +125,7 @@ export default function Workouts() {
               cat === c ? "bg-gradient-primary text-white shadow-glow" : "bg-card border border-border/60 text-muted-foreground"
             )}
           >
-            {t(CAT_KEYS[c])}
+            {CAT_LABELS[c]}
           </button>
         ))}
       </div>
