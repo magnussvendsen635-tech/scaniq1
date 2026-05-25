@@ -8,7 +8,6 @@ import { Ring } from "@/components/Ring";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/useT";
-import type { TKey } from "@/i18n/translations";
 import { PremiumLock } from "@/components/PremiumLock";
 import { ExerciseFigure } from "@/components/ExerciseFigure";
 
