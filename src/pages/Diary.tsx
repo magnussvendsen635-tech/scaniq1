@@ -3,14 +3,16 @@ import { useState, useMemo, useEffect } from "react";
 import { useKStore, type MealCategory } from "@/store/useKStore";
 import { Camera, Heart, Sun, UtensilsCrossed, Moon, Cookie, Plus, Star, Trash2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useT } from "@/i18n/useT";
+import type { TKey } from "@/i18n/translations";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { DailyTasks } from "@/components/DailyTasks";
 
-const CATEGORIES: { key: MealCategory; label: string; Icon: any }[] = [
-  { key: "breakfast", label: "Breakfast", Icon: Sun },
-  { key: "lunch", label: "Lunch", Icon: UtensilsCrossed },
-  { key: "dinner", label: "Dinner", Icon: Moon },
-  { key: "snack", label: "Snacks", Icon: Cookie },
+const CATEGORIES: { key: MealCategory; labelKey: TKey; addKey: TKey; Icon: any }[] = [
+  { key: "breakfast", labelKey: "diary.cat_breakfast", addKey: "diary.add_breakfast", Icon: Sun },
+  { key: "lunch", labelKey: "diary.cat_lunch", addKey: "diary.add_lunch", Icon: UtensilsCrossed },
+  { key: "dinner", labelKey: "diary.cat_dinner", addKey: "diary.add_dinner", Icon: Moon },
+  { key: "snack", labelKey: "diary.cat_snack", addKey: "diary.add_snack", Icon: Cookie },
 ];
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
