@@ -18,7 +18,7 @@ export default function Terms() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 20. maj 2026 · Udvikler: By Kinetix Intelligence · Kontakt: support.kcally@gmail.com
+          Sidst opdateret: 20. maj 2026 · Udvikler: By Kinetix Intelligence · Kontakt: scaniqapp1@gmail.com
         </p>
 
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
@@ -99,8 +99,8 @@ export default function Terms() {
         <Section title="10. Kontakt">
           <p>
             By Kinetix Intelligence ·{" "}
-            <a className="text-primary-glow underline" href="mailto:support.kcally@gmail.com">
-              support.kcally@gmail.com
+            <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">
+              scaniqapp1@gmail.com
             </a>
           </p>
         </Section>

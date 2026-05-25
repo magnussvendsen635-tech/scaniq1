@@ -132,7 +132,7 @@ export const useKStore = create<KState>()(
         name: "",
         age: 28,
         weight: 75,
-        targetWeight: 70,
+        targetWeight: 73,
         height: 175,
         goal: "lose",
         activity: "moderate",
