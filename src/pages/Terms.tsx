@@ -18,7 +18,7 @@ export default function Terms() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 20. maj 2026 · Udvikler: By Kinetix Intelligence · Kontakt: scaniqapp1@gmail.com
+          Sidst opdateret: 26. maj 2026 · Udvikler: By Kinetix Intelligence · Kontakt: scaniqapp1@gmail.com
         </p>
 
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
