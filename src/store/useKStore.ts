@@ -77,6 +77,11 @@ export interface ReminderSettings {
   water: boolean;
   meals: boolean;
   weight: boolean;
+  permissionAsked?: boolean;
+  breakfastTime?: string; // "HH:mm"
+  lunchTime?: string;
+  dinnerTime?: string;
+  waterEveryHours?: number;
 }
 
 interface KState {
@@ -97,6 +102,7 @@ interface KState {
   water: Record<string, number>;
   waterGoal: number;
   autoAdjustGoal: boolean;
+  frozenDays: Record<string, number>;
 
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
@@ -119,6 +125,8 @@ interface KState {
   setReminders: (r: Partial<ReminderSettings>) => void;
   setAutoAdjustGoal: (v: boolean) => void;
   recomputePlan: () => void;
+  freezeStreak: () => { ok: boolean; reason?: string; remaining: number };
+  freezesLeftThisWeek: () => number;
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
