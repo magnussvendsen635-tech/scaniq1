@@ -127,7 +127,7 @@ export default function Privacy() {
         </Section>
 
         <Section title="11. Børn">
-          <p>Scaniq er ikke beregnet til brugere under 16 år. Hvis et barn har oprettet en konto, sletter vi den ved henvendelse.</p>
+          <p>Scaniq er ikke beregnet til brugere under 13 år. Hvis et barn har oprettet en konto, sletter vi den ved henvendelse.</p>
         </Section>
 
         <Section title="12. App Store & Google Play vilkår">
