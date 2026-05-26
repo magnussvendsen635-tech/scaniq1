@@ -43,7 +43,7 @@ export function CookieConsent() {
           <div className="flex-1 min-w-0">
             <div className="font-semibold text-sm leading-snug">Vi bruger cookies</div>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Scaniq bruger nødvendige cookies til login og sikkerhed, samt valgfri cookies til
+              ScanIQ bruger nødvendige cookies til login og sikkerhed, samt valgfri cookies til
               at forbedre appen. Læs mere i vores{" "}
               <Link to="/privacy" className="text-primary-glow underline">
                 privatlivspolitik

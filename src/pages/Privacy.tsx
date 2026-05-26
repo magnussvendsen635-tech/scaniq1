@@ -17,7 +17,7 @@ export default function Privacy() {
         {/* Sundhedsforbehold */}
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
           <b className="block mb-1 text-amber-300">Sundhedsforbehold</b>
-          Scaniq giver <b>ingen medicinske diagnoser eller garantier</b> og er ikke et lægeligt
+          ScanIQ giver <b>ingen medicinske diagnoser eller garantier</b> og er ikke et lægeligt
           værktøj. Kalorier, makroer og sundhedsscores er <b>estimater</b> og kan være unøjagtige.
           Vi lover <b>ikke hurtigt vægttab</b> eller bestemte resultater. Tal med en læge eller
           diætist før du foretager større ændringer i kost, træning eller helbred.
@@ -36,7 +36,7 @@ export default function Privacy() {
 
         <Section title="2. Hvem vi er">
           <p>
-            Scaniq drives af By Kinetix Intelligence. Spørgsmål om dine data eller denne politik kan sendes
+            ScanIQ drives af By Kinetix Intelligence. Spørgsmål om dine data eller denne politik kan sendes
             til <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">scaniqapp1@gmail.com</a>.
           </p>
         </Section>
@@ -127,7 +127,7 @@ export default function Privacy() {
         </Section>
 
         <Section title="11. Børn">
-          <p>Scaniq er ikke beregnet til brugere under 13 år. Hvis et barn har oprettet en konto, sletter vi den ved henvendelse.</p>
+          <p>ScanIQ er ikke beregnet til brugere under 13 år. Hvis et barn har oprettet en konto, sletter vi den ved henvendelse.</p>
         </Section>
 
         <Section title="12. App Store & Google Play vilkår">

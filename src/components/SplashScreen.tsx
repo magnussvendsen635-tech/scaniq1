@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
 /**
- * Custom Scaniq Pro splash screen. Shows once per page-load for ~1.8s,
+ * Custom ScanIQ Pro splash screen. Shows once per page-load for ~1.8s,
  * then fades out. Respects the app's dark theme — does not override
  * the user's background preference.
  */
@@ -41,13 +41,13 @@ export function SplashScreen() {
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#F59E5B] to-[#2D5A27] blur-2xl opacity-50 scale-110" />
           <img
             src={logo}
-            alt="Scaniq Pro"
+            alt="ScanIQ Pro"
             className="relative w-24 h-24 rounded-full drop-shadow-[0_8px_24px_rgba(245,158,91,0.45)]"
           />
         </div>
 
         <h1 className="mt-6 text-2xl font-semibold tracking-[0.18em] k-gradient-text">
-          Scaniq
+          ScanIQ
         </h1>
 
 

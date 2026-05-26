@@ -13,7 +13,7 @@ export const Logo = ({ size = 40, withText = false }: { size?: number; withText?
     >
       <img
         src={logo}
-        alt="Scaniq app icon"
+        alt="ScanIQ app icon"
         width={size}
         height={size}
         loading="lazy"
@@ -27,7 +27,7 @@ export const Logo = ({ size = 40, withText = false }: { size?: number; withText?
       />
     </div>
     {withText && (
-      <span className="text-xl font-semibold tracking-[0.18em] k-gradient-text">Scaniq</span>
+      <span className="text-xl font-semibold tracking-[0.18em] k-gradient-text">ScanIQ</span>
     )}
   </div>
 );

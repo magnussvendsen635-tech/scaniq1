@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       jobs.push({
         user_id: p.user_id,
         title: "💧 Time to hydrate",
-        body: "Remember to drink some water and log it in Scaniq.",
+        body: "Remember to drink some water and log it in ScanIQ.",
         tag: `water-${hour}`,
         url: "/",
       });
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
       jobs.push({
         user_id: p.user_id,
         title: "🔥 Check your calories",
-        body: "Open Scaniq to see how many calories you have left today.",
+        body: "Open ScanIQ to see how many calories you have left today.",
         tag: `calories-${hour}`,
         url: "/",
       });
@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
       jobs.push({
         user_id: p.user_id,
         title: "🌅 Don't forget breakfast",
-        body: "Log your morning meal in Scaniq.",
+        body: "Log your morning meal in ScanIQ.",
         tag: "breakfast",
         url: "/diary",
       });
