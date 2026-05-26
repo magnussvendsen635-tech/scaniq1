@@ -153,7 +153,7 @@ export default function FoodScan() {
   const fileRef = useRef<HTMLInputElement>(null);
   const REQUIRED_PHOTOS = 2;
   const MAX_PHOTOS = 3;
-  const DAILY_LIMIT = 30;
+  const DAILY_LIMIT = 20;
   const todayUTC = () => new Date().toISOString().slice(0, 10);
   const canScan = isPremiumServer;
   const preview = previews[previews.length - 1] ?? null;

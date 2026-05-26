@@ -77,6 +77,11 @@ export interface ReminderSettings {
   water: boolean;
   meals: boolean;
   weight: boolean;
+  permissionAsked?: boolean;
+  breakfastTime?: string; // "HH:mm"
+  lunchTime?: string;
+  dinnerTime?: string;
+  waterEveryHours?: number;
 }
 
 interface KState {
@@ -97,6 +102,7 @@ interface KState {
   water: Record<string, number>;
   waterGoal: number;
   autoAdjustGoal: boolean;
+  frozenDays: Record<string, number>;
 
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
@@ -119,6 +125,8 @@ interface KState {
   setReminders: (r: Partial<ReminderSettings>) => void;
   setAutoAdjustGoal: (v: boolean) => void;
   recomputePlan: () => void;
+  freezeStreak: () => { ok: boolean; reason?: string; remaining: number };
+  freezesLeftThisWeek: () => number;
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -157,6 +165,7 @@ export const useKStore = create<KState>()(
       water: {},
       waterGoal: 2500,
       autoAdjustGoal: true,
+      frozenDays: {},
 
       setOnboarded: (v) => set({ onboarded: v }),
       setLanguage: (code) => set({ language: code }),
@@ -182,11 +191,22 @@ export const useKStore = create<KState>()(
         const d = today();
         const last = get().lastActiveDate;
         if (last === d) return;
-        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-        let next: number;
-        if (!last) next = 1;
-        else if (last === yesterday) next = get().streak + 1;
-        else next = 1;
+        const frozen = get().frozenDays;
+        const now = Date.now();
+        // walk back from yesterday — extend streak through active or non-expired-frozen days
+        let walker = new Date(Date.now() - 86400000);
+        let continued = false;
+        if (last) {
+          // check unbroken: every day between last and yesterday must be frozen-active
+          while (walker.toISOString().slice(0, 10) > last) {
+            const ds = walker.toISOString().slice(0, 10);
+            const f = frozen[ds];
+            if (!f || f < now) break;
+            walker = new Date(walker.getTime() - 86400000);
+          }
+          if (walker.toISOString().slice(0, 10) === last) continued = true;
+        }
+        const next = !last ? 1 : continued ? get().streak + 1 : 1;
         set({ streak: next, lastActiveDate: d });
       },
       setPremium: (v) => set({ premium: v }),
@@ -223,10 +243,35 @@ export const useKStore = create<KState>()(
         const plan = computePlan({ weight: u.weight, height: u.height, activity: u.activity, goal: u.goal });
         set({ user: { ...u, ...plan } });
       },
+      freezesLeftThisWeek: () => {
+        const weekStart = startOfISOWeek(new Date()).toISOString().slice(0, 10);
+        const used = Object.keys(get().frozenDays).filter((d) => d >= weekStart).length;
+        return Math.max(0, 2 - used);
+      },
+      freezeStreak: () => {
+        const d = today();
+        const frozen = { ...get().frozenDays };
+        if (frozen[d] && frozen[d] > Date.now()) {
+          return { ok: false, reason: "already_frozen", remaining: get().freezesLeftThisWeek() };
+        }
+        const left = get().freezesLeftThisWeek();
+        if (left <= 0) return { ok: false, reason: "limit", remaining: 0 };
+        frozen[d] = Date.now() + 24 * 60 * 60 * 1000;
+        set({ frozenDays: frozen });
+        return { ok: true, remaining: left - 1 };
+      },
     }),
     { name: "kcally-store-v1" }
   )
 );
+
+function startOfISOWeek(d: Date): Date {
+  const date = new Date(d);
+  const day = (date.getDay() + 6) % 7; // Monday=0
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() - day);
+  return date;
+}
 
 // Helpers
 export function caloriesToday(meals: Meal[]) {

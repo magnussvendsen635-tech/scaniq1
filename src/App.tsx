@@ -29,6 +29,7 @@ import Terms from "./pages/Terms";
 import DataPrivacy from "./pages/DataPrivacy";
 import Help from "./pages/Help";
 import Admin from "./pages/Admin";
+import Reminders from "./pages/Reminders";
 import NotFound from "./pages/NotFound.tsx";
 import { CookieConsent } from "@/components/CookieConsent";
 import { UpgradeFab } from "@/components/UpgradeFab";
@@ -47,6 +48,8 @@ const Shell = ({ children }: { children: React.ReactNode }) => (
 const App = () => {
   const onboarded = useKStore((s) => s.onboarded);
   const language = useKStore((s) => s.language);
+  const reminders = useKStore((s) => s.reminders);
+  const meals = useKStore((s) => s.meals);
   const { session, loading } = useAuth();
 
   useEffect(() => {
@@ -55,6 +58,12 @@ const App = () => {
     document.documentElement.setAttribute("dir", isRtl ? "rtl" : "ltr");
     document.documentElement.setAttribute("lang", base);
   }, [language]);
+
+  // Re-schedule native reminders whenever settings or logged meals change.
+  useEffect(() => {
+    if (!reminders.enabled) return;
+    import("@/lib/notifications").then((m) => m.rescheduleReminders({ reminders, meals }));
+  }, [reminders, meals]);
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -89,6 +98,7 @@ const App = () => {
                 <Route path="/help" element={<Shell><Help /></Shell>} />
                 <Route path="/data-privacy" element={<Shell><DataPrivacy /></Shell>} />
                 <Route path="/admin" element={<Shell><Admin /></Shell>} />
+                <Route path="/reminders" element={<Shell><Reminders /></Shell>} />
                 <Route path="*" element={<NotFound />} />
               </>
             )}

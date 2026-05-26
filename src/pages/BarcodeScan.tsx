@@ -134,7 +134,7 @@ export default function BarcodeScan() {
         return;
       }
       if (errCode === "daily_scan_limit_reached") {
-        toast.error("Daily limit reached", { description: "You've used all 30 scans today. Try again tomorrow." });
+        toast.error("Daily limit reached", { description: "You've used all 20 scans today. Try again tomorrow." });
         setStep("scan");
         return;
       }
