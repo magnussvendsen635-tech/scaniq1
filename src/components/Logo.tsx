@@ -27,7 +27,7 @@ export const Logo = ({ size = 40, withText = false }: { size?: number; withText?
       />
     </div>
     {withText && (
-      <span className="text-xl font-semibold tracking-[0.18em] k-gradient-text">ScanIQ</span>
+      <span className="text-xl font-semibold tracking-[0.18em] k-gradient-text">Scaniq</span>
     )}
   </div>
 );
