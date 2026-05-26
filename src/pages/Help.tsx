@@ -25,8 +25,8 @@ const FAQS = [
     a: "Scanneren giver gode estimater for almindelige fødevarer, men resultater er estimater og kan afvige. Du kan altid justere portionsstørrelse og næringsindhold manuelt efter scanning.",
   },
   {
-    q: "Er Scaniq medicinsk rådgivning?",
-    a: "Nej. Scaniq er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist. Resultater og kalorieanslag er estimater. Tal med en sundhedsprofessionel før du foretager større ændringer i kost eller træning.",
+    q: "Er ScanIQ medicinsk rådgivning?",
+    a: "Nej. ScanIQ er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist. Resultater og kalorieanslag er estimater. Tal med en sundhedsprofessionel før du foretager større ændringer i kost eller træning.",
   },
   {
     q: "Kan jeg bruge appen offline?",
@@ -88,7 +88,7 @@ export default function Help() {
       // Fallback: open email request
       window.location.href = mailto(
         "Anmodning om kontosletning",
-        `Hej Scaniq support,\n\nJeg ønsker at få min konto slettet.\nBruger-ID: ${user.id}\nEmail: ${user.email}\n\nTak.`,
+        `Hej ScanIQ support,\n\nJeg ønsker at få min konto slettet.\nBruger-ID: ${user.id}\nEmail: ${user.email}\n\nTak.`,
       );
       toast.error("Kunne ikke slette automatisk – e-mail åbnet til support");
     } finally {
@@ -108,14 +108,14 @@ export default function Help() {
       {/* Health disclaimer */}
       <div className="mb-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
         <b className="block mb-1 text-amber-300">Sundhedsforbehold</b>
-        Scaniq er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist.
+        ScanIQ er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist.
         Kalorier og næringsindhold er estimater og kan være unøjagtige. Tal med en
         sundhedsprofessionel før du foretager større ændringer i kost eller træning.
       </div>
 
       {/* Contact support */}
       <Section>
-        <a href={mailto("Scaniq support")} className="row">
+        <a href={mailto("ScanIQ support")} className="row">
           <Icon Cmp={Mail} />
           <div className="flex-1">
             <div className="font-medium">Kontakt support</div>
@@ -164,9 +164,9 @@ export default function Help() {
       {/* About */}
       <Section title="Om os">
         <div className="px-4 py-4 space-y-2">
-          <div className="font-medium">Scaniq</div>
+          <div className="font-medium">ScanIQ</div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Scaniq er en kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. Bygget af By Kinetix Intelligence for at hjælpe dig med at nå dine helbredsmål.
+            ScanIQ er en kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. Bygget af By Kinetix Intelligence for at hjælpe dig med at nå dine helbredsmål.
           </p>
           <div className="text-xs text-muted-foreground">Version 1.0.0 • © 2026 By Kinetix Intelligence</div>
           <button onClick={() => nav("/privacy")} className="text-xs text-primary-glow underline">Privatlivspolitik</button>

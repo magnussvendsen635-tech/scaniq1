@@ -18,12 +18,12 @@ export default function Terms() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 20. maj 2026 · Udvikler: By Kinetix Intelligence · Kontakt: scaniqapp1@gmail.com
+          Sidst opdateret: 26. maj 2026 · Udvikler: By Kinetix Intelligence · Kontakt: scaniqapp1@gmail.com
         </p>
 
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
           <b className="block mb-1 text-amber-300">Ikke medicinsk rådgivning</b>
-          Scaniq er <b>ikke et lægeligt værktøj</b> og giver ingen diagnoser, behandling eller
+          ScanIQ er <b>ikke et lægeligt værktøj</b> og giver ingen diagnoser, behandling eller
           garantier for resultater. Indholdet er kun til oplysende og generelle wellness-formål.
           Tal altid med en læge eller diætist før du foretager større ændringer i kost eller
           træning.
@@ -31,7 +31,7 @@ export default function Terms() {
 
         <Section title="1. Accept af vilkårene">
           <p>
-            Ved at bruge Scaniq accepterer du disse vilkår. Hvis du ikke accepterer dem, må du
+            Ved at bruge ScanIQ accepterer du disse vilkår. Hvis du ikke accepterer dem, må du
             ikke bruge appen.
           </p>
         </Section>
