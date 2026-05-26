@@ -48,6 +48,8 @@ const Shell = ({ children }: { children: React.ReactNode }) => (
 const App = () => {
   const onboarded = useKStore((s) => s.onboarded);
   const language = useKStore((s) => s.language);
+  const reminders = useKStore((s) => s.reminders);
+  const meals = useKStore((s) => s.meals);
   const { session, loading } = useAuth();
 
   useEffect(() => {
@@ -56,6 +58,12 @@ const App = () => {
     document.documentElement.setAttribute("dir", isRtl ? "rtl" : "ltr");
     document.documentElement.setAttribute("lang", base);
   }, [language]);
+
+  // Re-schedule native reminders whenever settings or logged meals change.
+  useEffect(() => {
+    if (!reminders.enabled) return;
+    import("@/lib/notifications").then((m) => m.rescheduleReminders({ reminders, meals }));
+  }, [reminders, meals]);
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
