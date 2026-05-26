@@ -58,8 +58,8 @@ export default function Premium() {
       </header>
 
       <div className="border-2 border-foreground bg-card p-6 mb-5 text-center shadow-[6px_6px_0_0_hsl(var(--foreground))]">
-        <div className="w-20 h-20 rounded-full bg-background border-2 border-foreground flex items-center justify-center mx-auto mb-4 overflow-hidden">
-          <img src={logo} alt="Scaniq" className="w-full h-full object-contain p-1" />
+        <div className="w-20 h-20 rounded-full bg-background border-2 border-black flex items-center justify-center mx-auto mb-4 p-3.5 overflow-hidden">
+          <img src={logo} alt="ScanIQ" className="w-full h-full object-contain" />
         </div>
         <h2 className="text-2xl font-black uppercase tracking-tight">{t("premium.unlock")}</h2>
         <p className="text-sm text-muted-foreground mt-1">{t("premium.unlock_sub")}</p>
