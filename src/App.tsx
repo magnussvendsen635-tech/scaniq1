@@ -11,6 +11,7 @@ import { TabBar } from "@/components/TabBar";
 const RTL_LANGS = new Set(["ar", "ur", "he", "fa"]);
 
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
 import FoodScan from "./pages/FoodScan";
@@ -72,6 +73,7 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/onboarding" element={<Onboarding />} />
