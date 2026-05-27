@@ -103,10 +103,10 @@ export default function Auth() {
         <div className="flex flex-col items-center mb-8">
           <Logo size={56} />
           <h1 className="text-3xl font-semibold tracking-tight mt-4">
-            {mode === "signin" ? t("auth.welcome_back") : t("auth.create_account")}
+            {mode === "signin" ? t("auth.welcome_back") : mode === "signup" ? t("auth.create_account") : "Glemt adgangskode"}
           </h1>
           <p className="text-sm text-muted-foreground mt-2 text-center">
-            {mode === "signin" ? t("auth.sign_in_sub") : t("auth.sign_up_sub")}
+            {mode === "signin" ? t("auth.sign_in_sub") : mode === "signup" ? t("auth.sign_up_sub") : "Indtast din email, så sender vi dig et link til at nulstille din adgangskode."}
           </p>
         </div>
 
