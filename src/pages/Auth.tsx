@@ -110,41 +110,44 @@ export default function Auth() {
           </p>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleGoogle}
-          disabled={busy}
-          className="w-full h-12 rounded-2xl border-border bg-card mb-4 font-medium"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
-            <path fill="#EA4335" d="M12 5c1.617 0 3.077.554 4.226 1.64l3.157-3.157C17.453 1.661 14.91.5 12 .5 7.392.5 3.397 3.137 1.45 7l3.677 2.853C6.064 7.045 8.798 5 12 5z"/>
-            <path fill="#4285F4" d="M23.5 12.275c0-.815-.073-1.6-.21-2.353H12v4.448h6.452c-.28 1.5-1.124 2.768-2.396 3.62l3.674 2.85c2.149-1.985 3.77-4.918 3.77-8.565z"/>
-            <path fill="#FBBC05" d="M5.127 14.147A7.49 7.49 0 0 1 4.736 12c0-.747.135-1.47.391-2.147L1.45 7C.527 8.488 0 10.184 0 12c0 1.816.527 3.512 1.45 5l3.677-2.853z"/>
-            <path fill="#34A853" d="M12 23.5c3.24 0 5.96-1.073 7.945-2.918l-3.674-2.85c-1.02.685-2.323 1.093-4.271 1.093-3.202 0-5.936-2.045-6.873-4.853L1.45 16.999C3.397 20.863 7.392 23.5 12 23.5z"/>
-          </svg>
-          {t("auth.continue_google")}
-        </Button>
+        {mode !== "forgot" && (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleGoogle}
+              disabled={busy}
+              className="w-full h-12 rounded-2xl border-border bg-card mb-4 font-medium"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#EA4335" d="M12 5c1.617 0 3.077.554 4.226 1.64l3.157-3.157C17.453 1.661 14.91.5 12 .5 7.392.5 3.397 3.137 1.45 7l3.677 2.853C6.064 7.045 8.798 5 12 5z"/>
+                <path fill="#4285F4" d="M23.5 12.275c0-.815-.073-1.6-.21-2.353H12v4.448h6.452c-.28 1.5-1.124 2.768-2.396 3.62l3.674 2.85c2.149-1.985 3.77-4.918 3.77-8.565z"/>
+                <path fill="#FBBC05" d="M5.127 14.147A7.49 7.49 0 0 1 4.736 12c0-.747.135-1.47.391-2.147L1.45 7C.527 8.488 0 10.184 0 12c0 1.816.527 3.512 1.45 5l3.677-2.853z"/>
+                <path fill="#34A853" d="M12 23.5c3.24 0 5.96-1.073 7.945-2.918l-3.674-2.85c-1.02.685-2.323 1.093-4.271 1.093-3.202 0-5.936-2.045-6.873-4.853L1.45 16.999C3.397 20.863 7.392 23.5 12 23.5z"/>
+              </svg>
+              {t("auth.continue_google")}
+            </Button>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleApple}
-          disabled={busy}
-          className="w-full h-12 rounded-2xl border-border bg-card mb-4 font-medium"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-          </svg>
-          Fortsæt med Apple
-        </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleApple}
+              disabled={busy}
+              className="w-full h-12 rounded-2xl border-border bg-card mb-4 font-medium"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+              </svg>
+              Fortsæt med Apple
+            </Button>
 
-
-        <div className="flex items-center gap-3 my-5">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">{t("auth.or")}</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">{t("auth.or")}</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+          </>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="relative">
