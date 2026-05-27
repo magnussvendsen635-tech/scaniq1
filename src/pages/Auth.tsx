@@ -24,6 +24,25 @@ export default function Auth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === "forgot") {
+      if (!email) return;
+      setBusy(true);
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("Tjek din indbakke", {
+          description: "Vi har sendt dig et link til at nulstille din adgangskode.",
+        });
+        setMode("signin");
+      } catch (err: any) {
+        toast.error(err?.message ?? "Kunne ikke sende reset-email");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     if (!email || !password) return;
     if (mode === "signup" && !consent) {
       toast.error("Du skal acceptere privatlivspolitikken for at oprette en konto.");
