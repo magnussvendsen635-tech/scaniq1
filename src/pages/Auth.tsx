@@ -161,18 +161,31 @@ export default function Auth() {
               className="w-full h-12 rounded-2xl bg-card border border-border/60 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/60"
             />
           </div>
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t("auth.password")}
-              className="w-full h-12 rounded-2xl bg-card border border-border/60 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/60"
-            />
-          </div>
+          {mode !== "forgot" && (
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={t("auth.password")}
+                className="w-full h-12 rounded-2xl bg-card border border-border/60 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/60"
+              />
+            </div>
+          )}
+          {mode === "signin" && (
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                onClick={() => setMode("forgot")}
+                className="text-xs text-muted-foreground hover:text-foreground transition"
+              >
+                Glemt adgangskode?
+              </button>
+            </div>
+          )}
           {mode === "signup" && (
             <label className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed pt-1">
               <input
@@ -199,7 +212,7 @@ export default function Auth() {
               <Loader2 className="w-4 h-4 animate-spin text-white" />
             ) : (
               <span className="text-white">
-                {mode === "signin" ? t("auth.sign_in") : t("auth.sign_up")}
+                {mode === "signin" ? t("auth.sign_in") : mode === "signup" ? t("auth.sign_up") : "Send reset-link"}
               </span>
             )}
           </Button>
@@ -210,7 +223,7 @@ export default function Auth() {
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           className="w-full mt-5 text-sm text-muted-foreground hover:text-foreground transition"
         >
-          {mode === "signin" ? t("auth.no_account") : t("auth.have_account")}
+          {mode === "forgot" ? "Tilbage til login" : mode === "signin" ? t("auth.no_account") : t("auth.have_account")}
         </button>
       </div>
     </div>
