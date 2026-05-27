@@ -59,9 +59,21 @@ export default function Auth() {
         redirect_uri: `${window.location.origin}/`,
       });
       if (result.error) throw result.error;
-      // If result.redirected is true, browser is redirecting now.
     } catch (err: any) {
       toast.error(err?.message ?? "Google sign-in failed");
+      setBusy(false);
+    }
+  };
+
+  const handleApple = async () => {
+    setBusy(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("apple", {
+        redirect_uri: `${window.location.origin}/`,
+      });
+      if (result.error) throw result.error;
+    } catch (err: any) {
+      toast.error(err?.message ?? "Apple sign-in failed");
       setBusy(false);
     }
   };
