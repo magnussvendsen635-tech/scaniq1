@@ -82,7 +82,7 @@ export default function Premium() {
   };
 
   return (
-    <div className="k-page pb-8 bg-[hsl(40_40%_97%)] min-h-screen">
+    <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto" style={{ paddingBottom: 100 }}>
       <PaymentTestModeBanner />
 
       <header className="flex items-center gap-3 mb-6 pt-2">
