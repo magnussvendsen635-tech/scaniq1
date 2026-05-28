@@ -31,19 +31,21 @@ export function SplashScreen() {
         (fading ? "opacity-0" : "opacity-100")
       }
     >
-      {/* Soft orange gradient glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full bg-gradient-to-br from-[#F59E5B]/25 via-[#2D5A27]/15 to-transparent blur-3xl" />
+      {/* Soft radial glow — circular, no square artifacts */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="w-[420px] h-[420px] rounded-full bg-[radial-gradient(circle,hsl(24_95%_60%/0.22)_0%,hsl(120_40%_25%/0.10)_45%,transparent_70%)] blur-2xl" />
       </div>
 
       <div className="relative flex flex-col items-center animate-[fade-in_0.6s_ease-out]">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#F59E5B] to-[#2D5A27] blur-2xl opacity-50 scale-110" />
-          <img
-            src={logo}
-            alt="ScanIQ Pro"
-            className="relative w-24 h-24 rounded-full drop-shadow-[0_8px_24px_rgba(245,158,91,0.45)]"
-          />
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,hsl(24_95%_60%/0.55)_0%,transparent_70%)] blur-2xl scale-125" />
+          <div className="relative w-24 h-24 rounded-full overflow-hidden shadow-[0_8px_28px_hsl(24_95%_55%/0.35)]">
+            <img
+              src={logo}
+              alt="ScanIQ Pro"
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
 
         <h1 className="mt-6 text-2xl font-semibold tracking-[0.18em] k-gradient-text">
