@@ -3,7 +3,7 @@ import logo from "@/assets/scaniq-leaf-logo.png";
 export const Logo = ({ size = 40, withText = false }: { size?: number; withText?: boolean }) => (
   <div className="flex items-center gap-3">
     <div
-      className="flex items-center justify-center overflow-hidden rounded-full drop-shadow-[0_4px_18px_hsl(var(--primary)/0.45)] shrink-0"
+      className="flex items-center justify-center overflow-hidden rounded-full shrink-0 shadow-[0_4px_18px_hsl(var(--primary)/0.35)]"
       style={{
         width: size,
         height: size,
