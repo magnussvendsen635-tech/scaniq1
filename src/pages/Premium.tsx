@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, Sparkles, Loader2, Zap } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw, Gift } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -9,6 +9,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
 const featureKeys: TKey[] = [
@@ -23,9 +32,12 @@ export default function Premium() {
   const nav = useNavigate();
   const t = useT();
   const { user } = useAuth();
-  const { isActive } = useSubscription();
+  const { isActive, refetch } = useSubscription();
   const { openCheckout, loading } = usePaddleCheckout();
   const [plan, setPlan] = useState<"month" | "year">("year");
+  const [restoring, setRestoring] = useState(false);
+  const [redeemOpen, setRedeemOpen] = useState(false);
+  const [code, setCode] = useState("");
 
   const upgrade = async () => {
     if (!user) {
@@ -44,42 +56,76 @@ export default function Premium() {
     }
   };
 
+  const restore = async () => {
+    setRestoring(true);
+    try {
+      await refetch();
+      if (isActive) {
+        toast.success("Dit abonnement er gendannet");
+      } else {
+        toast("Intet aktivt abonnement fundet", {
+          description: "Hvis du lige har købt, så vent et øjeblik og prøv igen.",
+        });
+      }
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const redeem = async () => {
+    if (!code.trim()) return;
+    toast("Kode modtaget", {
+      description: "Vi tjekker din kode. Du får besked, når den er aktiveret.",
+    });
+    setCode("");
+    setRedeemOpen(false);
+  };
+
   return (
-    <div className="k-page">
+    <div className="k-page pb-8 bg-[hsl(40_40%_97%)] min-h-screen">
       <PaymentTestModeBanner />
-      <header className="flex items-center gap-3 mb-6">
+
+      <header className="flex items-center gap-3 mb-6 pt-2">
         <button
           onClick={() => nav(-1)}
-          className="k-tap w-10 h-10 rounded-none bg-card border-2 border-foreground flex items-center justify-center shadow-[3px_3px_0_0_hsl(var(--foreground))]"
+          aria-label="Tilbage"
+          className="k-tap w-10 h-10 rounded-full bg-white border border-border/60 flex items-center justify-center shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-black tracking-tight uppercase">{t("premium.title")}</h1>
+        <h1 className="text-xl font-semibold tracking-tight">{t("premium.title")}</h1>
       </header>
 
-      <div className="border-2 border-foreground bg-card p-6 mb-5 text-center shadow-[6px_6px_0_0_hsl(var(--foreground))]">
-        <div className="w-20 h-20 rounded-full bg-background border-2 border-black flex items-center justify-center mx-auto mb-4 p-3.5 overflow-hidden">
-          <img src={logo} alt="ScanIQ" className="w-full h-full object-contain" />
-        </div>
-        <h2 className="text-2xl font-black uppercase tracking-tight">{t("premium.unlock")}</h2>
-        <p className="text-sm text-muted-foreground mt-1">{t("premium.unlock_sub")}</p>
-      </div>
-
-      <div className="space-y-2 mb-5">
-        {featureKeys.map((k) => (
-          <div
-            key={k}
-            className="border-2 border-foreground bg-card p-4 flex items-center gap-3 shadow-[3px_3px_0_0_hsl(var(--foreground))]"
-          >
-            <div className="w-7 h-7 rounded-none bg-foreground flex items-center justify-center shrink-0">
-              <Check className="w-4 h-4 text-background" strokeWidth={3} />
-            </div>
-            <span className="text-sm font-medium">{t(k)}</span>
+      {/* Hero */}
+      <section className="rounded-3xl bg-white border border-border/50 p-7 mb-6 text-center shadow-[0_8px_30px_-12px_hsl(24_95%_55%/0.25)]">
+        <div className="relative w-20 h-20 mx-auto mb-4">
+          <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,hsl(24_95%_60%/0.45)_0%,transparent_70%)] blur-xl scale-125" />
+          <div className="relative w-20 h-20 rounded-full overflow-hidden shadow-[0_6px_20px_hsl(24_95%_55%/0.35)]">
+            <img src={logo} alt="ScanIQ" className="w-full h-full object-cover" />
           </div>
-        ))}
-      </div>
+        </div>
+        <h2 className="text-2xl font-semibold tracking-tight">{t("premium.unlock")}</h2>
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
+          {t("premium.unlock_sub")}
+        </p>
+      </section>
 
-      <div className="grid grid-cols-2 gap-3 mb-5">
+      {/* Features */}
+      <section className="rounded-3xl bg-white border border-border/50 p-5 mb-6 shadow-sm">
+        <div className="space-y-3">
+          {featureKeys.map((k) => (
+            <div key={k} className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full bg-[hsl(24_95%_53%/0.12)] flex items-center justify-center shrink-0">
+                <Check className="w-4 h-4 text-[hsl(24_95%_45%)]" strokeWidth={3} />
+              </div>
+              <span className="text-sm font-medium text-foreground/90">{t(k)}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Plans */}
+      <section className="grid grid-cols-2 gap-3 mb-5">
         <PlanOption
           active={plan === "month"}
           onClick={() => setPlan("month")}
@@ -95,18 +141,89 @@ export default function Premium() {
           price="$179"
           unit={t("premium.per_year")}
           sub={t("premium.lifetime")}
-          badge={t("premium.best_price")}
+          badge="Most Popular"
+          highlight
         />
-      </div>
+      </section>
 
       <Button
         onClick={upgrade}
         disabled={isActive || loading}
-        className="w-full h-14 rounded-none border-2 border-foreground bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-base font-black uppercase tracking-wide shadow-[5px_5px_0_0_hsl(var(--foreground))] hover:shadow-[3px_3px_0_0_hsl(var(--foreground))] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+        className="w-full h-14 rounded-2xl bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-base font-semibold tracking-tight shadow-[0_10px_24px_-8px_hsl(24_95%_55%/0.6)] transition-all"
       >
-        {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Zap className="w-5 h-5 mr-2" strokeWidth={3} />}
+        {loading ? (
+          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+        ) : (
+          <Sparkles className="w-5 h-5 mr-2" />
+        )}
         {isActive ? t("premium.youre_premium") : t("premium.upgrade_now")}
       </Button>
+
+      <p className="text-[11px] text-muted-foreground text-center mt-3 px-6 leading-relaxed">
+        Abonnementet fornyes automatisk. Du kan opsige når som helst.
+      </p>
+
+      {/* Footer actions */}
+      <footer className="mt-8 pt-6 border-t border-border/50">
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <FooterAction
+            icon={<RefreshCw className="w-4 h-4" />}
+            label={restoring ? "Gendanner…" : "Gendan køb"}
+            onClick={restore}
+            disabled={restoring}
+          />
+          <FooterAction
+            icon={<Gift className="w-4 h-4" />}
+            label="Indløs kode"
+            onClick={() => setRedeemOpen(true)}
+          />
+        </div>
+        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+          <button
+            onClick={() => nav("/terms")}
+            className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+          >
+            Servicevilkår
+          </button>
+          <span className="text-border">·</span>
+          <button
+            onClick={() => nav("/privacy")}
+            className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+          >
+            Privatlivspolitik
+          </button>
+        </div>
+      </footer>
+
+      <Dialog open={redeemOpen} onOpenChange={setRedeemOpen}>
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Indløs kode</DialogTitle>
+            <DialogDescription>
+              Indtast din kampagne- eller gavekode for at aktivere Premium.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            autoFocus
+            placeholder="F.eks. SCANIQ-2026"
+            value={code}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            className="rounded-xl h-12"
+          />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRedeemOpen(false)}>
+              Annullér
+            </Button>
+            <Button
+              onClick={redeem}
+              disabled={!code.trim()}
+              className="bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white rounded-xl"
+            >
+              Indløs
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -119,6 +236,7 @@ const PlanOption = ({
   unit,
   sub,
   badge,
+  highlight,
 }: {
   active: boolean;
   onClick: () => void;
@@ -127,26 +245,51 @@ const PlanOption = ({
   unit: string;
   sub: string;
   badge?: string;
+  highlight?: boolean;
 }) => (
   <button
     onClick={onClick}
     className={
-      "border-2 border-foreground k-tap p-5 text-left relative transition-all " +
+      "k-tap p-5 text-left relative rounded-2xl transition-all border " +
       (active
-        ? "bg-foreground text-background shadow-[5px_5px_0_0_hsl(24_95%_53%)]"
-        : "bg-card shadow-[3px_3px_0_0_hsl(var(--foreground))]")
+        ? "border-[hsl(24_95%_53%)] bg-white shadow-[0_8px_24px_-10px_hsl(24_95%_55%/0.5)] ring-2 ring-[hsl(24_95%_53%/0.25)]"
+        : "border-border/60 bg-white shadow-sm hover:shadow-md") +
+      (highlight && !active ? " ring-1 ring-[hsl(24_95%_53%/0.3)]" : "")
     }
   >
     {badge && (
-      <span className="absolute -top-2 -right-2 text-[9px] font-black uppercase tracking-widest bg-[hsl(24_95%_53%)] border-2 border-foreground px-2 py-1 text-white">
+      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-wider bg-[hsl(24_95%_53%)] text-white rounded-full px-2.5 py-0.5 shadow-sm whitespace-nowrap">
         {badge}
       </span>
     )}
-    <div className={"text-xs tracking-widest uppercase font-bold " + (active ? "text-background/70" : "text-muted-foreground")}>{title}</div>
-    <div className="mt-2 flex items-baseline gap-1">
-      <span className="text-3xl font-black">{price}</span>
-      <span className={"text-xs " + (active ? "text-background/70" : "text-muted-foreground")}>{unit}</span>
+    <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">
+      {title}
     </div>
-    <div className={"text-xs mt-1 " + (active ? "text-background/70" : "text-muted-foreground")}>{sub}</div>
+    <div className="mt-2 flex items-baseline gap-1">
+      <span className="text-3xl font-bold tracking-tight">{price}</span>
+      <span className="text-xs text-muted-foreground">{unit}</span>
+    </div>
+    <div className="text-xs mt-1 text-muted-foreground">{sub}</div>
+  </button>
+);
+
+const FooterAction = ({
+  icon,
+  label,
+  onClick,
+  disabled,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className="k-tap flex items-center justify-center gap-2 h-11 rounded-xl bg-white border border-border/60 text-sm font-medium text-foreground/80 hover:text-foreground hover:border-border transition-all disabled:opacity-60"
+  >
+    {icon}
+    {label}
   </button>
 );
