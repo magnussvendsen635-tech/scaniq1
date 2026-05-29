@@ -211,20 +211,4 @@ const Row = ({ Icon, title, sub, onClick, danger }: { Icon: any; title: string; 
   </button>
 );
 
-const BackendRow = () => (
-  <a
-    href="https://supabase.com/dashboard/project/uqnwhypjrisbfkouwcge/editor"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="w-full p-4 flex items-center gap-4 hover:bg-surface-2 transition-colors text-left"
-  >
-    <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gradient-soft">
-      <Database className="w-4.5 h-4.5 text-primary-glow" />
-    </div>
-    <div className="flex-1">
-      <div className="font-medium">View Backend</div>
-      <div className="text-xs text-muted-foreground">Open database & users (admin)</div>
-    </div>
-    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-  </a>
-);
+// BackendRow removed — was a developer-only artifact leaking project ref to all users.
