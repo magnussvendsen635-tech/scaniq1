@@ -1,10 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { Seo } from "@/components/Seo";
 
 export default function Terms() {
   const nav = useNavigate();
   return (
     <div className="k-page max-w-2xl mx-auto pb-32">
+      <Seo
+        title="Servicevilkår — ScanIQ"
+        description="Vilkår og betingelser for brug af ScanIQ — AI-drevet kalorie- og ernæringstracker."
+        path="/terms"
+      />
       <header className="flex items-center gap-3 mb-6">
         <button
           onClick={() => nav(-1)}

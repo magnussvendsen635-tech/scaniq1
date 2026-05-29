@@ -11,6 +11,7 @@ import { HealthSyncCard } from "@/components/HealthSyncCard";
 import { WaterCard } from "@/components/WaterCard";
 
 import { RemindersCard } from "@/components/RemindersCard";
+import { Seo } from "@/components/Seo";
 
 export default function Home() {
   const t = useT();
@@ -27,6 +28,11 @@ export default function Home() {
 
   return (
     <div className="k-page pb-32">
+      <Seo
+        title="ScanIQ — AI-drevet kalorie- og ernæringstracker"
+        description="Scan din mad med ét billede. ScanIQ analyserer kalorier, makroer og sundhedsscore automatisk og hjælper dig med at nå dine mål."
+        path="/"
+      />
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3 min-w-0">
           <Logo size={40} withText={!firstName} />
