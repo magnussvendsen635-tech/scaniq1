@@ -292,6 +292,7 @@ const PlanOption = ({
   onClick,
   title,
   price,
+  oldPrice,
   unit,
   sub,
   badge,
@@ -301,6 +302,7 @@ const PlanOption = ({
   onClick: () => void;
   title: string;
   price: string;
+  oldPrice?: string;
   unit: string;
   sub: string;
   badge?: string;
@@ -324,8 +326,9 @@ const PlanOption = ({
     <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">
       {title}
     </div>
-    <div className="mt-2 flex items-baseline gap-1">
+    <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
       <span className="text-3xl font-bold tracking-tight">{price}</span>
+      {oldPrice && <span className="text-sm text-muted-foreground line-through">{oldPrice}</span>}
       <span className="text-xs text-muted-foreground">{unit}</span>
     </div>
     <div className="text-xs mt-1 text-muted-foreground">{sub}</div>
