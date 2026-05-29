@@ -192,6 +192,7 @@ export const useKStore = create<KState>()(
       waterGoal: 2500,
       autoAdjustGoal: true,
       frozenDays: {},
+      lastResetStreak: 0,
 
       setOnboarded: (v) => set({ onboarded: v }),
       setLanguage: (code) => set({ language: code }),
