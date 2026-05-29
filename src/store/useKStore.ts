@@ -252,8 +252,13 @@ export const useKStore = create<KState>()(
         }
         // If last < yesterday and not fully bridged → at least one full day missed → reset.
         if (!bridged && get().streak !== 0) {
-          set({ streak: 0 });
+          set({ lastResetStreak: get().streak, streak: 0 });
         }
+      },
+      repairStreak: () => {
+        const d = today();
+        const restored = Math.max(get().streak, get().lastResetStreak, 1);
+        set({ streak: restored, lastActiveDate: d, lastResetStreak: 0 });
       },
       setPremium: (v) => set({ premium: v }),
       addWater: (ml) => {
