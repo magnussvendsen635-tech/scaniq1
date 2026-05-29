@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     const mealType = typeof body.mealType === "string" ? body.mealType.slice(0, 50) : "";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not set");
+    if (!LOVABLE_API_KEY) { console.error("LOVABLE_API_KEY missing"); return new Response(JSON.stringify({ error: "service_unavailable" }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
 
     const dietHint = diet && diet !== "none" ? `Diet preference: ${diet}.` : "";
     const prompt = `Suggest 3 ${mealType || "meal"} ideas for someone who has roughly:
