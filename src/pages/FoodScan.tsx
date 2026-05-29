@@ -545,6 +545,34 @@ export default function FoodScan() {
           {/* Portion step */}
           {step === "portion" && !result && (
             <div className="animate-fade-in">
+              {/* Camera preview hero */}
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="k-tap relative aspect-[4/3] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card group"
+                aria-label="Open camera"
+              >
+                <ScannerBackdrop />
+                {preview ? (
+                  <img src={preview} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                ) : null}
+                {[
+                  "top-4 left-4 border-t-[3px] border-l-[3px]",
+                  "top-4 right-4 border-t-[3px] border-r-[3px]",
+                  "bottom-4 left-4 border-b-[3px] border-l-[3px]",
+                  "bottom-4 right-4 border-b-[3px] border-r-[3px]",
+                ].map((c, i) => (
+                  <div key={i} className={`absolute w-10 h-10 rounded-md border-primary ${c}`} />
+                ))}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 bg-background/10">
+                  <div className="w-16 h-16 rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3 shadow-glow group-active:scale-95 transition-transform">
+                    <Camera className="w-8 h-8 text-foreground" />
+                  </div>
+                  <p className="text-foreground/80 text-sm font-semibold">
+                    {previews.length === 0 ? t("scan.point") : `Photo ${previews.length}/${REQUIRED_PHOTOS}`}
+                  </p>
+                </div>
+              </button>
+
               <div className="k-card p-5 mb-5">
                 <h2 className="text-lg font-semibold mb-1">Meal type</h2>
                 <p className="text-sm text-muted-foreground mb-4">Categorize this meal in your diary. The AI estimates portion size automatically from your photos.</p>
