@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw, Gift } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -9,14 +9,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
@@ -36,8 +28,6 @@ export default function Premium() {
   const { openCheckout, loading } = usePaddleCheckout();
   const [plan, setPlan] = useState<"month" | "year">("year");
   const [restoring, setRestoring] = useState(false);
-  const [redeemOpen, setRedeemOpen] = useState(false);
-  const [code, setCode] = useState("");
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
@@ -99,14 +89,6 @@ export default function Premium() {
     }
   };
 
-  const redeem = async () => {
-    if (!code.trim()) return;
-    toast("Kode modtaget", {
-      description: "Vi tjekker din kode. Du får besked, når den er aktiveret.",
-    });
-    setCode("");
-    setRedeemOpen(false);
-  };
 
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto" style={{ paddingBottom: 100 }}>
@@ -175,36 +157,6 @@ export default function Premium() {
         />
       </section>
 
-      {/* Promo code */}
-      <section className="mb-3">
-        <div className="flex gap-2">
-          <Input
-            value={promoInput}
-            onChange={(e) => { setPromoInput(e.target.value); setPromoError(false); }}
-            placeholder="Indtast rabatkode / Enter promo code"
-            disabled={promoApplied}
-            className={"h-12 rounded-xl " + (promoError ? "border-destructive" : promoApplied ? "border-green-500" : "")}
-          />
-          <Button
-            onClick={promoApplied ? () => { setPromoApplied(false); setPromoInput(""); } : applyPromo}
-            disabled={!promoApplied && !promoInput.trim()}
-            variant="outline"
-            className="h-12 rounded-xl px-5 shrink-0"
-          >
-            {promoApplied ? "Fjern" : "Anvend / Apply"}
-          </Button>
-        </div>
-        {promoApplied && (
-          <p className="text-xs text-green-600 mt-2 font-medium">
-            ✓ Rabatkode anvendt! 10% trukket fra / Code applied! 10% discount added
-          </p>
-        )}
-        {promoError && (
-          <p className="text-xs text-destructive mt-2 font-medium">
-            Ugyldig kode / Invalid code
-          </p>
-        )}
-      </section>
 
       <Button
         onClick={upgrade}
@@ -225,19 +177,41 @@ export default function Premium() {
 
       {/* Footer actions */}
       <footer className="mt-8 pt-6 border-t border-border/50">
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-2">
           <FooterAction
             icon={<RefreshCw className="w-4 h-4" />}
             label={restoring ? "Gendanner…" : "Gendan køb"}
             onClick={restore}
             disabled={restoring}
           />
-          <FooterAction
-            icon={<Gift className="w-4 h-4" />}
-            label="Indløs kode"
-            onClick={() => setRedeemOpen(true)}
-          />
+          <div className="flex gap-2 items-center h-11">
+            <Input
+              value={promoInput}
+              onChange={(e) => { setPromoInput(e.target.value); setPromoError(false); }}
+              placeholder="Indtast rabatkode"
+              disabled={promoApplied}
+              className={"h-11 rounded-xl flex-1 text-sm " + (promoError ? "border-destructive" : promoApplied ? "border-green-500" : "")}
+            />
+            <Button
+              onClick={promoApplied ? () => { setPromoApplied(false); setPromoInput(""); } : applyPromo}
+              disabled={!promoApplied && !promoInput.trim()}
+              variant="outline"
+              className="h-11 rounded-xl px-3 shrink-0 text-sm"
+            >
+              {promoApplied ? "Fjern" : "Anvend"}
+            </Button>
+          </div>
         </div>
+        {promoApplied && (
+          <p className="text-xs text-green-600 mb-2 font-medium">
+            ✓ Rabatkode anvendt! 10% trukket fra / Code applied! 10% discount added
+          </p>
+        )}
+        {promoError && (
+          <p className="text-xs text-destructive mb-2 font-medium">
+            Ugyldig kode / Invalid code
+          </p>
+        )}
         <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
           <button
             onClick={() => nav("/terms")}
@@ -254,35 +228,6 @@ export default function Premium() {
           </button>
         </div>
       </footer>
-
-      <Dialog open={redeemOpen} onOpenChange={setRedeemOpen}>
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Indløs kode</DialogTitle>
-            <DialogDescription>
-              Indtast din kampagne- eller gavekode for at aktivere Premium.
-            </DialogDescription>
-          </DialogHeader>
-          <Input
-            autoFocus
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            className="rounded-xl h-12"
-          />
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setRedeemOpen(false)}>
-              Annullér
-            </Button>
-            <Button
-              onClick={redeem}
-              disabled={!code.trim()}
-              className="bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white rounded-xl"
-            >
-              Indløs
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
