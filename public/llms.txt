@@ -1,0 +1,13 @@
+# ScanIQ
+
+> ScanIQ is an AI-powered nutrition and calorie tracking app. Scan food with your camera to instantly log calories, macros and health scores, and work toward your weight goals.
+
+ScanIQ uses AI image recognition to analyze meals from a single photo, then logs them into a daily food diary. It also tracks water, weight, workouts and offers AI meal suggestions and recipes. Most of the product is behind sign-in.
+
+## Pages
+
+- [Home](/): Product overview and entry point.
+- [Sign in / Sign up](/auth): Create an account or log in.
+- [Help & FAQ](/help): Frequently asked questions, support contact, and account tools.
+- [Privacy Policy](/privacy): How ScanIQ handles personal data (GDPR).
+- [Terms of Service](/terms): Terms governing use of ScanIQ.
