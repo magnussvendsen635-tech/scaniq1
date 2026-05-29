@@ -107,7 +107,8 @@ Each suggestion should fit comfortably within these remaining macros (use about 
     }
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`AI gateway error: ${errText}`);
+      console.error("AI gateway error:", response.status, errText);
+      return new Response(JSON.stringify({ error: "ai_error" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const data = await response.json();
