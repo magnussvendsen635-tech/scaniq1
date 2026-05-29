@@ -191,24 +191,43 @@ export const useKStore = create<KState>()(
       tickStreak: () => {
         const d = today();
         const last = get().lastActiveDate;
-        if (last === d) return;
+        if (last === d) return; // already counted today
         const frozen = get().frozenDays;
         const now = Date.now();
-        // walk back from yesterday — extend streak through active or non-expired-frozen days
-        let walker = new Date(Date.now() - 86400000);
+        // Walk back day-by-day from yesterday toward last active date.
+        // Streak continues only if every intervening day is frozen-active.
         let continued = false;
         if (last) {
-          // check unbroken: every day between last and yesterday must be frozen-active
-          while (walker.toISOString().slice(0, 10) > last) {
-            const ds = walker.toISOString().slice(0, 10);
-            const f = frozen[ds];
+          let walker = addDaysLocal(d, -1);
+          while (walker > last) {
+            const f = frozen[walker];
             if (!f || f < now) break;
-            walker = new Date(walker.getTime() - 86400000);
+            walker = addDaysLocal(walker, -1);
           }
-          if (walker.toISOString().slice(0, 10) === last) continued = true;
+          if (walker === last) continued = true;
         }
-        const next = !last ? 1 : continued ? get().streak + 1 : 1;
+        const prev = get().streak;
+        const next = continued ? prev + 1 : 1;
         set({ streak: next, lastActiveDate: d });
+      },
+      checkStreakExpiry: () => {
+        const d = today();
+        const last = get().lastActiveDate;
+        if (!last || last === d) return;
+        const frozen = get().frozenDays;
+        const now = Date.now();
+        // Walk back from yesterday to last active date — every gap day must be frozen-active.
+        let walker = addDaysLocal(d, -1);
+        let bridged = true;
+        while (walker > last) {
+          const f = frozen[walker];
+          if (!f || f < now) { bridged = false; break; }
+          walker = addDaysLocal(walker, -1);
+        }
+        // If last < yesterday and not fully bridged → at least one full day missed → reset.
+        if (!bridged && get().streak !== 0) {
+          set({ streak: 0 });
+        }
       },
       setPremium: (v) => set({ premium: v }),
       addWater: (ml) => {
