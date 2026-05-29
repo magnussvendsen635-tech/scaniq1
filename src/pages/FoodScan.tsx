@@ -42,6 +42,8 @@ interface Result {
   magnesium?: number;
   potassium?: number;
   zinc?: number;
+  novaGroup?: 1 | 2 | 3 | 4;
+  ultraProcessedPercent?: number;
 }
 
 type Portion = "small" | "medium" | "large";
