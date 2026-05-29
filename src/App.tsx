@@ -91,6 +91,7 @@ const App = () => {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
             {loading ? (
               <Route path="*" element={<div className="min-h-screen bg-background" />} />
             ) : !session ? (
