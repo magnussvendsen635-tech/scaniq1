@@ -1,10 +1,17 @@
 import { Link } from "react-router-dom";
-import { Flame, Snowflake } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { Flame, Snowflake, Wrench, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import confetti from "canvas-confetti";
 import { useKStore } from "@/store/useKStore";
 import { useT } from "@/i18n/useT";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
 
 export function StreakCard() {
   const t = useT();
