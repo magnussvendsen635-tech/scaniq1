@@ -796,8 +796,11 @@ export default function FoodScan() {
               </div>
 
               {(() => {
-                const nova = estimateNova(result, foodSource);
+                const nova = result.novaGroup ?? estimateNova(result, foodSource);
                 const meta = NOVA_META[nova];
+                const upp = typeof result.ultraProcessedPercent === "number"
+                  ? Math.max(0, Math.min(100, Math.round(result.ultraProcessedPercent)))
+                  : null;
                 return (
                   <div className={`k-card p-4 border-2 ${meta.border}`}>
                     <div className="flex items-center justify-between mb-2">
@@ -820,9 +823,21 @@ export default function FoodScan() {
                         <div key={n} className={`h-1.5 flex-1 rounded-full ${n <= nova ? meta.bar : "bg-muted"}`} />
                       ))}
                     </div>
+                    {upp !== null && (
+                      <div className="mt-3 pt-3 border-t border-border/60">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Ultra-forarbejdet andel</span>
+                          <span className="font-semibold">{upp}%</span>
+                        </div>
+                        <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className={`h-full ${meta.bar}`} style={{ width: `${upp}%` }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
+
 
               {(result.satietyHours || result.energyEffect) && (
                 <div className="k-card p-4 bg-gradient-soft border border-primary/20">
