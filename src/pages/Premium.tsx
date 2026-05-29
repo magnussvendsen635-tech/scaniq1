@@ -6,9 +6,8 @@ import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
-import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
 import { useSubscription } from "@/hooks/useSubscription";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
@@ -25,7 +24,7 @@ export default function Premium() {
   const t = useT();
   const { user } = useAuth();
   const { isActive, refetch } = useSubscription();
-  const { openCheckout, loading } = usePaddleCheckout();
+  const { purchase, restore: restoreIAP, loading } = useIAP();
   const [plan, setPlan] = useState<"month" | "year">("year");
   const [restoring, setRestoring] = useState(false);
   const [promoInput, setPromoInput] = useState("");
@@ -56,33 +55,23 @@ export default function Premium() {
       toast.error("Du skal være logget ind");
       return;
     }
-    try {
-      await openCheckout({
-        priceId: plan === "month" ? "kcally_premium_monthly" : "kcally_premium_yearly",
-        customerEmail: user.email,
-        customData: {
-          userId: user.id,
-          promoCode: promoApplied ? "PROMO10" : "",
-          discountPercent: promoApplied ? "10" : "0",
-        },
-        discountCode: promoApplied ? "PROMO10" : undefined,
-        successUrl: `${window.location.origin}/profile?checkout=success`,
-      });
-    } catch (e: any) {
-      toast.error("Kunne ikke åbne betaling", { description: e?.message });
+    const productId = plan === "month" ? IAP_PRODUCTS.monthly : IAP_PRODUCTS.yearly;
+    const { success } = await purchase(productId);
+    if (success) {
+      toast.success("Tak for dit køb!");
+      await refetch();
     }
   };
 
   const restore = async () => {
     setRestoring(true);
     try {
+      await restoreIAP();
       await refetch();
       if (isActive) {
         toast.success("Dit abonnement er gendannet");
       } else {
-        toast("Intet aktivt abonnement fundet", {
-          description: "Hvis du lige har købt, så vent et øjeblik og prøv igen.",
-        });
+        toast("Intet aktivt abonnement fundet");
       }
     } finally {
       setRestoring(false);
@@ -92,7 +81,7 @@ export default function Premium() {
 
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto" style={{ paddingBottom: 100 }}>
-      <PaymentTestModeBanner />
+
 
       <header className="flex items-center gap-3 mb-6 pt-2">
         <button
