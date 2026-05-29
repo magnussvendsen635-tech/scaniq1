@@ -146,6 +146,7 @@ const addDaysLocal = (dateStr: string, delta: number): string => {
   const mm = String(dt.getMonth() + 1).padStart(2, "0");
   const dd = String(dt.getDate()).padStart(2, "0");
   return `${yy}-${mm}-${dd}`;
+};
 const dayKey = (ts: number): string => {
   const d = new Date(ts);
   const y = d.getFullYear();
