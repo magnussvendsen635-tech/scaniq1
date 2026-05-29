@@ -55,33 +55,23 @@ export default function Premium() {
       toast.error("Du skal være logget ind");
       return;
     }
-    try {
-      await openCheckout({
-        priceId: plan === "month" ? "kcally_premium_monthly" : "kcally_premium_yearly",
-        customerEmail: user.email,
-        customData: {
-          userId: user.id,
-          promoCode: promoApplied ? "PROMO10" : "",
-          discountPercent: promoApplied ? "10" : "0",
-        },
-        discountCode: promoApplied ? "PROMO10" : undefined,
-        successUrl: `${window.location.origin}/profile?checkout=success`,
-      });
-    } catch (e: any) {
-      toast.error("Kunne ikke åbne betaling", { description: e?.message });
+    const productId = plan === "month" ? IAP_PRODUCTS.monthly : IAP_PRODUCTS.yearly;
+    const { success } = await purchase(productId);
+    if (success) {
+      toast.success("Tak for dit køb!");
+      await refetch();
     }
   };
 
   const restore = async () => {
     setRestoring(true);
     try {
+      await restoreIAP();
       await refetch();
       if (isActive) {
         toast.success("Dit abonnement er gendannet");
       } else {
-        toast("Intet aktivt abonnement fundet", {
-          description: "Hvis du lige har købt, så vent et øjeblik og prøv igen.",
-        });
+        toast("Intet aktivt abonnement fundet");
       }
     } finally {
       setRestoring(false);
