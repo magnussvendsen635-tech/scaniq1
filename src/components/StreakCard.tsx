@@ -15,7 +15,11 @@ import { Button } from "@/components/ui/button";
 
 export function StreakCard() {
   const t = useT();
-  const { streak, lastActiveDate, frozenDays, freezeStreak, freezesLeftThisWeek } = useKStore();
+  const { streak, lastActiveDate, frozenDays, freezeStreak, freezesLeftThisWeek, repairStreak, lastResetStreak } = useKStore();
+  const language = useKStore((s) => s.language);
+  const { user } = useAuth();
+  const [repairOpen, setRepairOpen] = useState(false);
+  const [repairing, setRepairing] = useState(false);
   const today = new Date().toISOString().slice(0, 10);
   const activeToday = lastActiveDate === today;
   const flameRef = useRef<HTMLDivElement | null>(null);
