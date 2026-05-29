@@ -153,6 +153,9 @@ export default function FoodScan() {
   const [searchGrams, setSearchGrams] = useState<string>("");
   const [searching, setSearching] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [cameraReady, setCameraReady] = useState(false);
   const REQUIRED_PHOTOS = 2;
   const MAX_PHOTOS = 3;
   const DAILY_LIMIT = 20;
@@ -185,6 +188,12 @@ export default function FoodScan() {
     if (!profile) return;
     refreshQuota();
   }, [profile]);
+
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
 
   // Auto-open camera when arriving via ?auto=1 (from bottom-nav scan button)
   useEffect(() => {
@@ -253,6 +262,47 @@ export default function FoodScan() {
     });
     // Stay on portion step so user can see thumbnails + Analyze button.
     // We only switch to "capture" view once scanning actually starts.
+  };
+
+  const startCamera = () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      fileRef.current?.click();
+      return;
+    }
+
+    navigator.mediaDevices
+      .getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false })
+      .then((stream) => {
+        streamRef.current?.getTracks().forEach((track) => track.stop());
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(() => undefined);
+        }
+        setCameraReady(true);
+      })
+      .catch(() => fileRef.current?.click());
+  };
+
+  const captureFromCamera = () => {
+    const video = videoRef.current;
+    if (!cameraReady || !video || video.readyState < 2) {
+      startCamera();
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 960;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      fileRef.current?.click();
+      return;
+    }
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
+    setResult(null);
+    setPreviews((prev) => [...prev, dataUrl].slice(0, MAX_PHOTOS));
   };
 
   const removePhoto = (idx: number) => {
@@ -551,11 +601,18 @@ export default function FoodScan() {
             <div className="animate-fade-in">
               {/* Camera preview hero */}
               <button
-                onClick={() => fileRef.current?.click()}
+                onClick={startCamera}
                 className="k-tap relative aspect-[4/3] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card group"
                 aria-label="Open camera"
               >
                 <ScannerBackdrop />
+                <video
+                  ref={videoRef}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  playsInline
+                />
                 {preview ? (
                   <img src={preview} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 ) : null}
@@ -663,7 +720,7 @@ export default function FoodScan() {
                     ))}
                     {previews.length < MAX_PHOTOS && (
                       <button
-                        onClick={() => fileRef.current?.click()}
+                        onClick={captureFromCamera}
                         className="aspect-square rounded-xl border-2 border-dashed border-border flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                       >
                         <Plus className="w-6 h-6" />
@@ -689,7 +746,7 @@ export default function FoodScan() {
                 </Button>
               ) : (
                 <Button
-                  onClick={() => fileRef.current?.click()}
+                  onClick={captureFromCamera}
                   className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
                 >
                   <Camera className="w-5 h-5 mr-1" />
