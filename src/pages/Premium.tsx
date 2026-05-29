@@ -28,8 +28,6 @@ export default function Premium() {
   const { openCheckout, loading } = usePaddleCheckout();
   const [plan, setPlan] = useState<"month" | "year">("year");
   const [restoring, setRestoring] = useState(false);
-  const [redeemOpen, setRedeemOpen] = useState(false);
-  const [code, setCode] = useState("");
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
