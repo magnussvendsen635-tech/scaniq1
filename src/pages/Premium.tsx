@@ -89,14 +89,6 @@ export default function Premium() {
     }
   };
 
-  const redeem = async () => {
-    if (!code.trim()) return;
-    toast("Kode modtaget", {
-      description: "Vi tjekker din kode. Du får besked, når den er aktiveret.",
-    });
-    setCode("");
-    setRedeemOpen(false);
-  };
 
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto" style={{ paddingBottom: 100 }}>
