@@ -289,6 +289,8 @@ export default function FoodScan() {
       magnesium: num(data.magnesium),
       potassium: num(data.potassium),
       zinc: num(data.zinc),
+      novaGroup: [1, 2, 3, 4].includes(Number(data.novaGroup)) ? (Number(data.novaGroup) as 1 | 2 | 3 | 4) : undefined,
+      ultraProcessedPercent: num(data.ultraProcessedPercent),
     });
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
