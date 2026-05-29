@@ -200,15 +200,15 @@ export const useKStore = create<KState>()(
         set({ meals });
         get().tickStreak();
         const d = today();
-        const dayCals = meals.filter((x) => new Date(x.at).toISOString().slice(0, 10) === d).reduce((a, b) => a + b.calories, 0);
+        const dayCals = meals.filter((x) => dayKey(x.at) === d).reduce((a, b) => a + b.calories, 0);
         set({ history: { ...get().history, [d]: { calories: dayCals, weight: get().user.weight } } });
       },
       removeMeal: (id) => set({ meals: get().meals.filter((m) => m.id !== id) }),
       addWorkout: (w) => set({ workouts: [w, ...get().workouts] }),
       resetDay: () => {
         const d = today();
-        const meals = get().meals.filter((m) => new Date(m.at).toISOString().slice(0, 10) !== d);
-        const workouts = get().workouts.filter((m) => new Date(m.at).toISOString().slice(0, 10) !== d);
+        const meals = get().meals.filter((m) => dayKey(m.at) !== d);
+        const workouts = get().workouts.filter((m) => dayKey(m.at) !== d);
         set({ meals, workouts });
       },
       tickStreak: () => {
@@ -319,12 +319,12 @@ function startOfISOWeek(d: Date): Date {
 // Helpers
 export function caloriesToday(meals: Meal[]) {
   const d = today();
-  return meals.filter((m) => new Date(m.at).toISOString().slice(0, 10) === d).reduce((a, b) => a + b.calories, 0);
+  return meals.filter((m) => dayKey(m.at) === d).reduce((a, b) => a + b.calories, 0);
 }
 export function macrosToday(meals: Meal[]) {
   const d = today();
   return meals
-    .filter((m) => new Date(m.at).toISOString().slice(0, 10) === d)
+    .filter((m) => dayKey(m.at) === d)
     .reduce(
       (acc, m) => ({ protein: acc.protein + m.protein, carbs: acc.carbs + m.carbs, fat: acc.fat + m.fat }),
       { protein: 0, carbs: 0, fat: 0 }
@@ -332,7 +332,7 @@ export function macrosToday(meals: Meal[]) {
 }
 export function caloriesBurnedToday(workouts: WorkoutLog[]) {
   const d = today();
-  return workouts.filter((w) => new Date(w.at).toISOString().slice(0, 10) === d).reduce((a, b) => a + b.caloriesBurned, 0);
+  return workouts.filter((w) => dayKey(w.at) === d).reduce((a, b) => a + b.caloriesBurned, 0);
 }
 export function waterToday(water: Record<string, number>) {
   const d = today();
@@ -341,7 +341,7 @@ export function waterToday(water: Record<string, number>) {
 export function micronutrientsToday(meals: Meal[]) {
   const d = today();
   return meals
-    .filter((m) => new Date(m.at).toISOString().slice(0, 10) === d)
+    .filter((m) => dayKey(m.at) === d)
     .reduce(
       (acc, m) => ({
         fiber: acc.fiber + (m.fiber ?? 0),
