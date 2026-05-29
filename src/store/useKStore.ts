@@ -103,6 +103,7 @@ interface KState {
   waterGoal: number;
   autoAdjustGoal: boolean;
   frozenDays: Record<string, number>;
+  lastResetStreak: number;
 
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
