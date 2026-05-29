@@ -31,6 +31,7 @@ export default function Profile() {
   const { user, streak, premium, avatar, setAvatar } = useKStore();
   const { isActive, refetch } = useSubscription();
   const [restoring, setRestoring] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const ADMIN_EMAILS = ["magnussvendsen635@gmail.com"];
   const isAdmin =
     (authUser?.email && ADMIN_EMAILS.includes(authUser.email)) ||
