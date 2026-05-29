@@ -205,7 +205,6 @@ export default function Premium() {
           </DialogHeader>
           <Input
             autoFocus
-            placeholder="F.eks. SCANIQ-2026"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             className="rounded-xl h-12"
