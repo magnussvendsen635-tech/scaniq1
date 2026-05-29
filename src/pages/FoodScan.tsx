@@ -42,6 +42,8 @@ interface Result {
   magnesium?: number;
   potassium?: number;
   zinc?: number;
+  novaGroup?: 1 | 2 | 3 | 4;
+  ultraProcessedPercent?: number;
 }
 
 type Portion = "small" | "medium" | "large";
@@ -287,6 +289,8 @@ export default function FoodScan() {
       magnesium: num(data.magnesium),
       potassium: num(data.potassium),
       zinc: num(data.zinc),
+      novaGroup: [1, 2, 3, 4].includes(Number(data.novaGroup)) ? (Number(data.novaGroup) as 1 | 2 | 3 | 4) : undefined,
+      ultraProcessedPercent: num(data.ultraProcessedPercent),
     });
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
@@ -545,6 +549,34 @@ export default function FoodScan() {
           {/* Portion step */}
           {step === "portion" && !result && (
             <div className="animate-fade-in">
+              {/* Camera preview hero */}
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="k-tap relative aspect-[4/3] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card group"
+                aria-label="Open camera"
+              >
+                <ScannerBackdrop />
+                {preview ? (
+                  <img src={preview} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                ) : null}
+                {[
+                  "top-4 left-4 border-t-[3px] border-l-[3px]",
+                  "top-4 right-4 border-t-[3px] border-r-[3px]",
+                  "bottom-4 left-4 border-b-[3px] border-l-[3px]",
+                  "bottom-4 right-4 border-b-[3px] border-r-[3px]",
+                ].map((c, i) => (
+                  <div key={i} className={`absolute w-10 h-10 rounded-md border-primary ${c}`} />
+                ))}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 bg-background/10">
+                  <div className="w-16 h-16 rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3 shadow-glow group-active:scale-95 transition-transform">
+                    <Camera className="w-8 h-8 text-foreground" />
+                  </div>
+                  <p className="text-foreground/80 text-sm font-semibold">
+                    {previews.length === 0 ? t("scan.point") : `Photo ${previews.length}/${REQUIRED_PHOTOS}`}
+                  </p>
+                </div>
+              </button>
+
               <div className="k-card p-5 mb-5">
                 <h2 className="text-lg font-semibold mb-1">Meal type</h2>
                 <p className="text-sm text-muted-foreground mb-4">Categorize this meal in your diary. The AI estimates portion size automatically from your photos.</p>
@@ -764,8 +796,11 @@ export default function FoodScan() {
               </div>
 
               {(() => {
-                const nova = estimateNova(result, foodSource);
+                const nova = result.novaGroup ?? estimateNova(result, foodSource);
                 const meta = NOVA_META[nova];
+                const upp = typeof result.ultraProcessedPercent === "number"
+                  ? Math.max(0, Math.min(100, Math.round(result.ultraProcessedPercent)))
+                  : null;
                 return (
                   <div className={`k-card p-4 border-2 ${meta.border}`}>
                     <div className="flex items-center justify-between mb-2">
@@ -788,9 +823,21 @@ export default function FoodScan() {
                         <div key={n} className={`h-1.5 flex-1 rounded-full ${n <= nova ? meta.bar : "bg-muted"}`} />
                       ))}
                     </div>
+                    {upp !== null && (
+                      <div className="mt-3 pt-3 border-t border-border/60">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Ultra-forarbejdet andel</span>
+                          <span className="font-semibold">{upp}%</span>
+                        </div>
+                        <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className={`h-full ${meta.bar}`} style={{ width: `${upp}%` }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
+
 
               {(result.satietyHours || result.energyEffect) && (
                 <div className="k-card p-4 bg-gradient-soft border border-primary/20">
