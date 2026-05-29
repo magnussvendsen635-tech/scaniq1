@@ -156,6 +156,52 @@ export default function Profile() {
           <AlertDialogTrigger asChild>
             <button className="w-full p-4 flex items-center gap-4 hover:bg-surface-2 transition-colors text-left">
               <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-destructive/15">
+                <Trash2 className="w-4.5 h-4.5 text-destructive" />
+              </div>
+              <div className="flex-1">
+                <div className="font-medium text-destructive">Slet konto</div>
+                <div className="text-xs text-muted-foreground">Slet din konto og alle data permanent</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Slet konto?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Denne handling kan ikke fortrydes. Din konto og alle tilknyttede data slettes permanent.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuller</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  setDeleting(true);
+                  try {
+                    const { error } = await supabase.functions.invoke("delete-account");
+                    if (error) throw error;
+                    await signOut();
+                    toast.success("Din konto er slettet");
+                    nav("/auth", { replace: true });
+                  } catch (err: any) {
+                    toast.error("Kunne ikke slette konto", { description: err?.message ?? "Prøv igen senere" });
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+              >
+                {deleting ? "Sletter…" : "Slet permanent"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="w-full p-4 flex items-center gap-4 hover:bg-surface-2 transition-colors text-left">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-destructive/15">
                 <LogOut className="w-4.5 h-4.5 text-destructive" />
               </div>
               <div className="flex-1">
