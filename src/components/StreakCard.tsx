@@ -150,9 +150,9 @@ export function StreakCard() {
                   (d.frozen
                     ? "bg-gradient-to-br from-sky-400 to-cyan-500 shadow-[0_0_12px_-2px_hsl(200_100%_60%/0.6)]"
                     : d.done
-                    ? "bg-gradient-primary shadow-glow"
+                    ? "bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 shadow-[0_4px_12px_-2px_rgba(249,115,22,0.55)]"
                     : d.isToday
-                    ? "bg-card border-2 border-dashed border-primary/50"
+                    ? "bg-card border-2 border-dashed border-orange-400/60"
                     : "bg-surface-2 border border-border/40")
                 }
               >
@@ -163,11 +163,13 @@ export function StreakCard() {
                     className={
                       "w-3.5 h-3.5 " +
                       (d.done
-                        ? "text-white"
+                        ? "text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
                         : d.isToday
-                        ? "text-primary-glow"
+                        ? "text-orange-400"
                         : "text-muted-foreground/40")
                     }
+                    fill={d.done ? "url(#flameGrad)" : "none"}
+                    strokeWidth={1.75}
                   />
                 )}
               </div>
