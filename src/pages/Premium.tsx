@@ -70,7 +70,12 @@ export default function Premium() {
       await openCheckout({
         priceId: plan === "month" ? "kcally_premium_monthly" : "kcally_premium_yearly",
         customerEmail: user.email,
-        customData: { userId: user.id },
+        customData: {
+          userId: user.id,
+          promoCode: promoApplied ? "PROMO10" : "",
+          discountPercent: promoApplied ? "10" : "0",
+        },
+        discountCode: promoApplied ? "PROMO10" : undefined,
         successUrl: `${window.location.origin}/profile?checkout=success`,
       });
     } catch (e: any) {
