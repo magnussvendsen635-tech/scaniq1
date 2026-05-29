@@ -36,7 +36,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "kally-fit-fuel"
+const SITE_NAME = "ScanIQ"
 const SENDER_DOMAIN = "mail.scaniq.app"
 const ROOT_DOMAIN = "scaniq.app"
 const FROM_DOMAIN = "scaniq.app" // Domain shown in From address (may be root or sender subdomain)
