@@ -6,9 +6,8 @@ import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
-import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
 import { useSubscription } from "@/hooks/useSubscription";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
