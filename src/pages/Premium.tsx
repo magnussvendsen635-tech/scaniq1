@@ -38,6 +38,28 @@ export default function Premium() {
   const [restoring, setRestoring] = useState(false);
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [code, setCode] = useState("");
+  const [promoInput, setPromoInput] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError] = useState(false);
+
+  const monthlyBase = 19;
+  const yearlyBase = 179;
+  const discount = promoApplied ? 0.1 : 0;
+  const monthlyPrice = (monthlyBase * (1 - discount)).toFixed(2);
+  const yearlyPrice = (yearlyBase * (1 - discount)).toFixed(2);
+  const displayPrice = (n: string) => (n.endsWith(".00") ? n.slice(0, -3) : n);
+
+  const applyPromo = () => {
+    if (promoInput.trim().toUpperCase() === "PROMO10") {
+      setPromoApplied(true);
+      setPromoError(false);
+      toast.success("Rabatkode anvendt! 10% trukket fra / Code applied! 10% discount added");
+    } else {
+      setPromoApplied(false);
+      setPromoError(true);
+      toast.error("Ugyldig kode / Invalid code");
+    }
+  };
 
   const upgrade = async () => {
     if (!user) {
