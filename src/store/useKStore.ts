@@ -113,6 +113,7 @@ interface KState {
   addWorkout: (w: WorkoutLog) => void;
   resetDay: () => void;
   tickStreak: () => void;
+  checkStreakExpiry: () => void;
   setPremium: (v: boolean) => void;
   addWater: (ml: number) => void;
   setWaterGoal: (ml: number) => void;
