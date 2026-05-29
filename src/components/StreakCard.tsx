@@ -234,6 +234,44 @@ export function StreakCard() {
           ))}
         </div>
       </div>
+
+      {canRepair && (
+        <button
+          onClick={openRepair}
+          className="mt-4 w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-yellow-400 text-white text-sm font-semibold shadow-[0_4px_14px_-4px_rgba(249,115,22,0.6)]"
+        >
+          <Wrench className="w-4 h-4" />
+          {language?.startsWith("da") ? "Gendan streak — $3" : "Repair streak — $3"}
+        </button>
+      )}
+
+      <Dialog open={repairOpen} onOpenChange={setRepairOpen}>
+        <DialogContent onClick={(e) => e.stopPropagation()} className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {language?.startsWith("da") ? "Gendan din streak" : "Repair your streak"}
+            </DialogTitle>
+            <DialogDescription>
+              {language?.startsWith("da")
+                ? `Køb Streak Repair for $3 og få din streak på ${Math.max(lastResetStreak, 1)} dage tilbage.`
+                : `Buy Streak Repair for $3 and restore your ${Math.max(lastResetStreak, 1)}-day streak.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={(e) => { e.stopPropagation(); setRepairOpen(false); }}>
+              {language?.startsWith("da") ? "Annullér" : "Cancel"}
+            </Button>
+            <Button
+              onClick={(e) => { e.stopPropagation(); handleRepair(); }}
+              disabled={repairing}
+              className="bg-gradient-to-r from-orange-500 to-yellow-400 text-white"
+            >
+              {repairing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Wrench className="w-4 h-4 mr-2" />}
+              {language?.startsWith("da") ? "Køb for $3" : "Buy for $3"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Link>
   );
 }
