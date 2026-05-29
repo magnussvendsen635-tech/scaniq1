@@ -152,6 +152,15 @@ export default function Profile() {
         <Row Icon={FileText} title="Terms of Service" sub="Vilkår og betingelser" onClick={() => nav("/terms")} />
         <Row Icon={LifeBuoy} title="Hjælp & support" sub="Kontakt, FAQ, om os, slet konto" onClick={() => nav("/help")} />
         {isAdmin && <Row Icon={Database} title="Admin panel" sub="Brugere, måltider & data" onClick={() => nav("/admin")} />}
+        <Row
+          Icon={RefreshCw}
+          title="Genstart onboarding"
+          sub="Gennemgå opsætningen forfra"
+          onClick={() => {
+            useKStore.getState().setOnboarded(false);
+            nav("/onboarding", { replace: true });
+          }}
+        />
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <button className="w-full p-4 flex items-center gap-4 hover:bg-surface-2 transition-colors text-left">

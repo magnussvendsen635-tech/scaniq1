@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useKStore } from "@/store/useKStore";
 import type { Session, User } from "@supabase/supabase-js";
 
 interface AuthContextValue {
@@ -36,6 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    // Reset onboarding so next sign-in (or new user) is forced through the questionnaire.
+    try { useKStore.getState().setOnboarded(false); } catch {}
   };
 
   return (
