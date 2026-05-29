@@ -177,19 +177,41 @@ export default function Premium() {
 
       {/* Footer actions */}
       <footer className="mt-8 pt-6 border-t border-border/50">
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-2">
           <FooterAction
             icon={<RefreshCw className="w-4 h-4" />}
             label={restoring ? "Gendanner…" : "Gendan køb"}
             onClick={restore}
             disabled={restoring}
           />
-          <FooterAction
-            icon={<Gift className="w-4 h-4" />}
-            label="Indløs kode"
-            onClick={() => setRedeemOpen(true)}
-          />
+          <div className="flex gap-2 items-center h-11">
+            <Input
+              value={promoInput}
+              onChange={(e) => { setPromoInput(e.target.value); setPromoError(false); }}
+              placeholder="Indtast rabatkode"
+              disabled={promoApplied}
+              className={"h-11 rounded-xl flex-1 text-sm " + (promoError ? "border-destructive" : promoApplied ? "border-green-500" : "")}
+            />
+            <Button
+              onClick={promoApplied ? () => { setPromoApplied(false); setPromoInput(""); } : applyPromo}
+              disabled={!promoApplied && !promoInput.trim()}
+              variant="outline"
+              className="h-11 rounded-xl px-3 shrink-0 text-sm"
+            >
+              {promoApplied ? "Fjern" : "Anvend"}
+            </Button>
+          </div>
         </div>
+        {promoApplied && (
+          <p className="text-xs text-green-600 mb-2 font-medium">
+            ✓ Rabatkode anvendt! 10% trukket fra / Code applied! 10% discount added
+          </p>
+        )}
+        {promoError && (
+          <p className="text-xs text-destructive mb-2 font-medium">
+            Ugyldig kode / Invalid code
+          </p>
+        )}
         <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
           <button
             onClick={() => nav("/terms")}
@@ -206,35 +228,6 @@ export default function Premium() {
           </button>
         </div>
       </footer>
-
-      <Dialog open={redeemOpen} onOpenChange={setRedeemOpen}>
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Indløs kode</DialogTitle>
-            <DialogDescription>
-              Indtast din kampagne- eller gavekode for at aktivere Premium.
-            </DialogDescription>
-          </DialogHeader>
-          <Input
-            autoFocus
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            className="rounded-xl h-12"
-          />
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setRedeemOpen(false)}>
-              Annullér
-            </Button>
-            <Button
-              onClick={redeem}
-              disabled={!code.trim()}
-              className="bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white rounded-xl"
-            >
-              Indløs
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
