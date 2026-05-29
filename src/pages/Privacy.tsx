@@ -1,9 +1,15 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { Seo } from "@/components/Seo";
 
 export default function Privacy() {
   return (
     <div className="k-page max-w-2xl mx-auto pb-32">
+      <Seo
+        title="Privatlivspolitik — ScanIQ"
+        description="Sådan behandler ScanIQ dine personoplysninger. GDPR-overholdelse, datalagring og dine rettigheder."
+        path="/privacy"
+      />
       <header className="flex items-center gap-3 mb-6">
         <Link to="/settings" className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />

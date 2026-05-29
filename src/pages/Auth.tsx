@@ -8,6 +8,7 @@ import { Logo } from "@/components/Logo";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
+import { Seo } from "@/components/Seo";
 
 export default function Auth() {
   const t = useT();
@@ -99,6 +100,11 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-10">
+      <Seo
+        title="Log ind eller opret konto — ScanIQ"
+        description="Log ind på ScanIQ eller opret en gratis konto for at scanne mad, tracke kalorier og nå dine ernæringsmål."
+        path="/auth"
+      />
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <Logo size={56} />

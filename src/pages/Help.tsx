@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronDown, Mail, Info, Trash2, Bug, HelpCircle, Activity, 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { Seo } from "@/components/Seo";
 
 const SUPPORT_EMAIL = "scaniqapp1@gmail.com";
 
@@ -98,6 +99,20 @@ export default function Help() {
 
   return (
     <div className="k-page pb-32">
+      <Seo
+        title="Hjælp & FAQ — ScanIQ"
+        description="Ofte stillede spørgsmål om ScanIQ: scanning, præcision, premium, privatliv og kontoadministration."
+        path="/help"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQS.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }}
+      />
       <header className="flex items-center gap-3 mb-6">
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
