@@ -157,36 +157,6 @@ export default function Premium() {
         />
       </section>
 
-      {/* Promo code */}
-      <section className="mb-3">
-        <div className="flex gap-2">
-          <Input
-            value={promoInput}
-            onChange={(e) => { setPromoInput(e.target.value); setPromoError(false); }}
-            placeholder="Indtast rabatkode / Enter promo code"
-            disabled={promoApplied}
-            className={"h-12 rounded-xl " + (promoError ? "border-destructive" : promoApplied ? "border-green-500" : "")}
-          />
-          <Button
-            onClick={promoApplied ? () => { setPromoApplied(false); setPromoInput(""); } : applyPromo}
-            disabled={!promoApplied && !promoInput.trim()}
-            variant="outline"
-            className="h-12 rounded-xl px-5 shrink-0"
-          >
-            {promoApplied ? "Fjern" : "Anvend / Apply"}
-          </Button>
-        </div>
-        {promoApplied && (
-          <p className="text-xs text-green-600 mt-2 font-medium">
-            ✓ Rabatkode anvendt! 10% trukket fra / Code applied! 10% discount added
-          </p>
-        )}
-        {promoError && (
-          <p className="text-xs text-destructive mt-2 font-medium">
-            Ugyldig kode / Invalid code
-          </p>
-        )}
-      </section>
 
       <Button
         onClick={upgrade}
