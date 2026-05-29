@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw, Gift } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
