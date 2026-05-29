@@ -128,7 +128,6 @@ interface KState {
   setAutoAdjustGoal: (v: boolean) => void;
   recomputePlan: () => void;
   freezeStreak: () => { ok: boolean; reason?: string; remaining: number };
-  freezeStreak: () => { ok: boolean; reason?: string; remaining: number };
   freezesLeftThisWeek: () => number;
   repairStreak: () => void;
 }
