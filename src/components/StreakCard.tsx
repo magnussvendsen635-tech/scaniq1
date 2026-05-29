@@ -77,6 +77,44 @@ export function StreakCard() {
     toast.success(`Streak frosset i 24t ❄️`, { description: `${r.remaining} frys tilbage denne uge.` });
   };
 
+  const canRepair = streak === 0 && lastResetStreak > 0;
+
+  const openRepair = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setRepairOpen(true);
+  };
+
+  const handleRepair = async () => {
+    setRepairing(true);
+    try {
+      // NOTE: This is a placeholder for the App Store $3 In-App Purchase.
+      // On native, the IAP completion handler would call this same flow.
+      repairStreak();
+      if (user?.email) {
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "welcome-receipt",
+            recipientEmail: user.email,
+            idempotencyKey: `streak-repair-${user.id}-${Date.now()}`,
+            templateData: {
+              language: language?.startsWith("da") ? "da" : "en",
+              productName: "Streak Repair",
+              price: "$3",
+            },
+          },
+        });
+      }
+      toast.success(language?.startsWith("da") ? "Streak gendannet! 🔥" : "Streak restored! 🔥");
+      setRepairOpen(false);
+    } catch (err: any) {
+      toast.error(err?.message || "Kunne ikke gendanne streak");
+    } finally {
+      setRepairing(false);
+    }
+  };
+
+
   return (
     <Link
       to="/scan"
