@@ -75,21 +75,38 @@ export function StreakCard() {
       <div className="relative flex items-center gap-4 mb-4">
         <div ref={flameRef} className="relative w-14 h-14 shrink-0">
           {streak > 0 && !frozenToday && (
-            <div className="absolute inset-0 rounded-2xl bg-gradient-primary opacity-40 blur-xl animate-pulse" />
+            <>
+              <div className="absolute inset-0 rounded-2xl bg-orange-500/50 blur-2xl animate-pulse" />
+              <div className="absolute -inset-1 rounded-2xl bg-yellow-400/30 blur-xl" />
+            </>
           )}
           <div
             className={
-              "relative w-14 h-14 rounded-2xl flex items-center justify-center shadow-glow " +
+              "relative w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_8px_24px_-4px_rgba(249,115,22,0.6)] " +
               (frozenToday
                 ? "bg-gradient-to-br from-sky-400 to-cyan-500"
-                : "bg-gradient-primary")
+                : "bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400")
             }
           >
             {frozenToday ? (
               <Snowflake className="w-7 h-7 text-white drop-shadow" />
             ) : (
-              <Flame className="w-7 h-7 text-white drop-shadow" />
+              <Flame
+                className="w-7 h-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]"
+                fill="url(#flameGrad)"
+                strokeWidth={1.5}
+              />
             )}
+            {/* SVG gradient definition for the filled flame */}
+            <svg width="0" height="0" className="absolute">
+              <defs>
+                <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0%" stopColor="#f97316" />
+                  <stop offset="60%" stopColor="#fb923c" />
+                  <stop offset="100%" stopColor="#facc15" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
         </div>
         <div className="flex-1 min-w-0">
