@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     const mealType = typeof body.mealType === "string" ? body.mealType.slice(0, 50) : "";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not set");
+    if (!LOVABLE_API_KEY) { console.error("LOVABLE_API_KEY missing"); return new Response(JSON.stringify({ error: "service_unavailable" }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
 
     const dietHint = diet && diet !== "none" ? `Diet preference: ${diet}.` : "";
     const prompt = `Suggest 3 ${mealType || "meal"} ideas for someone who has roughly:
@@ -107,7 +107,8 @@ Each suggestion should fit comfortably within these remaining macros (use about 
     }
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`AI gateway error: ${errText}`);
+      console.error("AI gateway error:", response.status, errText);
+      return new Response(JSON.stringify({ error: "ai_error" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const data = await response.json();
@@ -118,7 +119,7 @@ Each suggestion should fit comfortably within these remaining macros (use about 
     return new Response(JSON.stringify(args), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (err) {
     console.error("meal-suggest error:", err);
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
+    return new Response(JSON.stringify({ error: "internal_error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
