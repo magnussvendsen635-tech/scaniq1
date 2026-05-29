@@ -60,6 +60,19 @@ const App = () => {
     document.documentElement.setAttribute("lang", base);
   }, [language]);
 
+  // Enforce strict daily streak: reset to 0 if a full local-calendar day was missed.
+  useEffect(() => {
+    const check = () => useKStore.getState().checkStreakExpiry();
+    check();
+    const onVis = () => { if (document.visibilityState === "visible") check(); };
+    document.addEventListener("visibilitychange", onVis);
+    const interval = window.setInterval(check, 60 * 1000);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      window.clearInterval(interval);
+    };
+  }, []);
+
   // Re-schedule native reminders whenever settings or logged meals change.
   useEffect(() => {
     if (!reminders.enabled) return;

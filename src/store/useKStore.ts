@@ -113,6 +113,7 @@ interface KState {
   addWorkout: (w: WorkoutLog) => void;
   resetDay: () => void;
   tickStreak: () => void;
+  checkStreakExpiry: () => void;
   setPremium: (v: boolean) => void;
   addWater: (ml: number) => void;
   setWaterGoal: (ml: number) => void;
@@ -129,7 +130,30 @@ interface KState {
   freezesLeftThisWeek: () => number;
 }
 
-const today = () => new Date().toISOString().slice(0, 10);
+// Local-timezone YYYY-MM-DD (so streak boundaries match the user's device day).
+const today = (): string => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+const addDaysLocal = (dateStr: string, delta: number): string => {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + delta);
+  const yy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+};
+const dayKey = (ts: number): string => {
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 
 export const useKStore = create<KState>()(
   persist(
@@ -176,38 +200,57 @@ export const useKStore = create<KState>()(
         set({ meals });
         get().tickStreak();
         const d = today();
-        const dayCals = meals.filter((x) => new Date(x.at).toISOString().slice(0, 10) === d).reduce((a, b) => a + b.calories, 0);
+        const dayCals = meals.filter((x) => dayKey(x.at) === d).reduce((a, b) => a + b.calories, 0);
         set({ history: { ...get().history, [d]: { calories: dayCals, weight: get().user.weight } } });
       },
       removeMeal: (id) => set({ meals: get().meals.filter((m) => m.id !== id) }),
       addWorkout: (w) => set({ workouts: [w, ...get().workouts] }),
       resetDay: () => {
         const d = today();
-        const meals = get().meals.filter((m) => new Date(m.at).toISOString().slice(0, 10) !== d);
-        const workouts = get().workouts.filter((m) => new Date(m.at).toISOString().slice(0, 10) !== d);
+        const meals = get().meals.filter((m) => dayKey(m.at) !== d);
+        const workouts = get().workouts.filter((m) => dayKey(m.at) !== d);
         set({ meals, workouts });
       },
       tickStreak: () => {
         const d = today();
         const last = get().lastActiveDate;
-        if (last === d) return;
+        if (last === d) return; // already counted today
         const frozen = get().frozenDays;
         const now = Date.now();
-        // walk back from yesterday — extend streak through active or non-expired-frozen days
-        let walker = new Date(Date.now() - 86400000);
+        // Walk back day-by-day from yesterday toward last active date.
+        // Streak continues only if every intervening day is frozen-active.
         let continued = false;
         if (last) {
-          // check unbroken: every day between last and yesterday must be frozen-active
-          while (walker.toISOString().slice(0, 10) > last) {
-            const ds = walker.toISOString().slice(0, 10);
-            const f = frozen[ds];
+          let walker = addDaysLocal(d, -1);
+          while (walker > last) {
+            const f = frozen[walker];
             if (!f || f < now) break;
-            walker = new Date(walker.getTime() - 86400000);
+            walker = addDaysLocal(walker, -1);
           }
-          if (walker.toISOString().slice(0, 10) === last) continued = true;
+          if (walker === last) continued = true;
         }
-        const next = !last ? 1 : continued ? get().streak + 1 : 1;
+        const prev = get().streak;
+        const next = continued ? prev + 1 : 1;
         set({ streak: next, lastActiveDate: d });
+      },
+      checkStreakExpiry: () => {
+        const d = today();
+        const last = get().lastActiveDate;
+        if (!last || last === d) return;
+        const frozen = get().frozenDays;
+        const now = Date.now();
+        // Walk back from yesterday to last active date — every gap day must be frozen-active.
+        let walker = addDaysLocal(d, -1);
+        let bridged = true;
+        while (walker > last) {
+          const f = frozen[walker];
+          if (!f || f < now) { bridged = false; break; }
+          walker = addDaysLocal(walker, -1);
+        }
+        // If last < yesterday and not fully bridged → at least one full day missed → reset.
+        if (!bridged && get().streak !== 0) {
+          set({ streak: 0 });
+        }
       },
       setPremium: (v) => set({ premium: v }),
       addWater: (ml) => {
@@ -276,12 +319,12 @@ function startOfISOWeek(d: Date): Date {
 // Helpers
 export function caloriesToday(meals: Meal[]) {
   const d = today();
-  return meals.filter((m) => new Date(m.at).toISOString().slice(0, 10) === d).reduce((a, b) => a + b.calories, 0);
+  return meals.filter((m) => dayKey(m.at) === d).reduce((a, b) => a + b.calories, 0);
 }
 export function macrosToday(meals: Meal[]) {
   const d = today();
   return meals
-    .filter((m) => new Date(m.at).toISOString().slice(0, 10) === d)
+    .filter((m) => dayKey(m.at) === d)
     .reduce(
       (acc, m) => ({ protein: acc.protein + m.protein, carbs: acc.carbs + m.carbs, fat: acc.fat + m.fat }),
       { protein: 0, carbs: 0, fat: 0 }
@@ -289,7 +332,7 @@ export function macrosToday(meals: Meal[]) {
 }
 export function caloriesBurnedToday(workouts: WorkoutLog[]) {
   const d = today();
-  return workouts.filter((w) => new Date(w.at).toISOString().slice(0, 10) === d).reduce((a, b) => a + b.caloriesBurned, 0);
+  return workouts.filter((w) => dayKey(w.at) === d).reduce((a, b) => a + b.caloriesBurned, 0);
 }
 export function waterToday(water: Record<string, number>) {
   const d = today();
@@ -298,7 +341,7 @@ export function waterToday(water: Record<string, number>) {
 export function micronutrientsToday(meals: Meal[]) {
   const d = today();
   return meals
-    .filter((m) => new Date(m.at).toISOString().slice(0, 10) === d)
+    .filter((m) => dayKey(m.at) === d)
     .reduce(
       (acc, m) => ({
         fiber: acc.fiber + (m.fiber ?? 0),
