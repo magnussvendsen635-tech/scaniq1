@@ -103,6 +103,7 @@ interface KState {
   waterGoal: number;
   autoAdjustGoal: boolean;
   frozenDays: Record<string, number>;
+  lastResetStreak: number;
 
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
@@ -128,6 +129,7 @@ interface KState {
   recomputePlan: () => void;
   freezeStreak: () => { ok: boolean; reason?: string; remaining: number };
   freezesLeftThisWeek: () => number;
+  repairStreak: () => void;
 }
 
 // Local-timezone YYYY-MM-DD (so streak boundaries match the user's device day).
@@ -190,6 +192,7 @@ export const useKStore = create<KState>()(
       waterGoal: 2500,
       autoAdjustGoal: true,
       frozenDays: {},
+      lastResetStreak: 0,
 
       setOnboarded: (v) => set({ onboarded: v }),
       setLanguage: (code) => set({ language: code }),
@@ -249,8 +252,13 @@ export const useKStore = create<KState>()(
         }
         // If last < yesterday and not fully bridged → at least one full day missed → reset.
         if (!bridged && get().streak !== 0) {
-          set({ streak: 0 });
+          set({ lastResetStreak: get().streak, streak: 0 });
         }
+      },
+      repairStreak: () => {
+        const d = today();
+        const restored = Math.max(get().streak, get().lastResetStreak, 1);
+        set({ streak: restored, lastActiveDate: d, lastResetStreak: 0 });
       },
       setPremium: (v) => set({ premium: v }),
       addWater: (ml) => {

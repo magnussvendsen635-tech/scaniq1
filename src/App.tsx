@@ -32,6 +32,7 @@ import Help from "./pages/Help";
 import Admin from "./pages/Admin";
 import Reminders from "./pages/Reminders";
 import NotFound from "./pages/NotFound.tsx";
+import Unsubscribe from "./pages/Unsubscribe";
 import { CookieConsent } from "@/components/CookieConsent";
 import { UpgradeFab } from "@/components/UpgradeFab";
 import { SplashScreen } from "@/components/SplashScreen";
@@ -90,6 +91,7 @@ const App = () => {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
             {loading ? (
               <Route path="*" element={<div className="min-h-screen bg-background" />} />
             ) : !session ? (

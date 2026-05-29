@@ -41,6 +41,36 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
 
   // Mirror to profiles.is_premium for legacy code paths
   await getSupabase().from('profiles').update({ is_premium: true }).eq('id', userId);
+
+  // Send welcome & receipt email
+  try {
+    const { data: profile } = await getSupabase()
+      .from('profiles')
+      .select('email, language')
+      .eq('id', userId)
+      .maybeSingle();
+    const email = (profile as any)?.email || data?.customerEmail;
+    if (email) {
+      const isYearly = priceId === 'kcally_premium_yearly';
+      const promo = customData?.promoCode === 'PROMO10';
+      const monthly = promo ? '$17.10 / month' : '$19 / month';
+      const yearly = promo ? '$161.10 / year' : '$179 / year';
+      await getSupabase().functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'welcome-receipt',
+          recipientEmail: email,
+          idempotencyKey: `welcome-${id}`,
+          templateData: {
+            language: ((profile as any)?.language || 'da').startsWith('da') ? 'da' : 'en',
+            productName: isYearly ? 'ScanIQ Pro - Yearly' : 'ScanIQ Pro - Monthly',
+            price: isYearly ? yearly : monthly,
+          },
+        },
+      });
+    }
+  } catch (e) {
+    console.error('Failed to send welcome email', e);
+  }
 }
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {

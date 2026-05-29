@@ -38,6 +38,28 @@ export default function Premium() {
   const [restoring, setRestoring] = useState(false);
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [code, setCode] = useState("");
+  const [promoInput, setPromoInput] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError] = useState(false);
+
+  const monthlyBase = 19;
+  const yearlyBase = 179;
+  const discount = promoApplied ? 0.1 : 0;
+  const monthlyPrice = (monthlyBase * (1 - discount)).toFixed(2);
+  const yearlyPrice = (yearlyBase * (1 - discount)).toFixed(2);
+  const displayPrice = (n: string) => (n.endsWith(".00") ? n.slice(0, -3) : n);
+
+  const applyPromo = () => {
+    if (promoInput.trim().toUpperCase() === "PROMO10") {
+      setPromoApplied(true);
+      setPromoError(false);
+      toast.success("Rabatkode anvendt! 10% trukket fra / Code applied! 10% discount added");
+    } else {
+      setPromoApplied(false);
+      setPromoError(true);
+      toast.error("Ugyldig kode / Invalid code");
+    }
+  };
 
   const upgrade = async () => {
     if (!user) {
@@ -48,7 +70,12 @@ export default function Premium() {
       await openCheckout({
         priceId: plan === "month" ? "kcally_premium_monthly" : "kcally_premium_yearly",
         customerEmail: user.email,
-        customData: { userId: user.id },
+        customData: {
+          userId: user.id,
+          promoCode: promoApplied ? "PROMO10" : "",
+          discountPercent: promoApplied ? "10" : "0",
+        },
+        discountCode: promoApplied ? "PROMO10" : undefined,
         successUrl: `${window.location.origin}/profile?checkout=success`,
       });
     } catch (e: any) {
@@ -130,7 +157,8 @@ export default function Premium() {
           active={plan === "month"}
           onClick={() => setPlan("month")}
           title={t("premium.monthly")}
-          price="$19"
+          price={`$${displayPrice(monthlyPrice)}`}
+          oldPrice={promoApplied ? `$${monthlyBase}` : undefined}
           unit={t("premium.per_month")}
           sub={t("premium.cancel_anytime")}
         />
@@ -138,12 +166,44 @@ export default function Premium() {
           active={plan === "year"}
           onClick={() => setPlan("year")}
           title={t("premium.yearly")}
-          price="$179"
+          price={`$${displayPrice(yearlyPrice)}`}
+          oldPrice={promoApplied ? `$${yearlyBase}` : undefined}
           unit={t("premium.per_year")}
           sub={t("premium.lifetime")}
           badge="Most Popular"
           highlight
         />
+      </section>
+
+      {/* Promo code */}
+      <section className="mb-3">
+        <div className="flex gap-2">
+          <Input
+            value={promoInput}
+            onChange={(e) => { setPromoInput(e.target.value); setPromoError(false); }}
+            placeholder="Indtast rabatkode / Enter promo code"
+            disabled={promoApplied}
+            className={"h-12 rounded-xl " + (promoError ? "border-destructive" : promoApplied ? "border-green-500" : "")}
+          />
+          <Button
+            onClick={promoApplied ? () => { setPromoApplied(false); setPromoInput(""); } : applyPromo}
+            disabled={!promoApplied && !promoInput.trim()}
+            variant="outline"
+            className="h-12 rounded-xl px-5 shrink-0"
+          >
+            {promoApplied ? "Fjern" : "Anvend / Apply"}
+          </Button>
+        </div>
+        {promoApplied && (
+          <p className="text-xs text-green-600 mt-2 font-medium">
+            ✓ Rabatkode anvendt! 10% trukket fra / Code applied! 10% discount added
+          </p>
+        )}
+        {promoError && (
+          <p className="text-xs text-destructive mt-2 font-medium">
+            Ugyldig kode / Invalid code
+          </p>
+        )}
       </section>
 
       <Button
@@ -232,6 +292,7 @@ const PlanOption = ({
   onClick,
   title,
   price,
+  oldPrice,
   unit,
   sub,
   badge,
@@ -241,6 +302,7 @@ const PlanOption = ({
   onClick: () => void;
   title: string;
   price: string;
+  oldPrice?: string;
   unit: string;
   sub: string;
   badge?: string;
@@ -264,8 +326,9 @@ const PlanOption = ({
     <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">
       {title}
     </div>
-    <div className="mt-2 flex items-baseline gap-1">
+    <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
       <span className="text-3xl font-bold tracking-tight">{price}</span>
+      {oldPrice && <span className="text-sm text-muted-foreground line-through">{oldPrice}</span>}
       <span className="text-xs text-muted-foreground">{unit}</span>
     </div>
     <div className="text-xs mt-1 text-muted-foreground">{sub}</div>
