@@ -24,7 +24,7 @@ export default function Premium() {
   const t = useT();
   const { user } = useAuth();
   const { isActive, refetch } = useSubscription();
-  const { openCheckout, loading } = usePaddleCheckout();
+  const { purchase, restore: restoreIAP, loading } = useIAP();
   const [plan, setPlan] = useState<"month" | "year">("year");
   const [restoring, setRestoring] = useState(false);
   const [promoInput, setPromoInput] = useState("");
