@@ -620,20 +620,21 @@ export default function FoodScan() {
 
   const save = () => {
     if (!result) return;
+    const s = scaleNutrition(result, consumedGrams);
     const prevStreak = streak;
     const prevDate = useKStore.getState().lastActiveDate;
     addMeal({
       id: crypto.randomUUID(),
       name: result.name,
-      calories: result.calories,
-      protein: result.protein,
-      carbs: result.carbs,
-      fat: result.fat,
-      fiber: result.fiber,
-      sugar: result.sugar,
-      sodium: result.sodium,
-      saturatedFat: result.saturatedFat,
-      cholesterol: result.cholesterol,
+      calories: s.calories,
+      protein: s.protein,
+      carbs: s.carbs,
+      fat: s.fat,
+      fiber: s.fiber,
+      sugar: s.sugar,
+      sodium: s.sodium,
+      saturatedFat: s.saturatedFat,
+      cholesterol: s.cholesterol,
       healthScore: result.healthScore,
       category,
       at: Date.now(),
@@ -644,16 +645,19 @@ export default function FoodScan() {
       setCelebrate({ count: newStreak });
       setTimeout(() => {
         setCelebrate(null);
-        toast.success(t("scan.meal_added"), { description: `${result.calories} ${t("scan.kcal_logged")}` });
+        toast.success(t("scan.meal_added"), { description: `${s.calories} ${t("scan.kcal_logged")}` });
         nav("/diary");
       }, 1800);
     } else {
-      toast.success(t("scan.meal_added"), { description: `${result.calories} ${t("scan.kcal_logged")}` });
+      toast.success(t("scan.meal_added"), { description: `${s.calories} ${t("scan.kcal_logged")}` });
       nav("/diary");
     }
   };
 
-  const remaining = Math.max(0, user.calories - caloriesToday(meals) - (result?.calories ?? 0));
+  const scaled: Scaled | null = result ? scaleNutrition(result, consumedGrams) : null;
+  const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
+  
+
   
 
   return (
