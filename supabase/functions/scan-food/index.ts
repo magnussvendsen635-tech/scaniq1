@@ -224,8 +224,8 @@ Deno.serve(async (req) => {
               "    - PORRIDGE: visible grains/oats, thick, beige. ~80-110 kcal/100g." +
               "  • Plate → name each component honestly. " +
               "  • Packaged product → read brand + product name (OCR). " +
-              "STEP 2 — WEIGH: Estimate grams (or ml) automatically from visual cues (plate ~26cm, fork ~20cm, bowl ~300-400ml, glass ~250ml). IGNORE the meal-type label completely when sizing the portion. " +
-              "STEP 3 — NUTRITION: Use accurate USDA/European/Nordic database values per 100g. " +
+              "STEP 2 — WEIGH: Estimate the TOTAL portion weight in grams (totalGrams) automatically from visual cues (plate ~26cm, fork ~20cm, bowl ~300-400ml, glass ~250ml). IGNORE the meal-type label completely when sizing the portion. For liquids treat ml as grams. " +
+              "STEP 3 — NUTRITION: ALWAYS produce values per 100g (`per100g`) using accurate USDA/European/Nordic database values for the identified food. Then compute the totals for the portion using the formula: total = round(per100g_value / 100 * totalGrams). Calories, protein, carbs, fat, fiber, sugar, sodium, saturatedFat and cholesterol totals MUST match this formula exactly. Never invent a portion calorie number that contradicts per100g * grams. " +
               "STEP 4 — HEALTH SCORE 1-10: a NEUTRAL nutrient-density score, NOT a verdict. 10 = nutrient-dense whole foods, 1 = nutrient-poor. Do not interpret it for the user. " +
               "STEP 5 — REAL-LIFE EFFECT: estimate satiety_hours and a one-sentence neutral energy_effect in Danish describing energy/satiety pattern only (e.g. 'Stabil energi i 3 timer', 'Hurtigt energiboost der falder igen efter ca. 1 time'). NEVER advice, NEVER judgement. " +
               "STEP 6 — VITAMINS & MINERALS: realistic per-portion values from USDA/Nordic data. 0 if truly absent. " +
