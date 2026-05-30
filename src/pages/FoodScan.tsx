@@ -1099,33 +1099,34 @@ export default function FoodScan() {
               )}
 
               <div className="grid grid-cols-3 gap-3">
-                <Macro label={t("home.protein")} value={result.protein} />
-                <Macro label={t("home.carbs")} value={result.carbs} />
-                <Macro label={t("home.fat")} value={result.fat} />
+                <Macro label={t("home.protein")} value={scaled?.protein ?? 0} />
+                <Macro label={t("home.carbs")} value={scaled?.carbs ?? 0} />
+                <Macro label={t("home.fat")} value={scaled?.fat ?? 0} />
               </div>
 
-              {(result.fiber !== undefined || result.sugar !== undefined || result.sodium !== undefined || result.saturatedFat !== undefined || result.cholesterol !== undefined) && (
+              {(scaled?.fiber !== undefined || scaled?.sugar !== undefined || scaled?.sodium !== undefined || scaled?.saturatedFat !== undefined || scaled?.cholesterol !== undefined) && (
                 <div className="k-card p-4">
                   <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">{t("micro.title")}</div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
-                    {result.fiber !== undefined && (
-                      <Micro label={t("micro.fiber")} value={`${result.fiber}g`} />
+                    {scaled?.fiber !== undefined && (
+                      <Micro label={t("micro.fiber")} value={`${scaled.fiber}g`} />
                     )}
-                    {result.sugar !== undefined && (
-                      <Micro label={t("micro.sugar")} value={`${result.sugar}g`} />
+                    {scaled?.sugar !== undefined && (
+                      <Micro label={t("micro.sugar")} value={`${scaled.sugar}g`} />
                     )}
-                    {result.saturatedFat !== undefined && (
-                      <Micro label={t("micro.sat_fat")} value={`${result.saturatedFat}g`} />
+                    {scaled?.saturatedFat !== undefined && (
+                      <Micro label={t("micro.sat_fat")} value={`${scaled.saturatedFat}g`} />
                     )}
-                    {result.sodium !== undefined && (
-                      <Micro label={t("micro.sodium")} value={`${result.sodium}mg`} />
+                    {scaled?.sodium !== undefined && (
+                      <Micro label={t("micro.sodium")} value={`${scaled.sodium}mg`} />
                     )}
-                    {result.cholesterol !== undefined && (
-                      <Micro label={t("micro.cholesterol")} value={`${result.cholesterol}mg`} />
+                    {scaled?.cholesterol !== undefined && (
+                      <Micro label={t("micro.cholesterol")} value={`${scaled.cholesterol}mg`} />
                     )}
                   </div>
                 </div>
               )}
+
 
               {(() => {
                 const vitamins: { label: string; value?: number; unit: string }[] = [
