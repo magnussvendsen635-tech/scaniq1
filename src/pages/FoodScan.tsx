@@ -671,7 +671,20 @@ export default function FoodScan() {
     }
   };
 
-  const scaled: Scaled | null = result ? scaleNutrition(result, consumedGrams, calorieAccuracy) : null;
+  const scaledBase: Scaled | null = result ? scaleNutrition(result, consumedGrams, calorieAccuracy) : null;
+  // Scale items proportionally so they match the total
+  const itemRatio = result && result.calories > 0 && scaledBase
+    ? scaledBase.calories / result.calories
+    : 1;
+  const scaledItems = result?.items?.map((it) => ({
+    name: it.name,
+    calories: Math.round((it.calories || 0) * itemRatio),
+  }));
+  // Force Total to equal the sum of items when items exist, so displays never conflict
+  const itemsSum = scaledItems?.reduce((a, b) => a + b.calories, 0) ?? 0;
+  const scaled: Scaled | null = scaledBase
+    ? { ...scaledBase, calories: scaledItems && scaledItems.length > 0 ? itemsSum : scaledBase.calories }
+    : null;
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
   
 
