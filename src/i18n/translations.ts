@@ -242,6 +242,8 @@ const en: Record<TKey, string> = {
   "scan.source_home": "Homemade",
   "scan.source_store": "Store-bought",
   "scan.source_restaurant": "Restaurant",
+  "scan.nutrition_focus": "Nutrition focus",
+  "scan.nutrition_focus_sub": "Healthy and natural composition",
   "onboarding.health_title": "Connect with Apple Health",
   "onboarding.health_sub": "Automatically synchronize your workouts, steps, and body measurements with ScanIQ for the most accurate tracking.",
   "onboarding.health_connect": "Connect now",
