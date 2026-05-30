@@ -469,7 +469,14 @@ export default function FoodScan() {
       totalGrams: totalGrams,
     };
     setResult(next);
-    // No auto-default: user enters total weight manually.
+    // Auto-detect total weight from scan so calories display immediately.
+    // The weight field remains an optional manual override.
+    const detected = totalGrams && totalGrams > 0
+      ? Math.round(totalGrams)
+      : (p100 && p100.calories > 0 && next.calories > 0
+          ? Math.round((next.calories / p100.calories) * 100)
+          : 100);
+    setConsumedGrams(Math.max(1, detected));
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
       setDailyUsed(data.daily_used);
