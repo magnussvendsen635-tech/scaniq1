@@ -13,6 +13,10 @@ const corsHeaders = {
 const DAILY_SCAN_LIMIT = 30;
 // Minimum seconds between scans (anti-bot rate limit, shared with barcode lookup).
 const SCAN_COOLDOWN_SECONDS = 5;
+// Admin user IDs — bypass all quota and cooldown limits.
+const ADMIN_USER_IDS = new Set<string>([
+  "cc4070c8-9c27-4ffb-9f5d-2b5a72dd5814",
+]);
 
 function todayUTC(): string {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -84,12 +88,13 @@ Deno.serve(async (req) => {
     const today = todayUTC();
     const scanCount = profile?.scan_count ?? 0;
     const isPremium = profile?.is_premium ?? false;
+    const isAdmin = ADMIN_USER_IDS.has(userId);
     const lastDate = profile?.last_scan_date ?? null;
     // Reset daily counter if it's a new day
     const dailyUsed = lastDate === today ? (profile?.daily_scan_count ?? 0) : 0;
 
-    // Premium required to scan at all
-    if (!isPremium) {
+    // Premium required to scan at all (admins bypass)
+    if (!isPremium && !isAdmin) {
       return new Response(
         JSON.stringify({
           error: "premium_required",
@@ -100,8 +105,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Rate limit: enforce cooldown between scans (anti-bot)
-    if (profile?.last_scan_at) {
+    // Rate limit: enforce cooldown between scans (anti-bot) — admins bypass
+    if (!isAdmin && profile?.last_scan_at) {
       const lastMs = new Date(profile.last_scan_at).getTime();
       const elapsedSec = (Date.now() - lastMs) / 1000;
       if (elapsedSec < SCAN_COOLDOWN_SECONDS) {
@@ -124,7 +129,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (dailyUsed >= DAILY_SCAN_LIMIT) {
+    if (!isAdmin && dailyUsed >= DAILY_SCAN_LIMIT) {
       return new Response(
         JSON.stringify({
           error: "daily_scan_limit_reached",
