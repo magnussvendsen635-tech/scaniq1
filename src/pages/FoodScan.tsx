@@ -566,6 +566,15 @@ export default function FoodScan() {
         </span>
       </header>
 
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={onPick}
+      />
+
       {limitReached ? (
         <div className="k-card p-6 text-center bg-gradient-soft animate-fade-in">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-primary flex items-center justify-center mb-4 shadow-glow">
@@ -590,7 +599,7 @@ export default function FoodScan() {
               <p className="text-foreground/70 text-sm font-medium">{t("scan.point")}</p>
             </div>
           </div>
-          <Button className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
+          <Button onClick={startCamera} className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
             {t("scan.cta")}
           </Button>
         </PremiumLock>
@@ -688,16 +697,6 @@ export default function FoodScan() {
               </div>
 
               </div>
-
-
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={onPick}
-              />
 
               {/* Photo thumbnails */}
               {previews.length > 0 && (
