@@ -16,9 +16,22 @@ interface FoodItem {
   calories: number;
 }
 
+interface Per100g {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  saturatedFat?: number;
+  cholesterol?: number;
+}
+
 interface Result {
   name: string;
   items?: FoodItem[];
+  // Portion totals as returned by the AI (kept as a fallback when per100g is missing)
   calories: number;
   protein: number;
   carbs: number;
@@ -44,7 +57,70 @@ interface Result {
   zinc?: number;
   novaGroup?: 1 | 2 | 3 | 4;
   ultraProcessedPercent?: number;
+  // NEW: ground-truth per-100g values + total weight of the portion
+  per100g?: Per100g;
+  totalGrams?: number;
 }
+
+// Global calculation: (per100g / 100) * totalConsumedGrams
+// Falls back to ratio scaling of original totals if per100g is missing.
+type Scaled = {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  saturatedFat?: number;
+  cholesterol?: number;
+};
+function scaleNutrition(r: Result, grams: number): Scaled {
+  const g = Math.max(0, Number(grams) || 0);
+  const p = r.per100g;
+  if (p) {
+    const f = g / 100;
+    const r1 = (v: number) => Math.round(v * f * 10) / 10;
+    return {
+      calories: Math.round((p.calories ?? 0) * f),
+      protein: Math.round((p.protein ?? 0) * f),
+      carbs: Math.round((p.carbs ?? 0) * f),
+      fat: Math.round((p.fat ?? 0) * f),
+      fiber: p.fiber !== undefined ? r1(p.fiber) : undefined,
+      sugar: p.sugar !== undefined ? r1(p.sugar) : undefined,
+      sodium: p.sodium !== undefined ? Math.round(p.sodium * f) : undefined,
+      saturatedFat: p.saturatedFat !== undefined ? r1(p.saturatedFat) : undefined,
+      cholesterol: p.cholesterol !== undefined ? Math.round(p.cholesterol * f) : undefined,
+    };
+  }
+  if (r.totalGrams && r.totalGrams > 0) {
+    const f = g / r.totalGrams;
+    const r1 = (v?: number) => (v === undefined ? undefined : Math.round(v * f * 10) / 10);
+    return {
+      calories: Math.round(r.calories * f),
+      protein: Math.round(r.protein * f),
+      carbs: Math.round(r.carbs * f),
+      fat: Math.round(r.fat * f),
+      fiber: r1(r.fiber),
+      sugar: r1(r.sugar),
+      sodium: r.sodium !== undefined ? Math.round(r.sodium * f) : undefined,
+      saturatedFat: r1(r.saturatedFat),
+      cholesterol: r.cholesterol !== undefined ? Math.round(r.cholesterol * f) : undefined,
+    };
+  }
+  return {
+    calories: r.calories,
+    protein: r.protein,
+    carbs: r.carbs,
+    fat: r.fat,
+    fiber: r.fiber,
+    sugar: r.sugar,
+    sodium: r.sodium,
+    saturatedFat: r.saturatedFat,
+    cholesterol: r.cholesterol,
+  };
+}
+
 
 type Portion = "small" | "medium" | "large";
 type FoodSource = "homemade" | "store" | "restaurant";
