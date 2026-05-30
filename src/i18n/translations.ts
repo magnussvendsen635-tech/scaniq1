@@ -88,6 +88,7 @@ export type TKey =
   | "micro.title" | "micro.fiber" | "micro.sugar" | "micro.sodium" | "micro.sat_fat" | "micro.cholesterol"
   | "water.title" | "water.today" | "water.goal" | "water.add" | "water.reset" | "water.glass" | "water.bottle" | "water.large" | "water.sub" | "water.empty"
   | "scan.source" | "scan.source_home" | "scan.source_store" | "scan.source_restaurant" | "scan.source_sub"
+  | "scan.meal_type" | "scan.meal_type_sub"
   | "onboarding.health_title" | "onboarding.health_sub" | "onboarding.health_connect" | "onboarding.health_later"
   | "settings.health" | "settings.health_connect" | "settings.health_connected" | "settings.health_sub";
 
@@ -235,6 +236,8 @@ const en: Record<TKey, string> = {
   "water.sub": "Stay hydrated all day", "water.empty": "Tap to log your first glass",
   "scan.source": "Food source",
   "scan.source_sub": "Helps us classify processing level more accurately.",
+  "scan.meal_type": "Meal type",
+  "scan.meal_type_sub": "Categorize this meal in your diary. The AI estimates portion size automatically from your photos.",
   "scan.source_home": "Homemade",
   "scan.source_store": "Store-bought",
   "scan.source_restaurant": "Restaurant",
@@ -370,6 +373,8 @@ const da: Dict = {
   "water.sub": "Hold dig hydreret hele dagen", "water.empty": "Tryk for at logge dit første glas",
   "scan.source": "Madkilde",
   "scan.source_sub": "Hjælper os med at vurdere forarbejdningsgraden mere præcist.",
+  "scan.meal_type": "Måltidstype",
+  "scan.meal_type_sub": "Kategoriser dette måltid i din kalender. AI'en estimerer automatisk portionsstørrelsen ud fra dine billeder.",
   "scan.source_home": "Hjemmelavet",
   "scan.source_store": "Købt i dagligvarebutik",
   "scan.source_restaurant": "Fra restaurant",
