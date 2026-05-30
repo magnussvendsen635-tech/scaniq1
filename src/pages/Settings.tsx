@@ -105,6 +105,37 @@ export default function Settings() {
           </Field>
         </Section>
 
+        <Section title="Scan-nøjagtighed">
+          <div className="px-5 py-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium">Kalorie-justering</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Kompenserer for at AI'en ofte undervurderer kalorier.
+                </div>
+              </div>
+              <div className="text-sm font-semibold tabular-nums">
+                {Math.round(calorieAccuracy * 100)}%
+              </div>
+            </div>
+            <input
+              type="range"
+              min={80}
+              max={150}
+              step={1}
+              value={Math.round(calorieAccuracy * 100)}
+              onChange={(e) => setCalorieAccuracy(Number(e.target.value) / 100)}
+              className="w-full accent-primary"
+            />
+            <div className="flex justify-between text-[10px] text-muted-foreground">
+              <span>80%</span>
+              <span>100%</span>
+              <span>115% (anbefalet)</span>
+              <span>150%</span>
+            </div>
+          </div>
+        </Section>
+
         <Button
           onClick={save}
           className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90 mt-3"
