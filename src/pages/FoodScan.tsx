@@ -258,8 +258,10 @@ export default function FoodScan() {
   const REQUIRED_PHOTOS = 2;
   const MAX_PHOTOS = 3;
   const DAILY_LIMIT = 20;
+  const ADMIN_IDS = new Set<string>(["cc4070c8-9c27-4ffb-9f5d-2b5a72dd5814"]);
+  const isAdmin = !!profile && ADMIN_IDS.has(profile.id);
   const todayUTC = () => new Date().toISOString().slice(0, 10);
-  const canScan = isPremiumServer;
+  const canScan = isPremiumServer || isAdmin;
   const preview = previews[previews.length - 1] ?? null;
 
   const refreshQuota = async () => {
@@ -276,7 +278,7 @@ export default function FoodScan() {
     setScansUsed(scans);
     setDailyUsed(daily);
     setIsPremiumServer(serverPremium);
-    setLimitReached(daily >= DAILY_LIMIT);
+    setLimitReached(!ADMIN_IDS.has(profile.id) && daily >= DAILY_LIMIT);
     return { daily, premium: serverPremium };
   };
 
