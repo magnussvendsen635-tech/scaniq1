@@ -815,8 +815,8 @@ export default function FoodScan() {
               </button>
 
               <div className="k-card p-5 mb-5">
-                <h2 className="text-lg font-semibold mb-1">Meal type</h2>
-                <p className="text-sm text-muted-foreground mb-4">Categorize this meal in your diary. The AI estimates portion size automatically from your photos.</p>
+                <h2 className="text-lg font-semibold mb-1">{t("scan.meal_type")}</h2>
+                <p className="text-sm text-muted-foreground mb-4">{t("scan.meal_type_sub")}</p>
                 <div className="grid grid-cols-4 gap-2">
                   {([
                     ["breakfast", Sun, "Breakfast"],
