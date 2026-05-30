@@ -109,16 +109,20 @@ function scaleNutrition(r: Result, grams: number, accuracy: number = 1): Scaled 
       cholesterol: r.cholesterol !== undefined ? Math.round(r.cholesterol * f) : undefined,
     };
   } else {
+    // No per100g and no totalGrams reference: treat the AI's totals as per-100g
+    // so the displayed values still scale with the entered weight.
+    const f = g / 100;
+    const r1 = (v?: number) => (v === undefined ? undefined : Math.round(v * f * 10) / 10);
     s = {
-      calories: r.calories,
-      protein: r.protein,
-      carbs: r.carbs,
-      fat: r.fat,
-      fiber: r.fiber,
-      sugar: r.sugar,
-      sodium: r.sodium,
-      saturatedFat: r.saturatedFat,
-      cholesterol: r.cholesterol,
+      calories: Math.round((r.calories ?? 0) * f),
+      protein: Math.round((r.protein ?? 0) * f),
+      carbs: Math.round((r.carbs ?? 0) * f),
+      fat: Math.round((r.fat ?? 0) * f),
+      fiber: r1(r.fiber),
+      sugar: r1(r.sugar),
+      sodium: r.sodium !== undefined ? Math.round(r.sodium * f) : undefined,
+      saturatedFat: r1(r.saturatedFat),
+      cholesterol: r.cholesterol !== undefined ? Math.round(r.cholesterol * f) : undefined,
     };
   }
   // Apply calorie accuracy modifier (compensates AI underestimation)
