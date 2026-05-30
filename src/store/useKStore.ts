@@ -104,6 +104,8 @@ interface KState {
   autoAdjustGoal: boolean;
   frozenDays: Record<string, number>;
   lastResetStreak: number;
+  calorieAccuracy: number;
+  setCalorieAccuracy: (v: number) => void;
 
   setOnboarded: (v: boolean) => void;
   setLanguage: (code: string) => void;
