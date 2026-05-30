@@ -410,7 +410,21 @@ export default function FoodScan() {
 
   const applyResult = (data: any) => {
     const num = (v: any) => (typeof v === "number" && isFinite(v) ? v : undefined);
-    setResult({
+    const p100 = data.per100g && typeof data.per100g === "object"
+      ? {
+          calories: Number(data.per100g.calories) || 0,
+          protein: Number(data.per100g.protein) || 0,
+          carbs: Number(data.per100g.carbs) || 0,
+          fat: Number(data.per100g.fat) || 0,
+          fiber: num(data.per100g.fiber),
+          sugar: num(data.per100g.sugar),
+          sodium: num(data.per100g.sodium),
+          saturatedFat: num(data.per100g.saturatedFat),
+          cholesterol: num(data.per100g.cholesterol),
+        }
+      : undefined;
+    const totalGrams = num(data.totalGrams);
+    const next: Result = {
       name: data.name,
       items: Array.isArray(data.items)
         ? data.items.map((it: any) => ({ name: String(it.name), calories: Math.round(Number(it.calories) || 0) }))
@@ -440,13 +454,19 @@ export default function FoodScan() {
       zinc: num(data.zinc),
       novaGroup: [1, 2, 3, 4].includes(Number(data.novaGroup)) ? (Number(data.novaGroup) as 1 | 2 | 3 | 4) : undefined,
       ultraProcessedPercent: num(data.ultraProcessedPercent),
-    });
+      per100g: p100,
+      totalGrams: totalGrams,
+    };
+    setResult(next);
+    // Initialise the editable grams to the AI's best portion estimate (fallback: 100g)
+    setConsumedGrams(Math.max(1, Math.round(totalGrams ?? (next.totalGrams ?? 100))));
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
       setDailyUsed(data.daily_used);
       if (data.daily_used >= DAILY_LIMIT) setLimitReached(true);
     }
   };
+
 
   const runManualSearch = async () => {
     const q = searchQuery.trim();
