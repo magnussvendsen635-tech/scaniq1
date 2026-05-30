@@ -1001,12 +1001,15 @@ export default function FoodScan() {
                     <Input
                       type="number"
                       inputMode="numeric"
-                      min={1}
+                      min={0}
                       max={5000}
-                      value={consumedGrams}
+                      placeholder="g"
+                      value={consumedGrams === 0 ? "" : consumedGrams}
                       onChange={(e) => {
-                        const v = parseInt(e.target.value, 10);
-                        setConsumedGrams(Number.isFinite(v) && v > 0 ? Math.min(5000, v) : 0);
+                        const raw = e.target.value;
+                        if (raw === "") { setConsumedGrams(0); return; }
+                        const v = parseInt(raw, 10);
+                        if (Number.isFinite(v)) setConsumedGrams(Math.min(5000, Math.max(0, v)));
                       }}
                       className="h-11 rounded-xl flex-1"
                     />
