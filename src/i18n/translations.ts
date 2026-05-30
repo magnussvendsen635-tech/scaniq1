@@ -381,6 +381,8 @@ const da: Dict = {
   "scan.source_home": "Hjemmelavet",
   "scan.source_store": "Købt i dagligvarebutik",
   "scan.source_restaurant": "Fra restaurant",
+  "scan.nutrition_focus": "Næringsfokus",
+  "scan.nutrition_focus_sub": "Sund og naturlig sammensætning",
   "onboarding.health_title": "Forbind med Apple Health (Sundhed)",
   "onboarding.health_sub": "Synkroniser dine træninger, skridt og kropsmål automatisk med ScanIQ for at få den mest præcise sporing.",
   "onboarding.health_connect": "Forbind nu",
