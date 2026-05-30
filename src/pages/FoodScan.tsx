@@ -50,23 +50,29 @@ type Portion = "small" | "medium" | "large";
 type FoodSource = "homemade" | "store" | "restaurant";
 type Step = "portion" | "capture" | "result";
 
+// Industrially formulated brands / products that are ALWAYS NOVA 4,
+// regardless of how the user logs them (the homemade modifier does not apply).
+const ALWAYS_ULTRA = /\b(pringles|doritos|lays|cheetos|ruffles|tostitos|oreo|nutella|haribo|skittles|mars|snickers|twix|kitkat|kit kat|bounty|milky way|toblerone|daim|smarties|ben\s*&\s*jerry'?s?|ben and jerry'?s?|h[äa]agen[\s-]?dazs|magnum|cornetto|coca[\s-]?cola|coke|pepsi|fanta|sprite|7up|red bull|monster|rockstar|cocio|nesquik|cheerios|frosties|cornflakes|coco pops|special k|pop[\s-]?tarts|maggi|cup noodles|instant nudler|hot pockets|lunchables|spam|slim jim|chips ahoy|ritz)\b/i;
+
 // NOVA-style processing classification (1 = whole food, 4 = ultra-processed).
 // Source-aware:
-//   - homemade   → never NOVA 4 (capped at 3)
+//   - homemade   → capped at NOVA 2 (green) unless an industrial brand is detected
 //   - restaurant → minimum NOVA 3 (added oils/fats/culinary prep)
-//   - store      → can be 3 or 4 depending on signals
+//   - store      → can be 1-4 depending on signals
+// Industrial brands (Pringles, Ben & Jerry's, …) are ALWAYS locked at NOVA 4.
 function estimateNova(r: Result, source: FoodSource = "homemade"): 1 | 2 | 3 | 4 {
   const name = (r.name || "").toLowerCase();
   const items = (r.items || []).map((i) => i.name.toLowerCase()).join(" ");
   const text = ` ${name} ${items} `;
 
-  const ultra = /\b(chips|crisps|cola|sodavand|soda|energidrik|energy drink|slik|candy|gummi|haribo|cornflakes|frosties|instant noodle|instant nudler|færdigret|ready meal|frozen meal|pringles|doritos|nutella|softice|milkshake|protein bar|chokoladebar|mars|snickers|twix|kitkat|oreo|donut|donuts|mcdonald|burger king|kfc|domino)\b/i;
+  const brandUltra = ALWAYS_ULTRA.test(text);
+  const ultra = /\b(chips|crisps|cola|sodavand|soda|energidrik|energy drink|slik|candy|gummi|cornflakes|frosties|instant noodle|instant nudler|færdigret|ready meal|frozen meal|softice|milkshake|protein bar|chokoladebar|donut|donuts|mcdonald|burger king|kfc|domino)\b/i;
   const whole = /\b(æble|banan|pære|appelsin|citron|bær|jordbær|blåbær|hindbær|drue|kiwi|melon|mango|ananas|avocado|tomat|agurk|gulerod|peberfrugt|squash|asparges|broccoli|spinat|salat|kål|løg|hvidløg|svamp|kartoffel|ris|havregryn|quinoa|bønner|linser|kikærter|æg|kylling|kalkun|oksekød|svinekød|laks|torsk|rejer|tofu|nødder|mandler|valnødder|frø|fruit|vegetable|apple|banana|egg|chicken|beef|salmon|rice|oats)\b/i;
   const culinary = /\b(mælk|yoghurt|skyr|hytteost|ost|cheese|smør|olie|mel|flour|honning|honey|sukker|salt|eddike|krydderi|herbs|butter|oil|sugar)\b/i;
   const processed = /\b(pizza|burger|sandwich|wrap|tortilla|pita|bolle|frikadelle|lasagne|gryderet|stew|suppe|soup|risotto|omelet|pandekage|wok|pålæg|skinke|bacon|pølse|marmelade|saft|juice|brød|bread|rugbrød|pasta)\b/i;
 
   let nova: 1 | 2 | 3 | 4 = 2;
-  if (ultra.test(text)) nova = 4;
+  if (brandUltra || ultra.test(text)) nova = 4;
   else if (whole.test(text) && !processed.test(text) && !culinary.test(text)) nova = 1;
   else if (processed.test(text)) nova = 3;
   else if (culinary.test(text)) nova = 2;
@@ -80,11 +86,26 @@ function estimateNova(r: Result, source: FoodSource = "homemade"): 1 | 2 | 3 | 4
   if ((r.saturatedFat ?? 0) > 12) score += 1;
   if (score >= 4 && nova < 4) nova = 4;
 
+  // Industrial brands always stay NOVA 4 — source modifier cannot lower it.
+  if (brandUltra) return 4;
   // Source-aware overrides
-  if (source === "homemade" && nova === 4) nova = 3; // homemade is never ultra-processed
+  if (source === "homemade" && nova > 2) nova = 2; // home cooking → green
   if (source === "restaurant" && nova < 3) nova = 3; // restaurant always has culinary processing
   // store can be anything 1-4
 
+  return nova;
+}
+
+// Apply the processing modifier on top of an AI-provided NOVA group so the
+// source selector (homemade / store / restaurant) still drives the final
+// score, while industrial brands remain locked at NOVA 4.
+function applyProcessingModifier(r: Result, source: FoodSource, aiNova?: 1 | 2 | 3 | 4): 1 | 2 | 3 | 4 {
+  const text = ` ${(r.name || "").toLowerCase()} ${(r.items || []).map((i) => i.name.toLowerCase()).join(" ")} `;
+  if (ALWAYS_ULTRA.test(text)) return 4;
+  if (typeof aiNova !== "number") return estimateNova(r, source);
+  let nova: 1 | 2 | 3 | 4 = aiNova;
+  if (source === "homemade" && nova > 2) nova = 2;
+  if (source === "restaurant" && nova < 3) nova = 3;
   return nova;
 }
 
