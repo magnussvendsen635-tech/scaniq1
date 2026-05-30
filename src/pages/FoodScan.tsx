@@ -235,7 +235,7 @@ export default function FoodScan() {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   // User-editable total weight (grams) for the current result. Drives all displayed nutrition.
-  const [grams, setGrams] = useState<number>(100);
+  const [consumedGrams, setConsumedGrams] = useState<number>(100);
   const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
   const [foodSource, setFoodSource] = useState<FoodSource>("homemade");
