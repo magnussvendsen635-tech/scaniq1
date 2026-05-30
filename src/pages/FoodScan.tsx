@@ -880,7 +880,7 @@ export default function FoodScan() {
               </div>
 
               {(() => {
-                const nova = result.novaGroup ?? estimateNova(result, foodSource);
+                const nova = applyProcessingModifier(result, foodSource, result.novaGroup);
                 const meta = NOVA_META[nova];
                 const upp = typeof result.ultraProcessedPercent === "number"
                   ? Math.max(0, Math.min(100, Math.round(result.ultraProcessedPercent)))
