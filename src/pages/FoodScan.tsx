@@ -680,10 +680,21 @@ export default function FoodScan() {
     name: it.name,
     calories: Math.round((it.calories || 0) * itemRatio),
   }));
+  // Burger detection: add 250 kcal for hidden cooking fats & dressings the camera can't see
+  const BURGER_HIDDEN_KCAL = 250;
+  const isBurger = !!result && (
+    /burger|cheeseburger|hamburger/i.test(result.name ?? "") ||
+    (result.items ?? []).some((it) => /burger|cheeseburger|hamburger|bun|patty/i.test(it.name ?? ""))
+  );
+  const hiddenKcal = isBurger ? BURGER_HIDDEN_KCAL : 0;
   // Force Total to equal the sum of items when items exist, so displays never conflict
-  const itemsSum = scaledItems?.reduce((a, b) => a + b.calories, 0) ?? 0;
+  const itemsSumBase = scaledItems?.reduce((a, b) => a + b.calories, 0) ?? 0;
+  const itemsSum = itemsSumBase + hiddenKcal;
   const scaled: Scaled | null = scaledBase
-    ? { ...scaledBase, calories: scaledItems && scaledItems.length > 0 ? itemsSum : scaledBase.calories }
+    ? {
+        ...scaledBase,
+        calories: (scaledItems && scaledItems.length > 0 ? itemsSumBase : scaledBase.calories) + hiddenKcal,
+      }
     : null;
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
   
