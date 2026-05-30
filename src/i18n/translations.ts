@@ -89,6 +89,7 @@ export type TKey =
   | "water.title" | "water.today" | "water.goal" | "water.add" | "water.reset" | "water.glass" | "water.bottle" | "water.large" | "water.sub" | "water.empty"
   | "scan.source" | "scan.source_home" | "scan.source_store" | "scan.source_restaurant" | "scan.source_sub"
   | "scan.meal_type" | "scan.meal_type_sub"
+  | "scan.nutrition_focus" | "scan.nutrition_focus_sub"
   | "onboarding.health_title" | "onboarding.health_sub" | "onboarding.health_connect" | "onboarding.health_later"
   | "settings.health" | "settings.health_connect" | "settings.health_connected" | "settings.health_sub";
 
