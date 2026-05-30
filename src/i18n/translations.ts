@@ -89,7 +89,7 @@ export type TKey =
   | "water.title" | "water.today" | "water.goal" | "water.add" | "water.reset" | "water.glass" | "water.bottle" | "water.large" | "water.sub" | "water.empty"
   | "scan.source" | "scan.source_home" | "scan.source_store" | "scan.source_restaurant" | "scan.source_sub"
   | "scan.meal_type" | "scan.meal_type_sub"
-  | "scan.nutrition_focus" | "scan.nutrition_focus_sub"
+  | "scan.nutrition_focus" | "scan.nutrition_focus_sub" | "scan.nutrition_focus_processed"
   | "onboarding.health_title" | "onboarding.health_sub" | "onboarding.health_connect" | "onboarding.health_later"
   | "settings.health" | "settings.health_connect" | "settings.health_connected" | "settings.health_sub";
 
@@ -244,6 +244,7 @@ const en: Record<TKey, string> = {
   "scan.source_restaurant": "Restaurant",
   "scan.nutrition_focus": "Nutrition focus",
   "scan.nutrition_focus_sub": "Healthy and natural composition",
+  "scan.nutrition_focus_processed": "Processed composition — enjoy in moderation",
   "onboarding.health_title": "Connect with Apple Health",
   "onboarding.health_sub": "Automatically synchronize your workouts, steps, and body measurements with ScanIQ for the most accurate tracking.",
   "onboarding.health_connect": "Connect now",
@@ -383,6 +384,7 @@ const da: Dict = {
   "scan.source_restaurant": "Fra restaurant",
   "scan.nutrition_focus": "Næringsfokus",
   "scan.nutrition_focus_sub": "Sund og naturlig sammensætning",
+  "scan.nutrition_focus_processed": "Forarbejdet sammensætning — nyd med måde",
   "onboarding.health_title": "Forbind med Apple Health (Sundhed)",
   "onboarding.health_sub": "Synkroniser dine træninger, skridt og kropsmål automatisk med ScanIQ for at få den mest præcise sporing.",
   "onboarding.health_connect": "Forbind nu",

@@ -1071,15 +1071,11 @@ export default function FoodScan() {
 
               {(() => {
                 const nova = applyProcessingModifier(result, foodSource, result.novaGroup);
-                if (nova !== 2) return null;
+                const subKey = nova <= 2 ? "scan.nutrition_focus_sub" : "scan.nutrition_focus_processed";
                 return (
-                  <div className="k-card p-4 border-2 border-lime-500/30">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs text-muted-foreground tracking-widest uppercase mb-1">{t("scan.nutrition_focus")}</div>
-                        <div className="text-sm text-foreground leading-snug">{t("scan.nutrition_focus_sub")}</div>
-                      </div>
-                    </div>
+                  <div className="k-card p-4">
+                    <div className="text-xs text-muted-foreground tracking-widest uppercase mb-1">{t("scan.nutrition_focus")}</div>
+                    <div className="text-sm text-foreground leading-snug">{t(subKey)}</div>
                   </div>
                 );
               })()}
