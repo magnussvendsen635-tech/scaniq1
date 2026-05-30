@@ -373,6 +373,8 @@ const da: Dict = {
   "water.sub": "Hold dig hydreret hele dagen", "water.empty": "Tryk for at logge dit første glas",
   "scan.source": "Madkilde",
   "scan.source_sub": "Hjælper os med at vurdere forarbejdningsgraden mere præcist.",
+  "scan.meal_type": "Måltidstype",
+  "scan.meal_type_sub": "Kategoriser dette måltid i din kalender. AI'en estimerer automatisk portionsstørrelsen ud fra dine billeder.",
   "scan.source_home": "Hjemmelavet",
   "scan.source_store": "Købt i dagligvarebutik",
   "scan.source_restaurant": "Fra restaurant",
