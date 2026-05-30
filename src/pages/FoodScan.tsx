@@ -936,7 +936,7 @@ export default function FoodScan() {
                 <div className="flex items-baseline justify-between">
                   <div>
                     <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.calories")}</div>
-                    <div className="text-5xl font-semibold k-gradient-text">{result.calories}</div>
+                    <div className="text-5xl font-semibold k-gradient-text">{scaled?.calories ?? 0}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -945,18 +945,19 @@ export default function FoodScan() {
                           toast.info("Already in favorites");
                           return;
                         }
+                        const s = scaled ?? scaleNutrition(result, consumedGrams);
                         addFavorite({
                           name: result.name,
-                          calories: result.calories,
-                          protein: result.protein,
-                          carbs: result.carbs,
-                          fat: result.fat,
+                          calories: s.calories,
+                          protein: s.protein,
+                          carbs: s.carbs,
+                          fat: s.fat,
                           healthScore: result.healthScore,
-                          fiber: result.fiber,
-                          sugar: result.sugar,
-                          sodium: result.sodium,
-                          saturatedFat: result.saturatedFat,
-                          cholesterol: result.cholesterol,
+                          fiber: s.fiber,
+                          sugar: s.sugar,
+                          sodium: s.sodium,
+                          saturatedFat: s.saturatedFat,
+                          cholesterol: s.cholesterol,
                         });
                         toast.success("Saved to favorites ⭐");
                       }}
@@ -979,7 +980,50 @@ export default function FoodScan() {
                     {result.confidence >= 0.75 ? "AI confidence" : "Estimated"}: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span>
                   </p>
                 )}
+
+                {/* Total weight editor — drives ALL displayed nutrition via (per100g / 100) * grams */}
+                <div className="mt-4 pt-4 border-t border-border/60">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-muted-foreground tracking-widest uppercase">Total weight</span>
+                    {result.per100g && (
+                      <span className="text-[10px] text-muted-foreground">
+                        {Math.round(result.per100g.calories)} kcal / 100g
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={5000}
+                      value={consumedGrams}
+                      onChange={(e) => {
+                        const v = parseInt(e.target.value, 10);
+                        setConsumedGrams(Number.isFinite(v) && v > 0 ? Math.min(5000, v) : 0);
+                      }}
+                      className="h-11 rounded-xl flex-1"
+                    />
+                    <span className="text-sm text-muted-foreground">g</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {[50, 100, 150, 200, 250, 300, 400].map((g) => (
+                      <button
+                        key={g}
+                        onClick={() => setConsumedGrams(g)}
+                        className={`k-tap text-[11px] px-2.5 py-1 rounded-full border transition-colors ${
+                          consumedGrams === g
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-card border-border text-muted-foreground hover:border-primary"
+                        }`}
+                      >
+                        {g}g
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
+
 
               {(() => {
                 const nova = applyProcessingModifier(result, foodSource, result.novaGroup);
