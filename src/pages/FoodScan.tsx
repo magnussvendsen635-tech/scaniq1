@@ -465,8 +465,7 @@ export default function FoodScan() {
       totalGrams: totalGrams,
     };
     setResult(next);
-    // Initialise the editable grams to the AI's best portion estimate (fallback: 100g)
-    setConsumedGrams(Math.max(1, Math.round(totalGrams ?? (next.totalGrams ?? 100))));
+    // No auto-default: user enters total weight manually.
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
       setDailyUsed(data.daily_used);
