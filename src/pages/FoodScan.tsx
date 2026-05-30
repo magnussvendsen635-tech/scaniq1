@@ -75,13 +75,15 @@ type Scaled = {
   saturatedFat?: number;
   cholesterol?: number;
 };
-function scaleNutrition(r: Result, grams: number): Scaled {
+function scaleNutrition(r: Result, grams: number, accuracy: number = 1): Scaled {
   const g = Math.max(0, Number(grams) || 0);
+  const a = Math.max(0.5, Math.min(2, Number(accuracy) || 1));
   const p = r.per100g;
+  let s: Scaled;
   if (p) {
     const f = g / 100;
     const r1 = (v: number) => Math.round(v * f * 10) / 10;
-    return {
+    s = {
       calories: Math.round((p.calories ?? 0) * f),
       protein: Math.round((p.protein ?? 0) * f),
       carbs: Math.round((p.carbs ?? 0) * f),
@@ -92,11 +94,10 @@ function scaleNutrition(r: Result, grams: number): Scaled {
       saturatedFat: p.saturatedFat !== undefined ? r1(p.saturatedFat) : undefined,
       cholesterol: p.cholesterol !== undefined ? Math.round(p.cholesterol * f) : undefined,
     };
-  }
-  if (r.totalGrams && r.totalGrams > 0) {
+  } else if (r.totalGrams && r.totalGrams > 0) {
     const f = g / r.totalGrams;
     const r1 = (v?: number) => (v === undefined ? undefined : Math.round(v * f * 10) / 10);
-    return {
+    s = {
       calories: Math.round(r.calories * f),
       protein: Math.round(r.protein * f),
       carbs: Math.round(r.carbs * f),
@@ -107,18 +108,22 @@ function scaleNutrition(r: Result, grams: number): Scaled {
       saturatedFat: r1(r.saturatedFat),
       cholesterol: r.cholesterol !== undefined ? Math.round(r.cholesterol * f) : undefined,
     };
+  } else {
+    s = {
+      calories: r.calories,
+      protein: r.protein,
+      carbs: r.carbs,
+      fat: r.fat,
+      fiber: r.fiber,
+      sugar: r.sugar,
+      sodium: r.sodium,
+      saturatedFat: r.saturatedFat,
+      cholesterol: r.cholesterol,
+    };
   }
-  return {
-    calories: r.calories,
-    protein: r.protein,
-    carbs: r.carbs,
-    fat: r.fat,
-    fiber: r.fiber,
-    sugar: r.sugar,
-    sodium: r.sodium,
-    saturatedFat: r.saturatedFat,
-    cholesterol: r.cholesterol,
-  };
+  // Apply calorie accuracy modifier (compensates AI underestimation)
+  s.calories = Math.round(s.calories * a);
+  return s;
 }
 
 
@@ -230,7 +235,7 @@ export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, streak, addFavorite, isFavorite } = useKStore();
+  const { user, meals, addMeal, streak, addFavorite, isFavorite, calorieAccuracy } = useKStore();
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
@@ -622,7 +627,7 @@ export default function FoodScan() {
 
   const save = () => {
     if (!result) return;
-    const s = scaleNutrition(result, consumedGrams);
+    const s = scaleNutrition(result, consumedGrams, calorieAccuracy);
     const prevStreak = streak;
     const prevDate = useKStore.getState().lastActiveDate;
     addMeal({
@@ -656,7 +661,7 @@ export default function FoodScan() {
     }
   };
 
-  const scaled: Scaled | null = result ? scaleNutrition(result, consumedGrams) : null;
+  const scaled: Scaled | null = result ? scaleNutrition(result, consumedGrams, calorieAccuracy) : null;
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
   
 
@@ -947,7 +952,7 @@ export default function FoodScan() {
                           toast.info("Already in favorites");
                           return;
                         }
-                        const s = scaled ?? scaleNutrition(result, consumedGrams);
+                        const s = scaled ?? scaleNutrition(result, consumedGrams, calorieAccuracy);
                         addFavorite({
                           name: result.name,
                           calories: s.calories,

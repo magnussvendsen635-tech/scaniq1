@@ -14,7 +14,7 @@ import { HealthSyncCard } from "@/components/HealthSyncCard";
 export default function Settings() {
   const nav = useNavigate();
   const t = useT();
-  const { user, updateUser, language, setLanguage } = useKStore();
+  const { user, updateUser, language, setLanguage, calorieAccuracy, setCalorieAccuracy } = useKStore();
   const [form, setForm] = useState(user);
   const [langOpen, setLangOpen] = useState(false);
   const currentLang = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];
@@ -103,6 +103,37 @@ export default function Settings() {
           <Field label={t("settings.fat")}>
             <NumInput value={form.fat} onChange={(n) => set("fat", n)} />
           </Field>
+        </Section>
+
+        <Section title="Scan-nøjagtighed">
+          <div className="px-5 py-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium">Kalorie-justering</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Kompenserer for at AI'en ofte undervurderer kalorier.
+                </div>
+              </div>
+              <div className="text-sm font-semibold tabular-nums">
+                {Math.round(calorieAccuracy * 100)}%
+              </div>
+            </div>
+            <input
+              type="range"
+              min={80}
+              max={150}
+              step={1}
+              value={Math.round(calorieAccuracy * 100)}
+              onChange={(e) => setCalorieAccuracy(Number(e.target.value) / 100)}
+              className="w-full accent-primary"
+            />
+            <div className="flex justify-between text-[10px] text-muted-foreground">
+              <span>80%</span>
+              <span>100%</span>
+              <span>115% (anbefalet)</span>
+              <span>150%</span>
+            </div>
+          </div>
         </Section>
 
         <Button
