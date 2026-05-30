@@ -240,7 +240,7 @@ export default function FoodScan() {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   // User-editable total weight (grams) for the current result. Drives all displayed nutrition.
-  const [consumedGrams, setConsumedGrams] = useState<number>(100);
+  const [consumedGrams, setConsumedGrams] = useState<number>(0);
   const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
   const [foodSource, setFoodSource] = useState<FoodSource>("homemade");
@@ -465,8 +465,7 @@ export default function FoodScan() {
       totalGrams: totalGrams,
     };
     setResult(next);
-    // Initialise the editable grams to the AI's best portion estimate (fallback: 100g)
-    setConsumedGrams(Math.max(1, Math.round(totalGrams ?? (next.totalGrams ?? 100))));
+    // No auto-default: user enters total weight manually.
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
       setDailyUsed(data.daily_used);
@@ -1002,12 +1001,15 @@ export default function FoodScan() {
                     <Input
                       type="number"
                       inputMode="numeric"
-                      min={1}
+                      min={0}
                       max={5000}
-                      value={consumedGrams}
+                      placeholder="g"
+                      value={consumedGrams === 0 ? "" : consumedGrams}
                       onChange={(e) => {
-                        const v = parseInt(e.target.value, 10);
-                        setConsumedGrams(Number.isFinite(v) && v > 0 ? Math.min(5000, v) : 0);
+                        const raw = e.target.value;
+                        if (raw === "") { setConsumedGrams(0); return; }
+                        const v = parseInt(raw, 10);
+                        if (Number.isFinite(v)) setConsumedGrams(Math.min(5000, Math.max(0, v)));
                       }}
                       className="h-11 rounded-xl flex-1"
                     />
