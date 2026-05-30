@@ -14,7 +14,7 @@ import { HealthSyncCard } from "@/components/HealthSyncCard";
 export default function Settings() {
   const nav = useNavigate();
   const t = useT();
-  const { user, updateUser, language, setLanguage } = useKStore();
+  const { user, updateUser, language, setLanguage, calorieAccuracy, setCalorieAccuracy } = useKStore();
   const [form, setForm] = useState(user);
   const [langOpen, setLangOpen] = useState(false);
   const currentLang = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];
