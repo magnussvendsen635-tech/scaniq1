@@ -156,8 +156,9 @@ Deno.serve(async (req) => {
             content:
               "You are a nutrition database expert with knowledge of USDA, European, and Nordic food data. " +
               "The user describes a food in free text (Danish, English, or any language) — possibly with a quantity (e.g. 'medium apple', '1 ispind', '200g pasta carbonara', 'glas appelsinjuice', 'Haribo Mix 100g'). " +
-              "Parse: identify the food + parse the portion size (default to a typical/medium serving if not specified). " +
-              "Return ACCURATE nutrition values for that exact portion. Use realistic database values per 100g, then scale to the requested portion. " +
+              "Parse: identify the food + parse the portion size into a precise total weight in grams (default to a typical/medium serving if not specified; for drinks treat ml as grams). " +
+              "ALWAYS return BOTH per-100g values (per100g) AND the totalGrams of the requested portion. The per-100g values MUST come from accurate USDA/European/Nordic database data for the identified food. " +
+              "The portion totals (calories, protein, carbs, fat, fiber, sugar, sodium, saturatedFat, cholesterol) MUST be computed as: total = round(per100g_value / 100 * totalGrams). Never invent portion totals that contradict this formula. " +
               "Also estimate vitamins (A µg RAE, C mg, D µg, E mg, B12 µg) and minerals (calcium mg, iron mg, magnesium mg, potassium mg, zinc mg) for the portion. Use 0 if truly absent. " +
               "Health score 1-10: 10=whole foods/vegetables/lean protein, 7-8=mostly healthy, 4-6=mixed, 2-3=candy/chips/soda/pastries, 1=pure sugar/deep-fried. " +
               "Always call report_nutrition. Set confidence based on how specific the query was (vague=0.5, specific with weight=0.95).",
@@ -189,6 +190,24 @@ Deno.serve(async (req) => {
                       additionalProperties: false,
                     },
                   },
+                  totalGrams: { type: "number", description: "Total weight of the requested portion in grams (for liquids treat ml as grams)." },
+                  per100g: {
+                    type: "object",
+                    description: "Nutrition values per exactly 100g of the identified food (USDA/European/Nordic accurate).",
+                    properties: {
+                      calories: { type: "number" },
+                      protein: { type: "number" },
+                      carbs: { type: "number" },
+                      fat: { type: "number" },
+                      fiber: { type: "number" },
+                      sugar: { type: "number" },
+                      sodium: { type: "number" },
+                      saturatedFat: { type: "number" },
+                      cholesterol: { type: "number" },
+                    },
+                    required: ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol"],
+                    additionalProperties: false,
+                  },
                   calories: { type: "number" },
                   protein: { type: "number" },
                   carbs: { type: "number" },
@@ -198,6 +217,7 @@ Deno.serve(async (req) => {
                   sodium: { type: "number" },
                   saturatedFat: { type: "number" },
                   cholesterol: { type: "number" },
+
                   healthScore: { type: "number" },
                   confidence: { type: "number" },
                   vitaminA: { type: "number", description: "Vitamin A in µg RAE" },
@@ -211,7 +231,7 @@ Deno.serve(async (req) => {
                   potassium: { type: "number", description: "Potassium in mg" },
                   zinc: { type: "number", description: "Zinc in mg" },
                 },
-                required: ["name", "items", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "vitaminA", "vitaminC", "vitaminD", "vitaminE", "vitaminB12", "calcium", "iron", "magnesium", "potassium", "zinc"],
+                required: ["name", "items", "totalGrams", "per100g", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "vitaminA", "vitaminC", "vitaminD", "vitaminE", "vitaminB12", "calcium", "iron", "magnesium", "potassium", "zinc"],
                 additionalProperties: false,
               },
             },

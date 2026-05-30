@@ -16,9 +16,22 @@ interface FoodItem {
   calories: number;
 }
 
+interface Per100g {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  saturatedFat?: number;
+  cholesterol?: number;
+}
+
 interface Result {
   name: string;
   items?: FoodItem[];
+  // Portion totals as returned by the AI (kept as a fallback when per100g is missing)
   calories: number;
   protein: number;
   carbs: number;
@@ -44,7 +57,70 @@ interface Result {
   zinc?: number;
   novaGroup?: 1 | 2 | 3 | 4;
   ultraProcessedPercent?: number;
+  // NEW: ground-truth per-100g values + total weight of the portion
+  per100g?: Per100g;
+  totalGrams?: number;
 }
+
+// Global calculation: (per100g / 100) * totalConsumedGrams
+// Falls back to ratio scaling of original totals if per100g is missing.
+type Scaled = {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  saturatedFat?: number;
+  cholesterol?: number;
+};
+function scaleNutrition(r: Result, grams: number): Scaled {
+  const g = Math.max(0, Number(grams) || 0);
+  const p = r.per100g;
+  if (p) {
+    const f = g / 100;
+    const r1 = (v: number) => Math.round(v * f * 10) / 10;
+    return {
+      calories: Math.round((p.calories ?? 0) * f),
+      protein: Math.round((p.protein ?? 0) * f),
+      carbs: Math.round((p.carbs ?? 0) * f),
+      fat: Math.round((p.fat ?? 0) * f),
+      fiber: p.fiber !== undefined ? r1(p.fiber) : undefined,
+      sugar: p.sugar !== undefined ? r1(p.sugar) : undefined,
+      sodium: p.sodium !== undefined ? Math.round(p.sodium * f) : undefined,
+      saturatedFat: p.saturatedFat !== undefined ? r1(p.saturatedFat) : undefined,
+      cholesterol: p.cholesterol !== undefined ? Math.round(p.cholesterol * f) : undefined,
+    };
+  }
+  if (r.totalGrams && r.totalGrams > 0) {
+    const f = g / r.totalGrams;
+    const r1 = (v?: number) => (v === undefined ? undefined : Math.round(v * f * 10) / 10);
+    return {
+      calories: Math.round(r.calories * f),
+      protein: Math.round(r.protein * f),
+      carbs: Math.round(r.carbs * f),
+      fat: Math.round(r.fat * f),
+      fiber: r1(r.fiber),
+      sugar: r1(r.sugar),
+      sodium: r.sodium !== undefined ? Math.round(r.sodium * f) : undefined,
+      saturatedFat: r1(r.saturatedFat),
+      cholesterol: r.cholesterol !== undefined ? Math.round(r.cholesterol * f) : undefined,
+    };
+  }
+  return {
+    calories: r.calories,
+    protein: r.protein,
+    carbs: r.carbs,
+    fat: r.fat,
+    fiber: r.fiber,
+    sugar: r.sugar,
+    sodium: r.sodium,
+    saturatedFat: r.saturatedFat,
+    cholesterol: r.cholesterol,
+  };
+}
+
 
 type Portion = "small" | "medium" | "large";
 type FoodSource = "homemade" | "store" | "restaurant";
@@ -158,6 +234,8 @@ export default function FoodScan() {
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+  // User-editable total weight (grams) for the current result. Drives all displayed nutrition.
+  const [consumedGrams, setConsumedGrams] = useState<number>(100);
   const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
   const [foodSource, setFoodSource] = useState<FoodSource>("homemade");
@@ -332,7 +410,21 @@ export default function FoodScan() {
 
   const applyResult = (data: any) => {
     const num = (v: any) => (typeof v === "number" && isFinite(v) ? v : undefined);
-    setResult({
+    const p100 = data.per100g && typeof data.per100g === "object"
+      ? {
+          calories: Number(data.per100g.calories) || 0,
+          protein: Number(data.per100g.protein) || 0,
+          carbs: Number(data.per100g.carbs) || 0,
+          fat: Number(data.per100g.fat) || 0,
+          fiber: num(data.per100g.fiber),
+          sugar: num(data.per100g.sugar),
+          sodium: num(data.per100g.sodium),
+          saturatedFat: num(data.per100g.saturatedFat),
+          cholesterol: num(data.per100g.cholesterol),
+        }
+      : undefined;
+    const totalGrams = num(data.totalGrams);
+    const next: Result = {
       name: data.name,
       items: Array.isArray(data.items)
         ? data.items.map((it: any) => ({ name: String(it.name), calories: Math.round(Number(it.calories) || 0) }))
@@ -362,13 +454,19 @@ export default function FoodScan() {
       zinc: num(data.zinc),
       novaGroup: [1, 2, 3, 4].includes(Number(data.novaGroup)) ? (Number(data.novaGroup) as 1 | 2 | 3 | 4) : undefined,
       ultraProcessedPercent: num(data.ultraProcessedPercent),
-    });
+      per100g: p100,
+      totalGrams: totalGrams,
+    };
+    setResult(next);
+    // Initialise the editable grams to the AI's best portion estimate (fallback: 100g)
+    setConsumedGrams(Math.max(1, Math.round(totalGrams ?? (next.totalGrams ?? 100))));
     if (typeof data.scans_used === "number") setScansUsed(data.scans_used);
     if (typeof data.daily_used === "number") {
       setDailyUsed(data.daily_used);
       if (data.daily_used >= DAILY_LIMIT) setLimitReached(true);
     }
   };
+
 
   const runManualSearch = async () => {
     const q = searchQuery.trim();
@@ -522,20 +620,21 @@ export default function FoodScan() {
 
   const save = () => {
     if (!result) return;
+    const s = scaleNutrition(result, consumedGrams);
     const prevStreak = streak;
     const prevDate = useKStore.getState().lastActiveDate;
     addMeal({
       id: crypto.randomUUID(),
       name: result.name,
-      calories: result.calories,
-      protein: result.protein,
-      carbs: result.carbs,
-      fat: result.fat,
-      fiber: result.fiber,
-      sugar: result.sugar,
-      sodium: result.sodium,
-      saturatedFat: result.saturatedFat,
-      cholesterol: result.cholesterol,
+      calories: s.calories,
+      protein: s.protein,
+      carbs: s.carbs,
+      fat: s.fat,
+      fiber: s.fiber,
+      sugar: s.sugar,
+      sodium: s.sodium,
+      saturatedFat: s.saturatedFat,
+      cholesterol: s.cholesterol,
       healthScore: result.healthScore,
       category,
       at: Date.now(),
@@ -546,16 +645,19 @@ export default function FoodScan() {
       setCelebrate({ count: newStreak });
       setTimeout(() => {
         setCelebrate(null);
-        toast.success(t("scan.meal_added"), { description: `${result.calories} ${t("scan.kcal_logged")}` });
+        toast.success(t("scan.meal_added"), { description: `${s.calories} ${t("scan.kcal_logged")}` });
         nav("/diary");
       }, 1800);
     } else {
-      toast.success(t("scan.meal_added"), { description: `${result.calories} ${t("scan.kcal_logged")}` });
+      toast.success(t("scan.meal_added"), { description: `${s.calories} ${t("scan.kcal_logged")}` });
       nav("/diary");
     }
   };
 
-  const remaining = Math.max(0, user.calories - caloriesToday(meals) - (result?.calories ?? 0));
+  const scaled: Scaled | null = result ? scaleNutrition(result, consumedGrams) : null;
+  const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
+  
+
   
 
   return (
@@ -834,7 +936,7 @@ export default function FoodScan() {
                 <div className="flex items-baseline justify-between">
                   <div>
                     <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.calories")}</div>
-                    <div className="text-5xl font-semibold k-gradient-text">{result.calories}</div>
+                    <div className="text-5xl font-semibold k-gradient-text">{scaled?.calories ?? 0}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -843,18 +945,19 @@ export default function FoodScan() {
                           toast.info("Already in favorites");
                           return;
                         }
+                        const s = scaled ?? scaleNutrition(result, consumedGrams);
                         addFavorite({
                           name: result.name,
-                          calories: result.calories,
-                          protein: result.protein,
-                          carbs: result.carbs,
-                          fat: result.fat,
+                          calories: s.calories,
+                          protein: s.protein,
+                          carbs: s.carbs,
+                          fat: s.fat,
                           healthScore: result.healthScore,
-                          fiber: result.fiber,
-                          sugar: result.sugar,
-                          sodium: result.sodium,
-                          saturatedFat: result.saturatedFat,
-                          cholesterol: result.cholesterol,
+                          fiber: s.fiber,
+                          sugar: s.sugar,
+                          sodium: s.sodium,
+                          saturatedFat: s.saturatedFat,
+                          cholesterol: s.cholesterol,
                         });
                         toast.success("Saved to favorites ⭐");
                       }}
@@ -877,7 +980,50 @@ export default function FoodScan() {
                     {result.confidence >= 0.75 ? "AI confidence" : "Estimated"}: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span>
                   </p>
                 )}
+
+                {/* Total weight editor — drives ALL displayed nutrition via (per100g / 100) * grams */}
+                <div className="mt-4 pt-4 border-t border-border/60">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-muted-foreground tracking-widest uppercase">Total weight</span>
+                    {result.per100g && (
+                      <span className="text-[10px] text-muted-foreground">
+                        {Math.round(result.per100g.calories)} kcal / 100g
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={5000}
+                      value={consumedGrams}
+                      onChange={(e) => {
+                        const v = parseInt(e.target.value, 10);
+                        setConsumedGrams(Number.isFinite(v) && v > 0 ? Math.min(5000, v) : 0);
+                      }}
+                      className="h-11 rounded-xl flex-1"
+                    />
+                    <span className="text-sm text-muted-foreground">g</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {[50, 100, 150, 200, 250, 300, 400].map((g) => (
+                      <button
+                        key={g}
+                        onClick={() => setConsumedGrams(g)}
+                        className={`k-tap text-[11px] px-2.5 py-1 rounded-full border transition-colors ${
+                          consumedGrams === g
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-card border-border text-muted-foreground hover:border-primary"
+                        }`}
+                      >
+                        {g}g
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
+
 
               {(() => {
                 const nova = applyProcessingModifier(result, foodSource, result.novaGroup);
@@ -953,33 +1099,34 @@ export default function FoodScan() {
               )}
 
               <div className="grid grid-cols-3 gap-3">
-                <Macro label={t("home.protein")} value={result.protein} />
-                <Macro label={t("home.carbs")} value={result.carbs} />
-                <Macro label={t("home.fat")} value={result.fat} />
+                <Macro label={t("home.protein")} value={scaled?.protein ?? 0} />
+                <Macro label={t("home.carbs")} value={scaled?.carbs ?? 0} />
+                <Macro label={t("home.fat")} value={scaled?.fat ?? 0} />
               </div>
 
-              {(result.fiber !== undefined || result.sugar !== undefined || result.sodium !== undefined || result.saturatedFat !== undefined || result.cholesterol !== undefined) && (
+              {(scaled?.fiber !== undefined || scaled?.sugar !== undefined || scaled?.sodium !== undefined || scaled?.saturatedFat !== undefined || scaled?.cholesterol !== undefined) && (
                 <div className="k-card p-4">
                   <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">{t("micro.title")}</div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
-                    {result.fiber !== undefined && (
-                      <Micro label={t("micro.fiber")} value={`${result.fiber}g`} />
+                    {scaled?.fiber !== undefined && (
+                      <Micro label={t("micro.fiber")} value={`${scaled.fiber}g`} />
                     )}
-                    {result.sugar !== undefined && (
-                      <Micro label={t("micro.sugar")} value={`${result.sugar}g`} />
+                    {scaled?.sugar !== undefined && (
+                      <Micro label={t("micro.sugar")} value={`${scaled.sugar}g`} />
                     )}
-                    {result.saturatedFat !== undefined && (
-                      <Micro label={t("micro.sat_fat")} value={`${result.saturatedFat}g`} />
+                    {scaled?.saturatedFat !== undefined && (
+                      <Micro label={t("micro.sat_fat")} value={`${scaled.saturatedFat}g`} />
                     )}
-                    {result.sodium !== undefined && (
-                      <Micro label={t("micro.sodium")} value={`${result.sodium}mg`} />
+                    {scaled?.sodium !== undefined && (
+                      <Micro label={t("micro.sodium")} value={`${scaled.sodium}mg`} />
                     )}
-                    {result.cholesterol !== undefined && (
-                      <Micro label={t("micro.cholesterol")} value={`${result.cholesterol}mg`} />
+                    {scaled?.cholesterol !== undefined && (
+                      <Micro label={t("micro.cholesterol")} value={`${scaled.cholesterol}mg`} />
                     )}
                   </div>
                 </div>
               )}
+
 
               {(() => {
                 const vitamins: { label: string; value?: number; unit: string }[] = [
