@@ -195,6 +195,8 @@ export const useKStore = create<KState>()(
       autoAdjustGoal: true,
       frozenDays: {},
       lastResetStreak: 0,
+      calorieAccuracy: 1.15,
+      setCalorieAccuracy: (v) => set({ calorieAccuracy: Math.max(0.5, Math.min(2, Number(v) || 1)) }),
 
       setOnboarded: (v) => set({ onboarded: v }),
       setLanguage: (code) => set({ language: code }),
