@@ -236,6 +236,8 @@ const en: Record<TKey, string> = {
   "water.sub": "Stay hydrated all day", "water.empty": "Tap to log your first glass",
   "scan.source": "Food source",
   "scan.source_sub": "Helps us classify processing level more accurately.",
+  "scan.meal_type": "Meal type",
+  "scan.meal_type_sub": "Categorize this meal in your diary. The AI estimates portion size automatically from your photos.",
   "scan.source_home": "Homemade",
   "scan.source_store": "Store-bought",
   "scan.source_restaurant": "Restaurant",
