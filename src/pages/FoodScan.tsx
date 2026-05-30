@@ -1071,43 +1071,15 @@ export default function FoodScan() {
 
               {(() => {
                 const nova = applyProcessingModifier(result, foodSource, result.novaGroup);
-                const meta = NOVA_META[nova];
-                const upp = typeof result.ultraProcessedPercent === "number"
-                  ? Math.max(0, Math.min(100, Math.round(result.ultraProcessedPercent)))
-                  : null;
+                if (nova !== 2) return null;
                 return (
-                  <div className={`k-card p-4 border-2 ${meta.border}`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-xs text-muted-foreground tracking-widest uppercase">Forarbejdningsgrad</div>
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${meta.badge}`}>
-                        NOVA {nova}
-                      </span>
-                    </div>
+                  <div className="k-card p-4 border-2 border-lime-500/30">
                     <div className="flex items-center gap-3">
-                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl ${meta.icon}`}>
-                        {meta.emoji}
-                      </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-bold text-sm">{meta.title}</div>
-                        <div className="text-xs text-muted-foreground leading-snug">{meta.desc}</div>
+                        <div className="text-xs text-muted-foreground tracking-widest uppercase mb-1">{t("scan.nutrition_focus")}</div>
+                        <div className="text-sm text-foreground leading-snug">{t("scan.nutrition_focus_sub")}</div>
                       </div>
                     </div>
-                    <div className="mt-3 flex gap-1">
-                      {[1, 2, 3, 4].map((n) => (
-                        <div key={n} className={`h-1.5 flex-1 rounded-full ${n <= nova ? meta.bar : "bg-muted"}`} />
-                      ))}
-                    </div>
-                    {upp !== null && (
-                      <div className="mt-3 pt-3 border-t border-border/60">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Ultra-forarbejdet andel</span>
-                          <span className="font-semibold">{upp}%</span>
-                        </div>
-                        <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div className={`h-full ${meta.bar}`} style={{ width: `${upp}%` }} />
-                        </div>
-                      </div>
-                    )}
                   </div>
                 );
               })()}
