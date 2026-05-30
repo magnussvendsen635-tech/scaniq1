@@ -627,7 +627,7 @@ export default function FoodScan() {
 
   const save = () => {
     if (!result) return;
-    const s = scaleNutrition(result, consumedGrams);
+    const s = scaleNutrition(result, consumedGrams, calorieAccuracy);
     const prevStreak = streak;
     const prevDate = useKStore.getState().lastActiveDate;
     addMeal({
@@ -661,7 +661,7 @@ export default function FoodScan() {
     }
   };
 
-  const scaled: Scaled | null = result ? scaleNutrition(result, consumedGrams) : null;
+  const scaled: Scaled | null = result ? scaleNutrition(result, consumedGrams, calorieAccuracy) : null;
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
   
 
@@ -952,7 +952,7 @@ export default function FoodScan() {
                           toast.info("Already in favorites");
                           return;
                         }
-                        const s = scaled ?? scaleNutrition(result, consumedGrams);
+                        const s = scaled ?? scaleNutrition(result, consumedGrams, calorieAccuracy);
                         addFavorite({
                           name: result.name,
                           calories: s.calories,
