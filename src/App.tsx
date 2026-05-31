@@ -31,6 +31,7 @@ import DataPrivacy from "./pages/DataPrivacy";
 import Help from "./pages/Help";
 import Admin from "./pages/Admin";
 import Reminders from "./pages/Reminders";
+import BonusTerms from "./pages/BonusTerms";
 import NotFound from "./pages/NotFound.tsx";
 import Unsubscribe from "./pages/Unsubscribe";
 import { CookieConsent } from "@/components/CookieConsent";
@@ -116,6 +117,7 @@ const App = () => {
                 <Route path="/data-privacy" element={<Shell><DataPrivacy /></Shell>} />
                 <Route path="/admin" element={<Shell><Admin /></Shell>} />
                 <Route path="/reminders" element={<Shell><Reminders /></Shell>} />
+                <Route path="/bonus-terms" element={<Shell><BonusTerms /></Shell>} />
                 <Route path="*" element={<NotFound />} />
               </>
             )}

@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import profileAvatar from "@/assets/profile-avatar.png";
-import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2 } from "lucide-react";
+import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -150,6 +150,7 @@ export default function Profile() {
         />
         <Row Icon={Shield} title="Privacy Policy" sub="Sådan bruger vi dine data" onClick={() => nav("/privacy")} />
         <Row Icon={FileText} title="Terms of Service" sub="Vilkår og betingelser" onClick={() => nav("/terms")} />
+        <Row Icon={Gift} title="Bonus Terms" sub="Vilkår for refer-a-friend bonus" onClick={() => nav("/bonus-terms")} />
         <Row Icon={LifeBuoy} title="Hjælp & support" sub="Kontakt, FAQ, om os, slet konto" onClick={() => nav("/help")} />
         {isAdmin && <Row Icon={Database} title="Admin panel" sub="Brugere, måltider & data" onClick={() => nav("/admin")} />}
         <Row

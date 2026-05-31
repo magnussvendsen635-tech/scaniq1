@@ -32,6 +32,12 @@ export default function Diary() {
   const [summary, setSummary] = useState<string>("");
   const [loadingSummary, setLoadingSummary] = useState(false);
 
+  const lastMealAt: Date | null = useMemo(() => {
+    if (!meals || meals.length === 0) return null;
+    const sorted = [...meals].sort((a: any, b: any) => new Date(b.at).getTime() - new Date(a.at).getTime());
+    return new Date(sorted[0].at);
+  }, [meals]);
+
   const selectedKey = ymd(selected);
   const isToday = selectedKey === ymd(new Date());
 
@@ -193,6 +199,23 @@ export default function Diary() {
           <T label={t("home.fat")} v={Math.round(macros.fat)} />
         </div>
       </div>
+
+      {lastMealAt && (
+        <div className="k-card p-3 mb-4 flex items-center justify-between">
+          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Time of last log</span>
+          <span className="text-sm font-medium tabular-nums">
+            {lastMealAt.toLocaleString(undefined, {
+              weekday: "short",
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+        </div>
+      )}
+
+
 
       {/* AI insight */}
       {dayMeals.length > 0 && (
