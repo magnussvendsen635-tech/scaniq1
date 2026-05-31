@@ -145,53 +145,79 @@ const ALWAYS_ULTRA = /\b(pringles|doritos|lays|cheetos|ruffles|tostitos|oreo|nut
 //   - restaurant → minimum NOVA 3 (added oils/fats/culinary prep)
 //   - store      → can be 1-4 depending on signals
 // Industrial brands (Pringles, Ben & Jerry's, …) are ALWAYS locked at NOVA 4.
+// Manufactured snacks / sodas / candy → always NOVA 4 regardless of source
+const SNACK_ULTRA = /\b(chips|crisps|cola|sodavand|soda|energidrik|energy drink|slik|candy|gummi|lakrids|liquorice|cornflakes|frosties|coco pops|instant noodle|instant nudler|softice|milkshake|protein bar|chokoladebar|chocolate bar|donut|donuts|nuggets|hotdog|hot dog|pølser i dåse|formkød|reconstituted|popcorn med smør|microwave popcorn)\b/i;
+
+// Complex composite meals — context dependent (homemade vs store/restaurant)
+const COMPLEX_MEAL = /\b(pizza|burger|cheeseburger|hamburger|lasagne|lasagna|sandwich|wrap|tortilla pizza|kebab|shawarma|sushi|pasta carbonara|pasta bolognese|spaghetti bolognese|risotto|gryderet|stew|curry|tikka masala|pad thai|pho|ramen|nudelret|paella|enchilada|burrito|taco|quesadilla)\b/i;
+
+// Raw, single-ingredient whole foods
+const RAW_WHOLE = /\b(æble|banan|pære|appelsin|citron|bær|jordbær|blåbær|hindbær|brombær|drue|kiwi|melon|vandmelon|mango|ananas|avocado|tomat|agurk|gulerod|peberfrugt|squash|asparges|broccoli|blomkål|spinat|salat|kål|løg|hvidløg|svamp|kartoffel|sød kartoffel|råris|brune ris|havregryn|havre|quinoa|bønner|linser|kikærter|æg|kyllingebryst|kyllingelår|kalkun|oksekød|hakket okse|svinekød|laks|torsk|tun frisk|rejer|tofu|tempeh|nødder|mandler|valnødder|cashew|hasselnød|frø|chiafrø|hørfrø|fruit|vegetable|apple|banana|pear|orange|berries|egg|chicken breast|raw steak|steak|salmon|cod|rice|oats|plain oats)\b/i;
+
+// NOVA-style processing classification (1 = whole food, 4 = ultra-processed).
 function estimateNova(r: Result, source: FoodSource = "homemade"): 1 | 2 | 3 | 4 {
   const name = (r.name || "").toLowerCase();
   const items = (r.items || []).map((i) => i.name.toLowerCase()).join(" ");
   const text = ` ${name} ${items} `;
 
-  const brandUltra = ALWAYS_ULTRA.test(text);
-  // Industrial additives, emulsifiers, preservatives, artificial sweeteners — strong NOVA 4 markers
-  const additives = /\b(e\d{3}|emulgator|emulsifier|lecithin|carrageenan|maltodextrin|dextrose|invertsukker|glucose-fructose|fruktose sirup|hfcs|aspartame|aspartam|sucralose|acesulfame|saccharin|stevia glycoside|natriumbenzoat|sodium benzoate|kaliumsorbat|potassium sorbate|nitrit|nitrate|msg|mononatriumglutamat|smagsforstærker|flavour enhancer|kunstig aroma|artificial flavou?r|farvestof|colou?ring|stabilisator|stabili[sz]er|fortykningsmiddel|thickener|surhedsregulerende|acidity regulator|konserveringsmiddel|preservative|hydrogenated|hærdet fedt|palmolein|modified starch|modificeret stivelse|hvalleprotein isolat|isolat|hydrolysat|protein isolate|hydrolysed protein|gum arabic|xanthan|guar gum|mono- og diglycerider|propylene glycol|propylenglycol|tbhq|bht|bha)\b/i;
-  const ultra = /\b(chips|crisps|cola|sodavand|soda|energidrik|energy drink|slik|candy|gummi|cornflakes|frosties|instant noodle|instant nudler|færdigret|ready meal|frozen meal|softice|milkshake|protein bar|chokoladebar|donut|donuts|mcdonald|burger king|kfc|domino|nuggets|pølser|hotdog|hot dog|formkød|reconstituted)\b/i;
-  const whole = /\b(æble|banan|pære|appelsin|citron|bær|jordbær|blåbær|hindbær|drue|kiwi|melon|mango|ananas|avocado|tomat|agurk|gulerod|peberfrugt|squash|asparges|broccoli|spinat|salat|kål|løg|hvidløg|svamp|kartoffel|ris|havregryn|quinoa|bønner|linser|kikærter|æg|kylling|kalkun|oksekød|svinekød|laks|torsk|rejer|tofu|nødder|mandler|valnødder|frø|fruit|vegetable|apple|banana|egg|chicken|beef|salmon|rice|oats)\b/i;
+  // 1) Industrial brand or manufactured snack → always NOVA 4
+  if (ALWAYS_ULTRA.test(text) || SNACK_ULTRA.test(text)) return 4;
+
+  // 2) Industrial additives in ingredient list → NOVA 4
+  const additives = /\b(e\d{3}|emulgator|emulsifier|lecithin|carrageenan|maltodextrin|dextrose|invertsukker|glucose-fructose|fruktose sirup|hfcs|aspartame|aspartam|sucralose|acesulfame|saccharin|stevia glycoside|natriumbenzoat|sodium benzoate|kaliumsorbat|potassium sorbate|nitrit|nitrate|msg|mononatriumglutamat|smagsforstærker|flavour enhancer|kunstig aroma|artificial flavou?r|farvestof|colou?ring|stabilisator|stabili[sz]er|fortykningsmiddel|thickener|surhedsregulerende|acidity regulator|konserveringsmiddel|preservative|hydrogenated|hærdet fedt|palmolein|modified starch|modificeret stivelse|isolat|hydrolysat|protein isolate|hydrolysed protein|gum arabic|xanthan|guar gum|mono- og diglycerider|propylene glycol|propylenglycol|tbhq|bht|bha)\b/i;
+  if (additives.test(text)) return 4;
+
+  // 3) Complex composite meal → source-dependent
+  if (COMPLEX_MEAL.test(text)) {
+    if (source === "homemade") return 3;
+    return 4; // store / restaurant
+  }
+
+  // 4) Raw single-ingredient whole food
   const culinary = /\b(mælk|yoghurt|skyr|hytteost|ost|cheese|smør|olie|mel|flour|honning|honey|sukker|salt|eddike|krydderi|herbs|butter|oil|sugar)\b/i;
-  // NOVA 3 = traditionally processed foods (added salt/sugar/oil, fermented, baked, cured)
-  const processed = /\b(pizza|burger|sandwich|wrap|tortilla|pita|bolle|frikadelle|lasagne|gryderet|stew|suppe|soup|risotto|omelet|pandekage|wok|pålæg|skinke|bacon|marmelade|saft|juice|brød|bread|rugbrød|pasta|røget|smoked|saltet|cured|syltet|pickled|dåse|canned|tun i olie|fetaost)\b/i;
+  const processed = /\b(brød|bread|rugbrød|pasta|røget|smoked|saltet|cured|syltet|pickled|dåse|canned|marmelade|saft|juice|bacon|skinke|pålæg|fetaost|frikadelle|bolle|pandekage|omelet|suppe|soup|wok|risotto)\b/i;
+  if (RAW_WHOLE.test(text) && !processed.test(text) && !culinary.test(text)) return 1;
 
-  let nova: 1 | 2 | 3 | 4 = 2;
-  if (brandUltra || additives.test(text) || ultra.test(text)) nova = 4;
-  else if (whole.test(text) && !processed.test(text) && !culinary.test(text)) nova = 1;
-  else if (processed.test(text)) nova = 3;
-  else if (culinary.test(text)) nova = 2;
+  // 5) Traditionally processed
+  if (processed.test(text)) {
+    let nova: 1 | 2 | 3 | 4 = 3;
+    // Nutrition tiebreaker
+    let score = 0;
+    if ((r.sugar ?? 0) > 25) score += 2;
+    else if ((r.sugar ?? 0) > 15) score += 1;
+    if ((r.sodium ?? 0) > 800) score += 2;
+    else if ((r.sodium ?? 0) > 500) score += 1;
+    if ((r.saturatedFat ?? 0) > 12) score += 1;
+    if (score >= 4) nova = 4;
+    if (source === "homemade" && nova > 3) nova = 3;
+    return nova;
+  }
 
-  // Nutrition tiebreaker for ultra-processed signals
-  let score = 0;
-  if ((r.sugar ?? 0) > 25) score += 2;
-  else if ((r.sugar ?? 0) > 15) score += 1;
-  if ((r.sodium ?? 0) > 800) score += 2;
-  else if ((r.sodium ?? 0) > 500) score += 1;
-  if ((r.saturatedFat ?? 0) > 12) score += 1;
-  if (score >= 4 && nova < 4) nova = 4;
-  else if (score >= 3 && nova < 3) nova = 3;
+  // 6) Pure culinary ingredient (sugar/oil/butter/cheese) → NOVA 2
+  if (culinary.test(text)) return 2;
 
-  // Industrial brands or detected additives always stay NOVA 4
-  if (brandUltra || additives.test(text)) return 4;
-  if (source === "homemade" && nova > 2) nova = 2;
-  if (source === "restaurant" && nova < 3) nova = 3;
-
-  return nova;
+  // 7) Fallback by source
+  if (source === "restaurant") return 3;
+  if (source === "store") return 3;
+  return 2;
 }
 
-// Apply the processing modifier on top of an AI-provided NOVA group so the
-// source selector (homemade / store / restaurant) still drives the final
-// score, while industrial brands remain locked at NOVA 4.
+// Apply the processing modifier on top of an AI-provided NOVA group.
+// Strict rules: manufactured snacks/brands always NOVA 4; complex meals
+// re-evaluated against the chosen source so "hjemmelavet" stays NOVA 3.
 function applyProcessingModifier(r: Result, source: FoodSource, aiNova?: 1 | 2 | 3 | 4): 1 | 2 | 3 | 4 {
   const text = ` ${(r.name || "").toLowerCase()} ${(r.items || []).map((i) => i.name.toLowerCase()).join(" ")} `;
-  if (ALWAYS_ULTRA.test(text)) return 4;
+  if (ALWAYS_ULTRA.test(text) || SNACK_ULTRA.test(text)) return 4;
+  if (COMPLEX_MEAL.test(text)) {
+    return source === "homemade" ? 3 : 4;
+  }
+  if (RAW_WHOLE.test(text)) {
+    // Don't let an AI overestimate a plain raw ingredient
+    return 1;
+  }
   if (typeof aiNova !== "number") return estimateNova(r, source);
   let nova: 1 | 2 | 3 | 4 = aiNova;
-  if (source === "homemade" && nova > 2) nova = 2;
+  if (source === "homemade" && nova > 3) nova = 3;
   if (source === "restaurant" && nova < 3) nova = 3;
   return nova;
 }
