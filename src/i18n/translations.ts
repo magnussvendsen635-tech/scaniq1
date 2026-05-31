@@ -90,6 +90,7 @@ export type TKey =
   | "scan.source" | "scan.source_home" | "scan.source_store" | "scan.source_restaurant" | "scan.source_sub"
   | "scan.meal_type" | "scan.meal_type_sub"
   | "scan.nutrition_focus" | "scan.nutrition_focus_sub" | "scan.nutrition_focus_processed"
+  | "scan.nutrition_focus_nova1" | "scan.nutrition_focus_nova2" | "scan.nutrition_focus_nova3" | "scan.nutrition_focus_nova4"
   | "onboarding.health_title" | "onboarding.health_sub" | "onboarding.health_connect" | "onboarding.health_later"
   | "settings.health" | "settings.health_connect" | "settings.health_connected" | "settings.health_sub";
 
