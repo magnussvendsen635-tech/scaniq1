@@ -200,6 +200,23 @@ export default function Diary() {
         </div>
       </div>
 
+      {lastMealAt && (
+        <div className="k-card p-3 mb-4 flex items-center justify-between">
+          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Time of last log</span>
+          <span className="text-sm font-medium tabular-nums">
+            {lastMealAt.toLocaleString(undefined, {
+              weekday: "short",
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+        </div>
+      )}
+
+
+
       {/* AI insight */}
       {dayMeals.length > 0 && (
         <div className="k-card p-4 mb-4 bg-gradient-soft border-primary/20">
