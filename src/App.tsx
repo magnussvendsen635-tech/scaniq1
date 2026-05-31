@@ -117,6 +117,7 @@ const App = () => {
                 <Route path="/data-privacy" element={<Shell><DataPrivacy /></Shell>} />
                 <Route path="/admin" element={<Shell><Admin /></Shell>} />
                 <Route path="/reminders" element={<Shell><Reminders /></Shell>} />
+                <Route path="/bonus-terms" element={<Shell><BonusTerms /></Shell>} />
                 <Route path="*" element={<NotFound />} />
               </>
             )}
