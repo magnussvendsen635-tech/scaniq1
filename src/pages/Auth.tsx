@@ -52,10 +52,16 @@ export default function Auth() {
     setBusy(true);
     try {
       if (mode === "signup") {
+        const { getDeviceId, getClientIp } = await import("@/lib/deviceId");
+        const device_id = getDeviceId();
+        const signup_ip = await getClientIp();
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/` },
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: { device_id, signup_ip },
+          },
         });
         if (error) throw error;
         toast.success(t("auth.account_created"), { description: t("auth.welcome_in") });
