@@ -1112,13 +1112,24 @@ export default function FoodScan() {
                   3: "text-yellow-950/70",
                   4: "text-red-950/70",
                 };
+                const badgeStyles: Record<1 | 2 | 3 | 4, string> = {
+                  1: "bg-lime-400 text-lime-950",
+                  2: "bg-green-400 text-green-950",
+                  3: "bg-yellow-400 text-yellow-950",
+                  4: "bg-red-400 text-red-950",
+                };
                 return (
                   <div
                     key={`nova-${nova}-${result.name}`}
                     className={`rounded-xl p-4 border-2 border-black ${styles[nova]}`}
                     style={{ boxShadow: "4px 4px 0px 0px #000" }}
                   >
-                    <div className={`text-[11px] tracking-widest uppercase mb-1 font-bold ${labelStyles[nova]}`}>{t("scan.nutrition_focus")}</div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className={`text-[11px] tracking-widest uppercase font-bold ${labelStyles[nova]}`}>{t("scan.nutrition_focus")}</div>
+                      <span className={`text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full border border-black ${badgeStyles[nova]}`}>
+                        NOVA {nova}
+                      </span>
+                    </div>
                     <div className="text-sm leading-snug font-semibold">{t(subKey)}</div>
                   </div>
                 );
