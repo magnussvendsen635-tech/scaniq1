@@ -32,6 +32,12 @@ export default function Diary() {
   const [summary, setSummary] = useState<string>("");
   const [loadingSummary, setLoadingSummary] = useState(false);
 
+  const lastMealAt: Date | null = useMemo(() => {
+    if (!meals || meals.length === 0) return null;
+    const sorted = [...meals].sort((a: any, b: any) => new Date(b.at).getTime() - new Date(a.at).getTime());
+    return new Date(sorted[0].at);
+  }, [meals]);
+
   const selectedKey = ymd(selected);
   const isToday = selectedKey === ymd(new Date());
 
