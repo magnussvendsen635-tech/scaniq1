@@ -1075,21 +1075,21 @@ export default function FoodScan() {
                 const nova = applyProcessingModifier(result, foodSource, result.novaGroup);
                 const subKey = (`scan.nutrition_focus_nova${nova}` as const);
                 const styles: Record<1 | 2 | 3 | 4, string> = {
-                  1: "bg-lime-100 dark:bg-lime-500/15 border-lime-400/50 text-lime-950 dark:text-lime-100",
-                  2: "bg-green-200 dark:bg-green-500/20 border-green-500/60 text-green-950 dark:text-green-100",
-                  3: "bg-yellow-100 dark:bg-yellow-500/15 border-yellow-400/60 text-yellow-950 dark:text-yellow-100",
-                  4: "bg-red-100 dark:bg-red-500/15 border-red-400/60 text-red-950 dark:text-red-100",
+                  1: "bg-lime-200 border-lime-900/40 text-lime-950",
+                  2: "bg-green-300 border-green-900/40 text-green-950",
+                  3: "bg-yellow-200 border-yellow-900/40 text-yellow-950",
+                  4: "bg-red-300 border-red-900/40 text-red-950",
                 };
                 const labelStyles: Record<1 | 2 | 3 | 4, string> = {
-                  1: "text-lime-900/70 dark:text-lime-200/80",
-                  2: "text-green-900/70 dark:text-green-200/80",
-                  3: "text-yellow-900/70 dark:text-yellow-200/80",
-                  4: "text-red-900/70 dark:text-red-200/80",
+                  1: "text-lime-950/70",
+                  2: "text-green-950/70",
+                  3: "text-yellow-950/70",
+                  4: "text-red-950/70",
                 };
                 return (
-                  <div className={`k-card p-4 border ${styles[nova]}`}>
-                    <div className={`text-xs tracking-widest uppercase mb-1 ${labelStyles[nova]}`}>{t("scan.nutrition_focus")}</div>
-                    <div className="text-sm leading-snug font-medium">{t(subKey)}</div>
+                  <div className={`rounded-2xl p-4 border-2 shadow-lg ${styles[nova]}`}>
+                    <div className={`text-[11px] tracking-widest uppercase mb-1 font-semibold ${labelStyles[nova]}`}>{t("scan.nutrition_focus")}</div>
+                    <div className="text-sm leading-snug font-semibold">{t(subKey)}</div>
                   </div>
                 );
               })()}
