@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import profileAvatar from "@/assets/profile-avatar.png";
-import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2 } from "lucide-react";
+import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
