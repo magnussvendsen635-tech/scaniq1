@@ -90,6 +90,7 @@ export type TKey =
   | "scan.source" | "scan.source_home" | "scan.source_store" | "scan.source_restaurant" | "scan.source_sub"
   | "scan.meal_type" | "scan.meal_type_sub"
   | "scan.nutrition_focus" | "scan.nutrition_focus_sub" | "scan.nutrition_focus_processed"
+  | "scan.nutrition_focus_nova1" | "scan.nutrition_focus_nova2" | "scan.nutrition_focus_nova3" | "scan.nutrition_focus_nova4"
   | "onboarding.health_title" | "onboarding.health_sub" | "onboarding.health_connect" | "onboarding.health_later"
   | "settings.health" | "settings.health_connect" | "settings.health_connected" | "settings.health_sub";
 
@@ -245,6 +246,10 @@ const en: Record<TKey, string> = {
   "scan.nutrition_focus": "Nutrition focus",
   "scan.nutrition_focus_sub": "Healthy and natural composition",
   "scan.nutrition_focus_processed": "Processed composition — enjoy in moderation",
+  "scan.nutrition_focus_nova1": "Unprocessed whole food — natural energy",
+  "scan.nutrition_focus_nova2": "Minimally processed — good for your body",
+  "scan.nutrition_focus_nova3": "Processed composition — enjoy in moderation",
+  "scan.nutrition_focus_nova4": "Ultra-processed — eat in smaller portions",
   "onboarding.health_title": "Connect with Apple Health",
   "onboarding.health_sub": "Automatically synchronize your workouts, steps, and body measurements with ScanIQ for the most accurate tracking.",
   "onboarding.health_connect": "Connect now",
@@ -385,6 +390,10 @@ const da: Dict = {
   "scan.nutrition_focus": "Næringsfokus",
   "scan.nutrition_focus_sub": "Sund og naturlig sammensætning",
   "scan.nutrition_focus_processed": "Forarbejdet sammensætning — nyd med måde",
+  "scan.nutrition_focus_nova1": "Uforarbejdet råvare – Naturlig energi",
+  "scan.nutrition_focus_nova2": "Minimalt forarbejdet – Godt for kroppen",
+  "scan.nutrition_focus_nova3": "Forarbejdet sammensætning – Nyd med måde",
+  "scan.nutrition_focus_nova4": "Ultra-forarbejdet – Spis i mindre portioner",
   "onboarding.health_title": "Forbind med Apple Health (Sundhed)",
   "onboarding.health_sub": "Synkroniser dine træninger, skridt og kropsmål automatisk med ScanIQ for at få den mest præcise sporing.",
   "onboarding.health_connect": "Forbind nu",
