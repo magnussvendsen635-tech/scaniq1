@@ -31,6 +31,7 @@ import DataPrivacy from "./pages/DataPrivacy";
 import Help from "./pages/Help";
 import Admin from "./pages/Admin";
 import Reminders from "./pages/Reminders";
+import BonusTerms from "./pages/BonusTerms";
 import NotFound from "./pages/NotFound.tsx";
 import Unsubscribe from "./pages/Unsubscribe";
 import { CookieConsent } from "@/components/CookieConsent";
