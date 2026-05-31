@@ -708,13 +708,30 @@ export default function FoodScan() {
     name: it.name,
     calories: Math.round((it.calories || 0) * itemRatio),
   }));
-  // Burger detection: add 250 kcal for hidden cooking fats & dressings the camera can't see
-  const BURGER_HIDDEN_KCAL = 250;
-  const isBurger = !!result && (
-    /burger|cheeseburger|hamburger/i.test(result.name ?? "") ||
-    (result.items ?? []).some((it) => /burger|cheeseburger|hamburger|bun|patty/i.test(it.name ?? ""))
-  );
-  const hiddenKcal = isBurger ? BURGER_HIDDEN_KCAL : 0;
+  // Hidden-calorie detection: add kcal for cooking oils, butter and heavy dressings
+  // the camera can't see. Restaurant / store complex meals carry the largest hidden load.
+  const hiddenKcal = (() => {
+    if (!result) return 0;
+    const text = ` ${(result.name ?? "").toLowerCase()} ${(result.items ?? []).map((i) => (i.name ?? "").toLowerCase()).join(" ")} `;
+    const isBurger = /\b(burger|cheeseburger|hamburger|bun|patty)\b/.test(text);
+    const isPizza = /\bpizza\b/.test(text);
+    const isPanSeared = /(stegt|pan[\s-]?seared|pan[\s-]?fried|fried|deep[\s-]?fried|frituresteg|wok|sauteed|saut[ée]ret)/.test(text);
+    const isHeavyDressing = /(caesar|cobb|ranch|aioli|mayo|remoulade|dressing|b[éearnaise]+|hollandaise|gravy|sovs|cream sauce|fl[øo]desovs|carbonara|alfredo|pesto)/.test(text);
+    const isComplexMeal = COMPLEX_MEAL.test(text);
+    const isFastFood = ALWAYS_ULTRA.test(text) || SNACK_ULTRA.test(text);
+    const isOut = foodSource === "restaurant" || foodSource === "store";
+
+    if (isBurger) return 250;
+    if (isPizza && isOut) return 220;
+    if (isPizza) return 150;
+    if (isFastFood && isOut) return 200;
+    if (isComplexMeal && isOut) return 200;
+    if (isComplexMeal) return 150;
+    if (isPanSeared) return 150;
+    if (isHeavyDressing) return 150;
+    if (isOut) return 150;
+    return 0;
+  })();
   // Force Total to equal the sum of items when items exist, so displays never conflict
   const itemsSumBase = scaledItems?.reduce((a, b) => a + b.calories, 0) ?? 0;
   const itemsSum = itemsSumBase + hiddenKcal;
