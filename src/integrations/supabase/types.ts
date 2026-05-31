@@ -236,44 +236,113 @@ export type Database = {
         }
         Relationships: []
       }
+      payouts: {
+        Row: {
+          amount_cents: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          paid_at: string | null
+          paid_by: string | null
+          payout_date: string | null
+          paypal_transaction_id: string | null
+          status: Database["public"]["Enums"]["payout_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          payout_date?: string | null
+          paypal_transaction_id?: string | null
+          status?: Database["public"]["Enums"]["payout_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          payout_date?: string | null
+          paypal_transaction_id?: string | null
+          status?: Database["public"]["Enums"]["payout_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          ban_reason: string | null
+          banned_at: string | null
           created_at: string
           daily_scan_count: number
+          device_id: string | null
           display_name: string | null
           email: string | null
+          email_verified_at: string | null
           id: string
+          is_banned: boolean
           is_premium: boolean
           last_scan_at: string | null
           last_scan_date: string | null
           scan_count: number
+          signup_ip: unknown
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           created_at?: string
           daily_scan_count?: number
+          device_id?: string | null
           display_name?: string | null
           email?: string | null
+          email_verified_at?: string | null
           id: string
+          is_banned?: boolean
           is_premium?: boolean
           last_scan_at?: string | null
           last_scan_date?: string | null
           scan_count?: number
+          signup_ip?: unknown
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           created_at?: string
           daily_scan_count?: number
+          device_id?: string | null
           display_name?: string | null
           email?: string | null
+          email_verified_at?: string | null
           id?: string
+          is_banned?: boolean
           is_premium?: boolean
           last_scan_at?: string | null
           last_scan_date?: string | null
           scan_count?: number
+          signup_ip?: unknown
           updated_at?: string
         }
         Relationships: []
@@ -416,6 +485,27 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -598,6 +688,14 @@ export type Database = {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_blocked: {
         Args: { _device?: string; _ip?: string; _user_id: string }
         Returns: boolean
@@ -621,7 +719,8 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      payout_status: "pending" | "approved" | "paid" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -748,6 +847,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      payout_status: ["pending", "approved", "paid", "rejected"],
+    },
   },
 } as const
