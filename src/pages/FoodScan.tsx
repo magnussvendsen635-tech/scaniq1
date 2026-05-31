@@ -1112,6 +1112,12 @@ export default function FoodScan() {
                   3: "text-yellow-950/70",
                   4: "text-red-950/70",
                 };
+                const badgeStyles: Record<1 | 2 | 3 | 4, string> = {
+                  1: "bg-lime-400 text-lime-950",
+                  2: "bg-green-400 text-green-950",
+                  3: "bg-yellow-400 text-yellow-950",
+                  4: "bg-red-400 text-red-950",
+                };
                 return (
                   <div
                     key={`nova-${nova}-${result.name}`}
