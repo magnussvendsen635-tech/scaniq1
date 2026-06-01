@@ -35,7 +35,7 @@ export default function Profile() {
   const isAdmin =
     (authUser?.email && ADMIN_EMAILS.includes(authUser.email)) ||
     (typeof window !== "undefined" && window.localStorage.getItem("scaniq_admin") === "1");
-  const fileRef = useRef<HTMLInputElement>(null);
+  
 
   const restorePurchase = async () => {
     setRestoring(true);
