@@ -27,7 +27,7 @@ export default function Profile() {
   const nav = useNavigate();
   const t = useT();
   const { signOut, user: authUser } = useAuth();
-  const { user, streak, premium, avatar, setAvatar } = useKStore();
+  const { user, streak, premium } = useKStore();
   const { isActive, refetch } = useSubscription();
   const [restoring, setRestoring] = useState(false);
   const [deleting, setDeleting] = useState(false);
