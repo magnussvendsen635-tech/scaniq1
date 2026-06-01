@@ -43,18 +43,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Safety net: never let the app hang on the loading screen.
+    const failsafe = setTimeout(() => setLoading((l) => (l ? false : l)), 3000);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       setLoading(false);
-      // Defer to avoid recursive auth calls inside the listener
+      clearTimeout(failsafe);
       if (s?.user) setTimeout(() => enforceBan(s), 0);
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
+      clearTimeout(failsafe);
       if (data.session?.user) setTimeout(() => enforceBan(data.session), 0);
+    }).catch(() => {
+      setLoading(false);
+      clearTimeout(failsafe);
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(failsafe);
+    };
   }, []);
 
   const signOut = async () => {
