@@ -21,6 +21,7 @@ const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const MAX_AUTH_LOADING_MS = 5000;
 
   // Ban enforcement: if the signed-in user's profile is_banned=true, sign out.
   const enforceBan = async (s: Session | null) => {
@@ -44,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Safety net: never let the app hang on the loading screen.
-    const failsafe = setTimeout(() => setLoading((l) => (l ? false : l)), 3000);
+    const failsafe = setTimeout(() => setLoading((l) => (l ? false : l)), MAX_AUTH_LOADING_MS);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
