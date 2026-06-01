@@ -18,10 +18,11 @@ const AuthContext = createContext<AuthContextValue>({
   signOut: async () => {},
 });
 
+const MAX_AUTH_LOADING_MS = 5000;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const MAX_AUTH_LOADING_MS = 5000;
 
   // Ban enforcement: if the signed-in user's profile is_banned=true, sign out.
   const enforceBan = async (s: Session | null) => {
