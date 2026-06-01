@@ -7,7 +7,9 @@ import logo from "@/assets/scaniq-leaf-logo.png";
  * the user's background preference.
  */
 export function SplashScreen() {
-  const alreadyShown = typeof sessionStorage !== "undefined" && sessionStorage.getItem("scaniq.splashShown") === "1";
+  const [alreadyShown] = useState(() =>
+    typeof sessionStorage !== "undefined" && sessionStorage.getItem("scaniq.splashShown") === "1"
+  );
   const [visible, setVisible] = useState(!alreadyShown);
   const [fading, setFading] = useState(false);
 
