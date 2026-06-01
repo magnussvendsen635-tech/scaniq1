@@ -58,24 +58,6 @@ export default function Profile() {
     else toast.info("Åbn App Store / Google Play på din telefon for at administrere abonnementet");
   };
 
-  const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image too large (max 5MB)");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setAvatar(reader.result as string);
-      toast.success("Profile picture updated");
-    };
-    reader.readAsDataURL(file);
-  };
 
   return (
     <div className="k-page">
