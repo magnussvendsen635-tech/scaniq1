@@ -18,6 +18,8 @@ const AuthContext = createContext<AuthContextValue>({
   signOut: async () => {},
 });
 
+const MAX_AUTH_LOADING_MS = 5000;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Safety net: never let the app hang on the loading screen.
-    const failsafe = setTimeout(() => setLoading((l) => (l ? false : l)), 3000);
+    const failsafe = setTimeout(() => setLoading((l) => (l ? false : l)), MAX_AUTH_LOADING_MS);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
