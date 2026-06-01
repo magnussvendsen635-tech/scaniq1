@@ -1,9 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
-import profileAvatar from "@/assets/profile-avatar.png";
-import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Camera, Scale, Star, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
+import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Scale, Star, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -28,7 +27,7 @@ export default function Profile() {
   const nav = useNavigate();
   const t = useT();
   const { signOut, user: authUser } = useAuth();
-  const { user, streak, premium, avatar, setAvatar } = useKStore();
+  const { user, streak, premium } = useKStore();
   const { isActive, refetch } = useSubscription();
   const [restoring, setRestoring] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -36,7 +35,7 @@ export default function Profile() {
   const isAdmin =
     (authUser?.email && ADMIN_EMAILS.includes(authUser.email)) ||
     (typeof window !== "undefined" && window.localStorage.getItem("scaniq_admin") === "1");
-  const fileRef = useRef<HTMLInputElement>(null);
+  
 
   const restorePurchase = async () => {
     setRestoring(true);
@@ -59,24 +58,6 @@ export default function Profile() {
     else toast.info("Åbn App Store / Google Play på din telefon for at administrere abonnementet");
   };
 
-  const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image too large (max 5MB)");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setAvatar(reader.result as string);
-      toast.success("Profile picture updated");
-    };
-    reader.readAsDataURL(file);
-  };
 
   return (
     <div className="k-page">
@@ -89,17 +70,6 @@ export default function Profile() {
       <div className="k-card p-6 mb-4 bg-gradient-surface relative overflow-hidden">
         <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-gradient-primary opacity-20 blur-3xl" />
         <div className="relative flex items-center gap-4">
-          <button
-            onClick={() => fileRef.current?.click()}
-            className="relative w-16 h-16 rounded-3xl overflow-hidden shadow-glow group"
-            aria-label="Change profile picture"
-          >
-            <img src={avatar ?? profileAvatar} alt="Profile avatar" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <Camera className="w-5 h-5 text-white" />
-            </div>
-          </button>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePick} />
           <div className="flex-1">
             <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("profile.goal")}</div>
             <div className="text-xl font-semibold">{t(goalKey[user.goal])}</div>
