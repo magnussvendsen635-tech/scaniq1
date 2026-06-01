@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
+const MAX_SPLASH_MS = 5000;
+
 /**
  * Custom ScanIQ Pro splash screen. Shows once per page-load for ~1.8s,
  * then fades out. Respects the app's dark theme — does not override
@@ -18,9 +20,11 @@ export function SplashScreen() {
     try { sessionStorage.setItem("scaniq.splashShown", "1"); } catch {}
     const fadeT = setTimeout(() => setFading(true), 1500);
     const hideT = setTimeout(() => setVisible(false), 2000);
+    const maxT = setTimeout(() => setVisible(false), MAX_SPLASH_MS);
     return () => {
       clearTimeout(fadeT);
       clearTimeout(hideT);
+      clearTimeout(maxT);
     };
   }, [alreadyShown]);
 
