@@ -127,7 +127,7 @@ export default function Terms() {
 
         <Section title="10. Kontakt">
           <p>
-            By Kinetix Intelligence ·{" "}
+            KCALLY ·{" "}
             <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">
               scaniqapp1@gmail.com
             </a>
