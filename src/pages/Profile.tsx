@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
-import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Scale, Star, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
+import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -104,7 +104,7 @@ export default function Profile() {
 
       <div className="k-card divide-y divide-border/60 overflow-hidden">
         <Row Icon={Scale} title="Weight tracker" sub="Log weight & see your trend" onClick={() => nav("/weight")} />
-        <Row Icon={Star} title="Favorites & recent" sub="Quick-add saved meals" onClick={() => nav("/favorites")} />
+        
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
         <Row
           Icon={RefreshCw}
