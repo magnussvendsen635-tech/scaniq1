@@ -254,9 +254,13 @@ export default function Premium() {
         {promoError && (
           <p className="text-xs text-destructive mb-2 font-medium">Ugyldig kode</p>
         )}
-        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground flex-wrap">
           <button onClick={() => nav("/terms")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
             Servicevilkår
+          </button>
+          <span className="text-border">·</span>
+          <button onClick={() => nav("/refund")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
+            Refundering
           </button>
           <span className="text-border">·</span>
           <button onClick={() => nav("/privacy")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">

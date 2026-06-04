@@ -24,8 +24,18 @@ export default function Terms() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 26. maj 2026 · Udvikler: By Kinetix Intelligence · Kontakt: scaniqapp1@gmail.com
+          Sidst opdateret: 4. juni 2026 · Sælger: KCALLY · Kontakt: scaniqapp1@gmail.com
         </p>
+
+        <div className="rounded-2xl border border-primary/40 bg-primary/10 p-4 text-xs leading-relaxed">
+          <b className="block mb-1">Forhandler & betalingsbehandler</b>
+          Vores ordreproces håndteres af vores online-forhandler{" "}
+          <b>Paddle.com</b>. Paddle.com er <b>Merchant of Record</b> for alle
+          vores ordrer på web og fremgår som betalingsmodtager på din
+          kontoudtog. Paddle behandler alle kundehenvendelser vedrørende
+          betaling og håndterer refunderinger. Se Paddles{" "}
+          <a className="underline" href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener">Buyer Terms</a>.
+        </div>
 
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
           <b className="block mb-1 text-amber-300">Ikke medicinsk rådgivning</b>
@@ -64,10 +74,23 @@ export default function Terms() {
             <li>Premium tilbydes som <b>månedligt</b> eller <b>årligt</b> abonnement.</li>
             <li>Abonnementet fornyes <b>automatisk</b> ved periodens udløb, medmindre du opsiger det inden da.</li>
             <li>Opsigelse træder i kraft ved <b>periodens udløb</b> – du beholder Premium frem til den dato.</li>
-            <li>Betaling håndteres af tredjeparter (Paddle / App Store / Google Play). Refusioner følger deres regler.</li>
+            <li>
+              Web-køb håndteres af <b>Paddle.com</b> som Merchant of Record. Vilkår, fakturering,
+              skat og opsigelse følger Paddles{" "}
+              <a className="text-primary-glow underline" href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener">Buyer Terms</a>.
+            </li>
+            <li>
+              <b>14 dages pengene-tilbage-garanti</b>: Du kan anmode om fuld refundering inden for
+              14 dage efter købet via{" "}
+              <a className="text-primary-glow underline" href="https://paddle.net" target="_blank" rel="noopener">paddle.net</a>{" "}
+              eller ved at kontakte os. Se vores fulde{" "}
+              <a className="text-primary-glow underline" href="/refund">Refunderingspolitik</a>.
+            </li>
+            <li>Køb via App Store / Google Play håndteres af de respektive platforme efter deres regler.</li>
             <li>Restore Purchase gendanner kun et eksisterende abonnement – det giver hverken refusioner eller gratis Premium.</li>
           </ul>
         </Section>
+
 
         <Section title="5. Ingen garantier">
           <p>
@@ -78,7 +101,7 @@ export default function Terms() {
 
         <Section title="6. Ansvarsbegrænsning">
           <p>
-            I det omfang loven tillader det, er By Kinetix Intelligence samlede ansvar begrænset til det
+            I det omfang loven tillader det, er KCALLY samlede ansvar begrænset til det
             beløb du har betalt for Premium de seneste 12 måneder. Vi er ikke ansvarlige for
             indirekte tab eller helbredsmæssige konsekvenser af din brug af appen.
           </p>
@@ -104,7 +127,7 @@ export default function Terms() {
 
         <Section title="10. Kontakt">
           <p>
-            By Kinetix Intelligence ·{" "}
+            KCALLY ·{" "}
             <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">
               scaniqapp1@gmail.com
             </a>

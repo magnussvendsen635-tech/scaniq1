@@ -237,6 +237,16 @@ export default function Auth() {
         >
           {mode === "forgot" ? "Tilbage til login" : mode === "signin" ? t("auth.no_account") : t("auth.have_account")}
         </button>
+
+        <div className="mt-6 pt-4 border-t border-border/40 flex items-center justify-center gap-3 text-xs text-muted-foreground flex-wrap">
+          <a href="/pricing" className="hover:text-foreground underline-offset-4 hover:underline">Priser</a>
+          <span>·</span>
+          <a href="/terms" className="hover:text-foreground underline-offset-4 hover:underline">Servicevilkår</a>
+          <span>·</span>
+          <a href="/refund" className="hover:text-foreground underline-offset-4 hover:underline">Refundering</a>
+          <span>·</span>
+          <a href="/privacy" className="hover:text-foreground underline-offset-4 hover:underline">Privatliv</a>
+        </div>
       </div>
     </div>
   );
