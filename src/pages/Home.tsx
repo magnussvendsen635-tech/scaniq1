@@ -5,7 +5,7 @@ import { Ring } from "@/components/Ring";
 import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine, Star, Scale } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
-import { StreakCard } from "@/components/StreakCard";
+
 import { HealthScoreCard } from "@/components/HealthScoreCard";
 import { HealthSyncCard } from "@/components/HealthSyncCard";
 import { WaterCard } from "@/components/WaterCard";
@@ -75,8 +75,6 @@ export default function Home() {
 
       <p className="text-xs text-muted-foreground mb-5 italic px-1">{motivation}</p>
 
-      {/* Streak card */}
-      <StreakCard />
 
       {/* Hero ring card */}
       <div className="k-card p-6 mb-5 bg-gradient-surface relative overflow-hidden">
