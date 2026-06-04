@@ -1,14 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw, Settings } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
 import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Input } from "@/components/ui/input";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { supabase } from "@/integrations/supabase/client";
+import { getPaddleEnvironment } from "@/lib/paddle";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
 const featureKeys: TKey[] = [
@@ -19,14 +23,22 @@ const featureKeys: TKey[] = [
   "premium.feat_priority",
 ];
 
+const isNativePlatform = (): boolean =>
+  typeof (window as any).Capacitor?.isNativePlatform === "function"
+    ? (window as any).Capacitor.isNativePlatform()
+    : false;
+
 export default function Premium() {
   const nav = useNavigate();
   const t = useT();
   const { user } = useAuth();
-  const { isActive, refetch } = useSubscription();
-  const { purchase, restore: restoreIAP, loading } = useIAP();
+  const { isActive, subscription, refetch } = useSubscription();
+  const { purchase, restore: restoreIAP, loading: iapLoading } = useIAP();
+  const { openCheckout, loading: paddleLoading } = usePaddleCheckout();
+  const loading = iapLoading || paddleLoading;
   const [plan, setPlan] = useState<"month" | "year">("year");
   const [restoring, setRestoring] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
@@ -42,11 +54,11 @@ export default function Premium() {
     if (promoInput.trim().toUpperCase() === "PROMO10") {
       setPromoApplied(true);
       setPromoError(false);
-      toast.success("Rabatkode anvendt! 10% trukket fra / Code applied! 10% discount added");
+      toast.success("Rabatkode anvendt! 10% trukket fra");
     } else {
       setPromoApplied(false);
       setPromoError(true);
-      toast.error("Ugyldig kode / Invalid code");
+      toast.error("Ugyldig kode");
     }
   };
 
@@ -55,33 +67,65 @@ export default function Premium() {
       toast.error("Du skal være logget ind");
       return;
     }
-    const productId = plan === "month" ? IAP_PRODUCTS.monthly : IAP_PRODUCTS.yearly;
-    const { success } = await purchase(productId);
-    if (success) {
-      toast.success("Tak for dit køb!");
-      await refetch();
+    if (isNativePlatform()) {
+      const productId = plan === "month" ? IAP_PRODUCTS.monthly : IAP_PRODUCTS.yearly;
+      const { success } = await purchase(productId);
+      if (success) {
+        toast.success("Tak for dit køb!");
+        await refetch();
+      }
+      return;
+    }
+    // Web → Paddle
+    try {
+      const priceId = plan === "month" ? "kcally_premium_monthly" : "kcally_premium_yearly";
+      await openCheckout({
+        priceId,
+        customerEmail: user.email,
+        customData: {
+          userId: user.id,
+          ...(promoApplied ? { promoCode: "PROMO10" } : {}),
+        },
+        discountCode: promoApplied ? "PROMO10" : undefined,
+        successUrl: `${window.location.origin}/profile?checkout=success`,
+      });
+    } catch (e: any) {
+      toast.error("Kunne ikke åbne betaling", { description: e?.message });
     }
   };
 
   const restore = async () => {
     setRestoring(true);
     try {
-      await restoreIAP();
-      await refetch();
-      if (isActive) {
-        toast.success("Dit abonnement er gendannet");
-      } else {
-        toast("Intet aktivt abonnement fundet");
+      if (isNativePlatform()) {
+        await restoreIAP();
       }
+      await refetch();
+      if (isActive) toast.success("Dit abonnement er gendannet");
+      else toast("Intet aktivt abonnement fundet");
     } finally {
       setRestoring(false);
     }
   };
 
+  const openPortal = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal", {
+        body: { environment: getPaddleEnvironment() },
+      });
+      if (error || !data?.url) throw new Error(error?.message || "Kunne ikke åbne portal");
+      window.open(data.url, "_blank");
+    } catch (e: any) {
+      toast.error("Kunne ikke åbne abonnementsstyring", { description: e?.message });
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto" style={{ paddingBottom: 100 }}>
-
+      <PaymentTestModeBanner />
 
       <header className="flex items-center gap-3 mb-6 pt-2">
         <button
@@ -146,7 +190,6 @@ export default function Premium() {
         />
       </section>
 
-
       <Button
         onClick={upgrade}
         disabled={isActive || loading}
@@ -159,6 +202,18 @@ export default function Premium() {
         )}
         {isActive ? t("premium.youre_premium") : t("premium.upgrade_now")}
       </Button>
+
+      {isActive && subscription && (
+        <Button
+          onClick={openPortal}
+          disabled={portalLoading}
+          variant="outline"
+          className="w-full h-12 rounded-2xl mt-3"
+        >
+          {portalLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Settings className="w-4 h-4 mr-2" />}
+          Administrér abonnement
+        </Button>
+      )}
 
       <p className="text-[11px] text-muted-foreground text-center mt-3 px-6 leading-relaxed">
         Abonnementet fornyes automatisk. Du kan opsige når som helst.
@@ -177,7 +232,7 @@ export default function Premium() {
             <Input
               value={promoInput}
               onChange={(e) => { setPromoInput(e.target.value); setPromoError(false); }}
-              placeholder="Indtast rabatkode"
+              placeholder="Rabatkode"
               disabled={promoApplied}
               className={"h-11 rounded-xl flex-1 text-sm " + (promoError ? "border-destructive" : promoApplied ? "border-green-500" : "")}
             />
@@ -193,26 +248,18 @@ export default function Premium() {
         </div>
         {promoApplied && (
           <p className="text-xs text-green-600 mb-2 font-medium">
-            ✓ Rabatkode anvendt! 10% trukket fra / Code applied! 10% discount added
+            ✓ Rabatkode anvendt! 10% trukket fra ved checkout
           </p>
         )}
         {promoError && (
-          <p className="text-xs text-destructive mb-2 font-medium">
-            Ugyldig kode / Invalid code
-          </p>
+          <p className="text-xs text-destructive mb-2 font-medium">Ugyldig kode</p>
         )}
         <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-          <button
-            onClick={() => nav("/terms")}
-            className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
-          >
+          <button onClick={() => nav("/terms")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
             Servicevilkår
           </button>
           <span className="text-border">·</span>
-          <button
-            onClick={() => nav("/privacy")}
-            className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
-          >
+          <button onClick={() => nav("/privacy")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
             Privatlivspolitik
           </button>
         </div>
@@ -222,25 +269,10 @@ export default function Premium() {
 }
 
 const PlanOption = ({
-  active,
-  onClick,
-  title,
-  price,
-  oldPrice,
-  unit,
-  sub,
-  badge,
-  highlight,
+  active, onClick, title, price, oldPrice, unit, sub, badge, highlight,
 }: {
-  active: boolean;
-  onClick: () => void;
-  title: string;
-  price: string;
-  oldPrice?: string;
-  unit: string;
-  sub: string;
-  badge?: string;
-  highlight?: boolean;
+  active: boolean; onClick: () => void; title: string; price: string;
+  oldPrice?: string; unit: string; sub: string; badge?: string; highlight?: boolean;
 }) => (
   <button
     onClick={onClick}
@@ -257,9 +289,7 @@ const PlanOption = ({
         {badge}
       </span>
     )}
-    <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">
-      {title}
-    </div>
+    <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{title}</div>
     <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
       <span className="text-3xl font-bold tracking-tight">{price}</span>
       {oldPrice && <span className="text-sm text-muted-foreground line-through">{oldPrice}</span>}
@@ -269,16 +299,8 @@ const PlanOption = ({
   </button>
 );
 
-const FooterAction = ({
-  icon,
-  label,
-  onClick,
-  disabled,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
+const FooterAction = ({ icon, label, onClick, disabled }: {
+  icon: React.ReactNode; label: string; onClick: () => void; disabled?: boolean;
 }) => (
   <button
     onClick={onClick}
