@@ -27,6 +27,8 @@ import Weight from "./pages/Weight";
 import Recipes from "./pages/Recipes";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Refund from "./pages/Refund";
+import Pricing from "./pages/Pricing";
 import DataPrivacy from "./pages/DataPrivacy";
 import Help from "./pages/Help";
 import Admin from "./pages/Admin";
