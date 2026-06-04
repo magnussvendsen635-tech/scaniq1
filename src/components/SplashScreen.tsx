@@ -1,42 +1,46 @@
 import { useEffect, useState } from "react";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
-const MAX_SPLASH_MS = 5000;
+// Splash is fully removed from the DOM after this. JS timer is a back-up;
+// the CSS animation below ALSO hides the overlay even if timers are throttled
+// (iOS Safari can throttle setTimeout during first paint after a fresh load).
+const MAX_SPLASH_MS = 2200;
 
 /**
- * Custom ScanIQ Pro splash screen. Shows once per page-load for ~1.8s,
- * then fades out. Respects the app's dark theme — does not override
- * the user's background preference.
+ * Custom ScanIQ Pro splash screen. Shows once per page-load for ~2s, then
+ * fades out via CSS (so it never blocks the app even if JS timers stall).
+ * Uses pointer-events-none so users can always interact with the app below.
  */
 export function SplashScreen() {
   const [alreadyShown] = useState(() =>
     typeof sessionStorage !== "undefined" && sessionStorage.getItem("scaniq.splashShown") === "1"
   );
   const [visible, setVisible] = useState(!alreadyShown);
-  const [fading, setFading] = useState(false);
 
   useEffect(() => {
     if (alreadyShown) return;
     try { sessionStorage.setItem("scaniq.splashShown", "1"); } catch {}
-    const fadeT = setTimeout(() => setFading(true), 1500);
-    const hideT = setTimeout(() => setVisible(false), 2000);
-    const maxT = setTimeout(() => setVisible(false), MAX_SPLASH_MS);
-    return () => {
-      clearTimeout(fadeT);
-      clearTimeout(hideT);
-      clearTimeout(maxT);
-    };
+    const hideT = setTimeout(() => setVisible(false), MAX_SPLASH_MS);
+    return () => clearTimeout(hideT);
   }, [alreadyShown]);
 
   if (!visible) return null;
 
   return (
     <div
-      className={
-        "fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background transition-opacity duration-500 " +
-        (fading ? "opacity-0" : "opacity-100")
-      }
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background pointer-events-none"
+      style={{
+        animation: "scaniqSplashFade 2.2s ease-out forwards",
+      }}
+      onAnimationEnd={() => setVisible(false)}
     >
+      <style>{`
+        @keyframes scaniqSplashFade {
+          0%, 70% { opacity: 1; }
+          100% { opacity: 0; visibility: hidden; }
+        }
+      `}</style>
+
       {/* Soft radial glow — circular, no square artifacts */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
         <div className="w-[420px] h-[420px] rounded-full bg-[radial-gradient(circle,hsl(24_95%_60%/0.22)_0%,hsl(120_40%_25%/0.10)_45%,transparent_70%)] blur-2xl" />
@@ -57,7 +61,6 @@ export function SplashScreen() {
         <h1 className="mt-6 text-2xl font-semibold tracking-[0.18em] k-gradient-text">
           ScanIQ
         </h1>
-
 
         {/* Spinner */}
         <div className="mt-8 w-7 h-7 rounded-full border-2 border-white/10 border-t-[#F59E5B] animate-spin" />
