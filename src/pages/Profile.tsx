@@ -75,11 +75,6 @@ export default function Profile() {
             <div className="text-xl font-semibold">{t(goalKey[user.goal])}</div>
             <div className="text-[10px] text-muted-foreground/80 mt-0.5">Smart nutrition powered by AI</div>
           </div>
-          <div className="flex flex-col items-center px-3 py-2 rounded-2xl bg-card border border-border/60">
-            <Flame className="w-5 h-5 text-primary-glow" />
-            <span className="text-lg font-semibold leading-tight">{streak}</span>
-            <span className="text-[9px] uppercase tracking-widest text-muted-foreground">{t("common.streak")}</span>
-          </div>
         </div>
       </div>
 
