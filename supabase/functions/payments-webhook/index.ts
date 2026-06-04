@@ -85,6 +85,14 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
     })
     .eq('paddle_subscription_id', id)
     .eq('environment', env);
+
+  // Mirror is_premium for legacy reads (admin UI + edge functions).
+  const { data: sub } = await getSupabase().from('subscriptions')
+    .select('user_id').eq('paddle_subscription_id', id).maybeSingle();
+  if (sub?.user_id) {
+    const premium = ['active', 'trialing'].includes(status);
+    await getSupabase().from('profiles').update({ is_premium: premium }).eq('id', sub.user_id as string);
+  }
 }
 
 async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
@@ -93,8 +101,7 @@ async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
     .update({ status: 'canceled', current_period_end: currentBillingPeriod?.endsAt, updated_at: new Date().toISOString() })
     .eq('paddle_subscription_id', id)
     .eq('environment', env);
-  // Note: we do NOT immediately revoke is_premium — user keeps access until period end.
-  // A scheduled job or read-time check should handle final revocation.
+  // is_premium stays true until period end; entitlement = subscriptions row with future current_period_end.
 }
 
 Deno.serve(async (req) => {
