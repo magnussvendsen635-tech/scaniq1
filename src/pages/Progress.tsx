@@ -59,9 +59,8 @@ export default function Progress() {
                 <path d="M0,55 C40,45 80,60 120,40 C160,20 200,50 240,30 C260,22 280,28 300,20" stroke="hsl(var(--primary-glow))" strokeWidth="2" fill="none" strokeLinecap="round" />
               </svg>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <SummaryCard label={t("progress.week_total")} value="—" unit={t("common.kcal")} />
-              <SummaryCard label={t("progress.burned")} value="—" unit={t("common.kcal")} />
               <SummaryCard label={t("progress.workouts")} value="—" unit="" />
               <SummaryCard label={t("progress.meals_logged")} value="—" unit="" />
             </div>
@@ -117,9 +116,8 @@ export default function Progress() {
         </svg>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <SummaryCard label={t("progress.week_total")} value={`${totalWeek}`} unit={t("common.kcal")} />
-        <SummaryCard label={t("progress.burned")} value={`${burned}`} unit={t("common.kcal")} />
         <SummaryCard label={t("progress.workouts")} value={`${workouts.length}`} unit="" />
         <SummaryCard label={t("progress.meals_logged")} value={`${meals.length}`} unit="" />
       </div>
