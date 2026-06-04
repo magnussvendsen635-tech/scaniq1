@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useKStore, caloriesToday, categoryForNow, type MealCategory } from "@/store/useKStore";
-import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Star, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus } from "lucide-react";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -267,7 +267,7 @@ export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, streak, addFavorite, isFavorite, calorieAccuracy } = useKStore();
+  const { user, meals, addMeal, streak, calorieAccuracy } = useKStore();
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
@@ -1025,33 +1025,6 @@ export default function FoodScan() {
                     <div className="text-5xl font-semibold k-gradient-text">{scaled?.calories ?? 0}</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        if (isFavorite(result.name)) {
-                          toast.info("Already in favorites");
-                          return;
-                        }
-                        const s = scaled ?? scaleNutrition(result, consumedGrams, calorieAccuracy);
-                        addFavorite({
-                          name: result.name,
-                          calories: s.calories,
-                          protein: s.protein,
-                          carbs: s.carbs,
-                          fat: s.fat,
-                          healthScore: result.healthScore,
-                          fiber: s.fiber,
-                          sugar: s.sugar,
-                          sodium: s.sodium,
-                          saturatedFat: s.saturatedFat,
-                          cholesterol: s.cholesterol,
-                        });
-                        toast.success("Saved to favorites ⭐");
-                      }}
-                      className="k-tap w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center"
-                      aria-label="Save as favorite"
-                    >
-                      <Star className={`w-4 h-4 ${isFavorite(result.name) ? "fill-primary-glow text-primary-glow" : "text-muted-foreground"}`} />
-                    </button>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
                       <Heart className="w-4 h-4 text-primary-glow" />
                       <span className="text-sm font-semibold">{result.healthScore}/10</span>

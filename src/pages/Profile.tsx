@@ -104,7 +104,7 @@ export default function Profile() {
 
       <div className="k-card divide-y divide-border/60 overflow-hidden">
         <Row Icon={Scale} title="Weight tracker" sub="Log weight & see your trend" onClick={() => nav("/weight")} />
-        <Row Icon={Star} title="Favorites & recent" sub="Quick-add saved meals" onClick={() => nav("/favorites")} />
+        
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
         <Row
           Icon={RefreshCw}

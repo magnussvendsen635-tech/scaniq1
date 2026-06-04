@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { useKStore, type MealCategory } from "@/store/useKStore";
-import { Camera, Heart, Sun, UtensilsCrossed, Moon, Cookie, Plus, Star, Trash2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Camera, Heart, Sun, UtensilsCrossed, Moon, Cookie, Plus, Trash2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { toast } from "sonner";
@@ -114,10 +114,6 @@ export default function Diary() {
     <div className="k-page">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-semibold tracking-tight">{t("diary.title")}</h1>
-        <Link to="/favorites" className="k-tap flex items-center gap-1.5 px-3 py-2 rounded-full bg-card border border-border/60 text-sm">
-          <Star className="w-4 h-4 text-primary-glow" />
-          <span className="font-medium">{t("diary.quick_add")}</span>
-        </Link>
       </div>
 
 
