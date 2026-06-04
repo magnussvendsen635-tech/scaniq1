@@ -101,7 +101,7 @@ export default function Terms() {
 
         <Section title="6. Ansvarsbegrænsning">
           <p>
-            I det omfang loven tillader det, er By Kinetix Intelligence samlede ansvar begrænset til det
+            I det omfang loven tillader det, er KCALLY samlede ansvar begrænset til det
             beløb du har betalt for Premium de seneste 12 måneder. Vi er ikke ansvarlige for
             indirekte tab eller helbredsmæssige konsekvenser af din brug af appen.
           </p>
