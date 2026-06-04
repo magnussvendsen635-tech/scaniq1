@@ -43,10 +43,6 @@ export default function Home() {
             </div>
           )}
         </div>
-        <Link to="/profile" className="k-tap flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border/60">
-          <Flame className="w-4 h-4 text-primary-glow" />
-          <span className="text-sm font-semibold">{streak}</span>
-        </Link>
       </header>
 
       {/* PRIMARY CTA — AI food scan is the hero of the app */}
