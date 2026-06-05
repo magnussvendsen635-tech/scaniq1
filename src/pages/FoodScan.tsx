@@ -271,8 +271,10 @@ export default function FoodScan() {
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
-  // User-editable total weight (grams) for the current result. Drives all displayed nutrition.
+  // Total weight (grams) auto-detected from AI scan. No longer user-editable on result screen.
   const [consumedGrams, setConsumedGrams] = useState<number>(0);
+  // User-editable calorie override. When set, replaces the AI-computed total.
+  const [caloriesOverride, setCaloriesOverride] = useState<number | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
   const [foodSource, setFoodSource] = useState<FoodSource>("homemade");
@@ -467,8 +469,8 @@ export default function FoodScan() {
       totalGrams: totalGrams,
     };
     setResult(next);
+    setCaloriesOverride(null);
     // Auto-detect total weight from scan so calories display immediately.
-    // The weight field remains an optional manual override.
     const detected = totalGrams && totalGrams > 0
       ? Math.round(totalGrams)
       : (p100 && p100.calories > 0 && next.calories > 0
@@ -636,12 +638,13 @@ export default function FoodScan() {
   const save = () => {
     if (!result) return;
     const s = scaleNutrition(result, consumedGrams, calorieAccuracy);
+    const finalCalories = caloriesOverride ?? s.calories;
     const prevStreak = streak;
     const prevDate = useKStore.getState().lastActiveDate;
     addMeal({
       id: crypto.randomUUID(),
       name: result.name,
-      calories: s.calories,
+      calories: finalCalories,
       protein: s.protein,
       carbs: s.carbs,
       fat: s.fat,
@@ -660,11 +663,11 @@ export default function FoodScan() {
       setCelebrate({ count: newStreak });
       setTimeout(() => {
         setCelebrate(null);
-        toast.success(t("scan.meal_added"), { description: `${s.calories} ${t("scan.kcal_logged")}` });
+        toast.success(t("scan.meal_added"), { description: `${finalCalories} ${t("scan.kcal_logged")}` });
         nav("/diary");
       }, 1800);
     } else {
-      toast.success(t("scan.meal_added"), { description: `${s.calories} ${t("scan.kcal_logged")}` });
+      toast.success(t("scan.meal_added"), { description: `${finalCalories} ${t("scan.kcal_logged")}` });
       nav("/diary");
     }
   };
@@ -705,10 +708,14 @@ export default function FoodScan() {
   // Force Total to equal the sum of items when items exist, so displays never conflict
   const itemsSumBase = scaledItems?.reduce((a, b) => a + b.calories, 0) ?? 0;
   const itemsSum = itemsSumBase + hiddenKcal;
+  const computedCalories = scaledBase
+    ? (scaledItems && scaledItems.length > 0 ? itemsSumBase : scaledBase.calories) + hiddenKcal
+    : 0;
+  const displayedCalories = caloriesOverride ?? computedCalories;
   const scaled: Scaled | null = scaledBase
     ? {
         ...scaledBase,
-        calories: (scaledItems && scaledItems.length > 0 ? itemsSumBase : scaledBase.calories) + hiddenKcal,
+        calories: displayedCalories,
       }
     : null;
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
@@ -1015,7 +1022,21 @@ export default function FoodScan() {
                 <div className="flex items-baseline justify-between">
                   <div>
                     <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.calories")}</div>
-                    <div className="text-5xl font-semibold k-gradient-text">{scaled?.calories ?? 0}</div>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      max={20000}
+                      value={displayedCalories === 0 ? "" : displayedCalories}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        if (raw === "") { setCaloriesOverride(0); return; }
+                        const v = parseInt(raw, 10);
+                        if (Number.isFinite(v)) setCaloriesOverride(Math.min(20000, Math.max(0, v)));
+                      }}
+                      className="bg-transparent border-0 outline-none p-0 m-0 text-5xl font-semibold k-gradient-text w-[5ch] focus:outline-none focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      aria-label="Edit total calories"
+                    />
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
@@ -1032,51 +1053,6 @@ export default function FoodScan() {
                     {result.confidence >= 0.75 ? "AI confidence" : "Estimated"}: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span>
                   </p>
                 )}
-
-                {/* Total weight editor — drives ALL displayed nutrition via (per100g / 100) * grams */}
-                <div className="mt-4 pt-4 border-t border-border/60">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-muted-foreground tracking-widest uppercase">Total weight</span>
-                    {result.per100g && (
-                      <span className="text-[10px] text-muted-foreground">
-                        {Math.round(result.per100g.calories)} kcal / 100g
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      max={5000}
-                      placeholder="g"
-                      value={consumedGrams === 0 ? "" : consumedGrams}
-                      onChange={(e) => {
-                        const raw = e.target.value;
-                        if (raw === "") { setConsumedGrams(0); return; }
-                        const v = parseInt(raw, 10);
-                        if (Number.isFinite(v)) setConsumedGrams(Math.min(5000, Math.max(0, v)));
-                      }}
-                      className="h-11 rounded-xl flex-1"
-                    />
-                    <span className="text-sm text-muted-foreground">g</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {[50, 100, 150, 200, 250, 300, 400].map((g) => (
-                      <button
-                        key={g}
-                        onClick={() => setConsumedGrams(g)}
-                        className={`k-tap text-[11px] px-2.5 py-1 rounded-full border transition-colors ${
-                          consumedGrams === g
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-card border-border text-muted-foreground hover:border-primary"
-                        }`}
-                      >
-                        {g}g
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
 
 
