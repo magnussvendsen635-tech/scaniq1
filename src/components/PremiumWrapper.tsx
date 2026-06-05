@@ -1,0 +1,79 @@
+import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { Lock } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useKStore } from "@/store/useKStore";
+import logo from "@/assets/scaniq-leaf-logo.png";
+
+interface PremiumWrapperProps {
+  children: ReactNode;
+  className?: string;
+  /** Custom CTA title shown on the overlay. */
+  title?: string;
+  /** Custom CTA subtitle. */
+  description?: string;
+  /** When true, the overlay is hidden entirely (used e.g. for previews). */
+  disabled?: boolean;
+}
+
+/**
+ * Wraps content that requires an active subscription.
+ * Non‑premium users see the content blurred with a glass overlay
+ * containing an upgrade CTA pointing to /premium.
+ */
+export function PremiumWrapper({
+  children,
+  className = "",
+  title = "Premium-funktion",
+  description = "Opgradér til ScanIQ Pro for at se dine detaljerede data.",
+  disabled = false,
+}: PremiumWrapperProps) {
+  const { isActive } = useSubscription();
+  const localPremium = useKStore((s) => s.premium);
+  const unlocked = disabled || isActive || localPremium;
+
+  if (unlocked) return <div className={className}>{children}</div>;
+
+  return (
+    <div className={"relative " + className}>
+      <div
+        aria-hidden
+        className="pointer-events-none select-none blur-md opacity-60 saturate-75"
+      >
+        {children}
+      </div>
+
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="w-full max-w-sm rounded-3xl bg-card/85 backdrop-blur-xl border border-border/60 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)] p-5 text-center">
+          <div className="mx-auto mb-3 inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-[#F59E5B] to-[#EA6A1F] shadow-[0_8px_22px_-6px_rgba(245,158,91,0.7)]">
+            <Lock className="w-5 h-5 text-white" strokeWidth={2.5} />
+          </div>
+          <div className="text-base font-semibold mb-1">{title}</div>
+          <p className="text-xs text-muted-foreground mb-4">{description}</p>
+          <Link
+            to="/premium"
+            className="inline-flex items-center gap-2 pl-1 pr-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider text-white shadow-[0_6px_18px_-4px_rgba(245,158,91,0.65)] bg-gradient-to-r from-[#F59E5B] to-[#EA6A1F] hover:brightness-110 active:scale-95 transition-all"
+          >
+            <span
+              className="inline-flex items-center justify-center overflow-hidden shrink-0"
+              style={{ width: 26, height: 26, borderRadius: 9999 }}
+            >
+              <img
+                src={logo}
+                alt=""
+                style={{
+                  width: "140%",
+                  height: "140%",
+                  objectFit: "cover",
+                  borderRadius: 9999,
+                  display: "block",
+                }}
+              />
+            </span>
+            Upgrade
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
