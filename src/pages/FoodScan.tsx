@@ -875,56 +875,66 @@ export default function FoodScan() {
 
               </div>
 
-              {/* Photo thumbnails */}
-              {previews.length > 0 && (
-                <div className="k-card p-4 mb-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-xs tracking-widest uppercase">
-                      {previews.length >= REQUIRED_PHOTOS ? (
-                        <span className="text-primary font-semibold">{previews.length}/{REQUIRED_PHOTOS} photos ready</span>
-                      ) : (
-                        <span className="text-muted-foreground">{previews.length}/{REQUIRED_PHOTOS} photos taken</span>
-                      )}
+              {/* Photo thumbnails — always visible with placeholder slots */}
+              <div className="k-card p-4 mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs tracking-widest uppercase">
+                    {previews.length >= REQUIRED_PHOTOS ? (
+                      <span className="text-primary font-semibold">{previews.length}/{REQUIRED_PHOTOS} PHOTOS READY</span>
+                    ) : (
+                      <span className="text-muted-foreground">{previews.length}/{REQUIRED_PHOTOS} PHOTOS TAKEN</span>
+                    )}
+                  </div>
+                  {previews.length >= REQUIRED_PHOTOS && (
+                    <div className="flex items-center gap-1 text-xs text-primary font-semibold">
+                      <Check className="w-3.5 h-3.5" />
+                      Ready
                     </div>
-                    {previews.length >= REQUIRED_PHOTOS && (
-                      <div className="flex items-center gap-1 text-xs text-primary font-semibold">
-                        <Check className="w-3.5 h-3.5" />
-                        Ready
-                      </div>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {previews.map((src, i) => (
-                      <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-border">
-                        <img src={src} alt="" className="w-full h-full object-cover" />
-                        <div className="absolute top-1 left-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-sm">
-                          <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
-                        </div>
-                        <button
-                          onClick={() => removePhoto(i)}
-                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
-                          aria-label="Remove photo"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                    {previews.length < MAX_PHOTOS && (
-                      <button
-                        onClick={captureFromCamera}
-                        className="aspect-square rounded-xl border-2 border-dashed border-border flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors"
-                      >
-                        <Plus className="w-6 h-6" />
-                      </button>
-                    )}
-                  </div>
-                  {previews.length < REQUIRED_PHOTOS && (
-                    <p className="text-xs text-muted-foreground mt-2">
-                      📸 Take {REQUIRED_PHOTOS - previews.length} more photo{REQUIRED_PHOTOS - previews.length === 1 ? "" : "s"} from a different angle (top + side) for accurate analysis.
-                    </p>
                   )}
                 </div>
-              )}
+                <div className="grid grid-cols-2 gap-2">
+                  {Array.from({ length: REQUIRED_PHOTOS }).map((_, i) => {
+                    const src = previews[i];
+                    if (src) {
+                      return (
+                        <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-border">
+                          <img src={src} alt="" className="w-full h-full object-cover" />
+                          <div className="absolute top-1 left-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-sm">
+                            <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+                          </div>
+                          <button
+                            onClick={() => removePhoto(i)}
+                            className="absolute top-1 right-1 w-6 h-6 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
+                            aria-label="Remove photo"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      );
+                    }
+                    const isNext = i === previews.length;
+                    return (
+                      <button
+                        key={i}
+                        onClick={isNext ? openFilePicker : undefined}
+                        disabled={!isNext}
+                        className={`aspect-square rounded-xl border-2 border-dashed flex items-center justify-center transition-colors ${
+                          isNext
+                            ? "border-primary/60 text-primary hover:border-primary hover:bg-primary/5"
+                            : "border-border text-muted-foreground/50"
+                        }`}
+                      >
+                        <Plus className="w-7 h-7" />
+                      </button>
+                    );
+                  })}
+                </div>
+                {previews.length < REQUIRED_PHOTOS && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    📸 Take {REQUIRED_PHOTOS - previews.length} more photo{REQUIRED_PHOTOS - previews.length === 1 ? "" : "s"} from a different angle (top + side) for accurate analysis.
+                  </p>
+                )}
+              </div>
 
               {previews.length >= REQUIRED_PHOTOS ? (
                 <Button
