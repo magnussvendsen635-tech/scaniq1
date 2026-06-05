@@ -1120,10 +1120,16 @@ export default function FoodScan() {
                         <span className="text-muted-foreground">{it.calories} kcal</span>
                       </li>
                     ))}
-                    {hiddenKcal > 0 && (
+                    {hiddenOilKcal > 0 && (
                       <li className="flex justify-between py-2 text-sm">
-                        <span className="text-foreground">Skjult olie & dressing (est.)</span>
-                        <span className="text-muted-foreground">+{hiddenKcal} kcal</span>
+                        <span className="text-foreground">Olie (est.)</span>
+                        <span className="text-muted-foreground">+{hiddenOilKcal} kcal</span>
+                      </li>
+                    )}
+                    {hiddenDressingKcal > 0 && (
+                      <li className="flex justify-between py-2 text-sm">
+                        <span className="text-foreground">Dressing (est.)</span>
+                        <span className="text-muted-foreground">+{hiddenDressingKcal} kcal</span>
                       </li>
                     )}
                   </ul>
