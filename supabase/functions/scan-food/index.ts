@@ -24,7 +24,8 @@ const RAW_NOVA1_ITEM_PATTERN = /cucumber|agurk|banana|banan|apple|æble|orange|a
 function forceZeroHiddenFatForRawNova1(parsed: Record<string, unknown>) {
   const items = Array.isArray(parsed.items) ? parsed.items as Array<Record<string, unknown>> : [];
   const foodText = `${String(parsed.name ?? "")} ${items.map((item) => String(item?.name ?? "")).join(" ")}`;
-  const isRawNova1WholeFood = parsed.novaGroup === 1 || RAW_NOVA1_ITEM_PATTERN.test(foodText);
+  const isRawFruitOrVegetable = RAW_NOVA1_ITEM_PATTERN.test(foodText);
+  const isRawNova1WholeFood = parsed.novaGroup === 1 || isRawFruitOrVegetable;
 
   if (!isRawNova1WholeFood) return parsed;
 
@@ -35,11 +36,14 @@ function forceZeroHiddenFatForRawNova1(parsed: Record<string, unknown>) {
     return { ...item, calories: 0 };
   });
 
-  if (hiddenCalories > 0 && typeof parsed.calories === "number") {
-    parsed.calories = Math.max(0, Math.round(parsed.calories - hiddenCalories));
-    const oilFatGrams = hiddenCalories / 9;
-    if (typeof parsed.fat === "number") parsed.fat = Math.max(0, Math.round(parsed.fat - oilFatGrams));
-    if (typeof parsed.saturatedFat === "number") parsed.saturatedFat = Math.max(0, Math.round(parsed.saturatedFat - oilFatGrams * 0.15));
+  const per100g = parsed.per100g && typeof parsed.per100g === "object" ? parsed.per100g as Record<string, unknown> : null;
+  const totalGrams = typeof parsed.totalGrams === "number" ? parsed.totalGrams : Number(parsed.totalGrams);
+  if ((hiddenCalories > 0 || isRawFruitOrVegetable) && per100g && Number.isFinite(totalGrams)) {
+    const scale = totalGrams / 100;
+    for (const key of ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol"]) {
+      const value = typeof per100g[key] === "number" ? per100g[key] : Number(per100g[key]);
+      if (Number.isFinite(value)) parsed[key] = Math.max(0, Math.round(value * scale));
+    }
   }
 
   return parsed;
