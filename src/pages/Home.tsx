@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useKStore, caloriesToday, macrosToday, caloriesBurnedToday } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Ring } from "@/components/Ring";
-import { Camera, Dumbbell, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine, Scale } from "lucide-react";
+import { Camera, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine, Scale } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 
@@ -166,8 +166,6 @@ export default function Home() {
       <div className="grid grid-cols-2 gap-3">
         <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
         <ActionCard to="/weight" Icon={Scale} title="Weight" sub="Track & log progress" />
-        
-        <ActionCard to="/workouts" Icon={Dumbbell} title={t("home.workouts")} sub={t("home.burn_calories")} />
         <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
       </div>
     </div>
