@@ -5,6 +5,7 @@ import { ArrowLeft, Scale, TrendingDown, TrendingUp, Minus, Plus, Trash2 } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { PremiumWrapper } from "@/components/PremiumWrapper";
 
 export default function Weight() {
   const nav = useNavigate();
