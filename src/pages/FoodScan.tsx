@@ -60,6 +60,10 @@ interface Result {
   // NEW: ground-truth per-100g values + total weight of the portion
   per100g?: Per100g;
   totalGrams?: number;
+  // Hidden oil/dressing kcal returned by AI for the visible portion.
+  // These are SEPARATE from `calories` / `per100g` — only added when toggle is ON.
+  hiddenOilKcal?: number;
+  hiddenDressingKcal?: number;
 }
 
 // Global calculation: (per100g / 100) * totalConsumedGrams
