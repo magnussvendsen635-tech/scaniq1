@@ -271,8 +271,10 @@ export default function FoodScan() {
   const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
-  // User-editable total weight (grams) for the current result. Drives all displayed nutrition.
+  // Total weight (grams) auto-detected from AI scan. No longer user-editable on result screen.
   const [consumedGrams, setConsumedGrams] = useState<number>(0);
+  // User-editable calorie override. When set, replaces the AI-computed total.
+  const [caloriesOverride, setCaloriesOverride] = useState<number | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
   const [foodSource, setFoodSource] = useState<FoodSource>("homemade");
