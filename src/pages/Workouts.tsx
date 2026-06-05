@@ -130,7 +130,8 @@ export default function Workouts() {
         ))}
       </div>
 
-      <div className="space-y-2.5">
+      <div className="space-y-2.5 overflow-y-auto overscroll-contain pointer-events-auto pb-32 touch-pan-y" style={{ WebkitOverflowScrolling: "touch" }}>
+
         {list.map((e) => (
           <button
             key={e.name}
