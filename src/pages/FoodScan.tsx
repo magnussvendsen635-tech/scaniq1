@@ -689,30 +689,19 @@ export default function FoodScan() {
     name: it.name,
     calories: Math.round((it.calories || 0) * itemRatio),
   }));
-  // Hidden-calorie detection: add kcal for cooking oils, butter and heavy dressings
-  // the camera can't see. Restaurant / store complex meals carry the largest hidden load.
-  const hiddenKcal = (() => {
-    if (!result) return 0;
-    const text = ` ${(result.name ?? "").toLowerCase()} ${(result.items ?? []).map((i) => (i.name ?? "").toLowerCase()).join(" ")} `;
-    const isBurger = /\b(burger|cheeseburger|hamburger|bun|patty)\b/.test(text);
-    const isPizza = /\bpizza\b/.test(text);
-    const isPanSeared = /(stegt|pan[\s-]?seared|pan[\s-]?fried|fried|deep[\s-]?fried|frituresteg|wok|sauteed|saut[ée]ret)/.test(text);
-    const isHeavyDressing = /(caesar|cobb|ranch|aioli|mayo|remoulade|dressing|b[éearnaise]+|hollandaise|gravy|sovs|cream sauce|fl[øo]desovs|carbonara|alfredo|pesto)/.test(text);
-    const isComplexMeal = COMPLEX_MEAL.test(text);
-    const isFastFood = ALWAYS_ULTRA.test(text) || SNACK_ULTRA.test(text);
-    const isOut = foodSource === "restaurant" || foodSource === "store";
-
-    if (isBurger) return 250;
-    if (isPizza && isOut) return 220;
-    if (isPizza) return 150;
-    if (isFastFood && isOut) return 200;
-    if (isComplexMeal && isOut) return 200;
-    if (isComplexMeal) return 150;
-    if (isPanSeared) return 150;
-    if (isHeavyDressing) return 150;
-    if (isOut) return 150;
-    return 0;
-  })();
+  // Hidden oil/dressing: ONLY added when the user explicitly turns the toggle ON.
+  // Values come from the AI scaled to the visible portion, then re-scaled if the
+  // user adjusts the consumed grams. The user's toggle is always the final word.
+  const hiddenScaleF = result?.totalGrams && result.totalGrams > 0
+    ? consumedGrams / result.totalGrams
+    : 1;
+  const hiddenOilKcal = addOil
+    ? Math.max(0, Math.round((result?.hiddenOilKcal ?? 0) * hiddenScaleF))
+    : 0;
+  const hiddenDressingKcal = addDressing
+    ? Math.max(0, Math.round((result?.hiddenDressingKcal ?? 0) * hiddenScaleF))
+    : 0;
+  const hiddenKcal = hiddenOilKcal + hiddenDressingKcal;
   // Force Total to equal the sum of items when items exist, so displays never conflict
   const itemsSumBase = scaledItems?.reduce((a, b) => a + b.calories, 0) ?? 0;
   const itemsSum = itemsSumBase + hiddenKcal;
