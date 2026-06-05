@@ -27,14 +27,18 @@ export function UpgradeFab() {
           height: 26,
           aspectRatio: "1 / 1",
           borderRadius: 9999,
-          background: "#5a0f1a",
         }}
       >
         <img
           src={logo}
           alt=""
-          className="w-full h-full"
-          style={{ objectFit: "cover", borderRadius: 9999 }}
+          style={{
+            width: "140%",
+            height: "140%",
+            objectFit: "cover",
+            borderRadius: 9999,
+            display: "block",
+          }}
         />
       </span>
       Upgrade
