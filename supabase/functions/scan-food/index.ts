@@ -406,7 +406,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const parsed = forceZeroHiddenFatForRawNova1(JSON.parse(toolCall.function.arguments));
+    const parsed = enforceHiddenToggles(JSON.parse(toolCall.function.arguments), addOil, addDressing);
 
     // ---- Increment counters after successful scan ----
     const newDaily = dailyUsed + 1;
