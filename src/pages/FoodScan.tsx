@@ -931,13 +931,28 @@ export default function FoodScan() {
               {/* Photo thumbnails */}
               {previews.length > 0 && (
                 <div className="k-card p-4 mb-3">
-                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
-                    Photos {previews.length}/{REQUIRED_PHOTOS} required
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs tracking-widest uppercase">
+                      {previews.length >= REQUIRED_PHOTOS ? (
+                        <span className="text-primary font-semibold">{previews.length}/{REQUIRED_PHOTOS} photos ready</span>
+                      ) : (
+                        <span className="text-muted-foreground">{previews.length}/{REQUIRED_PHOTOS} photos taken</span>
+                      )}
+                    </div>
+                    {previews.length >= REQUIRED_PHOTOS && (
+                      <div className="flex items-center gap-1 text-xs text-primary font-semibold">
+                        <Check className="w-3.5 h-3.5" />
+                        Ready
+                      </div>
+                    )}
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     {previews.map((src, i) => (
                       <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-border">
                         <img src={src} alt="" className="w-full h-full object-cover" />
+                        <div className="absolute top-1 left-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-sm">
+                          <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+                        </div>
                         <button
                           onClick={() => removePhoto(i)}
                           className="absolute top-1 right-1 w-6 h-6 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
