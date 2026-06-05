@@ -135,6 +135,7 @@ export default function Workouts() {
         {list.map((e) => (
           <button
             key={e.name}
+            type="button"
             onClick={() => {
               if (!premium) {
                 toast(t("workouts.upgrade_toast"), { description: t("workouts.upgrade_toast_sub") });
@@ -145,7 +146,8 @@ export default function Workouts() {
               setElapsed(0);
               setRunning(false);
             }}
-            className="k-card k-tap w-full p-4 flex items-center gap-4 text-left"
+            className="k-card k-tap w-full p-4 flex items-center gap-4 text-left touch-manipulation pointer-events-auto active:scale-[0.99]"
+
           >
             <div className="w-11 h-11 rounded-2xl bg-gradient-soft flex items-center justify-center shrink-0">
               {premium ? (
