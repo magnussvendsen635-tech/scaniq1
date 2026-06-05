@@ -32,6 +32,28 @@ export default function Diary() {
   const [summary, setSummary] = useState<string>("");
   const [loadingSummary, setLoadingSummary] = useState(false);
 
+  // Keep calendar in sync with the real current date (rolls over at midnight,
+  // and when the user returns to the tab on a new day).
+  useEffect(() => {
+    const syncToToday = () => {
+      const now = new Date();
+      const todayKey = ymd(now);
+      setSelected((prev) => (ymd(prev) === todayKey ? prev : now));
+      setWeekStart((prev) => {
+        const next = startOfWeek(now);
+        return ymd(prev) === ymd(next) ? prev : next;
+      });
+    };
+    syncToToday();
+    const onVis = () => { if (document.visibilityState === "visible") syncToToday(); };
+    document.addEventListener("visibilitychange", onVis);
+    const interval = window.setInterval(syncToToday, 60 * 1000);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      window.clearInterval(interval);
+    };
+  }, []);
+
   const lastMealAt: Date | null = useMemo(() => {
     if (!meals || meals.length === 0) return null;
     const sorted = [...meals].sort((a: any, b: any) => new Date(b.at).getTime() - new Date(a.at).getTime());
