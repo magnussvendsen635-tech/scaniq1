@@ -406,52 +406,11 @@ export default function FoodScan() {
     fileRef.current.click();
   };
 
-  const startCamera = () => {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      openFilePicker();
-      return;
-    }
-
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false })
-      .then((stream) => {
-        streamRef.current?.getTracks().forEach((track) => track.stop());
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => undefined);
-        }
-        setCameraReady(true);
-      })
-      .catch(() => openFilePicker());
-  };
-
-  const captureFromCamera = () => {
-    if (capturingRef.current) return;
-    const video = videoRef.current;
-    if (!cameraReady || !video || video.readyState < 2) {
-      startCamera();
-      return;
-    }
-
-    capturingRef.current = true;
-    try {
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 1280;
-      canvas.height = video.videoHeight || 960;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        openFilePicker();
-        return;
-      }
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
-      setResult(null);
-      setPreviews((prev) => [...prev, dataUrl].slice(0, MAX_PHOTOS));
-    } finally {
-      capturingRef.current = false;
-    }
-  };
+  // The phone's native camera is opened via the hidden file input
+  // (type="file" + capture="environment"). Both "start" and "capture"
+  // simply re-open the system camera/file picker.
+  const startCamera = () => openFilePicker();
+  const captureFromCamera = () => openFilePicker();
 
 
   const removePhoto = (idx: number) => {
