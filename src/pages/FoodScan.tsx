@@ -291,6 +291,7 @@ export default function FoodScan() {
   const fileRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const capturingRef = useRef(false);
   const [cameraReady, setCameraReady] = useState(false);
   const REQUIRED_PHOTOS = 2;
   const MAX_PHOTOS = 3;
@@ -338,6 +339,7 @@ export default function FoodScan() {
     if (searchParams.get("auto") !== "1") return;
     if (!profile) return;
     const timer = setTimeout(() => {
+      if (fileRef.current) fileRef.current.value = "";
       fileRef.current?.click();
       const next = new URLSearchParams(searchParams);
       next.delete("auto");
@@ -373,38 +375,50 @@ export default function FoodScan() {
     });
 
   const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
+    // Reset the input value immediately so the same file can be re-picked next
+    // time and so a stale selection never re-fires on subsequent opens.
+    input.value = "";
     if (!file) return;
+    if (capturingRef.current) return;
+    capturingRef.current = true;
+    try {
+      const quota = await refreshQuota();
+      if (!quota.premium) {
+        toast.error("Premium required", { description: "Scanning is a Premium feature." });
+        nav("/premium");
+        return;
+      }
+      if (quota.daily >= DAILY_LIMIT) {
+        setLimitReached(true);
+        setStep("portion");
+        toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today. Try again tomorrow.` });
+        return;
+      }
 
-    const quota = await refreshQuota();
-    if (!quota.premium) {
-      toast.error("Premium required", { description: "Scanning is a Premium feature." });
-      e.target.value = "";
-      nav("/premium");
-      return;
+      const dataUrl = await fileToDataUrl(file);
+      setResult(null);
+      setPreviews((prev) => {
+        // Guard against duplicate appends (double-fired change events, etc.)
+        if (prev[prev.length - 1] === dataUrl) return prev;
+        return [...prev, dataUrl].slice(0, MAX_PHOTOS);
+      });
+    } finally {
+      capturingRef.current = false;
     }
-    if (quota.daily >= DAILY_LIMIT) {
-      setLimitReached(true);
-      setStep("portion");
-      toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today. Try again tomorrow.` });
-      e.target.value = "";
-      return;
-    }
+  };
 
-    const dataUrl = await fileToDataUrl(file);
-    e.target.value = "";
-    setResult(null);
-    setPreviews((prev) => {
-      const next = [...prev, dataUrl].slice(0, MAX_PHOTOS);
-      return next;
-    });
-    // Stay on portion step so user can see thumbnails + Analyze button.
-    // We only switch to "capture" view once scanning actually starts.
+  const openFilePicker = () => {
+    if (!fileRef.current) return;
+    // Reset the input before opening so the previous file isn't re-submitted.
+    fileRef.current.value = "";
+    fileRef.current.click();
   };
 
   const startCamera = () => {
     if (!navigator.mediaDevices?.getUserMedia) {
-      fileRef.current?.click();
+      openFilePicker();
       return;
     }
 
@@ -419,29 +433,39 @@ export default function FoodScan() {
         }
         setCameraReady(true);
       })
-      .catch(() => fileRef.current?.click());
+      .catch(() => openFilePicker());
   };
 
   const captureFromCamera = () => {
+    if (capturingRef.current) return;
     const video = videoRef.current;
     if (!cameraReady || !video || video.readyState < 2) {
       startCamera();
       return;
     }
 
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 960;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      fileRef.current?.click();
-      return;
+    capturingRef.current = true;
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 960;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        openFilePicker();
+        return;
+      }
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
+      setResult(null);
+      setPreviews((prev) => {
+        if (prev[prev.length - 1] === dataUrl) return prev;
+        return [...prev, dataUrl].slice(0, MAX_PHOTOS);
+      });
+    } finally {
+      capturingRef.current = false;
     }
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
-    setResult(null);
-    setPreviews((prev) => [...prev, dataUrl].slice(0, MAX_PHOTOS));
   };
+
 
   const removePhoto = (idx: number) => {
     setPreviews((prev) => prev.filter((_, i) => i !== idx));
