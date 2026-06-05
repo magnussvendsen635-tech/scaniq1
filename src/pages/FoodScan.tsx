@@ -282,6 +282,8 @@ export default function FoodScan() {
   const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
   const [foodSource, setFoodSource] = useState<FoodSource>("homemade");
+  const [addOil, setAddOil] = useState<boolean>(false);
+  const [addDressing, setAddDressing] = useState<boolean>(false);
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
   
