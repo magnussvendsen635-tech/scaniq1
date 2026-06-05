@@ -663,11 +663,11 @@ export default function FoodScan() {
       setCelebrate({ count: newStreak });
       setTimeout(() => {
         setCelebrate(null);
-        toast.success(t("scan.meal_added"), { description: `${s.calories} ${t("scan.kcal_logged")}` });
+        toast.success(t("scan.meal_added"), { description: `${finalCalories} ${t("scan.kcal_logged")}` });
         nav("/diary");
       }, 1800);
     } else {
-      toast.success(t("scan.meal_added"), { description: `${s.calories} ${t("scan.kcal_logged")}` });
+      toast.success(t("scan.meal_added"), { description: `${finalCalories} ${t("scan.kcal_logged")}` });
       nav("/diary");
     }
   };
