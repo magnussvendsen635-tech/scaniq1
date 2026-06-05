@@ -1,5 +1,5 @@
 import { useKStore } from "@/store/useKStore";
-import { CalendarCheck, Target, Droplet, Scale, Flame } from "lucide-react";
+import { CalendarCheck, Target, Droplet, Scale } from "lucide-react";
 
 export const WeeklyReport = () => {
   const { meals, water, waterGoal, weights, user, workouts } = useKStore();
