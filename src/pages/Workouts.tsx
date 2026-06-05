@@ -130,7 +130,10 @@ export default function Workouts() {
         ))}
       </div>
 
-      <div className="space-y-2.5 pointer-events-auto pb-32">
+      <div
+        className="space-y-2.5 max-h-[calc(100dvh-13rem)] overflow-y-auto pointer-events-auto pb-32 touch-pan-y md:max-h-none"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
 
         {list.map((e) => (
           <button
