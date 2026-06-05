@@ -1,12 +1,12 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Home, Utensils, BarChart3, User, ScanLine } from "lucide-react";
+import { Home, LayoutDashboard, BarChart3, User, ScanLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 
 const items: { to: string; key: TKey; Icon: any }[] = [
   { to: "/", key: "nav.home", Icon: Home },
-  { to: "/diary", key: "nav.diary", Icon: Utensils },
+  { to: "/diary", key: "nav.diary", Icon: LayoutDashboard },
   { to: "/progress", key: "nav.progress", Icon: BarChart3 },
   { to: "/profile", key: "nav.profile", Icon: User },
 ];
