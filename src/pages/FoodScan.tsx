@@ -325,11 +325,8 @@ export default function FoodScan() {
     refreshQuota();
   }, [profile]);
 
-  useEffect(() => {
-    return () => {
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-    };
-  }, []);
+
+
 
   // Auto-open camera when arriving via ?auto=1 (from bottom-nav scan button)
   useEffect(() => {
