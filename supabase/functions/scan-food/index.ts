@@ -183,6 +183,8 @@ Deno.serve(async (req) => {
     // ---- Input ----
     const body = await req.json();
     const { portion, strategy } = body;
+    const addOil = body.addOil === true;
+    const addDressing = body.addDressing === true;
     let images: string[] = [];
     if (Array.isArray(body.images)) {
       images = body.images.filter((x: unknown) => typeof x === "string" && x.length > 0);
