@@ -291,6 +291,7 @@ export default function FoodScan() {
   const fileRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const capturingRef = useRef(false);
   const [cameraReady, setCameraReady] = useState(false);
   const REQUIRED_PHOTOS = 2;
   const MAX_PHOTOS = 3;
