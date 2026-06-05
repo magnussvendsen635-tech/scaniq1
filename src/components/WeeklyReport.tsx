@@ -44,7 +44,7 @@ export const WeeklyReport = () => {
           <h3 className="font-semibold">This week's summary</h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-3 mb-4">
           <Stat Icon={Target} label="Calorie goal hit" value={`${goalHits}/7`} sub="days" />
           <Stat Icon={Droplet} label="Water goal hit" value={`${waterHits}/7`} sub="days" />
           <Stat
@@ -53,7 +53,6 @@ export const WeeklyReport = () => {
             value={`${wDelta > 0 ? "+" : ""}${wDelta.toFixed(1)}`}
             sub="kg"
           />
-          <Stat Icon={Flame} label="Workouts" value={`${weekWorkouts}`} sub={`${weekBurned} kcal`} />
         </div>
 
         <div className="text-xs text-muted-foreground border-t border-border/60 pt-3">
