@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
 
     // ---- Input ----
     const body = await req.json();
-    const { portion, strategy, source } = body;
+    const { portion, strategy } = body;
     let images: string[] = [];
     if (Array.isArray(body.images)) {
       images = body.images.filter((x: unknown) => typeof x === "string" && x.length > 0);
@@ -197,17 +197,6 @@ Deno.serve(async (req) => {
       medium: "The user indicates this is a MEDIUM/typical portion size.",
       large: "The user indicates this is a LARGE portion (~140-160% of a typical serving). Scale calories and macros accordingly.",
     }[portionLabel];
-
-    const sourceLabel: "homemade" | "store" | "restaurant" =
-      source === "store" || source === "restaurant" ? source : "homemade";
-    const sourceHint = {
-      homemade:
-        "FOOD SOURCE = HOMEMADE. Assume the meal is cooked from scratch with fresh ingredients. Homemade meals (pizza, burgers, pasta, soup, bread) MUST NEVER be classified as NOVA 4. They land in NOVA 1, 2 or 3 depending on whether oils/salts/butter are involved — never ultra-processed.",
-      store:
-        "FOOD SOURCE = STORE-BOUGHT (supermarket product). Evaluate as a typical mass-produced supermarket product. If you can see industrial packaging, branded wrappers, or it's a known packaged product, classify as NOVA 3 or NOVA 4 based on visible additives, preservatives or industrial formulation cues.",
-      restaurant:
-        "FOOD SOURCE = RESTAURANT / TAKEOUT. Evaluate as restaurant or takeout food. Restaurant meals typically include added fats, oils and culinary preparation — minimum NOVA 3. Use NOVA 4 only for clearly industrial fast-food items (e.g. fast-food chain burger menus, deep-fried packaged items).",
-    }[sourceLabel];
 
     const useFallback = strategy === "fallback";
     const model = useFallback ? "google/gemini-2.5-pro" : "google/gemini-2.5-flash";
@@ -242,7 +231,7 @@ Deno.serve(async (req) => {
             content:
               "You are a food data tracker. Your ONLY job is to objectively identify food and report nutrition facts. You are NOT a doctor, dietitian, coach or health advisor. " +
               "MEAL TYPE RULE — The selected Meal Type (Breakfast, Lunch, Dinner, Snack) is ONLY used for UI categorization in the user's diary. It MUST have 0% influence on the portion size, calorie, or macro estimation. Estimate calories and portion size SOLELY based on the visual volume of the food in the photo, completely ignoring whether it is logged as a snack or dinner. " +
-              "SOURCE-AGNOSTIC RULE (CRITICAL) — The user-provided Food Source (Homemade, Store-bought, Restaurant) MUST NEVER change calorie, macro, hidden-oil or fat estimates. Analyze ONLY the physical food item visible in the photo. A raw cucumber is a raw cucumber whether it's from a supermarket, a restaurant plate, or homegrown. A burger is a cooked prepared meal whether it's homemade or from a fast-food chain. Source may inform NOVA classification only when packaging/branding is visible — never the nutrition numbers. " +
+              "SOURCE METADATA BAN (CRITICAL) — Completely ignore the user-provided Food Source / origin / mode (Homemade, Store-bought, Restaurant) for ALL nutrition, NOVA, calorie, macro, hidden-oil and dressing calculations. Do not reward or penalize any source. Never infer oil, dressing, processing level, portion size, or calorie density from where the food came from. Analyze ONLY the physical food item visible in the photo. A raw cucumber is cucumber only in every mode. A burger is a prepared dish in every mode. " +
               "STRICTLY FORBIDDEN — never give dietary, health, medical or lifestyle advice. NEVER tell the user what they should or shouldn't eat. NEVER use words like 'avoid', 'stay away', 'bad', 'unhealthy', 'dangerous', 'toxic', 'junk', 'guilty', 'cheat', 'too much', 'cut down', 'eat instead'. NEVER suggest alternatives or improvements. NEVER warn about health effects. Output must be purely analytical: ingredients, calories, macros, micros, and the NOVA processing category — nothing more. This is required to comply with Apple App Store Medical Guidelines. " +
               "TONE — strictly neutral, factual, supportive. Describe what the food IS, never what it does to the user's health. " +
               "INGREDIENT HONESTY — Only list ingredients you can actually SEE. Never assume oil, flour, butter, sugar, additives or preservatives unless clearly visible (oily surface, labelled package, visible breading). If unsure, say 'possible ingredients detected' and lower your confidence. A whole apple has ONE ingredient: apple. " +
@@ -271,10 +260,10 @@ Deno.serve(async (req) => {
               "      • Fats/oils/nuts: 600-900 kcal/100g. " +
               "  (d) Estimate totalGrams = sum of (count × per-item grams) for whole items, or visual volume × density for mixed dishes. IGNORE the meal-type label when sizing. For liquids treat ml as grams. " +
               "  (e) Only AFTER totalGrams is fixed, compute calories = per100g.calories / 100 * totalGrams. Never reverse-engineer grams from a guessed calorie number. " +
-              "  (f) HIDDEN OILS & FATS RULE (CRITICAL — based ONLY on the physical food item, NEVER on the source label): " +
-              "      • DECISION IS ITEM-BASED, NOT SOURCE-BASED. Whether the user marked the food Homemade, Store-bought or Restaurant is IRRELEVANT to this decision. Look at the FOOD ITEM ITSELF in the photo. " +
-              "      • HARD STOP ZERO-OIL RULE: If the item is NOVA 1, raw fruit, raw vegetable, or a plain single-ingredient whole food, hidden oil/dressing MUST be exactly 0 kcal — regardless of source. A store-bought cucumber, a restaurant-side cucumber, and a homegrown cucumber all get 0 kcal hidden oil. Do not create an item called 'Hidden oil', 'Skjult olie', 'Dressing' or similar for cucumber/agurk, fruit, raw vegetables, plain salad leaves, or any raw NOVA 1 whole food. A raw cucumber is cucumber only: per100g ≈ 15 kcal, fat ≈ 0.1g/100g, hidden oil & dressing = 0 kcal. " +
-              "      • ALWAYS add hidden cooking fat for any PREPARED/COOKED DISH regardless of source — burger, pizza, pasta, fries, kebab, shawarma, risotto, curry, wok dish, stir-fry, sautéed/roasted vegetables, omelette, scrambled eggs, pancakes, grilled meat with marinade, sauces, salads with visible dressing. A homemade burger gets the EXACT SAME hidden-fat treatment as a restaurant burger. Typical hidden fat: 5-15g oil/butter per portion (≈ 45-135 kcal). Fast food / fried food can hide 20-40g fat. Reflect this in fat, saturatedFat and total calories. " +
+              "  (f) HIDDEN OILS & FATS RULE (GLOBAL HARD RULE — item-based only, source-blind): " +
+              "      • DELETE SOURCE LOGIC MENTALLY: Whether the user selected Homemade, Store-bought or Restaurant is forbidden input for this decision. The decision is based ONLY on the detected food item and visible preparation state. " +
+              "      • HARD STOP ZERO-OIL RULE: If the item is NOVA 1, raw fruit, raw vegetable, or a plain single-ingredient whole food, hidden oil/dressing MUST be exactly 0 kcal in ALL modes. Do not create an item called 'Hidden oil', 'Skjult olie', 'Dressing' or similar for cucumber/agurk, fruit, raw vegetables, plain salad leaves, or any raw NOVA 1 whole food. A raw cucumber is cucumber only: per100g ≈ 15 kcal, fat ≈ 0.1g/100g, hidden oil & dressing = 0 kcal. " +
+              "      • ONLY add hidden cooking fat when the detected food item is a prepared/cooked dish where cooking fat is technically expected — burger, pizza, pasta, fries, kebab, shawarma, risotto, curry, wok dish, stir-fry, sautéed/roasted vegetables, omelette, scrambled eggs, pancakes, grilled meat with marinade, sauces, salads with visible dressing. Apply this equally in all modes. Typical hidden fat: 5-15g oil/butter per portion (≈ 45-135 kcal). Fried items can hide 20-40g fat. Reflect this in fat, saturatedFat and total calories. " +
               "      • VISUAL VALIDATION: If you cannot actually SEE oil, butter, dressing, sauce, glossy surface, frying residue or clearly cooked/fried texture on the food in the photo, do NOT add hidden oil. Only add hidden oil when the visible food is clearly a cooked/prepared dish where fat is physically expected. " +
               "      • NEVER add hidden oil/fat to: raw whole fruit (banana, apple, berries, grapes, orange), raw whole vegetables (cucumber, tomato, carrot, bell pepper), plain salad leaves with NO visible dressing, boiled/steamed plain vegetables, plain boiled eggs, plain boiled potatoes/rice/pasta with nothing on them, raw nuts, plain yoghurt/skyr/milk, plain bread, packaged products (use the label). For these single-ingredient whole/raw foods, use the pure USDA per100g values as-is. " +
               "      • When in doubt for a visibly HOT cooked/prepared dish → assume oil/butter WAS used. When in doubt for a raw/whole single-ingredient food → assume NO added fat. " +
@@ -290,7 +279,7 @@ Deno.serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size. Do NOT count items twice.` : ""} ${portionHint} ${sourceHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive. NO health advice — only data.`,
+                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size. Do NOT count items twice.` : ""} ${portionHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Ignore any source/origin/mode metadata completely; nutrition must be based only on the food item visible in the image. Be realistic and decisive. NO health advice — only data.`,
               },
               ...images.map((url) => ({ type: "image_url", image_url: { url } })),
             ],
