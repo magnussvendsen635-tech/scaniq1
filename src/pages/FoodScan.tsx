@@ -545,7 +545,7 @@ export default function FoodScan() {
     const timeout = setTimeout(() => controller.abort(), 45000);
     try {
       const invokePromise = supabase.functions.invoke("scan-food", {
-        body: { images: imgs, portion, source: foodSource, strategy },
+        body: { images: imgs, portion, source: foodSource, strategy, addOil, addDressing },
       });
       const { data, error } = await Promise.race([
         invokePromise,
