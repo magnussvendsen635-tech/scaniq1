@@ -453,10 +453,7 @@ export default function FoodScan() {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
       setResult(null);
-      setPreviews((prev) => {
-        if (prev[prev.length - 1] === dataUrl) return prev;
-        return [...prev, dataUrl].slice(0, MAX_PHOTOS);
-      });
+      setPreviews((prev) => [...prev, dataUrl].slice(0, MAX_PHOTOS));
     } finally {
       capturingRef.current = false;
     }
