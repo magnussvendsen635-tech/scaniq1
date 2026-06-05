@@ -18,6 +18,37 @@ const ADMIN_USER_IDS = new Set<string>([
   "7d5a801c-8bac-4eb9-bcd3-3bd8c20b28f0",
 ]);
 
+const HIDDEN_FAT_ITEM_PATTERN = /hidden|skjult|oil|olie|dressing|butter|smør|fat|fedt/i;
+const RAW_NOVA1_ITEM_PATTERN = /cucumber|agurk|banana|banan|apple|æble|orange|appelsin|berry|berries|bær|grape|druer|tomato|tomat|carrot|gulerod|pepper|peberfrugt|lettuce|salat|cabbage|kål|celery|selleri|radish|radise|spinach|spinat|broccoli|cauliflower|blomkål|courgette|zucchini/i;
+
+function forceZeroHiddenFatForRawNova1(parsed: Record<string, unknown>) {
+  const items = Array.isArray(parsed.items) ? parsed.items as Array<Record<string, unknown>> : [];
+  const foodText = `${String(parsed.name ?? "")} ${items.map((item) => String(item?.name ?? "")).join(" ")}`;
+  const isRawFruitOrVegetable = RAW_NOVA1_ITEM_PATTERN.test(foodText);
+  const isRawNova1WholeFood = parsed.novaGroup === 1 || isRawFruitOrVegetable;
+
+  if (!isRawNova1WholeFood) return parsed;
+
+  let hiddenCalories = 0;
+  parsed.items = items.map((item) => {
+    if (!HIDDEN_FAT_ITEM_PATTERN.test(String(item?.name ?? ""))) return item;
+    hiddenCalories += typeof item.calories === "number" ? item.calories : Number(item.calories) || 0;
+    return { ...item, calories: 0 };
+  });
+
+  const per100g = parsed.per100g && typeof parsed.per100g === "object" ? parsed.per100g as Record<string, unknown> : null;
+  const totalGrams = typeof parsed.totalGrams === "number" ? parsed.totalGrams : Number(parsed.totalGrams);
+  if ((hiddenCalories > 0 || isRawFruitOrVegetable) && per100g && Number.isFinite(totalGrams)) {
+    const scale = totalGrams / 100;
+    for (const key of ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol"]) {
+      const value = typeof per100g[key] === "number" ? per100g[key] : Number(per100g[key]);
+      if (Number.isFinite(value)) parsed[key] = Math.max(0, Math.round(value * scale));
+    }
+  }
+
+  return parsed;
+}
+
 function todayUTC(): string {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 }
@@ -241,6 +272,7 @@ Deno.serve(async (req) => {
               "  (d) Estimate totalGrams = sum of (count × per-item grams) for whole items, or visual volume × density for mixed dishes. IGNORE the meal-type label when sizing. For liquids treat ml as grams. " +
               "  (e) Only AFTER totalGrams is fixed, compute calories = per100g.calories / 100 * totalGrams. Never reverse-engineer grams from a guessed calorie number. " +
               "  (f) HIDDEN OILS & FATS RULE (CRITICAL — most cooked food contains oil/butter the user can't see): " +
+              "      • HARD STOP ZERO-OIL RULE: If the item is NOVA 1, raw fruit, raw vegetable, or a plain single-ingredient whole food, hidden oil/dressing MUST be exactly 0 kcal. Do not create an item called 'Hidden oil', 'Skjult olie', 'Dressing' or similar for cucumber/agurk, fruit, raw vegetables, plain salad leaves, or any raw NOVA 1 whole food. A raw cucumber/agurk is cucumber only: per100g ≈ 15 kcal, fat ≈ 0.1g/100g, hidden oil & dressing = 0 kcal, total calories must come only from cucumber weight. This rule overrides every source hint, including restaurant/takeout. " +
               "      • ALWAYS add hidden cooking fat for: fried foods, pan-cooked dishes, stir-fries, sautéed vegetables, roasted vegetables, hot home-cooked dinners, restaurant/takeout/fast food (burgers, fries, pizza, kebab, shawarma, pasta dishes, risotto, curries, wok dishes, omelettes, scrambled eggs, pancakes, grilled meat with marinade, sauces, dressings on salads). Typical hidden fat: 5-15g oil/butter per portion (≈ 45-135 kcal). Fast food / fried food can hide 20-40g fat. Reflect this in fat, saturatedFat and total calories — do NOT report a suspiciously low number for an obviously cooked/fast-food dish. " +
               "      • NEVER add hidden oil/fat to: raw whole fruit (banana, apple, berries, grapes, orange), raw whole vegetables (cucumber, tomato, carrot, bell pepper), plain salad leaves with NO visible dressing, boiled/steamed plain vegetables, plain boiled eggs, plain boiled potatoes/rice/pasta with nothing on them, raw nuts, plain yoghurt/skyr/milk, plain bread, packaged products (use the label). For these single-ingredient whole/raw foods, use the pure USDA per100g values as-is. " +
               "      • When in doubt for a HOT cooked dish or restaurant meal → assume oil/butter WAS used. When in doubt for a raw/whole single-ingredient food → assume NO added fat. " +
@@ -370,7 +402,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const parsed = JSON.parse(toolCall.function.arguments);
+    const parsed = forceZeroHiddenFatForRawNova1(JSON.parse(toolCall.function.arguments));
 
     // ---- Increment counters after successful scan ----
     const newDaily = dailyUsed + 1;
