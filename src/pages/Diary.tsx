@@ -130,7 +130,7 @@ export default function Diary() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, dayMeals.length]);
 
-  const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+  const dayLabels = ["M", "T", "O", "T", "F", "L", "S"];
 
   return (
     <div className="k-page">
