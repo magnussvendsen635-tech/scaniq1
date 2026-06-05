@@ -32,9 +32,6 @@ export const WeeklyReport = () => {
   const newest = recent[recent.length - 1];
   const wDelta = newest && oldest ? newest.weight - oldest.weight : 0;
 
-  const weekWorkouts = workouts.filter((w) => w.at >= weekAgo).length;
-  const weekBurned = workouts.filter((w) => w.at >= weekAgo).reduce((a, b) => a + b.caloriesBurned, 0);
-
   return (
     <div className="k-card p-5 mb-4 bg-gradient-surface relative overflow-hidden">
       <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-gradient-primary opacity-10 blur-3xl" />
