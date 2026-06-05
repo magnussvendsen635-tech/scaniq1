@@ -864,7 +864,11 @@ export default function FoodScan() {
                     <Camera className="w-8 h-8 text-foreground" />
                   </div>
                   <p className="text-foreground/80 text-sm font-semibold">
-                    {previews.length === 0 ? t("scan.point") : `Photo ${previews.length}/${REQUIRED_PHOTOS}`}
+                    {previews.length === 0
+                      ? t("scan.point")
+                      : previews.length >= REQUIRED_PHOTOS
+                        ? `${previews.length}/${REQUIRED_PHOTOS} photos ready`
+                        : `${previews.length}/${REQUIRED_PHOTOS} photos taken`}
                   </p>
                   <label
                     onClick={(e) => e.stopPropagation()}
