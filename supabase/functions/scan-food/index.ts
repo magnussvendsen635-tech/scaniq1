@@ -18,6 +18,33 @@ const ADMIN_USER_IDS = new Set<string>([
   "7d5a801c-8bac-4eb9-bcd3-3bd8c20b28f0",
 ]);
 
+const HIDDEN_FAT_ITEM_PATTERN = /hidden|skjult|oil|olie|dressing|butter|smør|fat|fedt/i;
+const RAW_NOVA1_ITEM_PATTERN = /cucumber|agurk|banana|banan|apple|æble|orange|appelsin|berry|berries|bær|grape|druer|tomato|tomat|carrot|gulerod|pepper|peberfrugt|lettuce|salat|cabbage|kål|celery|selleri|radish|radise|spinach|spinat|broccoli|cauliflower|blomkål|courgette|zucchini/i;
+
+function forceZeroHiddenFatForRawNova1(parsed: Record<string, unknown>) {
+  const items = Array.isArray(parsed.items) ? parsed.items as Array<Record<string, unknown>> : [];
+  const foodText = `${String(parsed.name ?? "")} ${items.map((item) => String(item?.name ?? "")).join(" ")}`;
+  const isRawNova1WholeFood = parsed.novaGroup === 1 || RAW_NOVA1_ITEM_PATTERN.test(foodText);
+
+  if (!isRawNova1WholeFood) return parsed;
+
+  let hiddenCalories = 0;
+  parsed.items = items.map((item) => {
+    if (!HIDDEN_FAT_ITEM_PATTERN.test(String(item?.name ?? ""))) return item;
+    hiddenCalories += typeof item.calories === "number" ? item.calories : Number(item.calories) || 0;
+    return { ...item, calories: 0 };
+  });
+
+  if (hiddenCalories > 0 && typeof parsed.calories === "number") {
+    parsed.calories = Math.max(0, Math.round(parsed.calories - hiddenCalories));
+    const oilFatGrams = hiddenCalories / 9;
+    if (typeof parsed.fat === "number") parsed.fat = Math.max(0, Math.round(parsed.fat - oilFatGrams));
+    if (typeof parsed.saturatedFat === "number") parsed.saturatedFat = Math.max(0, Math.round(parsed.saturatedFat - oilFatGrams * 0.15));
+  }
+
+  return parsed;
+}
+
 function todayUTC(): string {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 }
