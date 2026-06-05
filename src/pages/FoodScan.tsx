@@ -638,12 +638,13 @@ export default function FoodScan() {
   const save = () => {
     if (!result) return;
     const s = scaleNutrition(result, consumedGrams, calorieAccuracy);
+    const finalCalories = caloriesOverride ?? s.calories;
     const prevStreak = streak;
     const prevDate = useKStore.getState().lastActiveDate;
     addMeal({
       id: crypto.randomUUID(),
       name: result.name,
-      calories: s.calories,
+      calories: finalCalories,
       protein: s.protein,
       carbs: s.carbs,
       fat: s.fat,
