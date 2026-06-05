@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
-import { Flame, Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
+import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
 import leafLogo from "@/assets/scaniq-leaf-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
