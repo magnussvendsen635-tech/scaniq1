@@ -794,13 +794,7 @@ export default function FoodScan() {
                 aria-label="Open camera"
               >
                 <ScannerBackdrop />
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  autoPlay
-                  muted
-                  playsInline
-                />
+                {/* Native system camera is opened via the hidden file input */}
                 {preview ? (
                   <img src={preview} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 ) : null}
