@@ -22,13 +22,12 @@ export function UpgradeFab() {
     >
       <span
         className="inline-flex items-center justify-center overflow-hidden shrink-0"
-        // Match logo's dark burgundy so no white ring shows around it
-
         style={{
           width: 26,
           height: 26,
           aspectRatio: "1 / 1",
           borderRadius: 9999,
+          background: "#5a0f1a",
         }}
       >
         <img
