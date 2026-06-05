@@ -362,8 +362,10 @@ Deno.serve(async (req) => {
                   zinc: { type: "number", description: "Zinc in milligrams (mg)" },
                   novaGroup: { type: "number", description: "NOVA processing group 1-4. 1=unprocessed, 2=culinary ingredient, 3=processed, 4=ultra-processed. Objective classification only, no judgement." },
                   ultraProcessedPercent: { type: "number", description: "Estimated percentage (0-100) of the portion that is ultra-processed by weight. 0 for whole foods." },
+                  hiddenOilKcal: { type: "number", description: "Hidden cooking oil/butter calories for the visible portion. MUST be 0 when addOil toggle is OFF. When ON, estimate scaled to portion size. NEVER folded into `calories` or `per100g`." },
+                  hiddenDressingKcal: { type: "number", description: "Hidden dressing/sauce/mayo calories for the visible portion. MUST be 0 when addDressing toggle is OFF. When ON, estimate scaled to portion size. NEVER folded into `calories` or `per100g`." },
                 },
-                required: ["name", "items", "totalGrams", "per100g", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "satietyHours", "energyEffect", "vitaminA", "vitaminC", "vitaminD", "vitaminE", "vitaminB12", "calcium", "iron", "magnesium", "potassium", "zinc", "novaGroup", "ultraProcessedPercent"],
+                required: ["name", "items", "totalGrams", "per100g", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "satietyHours", "energyEffect", "vitaminA", "vitaminC", "vitaminD", "vitaminE", "vitaminB12", "calcium", "iron", "magnesium", "potassium", "zinc", "novaGroup", "ultraProcessedPercent", "hiddenOilKcal", "hiddenDressingKcal"],
 
                 additionalProperties: false,
               },
