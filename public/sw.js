@@ -1,4 +1,4 @@
-// KCALLY Service Worker — handles push notifications
+// ScanIQ Service Worker — handles push notifications
 self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
@@ -12,15 +12,15 @@ self.addEventListener("push", (event) => {
   try {
     data = event.data ? event.data.json() : {};
   } catch {
-    data = { title: "KCALLY", body: event.data ? event.data.text() : "" };
+    data = { title: "ScanIQ", body: event.data ? event.data.text() : "" };
   }
 
-  const title = data.title || "KCALLY";
+  const title = data.title || "ScanIQ";
   const options = {
     body: data.body || "",
     icon: data.icon || "/favicon.png",
     badge: data.badge || "/favicon.png",
-    tag: data.tag || "kcally-notification",
+    tag: data.tag || "scaniq-notification",
     data: { url: data.url || "/" },
     vibrate: [100, 50, 100],
   };
