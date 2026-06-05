@@ -20,8 +20,8 @@ export default function Pricing() {
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto max-w-2xl mx-auto" style={{ paddingBottom: 60 }}>
       <Seo
-        title="Priser — KCALLY Premium"
-        description="KCALLY Premium fra $19/måned eller $179/år. 14 dages pengene-tilbage-garanti via Paddle."
+        title="Priser — ScanIQ Premium"
+        description="ScanIQ Premium fra $19/måned eller $179/år. 14 dages pengene-tilbage-garanti via Paddle."
         path="/pricing"
       />
       <header className="flex items-center gap-3 mb-6 pt-2">
@@ -39,7 +39,7 @@ export default function Pricing() {
         <div className="relative w-20 h-20 mx-auto mb-4">
           <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,hsl(24_95%_60%/0.45)_0%,transparent_70%)] blur-xl scale-125" />
           <div className="relative w-20 h-20 rounded-full overflow-hidden shadow-[0_6px_20px_hsl(24_95%_55%/0.35)]">
-            <img src={logo} alt="KCALLY" className="w-full h-full object-cover" />
+            <img src={logo} alt="ScanIQ" className="w-full h-full object-cover" />
           </div>
         </div>
         <h2 className="text-2xl font-semibold tracking-tight">{t("premium.unlock")}</h2>

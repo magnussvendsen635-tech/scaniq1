@@ -18,7 +18,7 @@ export default function Privacy() {
       </header>
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
-        <p className="text-xs text-muted-foreground">Sidst opdateret: 26. maj 2026 · Udvikler: By Kinetix Intelligence · Kontakt: scaniqapp1@gmail.com</p>
+        <p className="text-xs text-muted-foreground">Sidst opdateret: 26. maj 2026 · ScanIQ · scaniqapp1@gmail.com</p>
 
         {/* Sundhedsforbehold */}
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
@@ -29,7 +29,7 @@ export default function Privacy() {
           diætist før du foretager større ændringer i kost, træning eller helbred.
         </div>
 
-        <Section title="1. Kort version (KCALLY-reglerne)">
+        <Section title="1. Kort version (ScanIQ-reglerne)">
           <ul className="list-disc pl-5 space-y-1">
             <li><b>Dine data ejer du.</b> Vi sælger eller deler dem aldrig uden din tilladelse.</li>
             <li>Vi indhenter <b>samtykke</b> før vi gemmer dine data.</li>
@@ -42,7 +42,7 @@ export default function Privacy() {
 
         <Section title="2. Hvem vi er">
           <p>
-            ScanIQ drives af By Kinetix Intelligence. Spørgsmål om dine data eller denne politik kan sendes
+            ScanIQ drives af ScanIQ. Spørgsmål om dine data eller denne politik kan sendes
             til <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">scaniqapp1@gmail.com</a>.
           </p>
         </Section>
@@ -165,7 +165,7 @@ export default function Privacy() {
         </Section>
 
         <Section title="16. Kontakt">
-          <p>By Kinetix Intelligence · <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">scaniqapp1@gmail.com</a></p>
+          <p>ScanIQ · <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">scaniqapp1@gmail.com</a></p>
         </Section>
       </div>
     </div>

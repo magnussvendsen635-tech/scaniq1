@@ -24,7 +24,7 @@ export default function Terms() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 4. juni 2026 · Sælger: KCALLY · Kontakt: scaniqapp1@gmail.com
+          Sidst opdateret: 4. juni 2026 · ScanIQ · scaniqapp1@gmail.com
         </p>
 
         <div className="rounded-2xl border border-primary/40 bg-primary/10 p-4 text-xs leading-relaxed">
@@ -101,7 +101,7 @@ export default function Terms() {
 
         <Section title="6. Ansvarsbegrænsning">
           <p>
-            I det omfang loven tillader det, er KCALLY samlede ansvar begrænset til det
+            I det omfang loven tillader det, er ScanIQ samlede ansvar begrænset til det
             beløb du har betalt for Premium de seneste 12 måneder. Vi er ikke ansvarlige for
             indirekte tab eller helbredsmæssige konsekvenser af din brug af appen.
           </p>
@@ -127,7 +127,7 @@ export default function Terms() {
 
         <Section title="10. Kontakt">
           <p>
-            KCALLY ·{" "}
+            ScanIQ ·{" "}
             <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">
               scaniqapp1@gmail.com
             </a>
