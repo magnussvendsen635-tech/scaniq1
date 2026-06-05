@@ -707,10 +707,14 @@ export default function FoodScan() {
   // Force Total to equal the sum of items when items exist, so displays never conflict
   const itemsSumBase = scaledItems?.reduce((a, b) => a + b.calories, 0) ?? 0;
   const itemsSum = itemsSumBase + hiddenKcal;
+  const computedCalories = scaledBase
+    ? (scaledItems && scaledItems.length > 0 ? itemsSumBase : scaledBase.calories) + hiddenKcal
+    : 0;
+  const displayedCalories = caloriesOverride ?? computedCalories;
   const scaled: Scaled | null = scaledBase
     ? {
         ...scaledBase,
-        calories: (scaledItems && scaledItems.length > 0 ? itemsSumBase : scaledBase.calories) + hiddenKcal,
+        calories: displayedCalories,
       }
     : null;
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
