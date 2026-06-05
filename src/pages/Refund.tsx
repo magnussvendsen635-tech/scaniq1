@@ -7,8 +7,8 @@ export default function Refund() {
   return (
     <div className="k-page max-w-2xl mx-auto pb-32">
       <Seo
-        title="Refunderingspolitik — KCALLY"
-        description="Refunderingspolitik for KCALLY-abonnementer. 14 dages fortrydelsesret håndteret af Paddle."
+        title="Refunderingspolitik — ScanIQ"
+        description="Refunderingspolitik for ScanIQ-abonnementer. 14 dages fortrydelsesret håndteret af Paddle."
         path="/refund"
       />
       <header className="flex items-center gap-3 mb-6">
@@ -24,7 +24,7 @@ export default function Refund() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 4. juni 2026 · Sælger: KCALLY · Kontakt: scaniqapp1@gmail.com
+          Sidst opdateret: 4. juni 2026 · ScanIQ · scaniqapp1@gmail.com
         </p>
 
         <section>
@@ -95,7 +95,7 @@ export default function Refund() {
         <section>
           <h2 className="text-base font-semibold mb-2">Kontakt</h2>
           <p>
-            KCALLY ·{" "}
+            ScanIQ ·{" "}
             <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">
               scaniqapp1@gmail.com
             </a>
