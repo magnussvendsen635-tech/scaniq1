@@ -469,8 +469,8 @@ export default function FoodScan() {
       totalGrams: totalGrams,
     };
     setResult(next);
+    setCaloriesOverride(null);
     // Auto-detect total weight from scan so calories display immediately.
-    // The weight field remains an optional manual override.
     const detected = totalGrams && totalGrams > 0
       ? Math.round(totalGrams)
       : (p100 && p100.calories > 0 && next.calories > 0
