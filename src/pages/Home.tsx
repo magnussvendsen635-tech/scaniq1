@@ -82,10 +82,9 @@ export default function Home() {
               <div className="text-xs text-muted-foreground mt-1 tracking-widest uppercase">{t("home.kcal_left")}</div>
             </div>
           </Ring>
-          <div className="mt-6 grid grid-cols-3 w-full text-center">
+          <div className="mt-6 grid grid-cols-2 gap-4 w-full max-w-xs text-center">
             <Stat label={t("home.goal")} value={user.calories} />
             <Stat label={t("home.eaten")} value={eaten} accent />
-            <Stat label={t("home.burned")} value={burned} />
           </div>
           {/* Tracking progress bar */}
           <div className="mt-5 w-full">
