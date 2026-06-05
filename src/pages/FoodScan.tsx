@@ -339,6 +339,7 @@ export default function FoodScan() {
     if (searchParams.get("auto") !== "1") return;
     if (!profile) return;
     const timer = setTimeout(() => {
+      if (fileRef.current) fileRef.current.value = "";
       fileRef.current?.click();
       const next = new URLSearchParams(searchParams);
       next.delete("auto");
