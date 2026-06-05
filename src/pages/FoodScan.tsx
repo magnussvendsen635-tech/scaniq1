@@ -877,7 +877,31 @@ export default function FoodScan() {
                 </div>
               </div>
 
+              <div className="k-card p-5 mb-5">
+                <h2 className="text-lg font-semibold mb-1">Tilføj skjulte kalorier</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Slå til hvis dit måltid faktisk indeholder olie eller dressing. Som standard tilføjes intet automatisk.
+                </p>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">Olie</span>
+                      <span className="text-[11px] text-muted-foreground">AI estimerer skjult madolie/smør på dit måltid</span>
+                    </div>
+                    <Switch checked={addOil} onCheckedChange={setAddOil} />
+                  </label>
+                  <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">Dressing</span>
+                      <span className="text-[11px] text-muted-foreground">AI estimerer dressing/sauce/mayo på dit måltid</span>
+                    </div>
+                    <Switch checked={addDressing} onCheckedChange={setAddDressing} />
+                  </label>
+                </div>
               </div>
+
+              </div>
+
 
               {/* Photo thumbnails — always visible with placeholder slots */}
               <div className="k-card p-4 mb-3">
