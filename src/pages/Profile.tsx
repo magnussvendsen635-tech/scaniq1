@@ -2,7 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
-import { Flame, Settings as SettingsIcon, LogOut, Crown, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
+import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
+import leafLogo from "@/assets/scaniq-leaf-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -85,15 +86,25 @@ export default function Profile() {
       </div>
 
       {!premium && (
-        <Link to="/premium" className="k-card k-tap p-5 mb-4 flex items-center gap-4 bg-gradient-primary !border-transparent shadow-glow">
-          <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center">
-            <Crown className="w-5 h-5 text-white" />
-          </div>
+        <Link
+          to="/premium"
+          className="k-card k-tap p-5 mb-4 flex items-center gap-4 !border-transparent shadow-[0_12px_28px_-8px_rgba(245,158,91,0.55)] bg-gradient-to-r from-[#F59E5B] to-[#EA6A1F]"
+        >
+          <span
+            className="inline-flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-white/40 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.35)]"
+            style={{ width: 44, height: 44, borderRadius: 9999, background: "white" }}
+          >
+            <img
+              src={leafLogo}
+              alt=""
+              style={{ width: "140%", height: "140%", objectFit: "cover", borderRadius: 9999, display: "block" }}
+            />
+          </span>
           <div className="flex-1">
             <div className="font-semibold text-white">{t("profile.go_premium")}</div>
-            <div className="text-xs text-white/70">{t("profile.unlock")}</div>
+            <div className="text-xs text-white/80">{t("profile.unlock")}</div>
           </div>
-          <ChevronRight className="w-5 h-5 text-white/80" />
+          <ChevronRight className="w-5 h-5 text-white/90" />
         </Link>
       )}
 
