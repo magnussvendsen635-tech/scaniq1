@@ -15,7 +15,7 @@ const DAILY_SCAN_LIMIT = 30;
 const SCAN_COOLDOWN_SECONDS = 5;
 // Admin user IDs — bypass all quota and cooldown limits.
 const ADMIN_USER_IDS = new Set<string>([
-  "cc4070c8-9c27-4ffb-9f5d-2b5a72dd5814",
+  "7d5a801c-8bac-4eb9-bcd3-3bd8c20b28f0",
 ]);
 
 function todayUTC(): string {
