@@ -79,7 +79,7 @@ export default function Workouts() {
   };
 
   return (
-    <div className="k-page">
+    <div className="k-page overflow-y-visible touch-auto">
       <h1 className="text-3xl font-semibold tracking-tight mb-5">{t("workouts.title")}</h1>
 
       {!premium ? (
@@ -130,10 +130,7 @@ export default function Workouts() {
         ))}
       </div>
 
-      <div
-        className="space-y-2.5 max-h-[calc(100dvh-13rem)] overflow-y-auto pointer-events-auto pb-32 touch-pan-y md:max-h-none"
-        style={{ WebkitOverflowScrolling: "touch" }}
-      >
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-visible pointer-events-auto pb-32">
 
         {list.map((e) => (
           <button
@@ -149,21 +146,21 @@ export default function Workouts() {
               setElapsed(0);
               setRunning(false);
             }}
-            className="k-card k-tap w-full p-4 flex items-center gap-4 text-left touch-manipulation pointer-events-auto active:scale-[0.99]"
+            className="k-card k-tap w-full min-h-32 p-3 flex flex-col items-start justify-between gap-3 text-left touch-manipulation pointer-events-auto active:scale-[0.99]"
 
           >
-            <div className="w-11 h-11 rounded-2xl bg-gradient-soft flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-soft flex items-center justify-center shrink-0">
               {premium ? (
                 <Flame className="w-5 h-5 text-primary-glow" />
               ) : (
                 <Lock className="w-5 h-5 text-primary-glow" />
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{e.name}</div>
+            <div className="w-full min-w-0">
+              <div className="font-medium text-sm leading-tight line-clamp-2">{e.name}</div>
               <div className="text-xs text-muted-foreground">{e.category}</div>
             </div>
-            <div className="text-right">
+            <div className="w-full text-left">
               <div className="text-sm font-semibold">{e.kcalPerMin}</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">kcal/min</div>
             </div>
