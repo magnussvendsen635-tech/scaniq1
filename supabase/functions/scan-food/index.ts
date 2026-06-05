@@ -18,34 +18,41 @@ const ADMIN_USER_IDS = new Set<string>([
   "7d5a801c-8bac-4eb9-bcd3-3bd8c20b28f0",
 ]);
 
-const HIDDEN_FAT_ITEM_PATTERN = /hidden|skjult|oil|olie|dressing|butter|smør|fat|fedt/i;
+const HIDDEN_FAT_ITEM_PATTERN = /hidden|skjult|oil|olie|dressing|butter|smør|fat|fedt|mayo|remoulade|aioli|sauce|sovs/i;
 const RAW_NOVA1_ITEM_PATTERN = /cucumber|agurk|banana|banan|apple|æble|orange|appelsin|berry|berries|bær|grape|druer|tomato|tomat|carrot|gulerod|pepper|peberfrugt|lettuce|salat|cabbage|kål|celery|selleri|radish|radise|spinach|spinat|broccoli|cauliflower|blomkål|courgette|zucchini/i;
 
-function forceZeroHiddenFatForRawNova1(parsed: Record<string, unknown>) {
-  const items = Array.isArray(parsed.items) ? parsed.items as Array<Record<string, unknown>> : [];
-  const foodText = `${String(parsed.name ?? "")} ${items.map((item) => String(item?.name ?? "")).join(" ")}`;
-  const isRawFruitOrVegetable = RAW_NOVA1_ITEM_PATTERN.test(foodText);
-  const isRawNova1WholeFood = parsed.novaGroup === 1 || isRawFruitOrVegetable;
-
-  if (!isRawNova1WholeFood) return parsed;
-
-  let hiddenCalories = 0;
-  parsed.items = items.map((item) => {
-    if (!HIDDEN_FAT_ITEM_PATTERN.test(String(item?.name ?? ""))) return item;
-    hiddenCalories += typeof item.calories === "number" ? item.calories : Number(item.calories) || 0;
-    return { ...item, calories: 0 };
-  });
-
-  const per100g = parsed.per100g && typeof parsed.per100g === "object" ? parsed.per100g as Record<string, unknown> : null;
-  const totalGrams = typeof parsed.totalGrams === "number" ? parsed.totalGrams : Number(parsed.totalGrams);
-  if ((hiddenCalories > 0 || isRawFruitOrVegetable) && per100g && Number.isFinite(totalGrams)) {
-    const scale = totalGrams / 100;
-    for (const key of ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol"]) {
-      const value = typeof per100g[key] === "number" ? per100g[key] : Number(per100g[key]);
-      if (Number.isFinite(value)) parsed[key] = Math.max(0, Math.round(value * scale));
-    }
+// User toggles are the SINGLE source of truth for hidden oil & dressing.
+// When the toggle is OFF, the value is forced to 0 no matter what the AI returned.
+// When ON, the AI's portion-scaled estimate is used (but raw NOVA 1 whole foods are still 0).
+function enforceHiddenToggles(
+  parsed: Record<string, unknown>,
+  addOil: boolean,
+  addDressing: boolean,
+) {
+  // Strip any oil/dressing items the AI tried to sneak into the items list.
+  if (Array.isArray(parsed.items)) {
+    parsed.items = (parsed.items as Array<Record<string, unknown>>).filter(
+      (item) => !HIDDEN_FAT_ITEM_PATTERN.test(String(item?.name ?? "")),
+    );
   }
 
+  let oil = Math.max(0, Number(parsed.hiddenOilKcal) || 0);
+  let dressing = Math.max(0, Number(parsed.hiddenDressingKcal) || 0);
+
+  if (!addOil) oil = 0;
+  if (!addDressing) dressing = 0;
+
+  // Hard safety: raw NOVA 1 whole foods never get hidden oil/dressing.
+  const items = Array.isArray(parsed.items) ? parsed.items as Array<Record<string, unknown>> : [];
+  const foodText = `${String(parsed.name ?? "")} ${items.map((i) => String(i?.name ?? "")).join(" ")}`;
+  const isRawNova1 = parsed.novaGroup === 1 || RAW_NOVA1_ITEM_PATTERN.test(foodText);
+  if (isRawNova1) {
+    oil = 0;
+    dressing = 0;
+  }
+
+  parsed.hiddenOilKcal = oil;
+  parsed.hiddenDressingKcal = dressing;
   return parsed;
 }
 
