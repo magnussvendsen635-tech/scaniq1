@@ -1,8 +1,8 @@
 import { useKStore } from "@/store/useKStore";
-import { CalendarCheck, Target, Droplet, Scale, Flame } from "lucide-react";
+import { CalendarCheck, Target, Droplet, Scale } from "lucide-react";
 
 export const WeeklyReport = () => {
-  const { meals, water, waterGoal, weights, user, workouts } = useKStore();
+  const { meals, water, waterGoal, weights, user } = useKStore();
 
   // Last 7 days
   const days: string[] = [];
@@ -32,9 +32,6 @@ export const WeeklyReport = () => {
   const newest = recent[recent.length - 1];
   const wDelta = newest && oldest ? newest.weight - oldest.weight : 0;
 
-  const weekWorkouts = workouts.filter((w) => w.at >= weekAgo).length;
-  const weekBurned = workouts.filter((w) => w.at >= weekAgo).reduce((a, b) => a + b.caloriesBurned, 0);
-
   return (
     <div className="k-card p-5 mb-4 bg-gradient-surface relative overflow-hidden">
       <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-gradient-primary opacity-10 blur-3xl" />
@@ -44,7 +41,7 @@ export const WeeklyReport = () => {
           <h3 className="font-semibold">This week's summary</h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-3 mb-4">
           <Stat Icon={Target} label="Calorie goal hit" value={`${goalHits}/7`} sub="days" />
           <Stat Icon={Droplet} label="Water goal hit" value={`${waterHits}/7`} sub="days" />
           <Stat
@@ -53,7 +50,6 @@ export const WeeklyReport = () => {
             value={`${wDelta > 0 ? "+" : ""}${wDelta.toFixed(1)}`}
             sub="kg"
           />
-          <Stat Icon={Flame} label="Workouts" value={`${weekWorkouts}`} sub={`${weekBurned} kcal`} />
         </div>
 
         <div className="text-xs text-muted-foreground border-t border-border/60 pt-3">
