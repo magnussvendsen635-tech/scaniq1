@@ -473,6 +473,8 @@ export default function FoodScan() {
       ultraProcessedPercent: num(data.ultraProcessedPercent),
       per100g: p100,
       totalGrams: totalGrams,
+      hiddenOilKcal: num(data.hiddenOilKcal),
+      hiddenDressingKcal: num(data.hiddenDressingKcal),
     };
     setResult(next);
     setCaloriesOverride(null);
