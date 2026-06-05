@@ -15,7 +15,12 @@ const CATEGORIES: { key: MealCategory; labelKey: TKey; addKey: TKey; Icon: any }
   { key: "snack", labelKey: "diary.cat_snack", addKey: "diary.add_snack", Icon: Cookie },
 ];
 
-const ymd = (d: Date) => d.toISOString().slice(0, 10);
+const ymd = (d: Date) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 const startOfWeek = (d: Date) => {
   const x = new Date(d);
   const day = (x.getDay() + 6) % 7; // Monday = 0
