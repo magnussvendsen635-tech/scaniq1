@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useKStore, caloriesToday, categoryForNow, type MealCategory } from "@/store/useKStore";
 import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
@@ -60,6 +61,10 @@ interface Result {
   // NEW: ground-truth per-100g values + total weight of the portion
   per100g?: Per100g;
   totalGrams?: number;
+  // Hidden oil/dressing kcal returned by AI for the visible portion.
+  // These are SEPARATE from `calories` / `per100g` — only added when toggle is ON.
+  hiddenOilKcal?: number;
+  hiddenDressingKcal?: number;
 }
 
 // Global calculation: (per100g / 100) * totalConsumedGrams
@@ -278,6 +283,8 @@ export default function FoodScan() {
   const [previews, setPreviews] = useState<string[]>([]);
   const [portion, setPortion] = useState<Portion>("medium");
   const [foodSource, setFoodSource] = useState<FoodSource>("homemade");
+  const [addOil, setAddOil] = useState<boolean>(false);
+  const [addDressing, setAddDressing] = useState<boolean>(false);
   const [step, setStep] = useState<Step>("portion");
   const [category, setCategory] = useState<MealCategory>(categoryForNow());
   
@@ -467,6 +474,8 @@ export default function FoodScan() {
       ultraProcessedPercent: num(data.ultraProcessedPercent),
       per100g: p100,
       totalGrams: totalGrams,
+      hiddenOilKcal: num(data.hiddenOilKcal),
+      hiddenDressingKcal: num(data.hiddenDressingKcal),
     };
     setResult(next);
     setCaloriesOverride(null);
@@ -537,7 +546,7 @@ export default function FoodScan() {
     const timeout = setTimeout(() => controller.abort(), 45000);
     try {
       const invokePromise = supabase.functions.invoke("scan-food", {
-        body: { images: imgs, portion, source: foodSource, strategy },
+        body: { images: imgs, portion, source: foodSource, strategy, addOil, addDressing },
       });
       const { data, error } = await Promise.race([
         invokePromise,
@@ -681,30 +690,19 @@ export default function FoodScan() {
     name: it.name,
     calories: Math.round((it.calories || 0) * itemRatio),
   }));
-  // Hidden-calorie detection: add kcal for cooking oils, butter and heavy dressings
-  // the camera can't see. Restaurant / store complex meals carry the largest hidden load.
-  const hiddenKcal = (() => {
-    if (!result) return 0;
-    const text = ` ${(result.name ?? "").toLowerCase()} ${(result.items ?? []).map((i) => (i.name ?? "").toLowerCase()).join(" ")} `;
-    const isBurger = /\b(burger|cheeseburger|hamburger|bun|patty)\b/.test(text);
-    const isPizza = /\bpizza\b/.test(text);
-    const isPanSeared = /(stegt|pan[\s-]?seared|pan[\s-]?fried|fried|deep[\s-]?fried|frituresteg|wok|sauteed|saut[ée]ret)/.test(text);
-    const isHeavyDressing = /(caesar|cobb|ranch|aioli|mayo|remoulade|dressing|b[éearnaise]+|hollandaise|gravy|sovs|cream sauce|fl[øo]desovs|carbonara|alfredo|pesto)/.test(text);
-    const isComplexMeal = COMPLEX_MEAL.test(text);
-    const isFastFood = ALWAYS_ULTRA.test(text) || SNACK_ULTRA.test(text);
-    const isOut = foodSource === "restaurant" || foodSource === "store";
-
-    if (isBurger) return 250;
-    if (isPizza && isOut) return 220;
-    if (isPizza) return 150;
-    if (isFastFood && isOut) return 200;
-    if (isComplexMeal && isOut) return 200;
-    if (isComplexMeal) return 150;
-    if (isPanSeared) return 150;
-    if (isHeavyDressing) return 150;
-    if (isOut) return 150;
-    return 0;
-  })();
+  // Hidden oil/dressing: ONLY added when the user explicitly turns the toggle ON.
+  // Values come from the AI scaled to the visible portion, then re-scaled if the
+  // user adjusts the consumed grams. The user's toggle is always the final word.
+  const hiddenScaleF = result?.totalGrams && result.totalGrams > 0
+    ? consumedGrams / result.totalGrams
+    : 1;
+  const hiddenOilKcal = addOil
+    ? Math.max(0, Math.round((result?.hiddenOilKcal ?? 0) * hiddenScaleF))
+    : 0;
+  const hiddenDressingKcal = addDressing
+    ? Math.max(0, Math.round((result?.hiddenDressingKcal ?? 0) * hiddenScaleF))
+    : 0;
+  const hiddenKcal = hiddenOilKcal + hiddenDressingKcal;
   // Force Total to equal the sum of items when items exist, so displays never conflict
   const itemsSumBase = scaledItems?.reduce((a, b) => a + b.calories, 0) ?? 0;
   const itemsSum = itemsSumBase + hiddenKcal;
@@ -880,7 +878,31 @@ export default function FoodScan() {
                 </div>
               </div>
 
+              <div className="k-card p-5 mb-5">
+                <h2 className="text-lg font-semibold mb-1">Tilføj skjulte kalorier</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Slå til hvis dit måltid faktisk indeholder olie eller dressing. Som standard tilføjes intet automatisk.
+                </p>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">Olie</span>
+                      <span className="text-[11px] text-muted-foreground">AI estimerer skjult madolie/smør på dit måltid</span>
+                    </div>
+                    <Switch checked={addOil} onCheckedChange={setAddOil} />
+                  </label>
+                  <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">Dressing</span>
+                      <span className="text-[11px] text-muted-foreground">AI estimerer dressing/sauce/mayo på dit måltid</span>
+                    </div>
+                    <Switch checked={addDressing} onCheckedChange={setAddDressing} />
+                  </label>
+                </div>
               </div>
+
+              </div>
+
 
               {/* Photo thumbnails — always visible with placeholder slots */}
               <div className="k-card p-4 mb-3">
@@ -1123,10 +1145,16 @@ export default function FoodScan() {
                         <span className="text-muted-foreground">{it.calories} kcal</span>
                       </li>
                     ))}
-                    {hiddenKcal > 0 && (
+                    {hiddenOilKcal > 0 && (
                       <li className="flex justify-between py-2 text-sm">
-                        <span className="text-foreground">Skjult olie & dressing (est.)</span>
-                        <span className="text-muted-foreground">+{hiddenKcal} kcal</span>
+                        <span className="text-foreground">Olie (est.)</span>
+                        <span className="text-muted-foreground">+{hiddenOilKcal} kcal</span>
+                      </li>
+                    )}
+                    {hiddenDressingKcal > 0 && (
+                      <li className="flex justify-between py-2 text-sm">
+                        <span className="text-foreground">Dressing (est.)</span>
+                        <span className="text-muted-foreground">+{hiddenDressingKcal} kcal</span>
                       </li>
                     )}
                   </ul>

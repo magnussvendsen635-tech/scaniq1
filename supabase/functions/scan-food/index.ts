@@ -18,34 +18,41 @@ const ADMIN_USER_IDS = new Set<string>([
   "7d5a801c-8bac-4eb9-bcd3-3bd8c20b28f0",
 ]);
 
-const HIDDEN_FAT_ITEM_PATTERN = /hidden|skjult|oil|olie|dressing|butter|smør|fat|fedt/i;
+const HIDDEN_FAT_ITEM_PATTERN = /hidden|skjult|oil|olie|dressing|butter|smør|fat|fedt|mayo|remoulade|aioli|sauce|sovs/i;
 const RAW_NOVA1_ITEM_PATTERN = /cucumber|agurk|banana|banan|apple|æble|orange|appelsin|berry|berries|bær|grape|druer|tomato|tomat|carrot|gulerod|pepper|peberfrugt|lettuce|salat|cabbage|kål|celery|selleri|radish|radise|spinach|spinat|broccoli|cauliflower|blomkål|courgette|zucchini/i;
 
-function forceZeroHiddenFatForRawNova1(parsed: Record<string, unknown>) {
-  const items = Array.isArray(parsed.items) ? parsed.items as Array<Record<string, unknown>> : [];
-  const foodText = `${String(parsed.name ?? "")} ${items.map((item) => String(item?.name ?? "")).join(" ")}`;
-  const isRawFruitOrVegetable = RAW_NOVA1_ITEM_PATTERN.test(foodText);
-  const isRawNova1WholeFood = parsed.novaGroup === 1 || isRawFruitOrVegetable;
-
-  if (!isRawNova1WholeFood) return parsed;
-
-  let hiddenCalories = 0;
-  parsed.items = items.map((item) => {
-    if (!HIDDEN_FAT_ITEM_PATTERN.test(String(item?.name ?? ""))) return item;
-    hiddenCalories += typeof item.calories === "number" ? item.calories : Number(item.calories) || 0;
-    return { ...item, calories: 0 };
-  });
-
-  const per100g = parsed.per100g && typeof parsed.per100g === "object" ? parsed.per100g as Record<string, unknown> : null;
-  const totalGrams = typeof parsed.totalGrams === "number" ? parsed.totalGrams : Number(parsed.totalGrams);
-  if ((hiddenCalories > 0 || isRawFruitOrVegetable) && per100g && Number.isFinite(totalGrams)) {
-    const scale = totalGrams / 100;
-    for (const key of ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol"]) {
-      const value = typeof per100g[key] === "number" ? per100g[key] : Number(per100g[key]);
-      if (Number.isFinite(value)) parsed[key] = Math.max(0, Math.round(value * scale));
-    }
+// User toggles are the SINGLE source of truth for hidden oil & dressing.
+// When the toggle is OFF, the value is forced to 0 no matter what the AI returned.
+// When ON, the AI's portion-scaled estimate is used (but raw NOVA 1 whole foods are still 0).
+function enforceHiddenToggles(
+  parsed: Record<string, unknown>,
+  addOil: boolean,
+  addDressing: boolean,
+) {
+  // Strip any oil/dressing items the AI tried to sneak into the items list.
+  if (Array.isArray(parsed.items)) {
+    parsed.items = (parsed.items as Array<Record<string, unknown>>).filter(
+      (item) => !HIDDEN_FAT_ITEM_PATTERN.test(String(item?.name ?? "")),
+    );
   }
 
+  let oil = Math.max(0, Number(parsed.hiddenOilKcal) || 0);
+  let dressing = Math.max(0, Number(parsed.hiddenDressingKcal) || 0);
+
+  if (!addOil) oil = 0;
+  if (!addDressing) dressing = 0;
+
+  // Hard safety: raw NOVA 1 whole foods never get hidden oil/dressing.
+  const items = Array.isArray(parsed.items) ? parsed.items as Array<Record<string, unknown>> : [];
+  const foodText = `${String(parsed.name ?? "")} ${items.map((i) => String(i?.name ?? "")).join(" ")}`;
+  const isRawNova1 = parsed.novaGroup === 1 || RAW_NOVA1_ITEM_PATTERN.test(foodText);
+  if (isRawNova1) {
+    oil = 0;
+    dressing = 0;
+  }
+
+  parsed.hiddenOilKcal = oil;
+  parsed.hiddenDressingKcal = dressing;
   return parsed;
 }
 
@@ -176,6 +183,8 @@ Deno.serve(async (req) => {
     // ---- Input ----
     const body = await req.json();
     const { portion, strategy } = body;
+    const addOil = body.addOil === true;
+    const addDressing = body.addDressing === true;
     let images: string[] = [];
     if (Array.isArray(body.images)) {
       images = body.images.filter((x: unknown) => typeof x === "string" && x.length > 0);
@@ -260,13 +269,15 @@ Deno.serve(async (req) => {
               "      • Fats/oils/nuts: 600-900 kcal/100g. " +
               "  (d) Estimate totalGrams = sum of (count × per-item grams) for whole items, or visual volume × density for mixed dishes. IGNORE the meal-type label when sizing. For liquids treat ml as grams. " +
               "  (e) Only AFTER totalGrams is fixed, compute calories = per100g.calories / 100 * totalGrams. Never reverse-engineer grams from a guessed calorie number. " +
-              "  (f) HIDDEN OILS & FATS RULE (GLOBAL HARD RULE — item-based only, source-blind): " +
-              "      • DELETE SOURCE LOGIC MENTALLY: Whether the user selected Homemade, Store-bought or Restaurant is forbidden input for this decision. The decision is based ONLY on the detected food item and visible preparation state. " +
-              "      • HARD STOP ZERO-OIL RULE: If the item is NOVA 1, raw fruit, raw vegetable, or a plain single-ingredient whole food, hidden oil/dressing MUST be exactly 0 kcal in ALL modes. Do not create an item called 'Hidden oil', 'Skjult olie', 'Dressing' or similar for cucumber/agurk, fruit, raw vegetables, plain salad leaves, or any raw NOVA 1 whole food. A raw cucumber is cucumber only: per100g ≈ 15 kcal, fat ≈ 0.1g/100g, hidden oil & dressing = 0 kcal. " +
-              "      • ONLY add hidden cooking fat when the detected food item is a prepared/cooked dish where cooking fat is technically expected — burger, pizza, pasta, fries, kebab, shawarma, risotto, curry, wok dish, stir-fry, sautéed/roasted vegetables, omelette, scrambled eggs, pancakes, grilled meat with marinade, sauces, salads with visible dressing. Apply this equally in all modes. Typical hidden fat: 5-15g oil/butter per portion (≈ 45-135 kcal). Fried items can hide 20-40g fat. Reflect this in fat, saturatedFat and total calories. " +
-              "      • VISUAL VALIDATION: If you cannot actually SEE oil, butter, dressing, sauce, glossy surface, frying residue or clearly cooked/fried texture on the food in the photo, do NOT add hidden oil. Only add hidden oil when the visible food is clearly a cooked/prepared dish where fat is physically expected. " +
-              "      • NEVER add hidden oil/fat to: raw whole fruit (banana, apple, berries, grapes, orange), raw whole vegetables (cucumber, tomato, carrot, bell pepper), plain salad leaves with NO visible dressing, boiled/steamed plain vegetables, plain boiled eggs, plain boiled potatoes/rice/pasta with nothing on them, raw nuts, plain yoghurt/skyr/milk, plain bread, packaged products (use the label). For these single-ingredient whole/raw foods, use the pure USDA per100g values as-is. " +
-              "      • When in doubt for a visibly HOT cooked/prepared dish → assume oil/butter WAS used. When in doubt for a raw/whole single-ingredient food → assume NO added fat. " +
+              "  (f) HIDDEN OIL & DRESSING — USER TOGGLES ARE ABSOLUTE LAW: " +
+              `      • The user controls two toggles. CURRENT STATE: addOil=${addOil}, addDressing=${addDressing}. ` +
+              "      • These toggles are the ONLY source of truth. You are STRICTLY FORBIDDEN from inferring, guessing, or auto-adding any hidden oil/butter/dressing/sauce calories outside of these toggles. " +
+              "      • Report hidden oil and dressing as TWO SEPARATE TOP-LEVEL FIELDS: `hiddenOilKcal` and `hiddenDressingKcal`. These MUST NEVER be folded into `calories`, `per100g`, `fat`, `saturatedFat`, or the `items` array. The base `calories` and `per100g` describe ONLY the visible food itself, with no hidden cooking fat baked in. " +
+              "      • Do NOT create any item in the `items` array named 'Skjult olie', 'Hidden oil', 'Dressing', 'Sovs', 'Mayo', 'Aioli' or similar. Use only the two top-level fields. " +
+              `      • addOil=${addOil}: ${addOil ? "ON → estimate the kcal of cooking oil/butter realistically used on the visible portion. Scale with the visible portion size (do NOT use a flat number). Typical pan-cooked/sautéed dish ≈ 5-15g fat → 45-135 kcal. Deep-fried ≈ 20-40g → 180-360 kcal. Roasted vegetables with light oil ≈ 30-90 kcal. Tiny portions get proportionally less; large portions get proportionally more." : "OFF → hiddenOilKcal MUST be exactly 0. Do not add any cooking-fat calories regardless of what you see."} ` +
+              `      • addDressing=${addDressing}: ${addDressing ? "ON → estimate kcal of dressing/sauce/mayo/aioli actually visible on the dish, scaled to portion size (typical 1-2 tbsp dressing ≈ 60-140 kcal; heavy mayo/aioli ≈ 100-200 kcal)." : "OFF → hiddenDressingKcal MUST be exactly 0. Do not add any dressing calories regardless of what you see."} ` +
+              "      • HARD SAFETY: For raw NOVA 1 whole foods (cucumber, agurk, raw fruit, raw vegetables, plain salad leaves with no visible dressing), both hiddenOilKcal and hiddenDressingKcal MUST be 0 even if the corresponding toggle is ON. " +
+              "      • If a toggle is OFF, the corresponding kcal field MUST be 0. No exceptions, no overrides. The user's choice wins over your visual guess. " +
               "PACKAGED PRODUCT RULE (CRITICAL): If the photo shows a packaged product (bottle, can, box, bag, wrapper) — soda bottle, Pringles can, candy bar, bread bag, chocolate, chips, energy drink etc. — the user is logging the WHOLE package, not a tiny taste. ALWAYS use the FULL net weight / volume printed on (or typical for) that package as totalGrams. Examples: 0.5L Coca-Cola bottle = 500g, standard Pringles can = 165g, Snickers bar = 50g, 1.5L soda = 1500g, 330ml can = 330g, 200g chocolate bar = 200g, package of buns/rolls = full package weight. Never default to 50g or 100g for a clearly whole packaged product. Read the label (OCR) when visible; otherwise use the standard retail size for that exact product. " +
               "STEP 3 — NUTRITION: ALWAYS produce values per 100g (`per100g`) using accurate USDA/European/Nordic database values for the identified food. Then compute the totals for the portion using the formula: total = round(per100g_value / 100 * totalGrams). Calories, protein, carbs, fat, fiber, sugar, sodium, saturatedFat and cholesterol totals MUST match this formula exactly. Never invent a portion calorie number that contradicts per100g * grams. " +
               "STEP 4 — HEALTH SCORE 1-10: a NEUTRAL nutrient-density score, NOT a verdict. 10 = nutrient-dense whole foods, 1 = nutrient-poor. Do not interpret it for the user. " +
@@ -351,8 +362,10 @@ Deno.serve(async (req) => {
                   zinc: { type: "number", description: "Zinc in milligrams (mg)" },
                   novaGroup: { type: "number", description: "NOVA processing group 1-4. 1=unprocessed, 2=culinary ingredient, 3=processed, 4=ultra-processed. Objective classification only, no judgement." },
                   ultraProcessedPercent: { type: "number", description: "Estimated percentage (0-100) of the portion that is ultra-processed by weight. 0 for whole foods." },
+                  hiddenOilKcal: { type: "number", description: "Hidden cooking oil/butter calories for the visible portion. MUST be 0 when addOil toggle is OFF. When ON, estimate scaled to portion size. NEVER folded into `calories` or `per100g`." },
+                  hiddenDressingKcal: { type: "number", description: "Hidden dressing/sauce/mayo calories for the visible portion. MUST be 0 when addDressing toggle is OFF. When ON, estimate scaled to portion size. NEVER folded into `calories` or `per100g`." },
                 },
-                required: ["name", "items", "totalGrams", "per100g", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "satietyHours", "energyEffect", "vitaminA", "vitaminC", "vitaminD", "vitaminE", "vitaminB12", "calcium", "iron", "magnesium", "potassium", "zinc", "novaGroup", "ultraProcessedPercent"],
+                required: ["name", "items", "totalGrams", "per100g", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium", "saturatedFat", "cholesterol", "healthScore", "confidence", "satietyHours", "energyEffect", "vitaminA", "vitaminC", "vitaminD", "vitaminE", "vitaminB12", "calcium", "iron", "magnesium", "potassium", "zinc", "novaGroup", "ultraProcessedPercent", "hiddenOilKcal", "hiddenDressingKcal"],
 
                 additionalProperties: false,
               },
@@ -393,7 +406,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const parsed = forceZeroHiddenFatForRawNova1(JSON.parse(toolCall.function.arguments));
+    const parsed = enforceHiddenToggles(JSON.parse(toolCall.function.arguments), addOil, addDressing);
 
     // ---- Increment counters after successful scan ----
     const newDaily = dailyUsed + 1;
