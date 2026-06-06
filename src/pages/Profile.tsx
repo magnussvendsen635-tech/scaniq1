@@ -104,16 +104,12 @@ export default function Profile() {
           to="/premium"
           className="k-card k-tap p-5 mb-4 flex items-center gap-4 !border-transparent shadow-[0_12px_28px_-8px_rgba(245,158,91,0.55)] bg-gradient-to-r from-[#F59E5B] to-[#EA6A1F]"
         >
-          <span
-            className="inline-flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-white/40 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.35)]"
-            style={{ width: 44, height: 44, borderRadius: 9999, background: "white" }}
-          >
-            <img
-              src={leafLogo}
-              alt=""
-              style={{ width: "140%", height: "140%", objectFit: "cover", borderRadius: 9999, display: "block" }}
-            />
-          </span>
+          <img
+            src={leafLogo}
+            alt=""
+            className="shrink-0"
+            style={{ width: 56, height: 56, objectFit: "contain", background: "transparent", display: "block" }}
+          />
           <div className="flex-1">
             <div className="font-semibold text-white">{t("profile.go_premium")}</div>
             <div className="text-xs text-white/80">{t("profile.unlock")}</div>
