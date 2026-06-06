@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet } from "@/store/useKStore";
+import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet, type Sex } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { translate, type TKey } from "@/i18n/translations";
-import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf, Heart } from "lucide-react";
+import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf, Heart, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isHealthAvailable, requestHealthPermissions } from "@/lib/health";
 import { toast } from "sonner";
 
-const TOTAL_QUESTIONS = 12; // steps 0..11 (0 = language, 1 = name, 11 = Apple Health)
+const TOTAL_QUESTIONS = 13; // steps 0..12 (0 = language, 1 = name, 2 = sex, 12 = Apple Health)
 
 export default function Onboarding() {
   const nav = useNavigate();
@@ -20,6 +20,7 @@ export default function Onboarding() {
   const tt = (k: TKey) => translate(lang, k);
   const [name, setName] = useState(user.name ?? "");
   const [goal, setGoal] = useState<Goal>(user.goal);
+  const [sex, setSex] = useState<Sex>(user.sex);
   const [age, setAge] = useState(user.age);
   const [weight, setWeight] = useState(user.weight);
   const [targetWeight, setTargetWeight] = useState(user.targetWeight);
@@ -76,7 +77,7 @@ export default function Onboarding() {
       setLoadingMsg(tt(m));
       await new Promise((r) => setTimeout(r, 900));
     }
-    const p = computePlan({ weight, height, goal, activity });
+    const p = computePlan({ weight, height, goal, activity, sex, age });
     setPlan(p);
     setStep(TOTAL_QUESTIONS + 1);
   };
@@ -84,7 +85,7 @@ export default function Onboarding() {
   const finish = () => {
     if (!plan) return;
     setLanguage(lang);
-    updateUser({ name: name.trim(), age, weight, targetWeight, height, goal, activity, pace, frequency, diet, ...plan });
+    updateUser({ name: name.trim(), age, weight, targetWeight, height, goal, sex, activity, pace, frequency, diet, ...plan });
     setOnboarded(true);
     nav("/premium", { replace: true });
   };
@@ -129,6 +130,15 @@ export default function Onboarding() {
         )}
 
         {step === 2 && (
+          <Step title="Hvad er dit køn?" sub="Vi bruger dette til at beregne præcise kalorier og makroer for dig.">
+            <div className="space-y-3">
+              <SelectCard active={sex === "male"} onClick={() => setSex("male")} title="Mand" sub="Beregner BMR for mandlig fysiologi" Icon={UserIcon} />
+              <SelectCard active={sex === "female"} onClick={() => setSex("female")} title="Kvinde" sub="Beregner BMR for kvindelig fysiologi" Icon={UserIcon} />
+            </div>
+          </Step>
+        )}
+
+        {step === 3 && (
           <Step title={tt("onboarding.q_goal")} sub={tt("onboarding.q_goal_sub")}>
             <div className="space-y-3">
               {goals.map(({ id, titleKey, subKey, Icon }) => (
@@ -138,31 +148,31 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <Step title={tt("onboarding.q_age")} sub={tt("onboarding.q_age_sub")}>
             <NumberInput value={age} onChange={setAge} suffix={tt("onboarding.suffix_yrs")} min={13} max={100} />
           </Step>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <Step title={tt("onboarding.q_height")} sub={tt("onboarding.q_height_sub")}>
             <NumberInput value={height} onChange={setHeight} suffix={tt("onboarding.suffix_cm")} min={120} max={230} />
           </Step>
         )}
 
-        {step === 5 && (
+        {step === 6 && (
           <Step title={tt("onboarding.q_weight")} sub={tt("onboarding.q_weight_sub")}>
             <NumberInput value={weight} onChange={setWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
           </Step>
         )}
 
-        {step === 6 && (
+        {step === 7 && (
           <Step title={tt("onboarding.q_target")} sub={tt("onboarding.q_target_sub")}>
             <NumberInput value={targetWeight} onChange={setTargetWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
           </Step>
         )}
 
-        {step === 7 && (
+        {step === 8 && (
           <Step title={tt("onboarding.q_pace")} sub={tt("onboarding.q_pace_sub")}>
             <div className="space-y-3">
               {paces.map(({ id, titleKey, subKey, Icon }) => (
@@ -172,7 +182,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 8 && (
+        {step === 9 && (
           <Step title={tt("onboarding.q_freq")} sub={tt("onboarding.q_freq_sub")}>
             <div className="space-y-2.5">
               {frequencies.map((f) => (
@@ -195,7 +205,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 9 && (
+        {step === 10 && (
           <Step title={tt("onboarding.q_diet")} sub={tt("onboarding.q_diet_sub")}>
             <div className="space-y-3">
               {diets.map(({ id, titleKey, subKey, Icon }) => (
@@ -205,7 +215,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 10 && (
+        {step === 11 && (
           <Step title={tt("onboarding.q_activity")} sub={tt("onboarding.q_activity_sub")}>
             <div className="space-y-2.5">
               {activities.map((a) => (
@@ -228,7 +238,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 11 && (
+        {step === 12 && (
           <Step title={tt("onboarding.health_title")} sub={tt("onboarding.health_sub")}>
             <div className="k-card p-6 flex flex-col items-center text-center gap-5">
               <div className="w-20 h-20 rounded-3xl bg-gradient-soft flex items-center justify-center">
@@ -285,7 +295,7 @@ export default function Onboarding() {
       </div>
 
       <div className="pt-8 flex gap-3">
-        {step < TOTAL_QUESTIONS && step > 0 && step !== 11 && (
+        {step < TOTAL_QUESTIONS && step > 0 && step !== 12 && (
           <Button
             size="lg"
             variant="outline"
@@ -296,7 +306,7 @@ export default function Onboarding() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
         )}
-        {step < TOTAL_QUESTIONS && step !== 11 && (
+        {step < TOTAL_QUESTIONS && step !== 12 && (
           <Button
             size="lg"
             className="group flex-1 h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"

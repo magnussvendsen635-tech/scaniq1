@@ -6,6 +6,7 @@ export type Activity = "sedentary" | "light" | "moderate" | "active" | "athlete"
 export type Pace = "aggressive" | "balanced" | "slow";
 export type Frequency = "0-1" | "2-3" | "4+";
 export type Diet = "none" | "high-protein" | "low-carb" | "vegetarian";
+export type Sex = "male" | "female";
 export type MealCategory = "breakfast" | "lunch" | "dinner" | "snack";
 
 export interface Meal {
@@ -62,6 +63,7 @@ export interface UserProfile {
   targetWeight: number; // kg
   height: number; // cm
   goal: Goal;
+  sex: Sex;
   activity: Activity;
   pace: Pace;
   frequency: Frequency;
@@ -171,6 +173,7 @@ export const useKStore = create<KState>()(
         targetWeight: 73,
         height: 175,
         goal: "lose",
+        sex: "male",
         activity: "moderate",
         pace: "balanced",
         frequency: "2-3",
@@ -295,7 +298,7 @@ export const useKStore = create<KState>()(
       setAutoAdjustGoal: (v) => set({ autoAdjustGoal: v }),
       recomputePlan: () => {
         const u = get().user;
-        const plan = computePlan({ weight: u.weight, height: u.height, activity: u.activity, goal: u.goal });
+        const plan = computePlan({ weight: u.weight, height: u.height, activity: u.activity, goal: u.goal, sex: u.sex, age: u.age });
         set({ user: { ...u, ...plan } });
       },
       freezesLeftThisWeek: () => {
@@ -377,13 +380,16 @@ export function categoryForNow(d: Date = new Date()): MealCategory {
 }
 
 // Calculate calories from onboarding (Mifflin-St Jeor simplified, assume male 30y)
-export function computePlan(p: { weight: number; height: number; activity: Activity; goal: Goal }) {
-  const bmr = 10 * p.weight + 6.25 * p.height - 5 * 30 + 5;
+export function computePlan(p: { weight: number; height: number; activity: Activity; goal: Goal; sex?: Sex; age?: number }) {
+  const age = p.age ?? 30;
+  // Mifflin-St Jeor with sex offset (male +5, female -161)
+  const sexOffset = p.sex === "female" ? -161 : 5;
+  const bmr = 10 * p.weight + 6.25 * p.height - 5 * age + sexOffset;
   const factor = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, athlete: 1.9 }[p.activity];
   let cals = Math.round(bmr * factor);
   if (p.goal === "lose") cals -= 500;
   if (p.goal === "gain") cals += 350;
-  cals = Math.max(1400, cals);
+  cals = Math.max(p.sex === "female" ? 1200 : 1400, cals);
   const protein = Math.round(p.weight * 2);
   const fat = Math.round((cals * 0.25) / 9);
   const carbs = Math.round((cals - protein * 4 - fat * 9) / 4);

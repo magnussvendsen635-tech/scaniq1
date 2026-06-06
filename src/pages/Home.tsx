@@ -2,9 +2,10 @@ import { Link } from "react-router-dom";
 import { useKStore, caloriesToday, macrosToday, caloriesBurnedToday } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Ring } from "@/components/Ring";
-import { Camera, BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine, Scale } from "lucide-react";
+import { BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, Scale } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
+import { PremiumWrapper } from "@/components/PremiumWrapper";
 
 import { HealthScoreCard } from "@/components/HealthScoreCard";
 import { HealthSyncCard } from "@/components/HealthSyncCard";
@@ -46,65 +47,66 @@ export default function Home() {
       </header>
 
       {/* PRIMARY CTA — AI food scan is the hero of the app */}
-      <Link
-        to="/scan?auto=1"
-        className="k-tap relative block mb-5 rounded-3xl overflow-hidden bg-gradient-primary p-6 border-[3px] border-foreground shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.55)] active:scale-[0.98] transition-transform"
-      >
-        <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-background/25 backdrop-blur flex items-center justify-center border-[3px] border-foreground shrink-0">
-            <ScanLine className="w-8 h-8 text-foreground" strokeWidth={2.6} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[10px] uppercase tracking-widest text-foreground/80 font-bold mb-0.5">Food scan</div>
-            <div className="font-bold text-foreground text-xl leading-tight">
-              {lastMeal ? "Tap to scan your food 📸" : "Scan your first meal 📸"}
-            </div>
-            {lastMeal && (
-              <div className="text-xs text-foreground/85 mt-1 font-medium truncate">
-                Last scan: {lastMeal.calories} kcal · {lastMeal.name}
+      <PremiumWrapper className="mb-5 block" title="Scan-funktion låst" description="Opgradér til ScanIQ Pro for at scanne din mad." disabled={premium}>
+        <Link
+          to="/scan?auto=1"
+          className="k-tap relative block rounded-3xl overflow-hidden bg-gradient-primary p-6 border-[3px] border-foreground shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.55)] active:scale-[0.98] transition-transform"
+        >
+          <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative flex items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] uppercase tracking-widest text-foreground/80 font-bold mb-0.5">Food scan</div>
+              <div className="font-bold text-foreground text-xl leading-tight">
+                {lastMeal ? "Tap to scan your food 📸" : "Scan your first meal 📸"}
               </div>
-            )}
+              {lastMeal && (
+                <div className="text-xs text-foreground/85 mt-1 font-medium truncate">
+                  Last scan: {lastMeal.calories} kcal · {lastMeal.name}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+      </PremiumWrapper>
 
       <p className="text-xs text-muted-foreground mb-5 italic px-1">{motivation}</p>
 
 
-      {/* Hero ring card */}
-      <div className="k-card p-6 mb-5 bg-gradient-surface relative overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-gradient-primary opacity-20 blur-3xl" />
-        <div className="relative flex flex-col items-center">
-          <Ring value={Math.min(1, eaten / Math.max(1, user.calories))} size={220}>
-            <div className="text-center">
-              <div className="text-5xl font-semibold tracking-tight k-gradient-text">{remaining}</div>
-              <div className="text-xs text-muted-foreground mt-1 tracking-widest uppercase">{t("home.kcal_left")}</div>
+      {/* Hero ring card — KCAL TILBAGE */}
+      <PremiumWrapper className="mb-5 block" title="KCAL tilbage låst" description="Opgradér til ScanIQ Pro for at se dine daglige kalorier." disabled={premium}>
+        <div className="k-card p-6 bg-gradient-surface relative overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-gradient-primary opacity-20 blur-3xl" />
+          <div className="relative flex flex-col items-center">
+            <Ring value={Math.min(1, eaten / Math.max(1, user.calories))} size={220}>
+              <div className="text-center">
+                <div className="text-5xl font-semibold tracking-tight k-gradient-text">{remaining}</div>
+                <div className="text-xs text-muted-foreground mt-1 tracking-widest uppercase">{t("home.kcal_left")}</div>
+              </div>
+            </Ring>
+            <div className="mt-6 grid grid-cols-2 gap-4 w-full max-w-xs text-center">
+              <Stat label={t("home.goal")} value={user.calories} />
+              <Stat label={t("home.eaten")} value={eaten} accent />
             </div>
-          </Ring>
-          <div className="mt-6 grid grid-cols-2 gap-4 w-full max-w-xs text-center">
-            <Stat label={t("home.goal")} value={user.calories} />
-            <Stat label={t("home.eaten")} value={eaten} accent />
-          </div>
-          {/* Tracking progress bar */}
-          <div className="mt-5 w-full">
-            <div className="flex items-baseline justify-between mb-1.5">
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                {Math.round(Math.min(100, (eaten / Math.max(1, user.calories)) * 100))}% {t("home.of_goal")}
-              </span>
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                {Math.max(0, user.calories - eaten)} {t("home.kcal_remaining")}
-              </span>
-            </div>
-            <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-primary rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(100, (eaten / Math.max(1, user.calories)) * 100)}%` }}
-              />
+            {/* Tracking progress bar */}
+            <div className="mt-5 w-full">
+              <div className="flex items-baseline justify-between mb-1.5">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {Math.round(Math.min(100, (eaten / Math.max(1, user.calories)) * 100))}% {t("home.of_goal")}
+                </span>
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {Math.max(0, user.calories - eaten)} {t("home.kcal_remaining")}
+                </span>
+              </div>
+              <div className="h-1.5 bg-surface-3 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-primary rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, (eaten / Math.max(1, user.calories)) * 100)}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </PremiumWrapper>
 
       {/* Daily health verdict */}
       <HealthScoreCard />
