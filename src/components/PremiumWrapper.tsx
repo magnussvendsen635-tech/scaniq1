@@ -27,7 +27,9 @@ export function PremiumWrapper({
   const navigate = useNavigate();
   const { isActive, loading } = useSubscription();
 
-  if (loading) {
+  // Skeleton only when no cached state exists. Non-payers hit the locked
+  // branch immediately via cached isActive=false, so the paywall is never bypassed.
+  if (loading && !isActive) {
     return (
       <div className={"relative " + className} aria-busy="true">
         <div className="absolute inset-0 rounded-3xl bg-muted/40 animate-pulse" />
