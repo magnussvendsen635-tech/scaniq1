@@ -1,5 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Seo } from "@/components/Seo";
 import {
@@ -15,15 +14,6 @@ import {
 } from "lucide-react";
 
 export default function LandingPage() {
-  const nav = useNavigate();
-  const { session } = useAuth();
-
-  // Hvis allerede logget ind, send direkte til dashboardet
-  if (session) {
-    nav("/dashboard", { replace: true });
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Seo
