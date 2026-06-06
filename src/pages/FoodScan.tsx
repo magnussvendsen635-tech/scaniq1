@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
+import { PremiumWrapper } from "@/components/PremiumWrapper";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
