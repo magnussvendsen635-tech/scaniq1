@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Users, Utensils, Dumbbell, Scale, Crown, Ban, Trash2, ShieldOff,
   Search, ArrowUpDown, Wallet, Download, CheckCircle2, DollarSign, AlertTriangle,
+  BarChart3, Tag, Eye, Plus, Power,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,25 +34,29 @@ interface AdminUser {
   is_premium: boolean;
 }
 interface Stats {
-  counts: { users: number; banned: number; meals: number; workouts: number; weights: number; subscriptions: number };
+  counts: {
+    users: number; banned: number; meals: number; workouts: number; weights: number;
+    subscriptions: number; active_subscribers: number; page_views_total: number;
+  };
   users: AdminUser[];
+  scans_daily: { date: string; count: number }[];
+  views_daily: { date: string; count: number }[];
 }
 interface Payout {
-  id: string;
-  user_id: string;
-  amount_cents: number;
-  currency: string;
+  id: string; user_id: string; amount_cents: number; currency: string;
   status: "pending" | "approved" | "paid" | "rejected";
-  paypal_transaction_id: string | null;
-  payout_date: string | null;
-  approved_at: string | null;
-  paid_at: string | null;
-  notes: string | null;
-  created_at: string;
+  paypal_transaction_id: string | null; payout_date: string | null;
+  approved_at: string | null; paid_at: string | null; notes: string | null; created_at: string;
+}
+interface DiscountCode {
+  id: string; code: string; description: string | null;
+  discount_type: string; amount: number; currency: string | null;
+  max_uses: number | null; times_used: number;
+  expires_at: string | null; active: boolean; created_at: string;
 }
 
 type SortKey = "created_at" | "signup_ip" | "device_id" | "email";
-type Tab = "users" | "payouts" | "audit";
+type Tab = "analytics" | "users" | "discounts" | "payouts" | "audit";
 
 export default function Admin() {
   const nav = useNavigate();
@@ -59,14 +64,18 @@ export default function Admin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [payouts, setPayouts] = useState<Payout[]>([]);
+  const [discounts, setDiscounts] = useState<DiscountCode[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>("users");
+  const [tab, setTab] = useState<Tab>("analytics");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("created_at");
   const [busy, setBusy] = useState(false);
   const [payDialog, setPayDialog] = useState<{ open: boolean; payout?: Payout; txn: string }>({ open: false, txn: "" });
+  const [newDiscount, setNewDiscount] = useState({
+    code: "", description: "", discount_type: "percentage", amount: "10",
+    max_uses: "", expires_at: "",
+  });
 
-  // Verify admin via has_role (server-side check is also enforced in edge functions/RLS)
   useEffect(() => {
     if (!user) { setAllowed(false); return; }
     (async () => {
@@ -81,18 +90,17 @@ export default function Admin() {
     else setStats(data as Stats);
   };
   const loadPayouts = async () => {
-    const { data, error } = await supabase
-      .from("payouts")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) setError(error.message);
-    else setPayouts((data as Payout[]) ?? []);
+    const { data, error } = await supabase.from("payouts").select("*").order("created_at", { ascending: false });
+    if (error) setError(error.message); else setPayouts((data as Payout[]) ?? []);
+  };
+  const loadDiscounts = async () => {
+    const { data, error } = await supabase.from("discount_codes" as any).select("*").order("created_at", { ascending: false });
+    if (error) setError(error.message); else setDiscounts((data as unknown as DiscountCode[]) ?? []);
   };
 
   useEffect(() => {
     if (!allowed) return;
-    loadStats();
-    loadPayouts();
+    loadStats(); loadPayouts(); loadDiscounts();
   }, [allowed]);
 
   const userById = useMemo(() => {
@@ -119,45 +127,37 @@ export default function Admin() {
     });
   }, [stats, query, sort]);
 
-  // ───── Actions ─────────────────────────────────────────
-  const callAction = async (action: "ban" | "unban" | "delete", user_id: string, reason?: string) => {
+  const callAction = async (action: "ban" | "unban" | "delete" | "set_premium", user_id: string, extra: Record<string, any> = {}) => {
     setBusy(true);
     try {
       const { error } = await supabase.functions.invoke("admin-user-action", {
-        body: { action, user_id, reason },
+        body: { action, user_id, ...extra },
       });
       if (error) throw error;
-      toast.success(action === "delete" ? "Bruger slettet" : action === "ban" ? "Bruger blokeret" : "Blokering ophævet");
+      const msg: Record<string, string> = {
+        delete: "Bruger slettet", ban: "Bruger blokeret", unban: "Blokering ophævet", set_premium: "Pro-status opdateret",
+      };
+      toast.success(msg[action]);
       await loadStats();
     } catch (e: any) {
       toast.error(e?.message ?? "Handling fejlede");
-    } finally {
-      setBusy(false);
-    }
+    } finally { setBusy(false); }
   };
 
   const approvePayout = async (p: Payout) => {
-    const { error } = await supabase
-      .from("payouts")
+    const { error } = await supabase.from("payouts")
       .update({ status: "approved", approved_at: new Date().toISOString(), approved_by: user!.id })
       .eq("id", p.id);
-    if (error) toast.error(error.message);
-    else { toast.success("Udbetaling godkendt"); loadPayouts(); }
+    if (error) toast.error(error.message); else { toast.success("Udbetaling godkendt"); loadPayouts(); }
   };
   const submitPaid = async () => {
     if (!payDialog.payout) return;
     if (!payDialog.txn.trim()) { toast.error("Indtast PayPal Transaction ID"); return; }
     const now = new Date().toISOString();
-    const { error } = await supabase
-      .from("payouts")
-      .update({
-        status: "paid",
-        paypal_transaction_id: payDialog.txn.trim(),
-        payout_date: now,
-        paid_at: now,
-        paid_by: user!.id,
-      })
-      .eq("id", payDialog.payout.id);
+    const { error } = await supabase.from("payouts").update({
+      status: "paid", paypal_transaction_id: payDialog.txn.trim(),
+      payout_date: now, paid_at: now, paid_by: user!.id,
+    }).eq("id", payDialog.payout.id);
     if (error) { toast.error(error.message); return; }
     toast.success("Markeret som udbetalt");
     setPayDialog({ open: false, txn: "" });
@@ -166,6 +166,35 @@ export default function Admin() {
   const rejectPayout = async (p: Payout) => {
     const { error } = await supabase.from("payouts").update({ status: "rejected" }).eq("id", p.id);
     if (error) toast.error(error.message); else { toast.success("Afvist"); loadPayouts(); }
+  };
+
+  const createDiscount = async () => {
+    const code = newDiscount.code.trim().toUpperCase();
+    if (!code) { toast.error("Indtast en kode"); return; }
+    const amt = Number(newDiscount.amount);
+    if (!Number.isFinite(amt) || amt <= 0) { toast.error("Ugyldigt beløb"); return; }
+    const payload: any = {
+      code,
+      description: newDiscount.description.trim() || null,
+      discount_type: newDiscount.discount_type,
+      amount: amt,
+      max_uses: newDiscount.max_uses ? Number(newDiscount.max_uses) : null,
+      expires_at: newDiscount.expires_at ? new Date(newDiscount.expires_at).toISOString() : null,
+      created_by: user!.id,
+    };
+    const { error } = await supabase.from("discount_codes" as any).insert(payload);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Rabatkode oprettet");
+    setNewDiscount({ code: "", description: "", discount_type: "percentage", amount: "10", max_uses: "", expires_at: "" });
+    loadDiscounts();
+  };
+  const toggleDiscount = async (d: DiscountCode) => {
+    const { error } = await supabase.from("discount_codes" as any).update({ active: !d.active }).eq("id", d.id);
+    if (error) toast.error(error.message); else loadDiscounts();
+  };
+  const deleteDiscount = async (d: DiscountCode) => {
+    const { error } = await supabase.from("discount_codes" as any).delete().eq("id", d.id);
+    if (error) toast.error(error.message); else { toast.success("Slettet"); loadDiscounts(); }
   };
 
   const exportPaidCsv = () => {
@@ -178,19 +207,14 @@ export default function Admin() {
       p.currency,
       p.paypal_transaction_id ?? "",
     ]);
-    const csv = [header, ...rows]
-      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
+    const csv = [header, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download = `payouts-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
+    a.href = url; a.download = `payouts-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
     URL.revokeObjectURL(url);
   };
 
-  // ───── Guards ──────────────────────────────────────────
   if (allowed === null) return <div className="k-page">Indlæser…</div>;
   if (!allowed) {
     return (
@@ -226,27 +250,53 @@ export default function Admin() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-5">
         <Stat Icon={Users} label="Brugere" value={stats?.counts.users} />
+        <Stat Icon={Crown} label="Aktive abon." value={stats?.counts.active_subscribers} />
+        <Stat Icon={Eye} label="Sidevisn." value={stats?.counts.page_views_total} />
         <Stat Icon={Ban} label="Blokeret" value={stats?.counts.banned} danger={(stats?.counts.banned ?? 0) > 0} />
-        <Stat Icon={Crown} label="Abon." value={stats?.counts.subscriptions} />
         <Stat Icon={Utensils} label="Måltider" value={stats?.counts.meals} />
         <Stat Icon={Dumbbell} label="Workouts" value={stats?.counts.workouts} />
-        <Stat Icon={Scale} label="Vejninger" value={stats?.counts.weights} />
       </div>
 
       {/* Tabs */}
-      <div className="k-card p-1 mb-4 grid grid-cols-3 gap-1">
-        {(["users", "payouts", "audit"] as const).map((t) => (
+      <div className="k-card p-1 mb-4 grid grid-cols-5 gap-1">
+        {(["analytics", "users", "discounts", "payouts", "audit"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`py-2 rounded-xl text-xs font-medium uppercase tracking-widest ${
+            className={`py-2 rounded-xl text-[10px] font-medium uppercase tracking-widest ${
               tab === t ? "bg-gradient-primary text-primary-foreground" : "text-muted-foreground"
             }`}
           >
-            {t === "users" ? "Brugere" : t === "payouts" ? "Udbetalinger" : "Audit log"}
+            {t === "analytics" ? "Analytics" : t === "users" ? "Brugere" : t === "discounts" ? "Rabat" : t === "payouts" ? "Udbetal." : "Audit"}
           </button>
         ))}
       </div>
+
+      {/* ANALYTICS tab */}
+      {tab === "analytics" && (
+        <div className="space-y-3">
+          <div className="k-card p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <BarChart3 className="w-4 h-4 text-primary-glow" />
+              <span className="text-sm font-semibold">AI scans (sidste 30 dage)</span>
+              <span className="ml-auto text-xs text-muted-foreground">
+                Total: {stats?.scans_daily.reduce((s, d) => s + d.count, 0) ?? 0}
+              </span>
+            </div>
+            <BarSeries data={stats?.scans_daily ?? []} color="hsl(var(--primary))" />
+          </div>
+          <div className="k-card p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Eye className="w-4 h-4 text-primary-glow" />
+              <span className="text-sm font-semibold">Sidevisninger (sidste 30 dage)</span>
+              <span className="ml-auto text-xs text-muted-foreground">
+                Total: {stats?.views_daily.reduce((s, d) => s + d.count, 0) ?? 0}
+              </span>
+            </div>
+            <BarSeries data={stats?.views_daily ?? []} color="hsl(var(--primary-glow))" />
+          </div>
+        </div>
+      )}
 
       {/* USERS tab */}
       {tab === "users" && (
@@ -254,18 +304,9 @@ export default function Admin() {
           <div className="p-3 flex items-center gap-2 border-b border-border/60">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Søg email, IP eller Device ID"
-                className="pl-9 h-9 bg-background"
-              />
+              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Søg email, IP eller Device ID" className="pl-9 h-9 bg-background" />
             </div>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
-              className="text-xs bg-background border border-border/60 rounded-lg px-2 py-2"
-            >
+            <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="text-xs bg-background border border-border/60 rounded-lg px-2 py-2">
               <option value="created_at">Reg. dato</option>
               <option value="email">Email</option>
               <option value="signup_ip">IP</option>
@@ -301,6 +342,15 @@ export default function Admin() {
                     )}
                   </div>
                   <div className="flex flex-col gap-1 items-end shrink-0">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={busy}
+                      onClick={() => callAction("set_premium", u.id, { is_premium: !u.is_premium })}
+                      className={u.is_premium ? "border-primary text-primary" : ""}
+                    >
+                      <Crown className="w-3 h-3 mr-1" /> {u.is_premium ? "Fjern Pro" : "Giv Pro"}
+                    </Button>
                     {u.is_banned ? (
                       <Button size="sm" variant="outline" disabled={busy} onClick={() => callAction("unban", u.id)}>
                         <ShieldOff className="w-3 h-3 mr-1" /> Ophæv
@@ -315,16 +365,11 @@ export default function Admin() {
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>Bloker {u.email}?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Brugeren logges ud øjeblikkeligt og kan ikke logge ind igen.
-                            </AlertDialogDescription>
+                            <AlertDialogDescription>Brugeren logges ud øjeblikkeligt og kan ikke logge ind igen.</AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Annuller</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-destructive text-destructive-foreground"
-                              onClick={() => callAction("ban", u.id, "Manual ban via admin")}
-                            >
+                            <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={() => callAction("ban", u.id, { reason: "Manual ban via admin" })}>
                               Bloker
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -340,16 +385,11 @@ export default function Admin() {
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Slet {u.email}?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Brugeren og alle tilknyttede data slettes permanent. Dette kan ikke fortrydes.
-                          </AlertDialogDescription>
+                          <AlertDialogDescription>Brugeren og alle tilknyttede data slettes permanent. Dette kan ikke fortrydes.</AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Annuller</AlertDialogCancel>
-                          <AlertDialogAction
-                            className="bg-destructive text-destructive-foreground"
-                            onClick={() => callAction("delete", u.id)}
-                          >
+                          <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={() => callAction("delete", u.id)}>
                             Slet permanent
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -363,6 +403,78 @@ export default function Admin() {
             {stats && filteredUsers.length === 0 && (
               <div className="px-4 py-6 text-sm text-muted-foreground text-center">Ingen brugere matcher</div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* DISCOUNTS tab */}
+      {tab === "discounts" && (
+        <div className="space-y-3">
+          <div className="k-card p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Plus className="w-4 h-4 text-primary-glow" />
+              <span className="text-sm font-semibold">Opret rabatkode</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Input placeholder="KODE" value={newDiscount.code} onChange={(e) => setNewDiscount({ ...newDiscount, code: e.target.value })} />
+              <select className="h-10 rounded-xl bg-background border border-border/60 px-3 text-sm"
+                value={newDiscount.discount_type}
+                onChange={(e) => setNewDiscount({ ...newDiscount, discount_type: e.target.value })}>
+                <option value="percentage">Procent (%)</option>
+                <option value="flat">Fast beløb</option>
+              </select>
+              <Input type="number" placeholder="Beløb / %" value={newDiscount.amount} onChange={(e) => setNewDiscount({ ...newDiscount, amount: e.target.value })} />
+              <Input type="number" placeholder="Max brug (valgfri)" value={newDiscount.max_uses} onChange={(e) => setNewDiscount({ ...newDiscount, max_uses: e.target.value })} />
+              <Input placeholder="Beskrivelse" value={newDiscount.description} onChange={(e) => setNewDiscount({ ...newDiscount, description: e.target.value })} className="col-span-2" />
+              <Input type="datetime-local" placeholder="Udløber" value={newDiscount.expires_at} onChange={(e) => setNewDiscount({ ...newDiscount, expires_at: e.target.value })} className="col-span-2" />
+            </div>
+            <Button onClick={createDiscount} className="w-full mt-3">Opret rabatkode</Button>
+            <p className="text-[10px] text-muted-foreground mt-2">
+              Bemærk: Selve rabatten skal også oprettes i Paddle for at virke ved checkout. Dette er en intern tracker.
+            </p>
+          </div>
+
+          <div className="k-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
+              <Tag className="w-4 h-4 text-primary-glow" />
+              <span className="text-sm font-semibold">Rabatkoder</span>
+              <span className="text-xs text-muted-foreground ml-auto">{discounts.length} i alt</span>
+            </div>
+            <div className="divide-y divide-border/60 max-h-[50vh] overflow-y-auto">
+              {discounts.map((d) => {
+                const expired = d.expires_at && new Date(d.expires_at) < new Date();
+                const used_up = d.max_uses != null && d.times_used >= d.max_uses;
+                return (
+                  <div key={d.id} className="px-4 py-3 flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm font-semibold">{d.code}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {d.discount_type === "percentage" ? `${d.amount}%` : `${d.amount} ${d.currency ?? ""}`}
+                        </span>
+                        {!d.active && <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-muted">inaktiv</span>}
+                        {expired && <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300">udløbet</span>}
+                        {used_up && <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-700 dark:text-yellow-300">opbrugt</span>}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        {d.description && <span>{d.description} · </span>}
+                        Brugt: {d.times_used}{d.max_uses != null ? `/${d.max_uses}` : ""}
+                        {d.expires_at && ` · Udløber ${new Date(d.expires_at).toLocaleDateString()}`}
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => toggleDiscount(d)}>
+                      <Power className="w-3 h-3 mr-1" /> {d.active ? "Deaktiver" : "Aktiver"}
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteDiscount(d)}>
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                );
+              })}
+              {discounts.length === 0 && (
+                <div className="px-4 py-6 text-sm text-muted-foreground text-center">Ingen rabatkoder endnu</div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -401,9 +513,7 @@ export default function Admin() {
                       </Button>
                     )}
                     {p.status !== "rejected" && p.status !== "paid" && (
-                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => rejectPayout(p)}>
-                        Afvis
-                      </Button>
+                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => rejectPayout(p)}>Afvis</Button>
                     )}
                   </div>
                 </div>
@@ -416,7 +526,7 @@ export default function Admin() {
         </div>
       )}
 
-      {/* AUDIT tab — paid payouts log */}
+      {/* AUDIT tab */}
       {tab === "audit" && (
         <div className="k-card overflow-hidden">
           <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
@@ -457,19 +567,13 @@ export default function Admin() {
         </div>
       )}
 
-      {/* PayPal Transaction ID dialog */}
       <Dialog open={payDialog.open} onOpenChange={(o) => setPayDialog((d) => ({ ...d, open: o }))}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Marker som betalt</DialogTitle>
             <DialogDescription>Indtast PayPal Transaction ID for bogføring.</DialogDescription>
           </DialogHeader>
-          <Input
-            value={payDialog.txn}
-            onChange={(e) => setPayDialog((d) => ({ ...d, txn: e.target.value }))}
-            placeholder="f.eks. 1AB23456CD789012E"
-            autoFocus
-          />
+          <Input value={payDialog.txn} onChange={(e) => setPayDialog((d) => ({ ...d, txn: e.target.value }))} placeholder="f.eks. 1AB23456CD789012E" autoFocus />
           <DialogFooter>
             <Button variant="outline" onClick={() => setPayDialog({ open: false, txn: "" })}>Annuller</Button>
             <Button onClick={submitPaid}>Bekræft betaling</Button>
@@ -491,3 +595,27 @@ const Stat = ({ Icon, label, value, danger }: { Icon: any; label: string; value?
     <div className={`text-xl font-semibold ${danger ? "text-red-600" : ""}`}>{value ?? "—"}</div>
   </div>
 );
+
+const BarSeries = ({ data, color }: { data: { date: string; count: number }[]; color: string }) => {
+  const max = Math.max(1, ...data.map((d) => d.count));
+  return (
+    <div>
+      <div className="flex items-end gap-[2px] h-32">
+        {data.map((d) => (
+          <div key={d.date} className="flex-1 flex flex-col items-center justify-end group relative">
+            <div
+              className="w-full rounded-t transition-all hover:opacity-80"
+              style={{ height: `${(d.count / max) * 100}%`, minHeight: d.count > 0 ? 2 : 0, background: color }}
+              title={`${d.date}: ${d.count}`}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-between text-[9px] text-muted-foreground mt-1 font-mono">
+        <span>{data[0]?.date.slice(5)}</span>
+        <span>{data[Math.floor(data.length / 2)]?.date.slice(5)}</span>
+        <span>{data[data.length - 1]?.date.slice(5)}</span>
+      </div>
+    </div>
+  );
+};
