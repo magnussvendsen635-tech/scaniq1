@@ -987,7 +987,9 @@ export default function FoodScan() {
                   className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
                 >
                   <Camera className="w-5 h-5 mr-1" />
-                  {previews.length === 0 ? `Take photo 1 of ${REQUIRED_PHOTOS}` : `Take photo ${previews.length + 1} of ${REQUIRED_PHOTOS}`}
+                  {previews.length === 0
+                    ? `Take first photo (0/${REQUIRED_PHOTOS})`
+                    : `Take next photo (${previews.length}/${REQUIRED_PHOTOS})`}
                 </Button>
               )}
 
