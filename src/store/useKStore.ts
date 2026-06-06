@@ -298,7 +298,7 @@ export const useKStore = create<KState>()(
       setAutoAdjustGoal: (v) => set({ autoAdjustGoal: v }),
       recomputePlan: () => {
         const u = get().user;
-        const plan = computePlan({ weight: u.weight, height: u.height, activity: u.activity, goal: u.goal });
+        const plan = computePlan({ weight: u.weight, height: u.height, activity: u.activity, goal: u.goal, sex: u.sex, age: u.age });
         set({ user: { ...u, ...plan } });
       },
       freezesLeftThisWeek: () => {
