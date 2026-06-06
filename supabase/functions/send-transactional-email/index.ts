@@ -150,6 +150,23 @@ Deno.serve(async (req) => {
     )
   }
 
+  // Authorization: end-user callers may only trigger an allowlisted template
+  // sent to their own email. service_role bypasses this restriction.
+  if (!isServiceRole) {
+    if (!CLIENT_ALLOWED_TEMPLATES.has(templateName)) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: template not callable by clients' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+    if (!callerEmail || effectiveRecipient.toLowerCase() !== callerEmail) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: recipient must match authenticated user' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+  }
+
   // Create Supabase client with service role (bypasses RLS)
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
