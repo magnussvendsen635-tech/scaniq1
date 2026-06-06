@@ -78,7 +78,6 @@ export default function Profile() {
     <div className="k-page">
       <header className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-semibold tracking-tight">{t("profile.title")}</h1>
-        <Logo size={36} />
       </header>
 
       {/* Hero */}
