@@ -3,13 +3,12 @@ import { Logo } from "@/components/Logo";
 import { Seo } from "@/components/Seo";
 import {
   ScanLine,
-  Flame,
+  BarChart3,
   Droplets,
   Heart,
   Zap,
   ChevronRight,
   Apple,
-  Salad,
   Trophy,
 } from "lucide-react";
 
@@ -17,7 +16,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Seo
-        title="ScanIQ — AI-drevet kalorie- og ernæringstracker"
+        title="ScanIQ"
         description="Scan din mad med ét billede. ScanIQ analyserer kalorier, makroer og sundhedsscore automatisk og hjælper dig med at nå dine mål."
         path="/"
       />
@@ -70,7 +69,7 @@ export default function LandingPage() {
             desc="Tag et billede — AI genkender ingredienser og beregner kalorier på sekunder."
           />
           <FeatureCard
-            Icon={Flame}
+            Icon={BarChart3}
             title="Kalorie-tracking"
             desc="Se dit daglige kaloriebudget, forbrug og resterende kcal i realtid."
           />

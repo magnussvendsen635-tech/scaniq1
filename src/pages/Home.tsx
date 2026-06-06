@@ -32,7 +32,7 @@ export default function Home() {
   return (
     <div className="k-page pb-32">
       <Seo
-        title="ScanIQ — AI-drevet kalorie- og ernæringstracker"
+        title="ScanIQ"
         description="Scan din mad med ét billede. ScanIQ analyserer kalorier, makroer og sundhedsscore automatisk og hjælper dig med at nå dine mål."
         path="/"
       />
