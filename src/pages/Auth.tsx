@@ -113,7 +113,7 @@ export default function Auth() {
       />
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <Logo size={56} />
+          <Logo size={72} />
           <h1 className="text-3xl font-semibold tracking-tight mt-4">
             {mode === "signin" ? t("auth.welcome_back") : mode === "signup" ? t("auth.create_account") : "Glemt adgangskode"}
           </h1>
