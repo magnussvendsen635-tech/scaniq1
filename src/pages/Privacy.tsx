@@ -40,10 +40,16 @@ export default function Privacy() {
           </ul>
         </Section>
 
-        <Section title="2. Hvem vi er">
+        <Section title="2. Hvem vi er (dataansvarlig)">
           <p>
-            ScanIQ drives af ScanIQ. Spørgsmål om dine data eller denne politik kan sendes
-            til <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">scaniqapp1@gmail.com</a>.
+            ScanIQ-appen drives og leveres af <b>KCALLY</b> (handelsnavn:
+            ScanIQ), som er <b>dataansvarlig</b> for behandlingen af dine
+            personoplysninger. Spørgsmål om dine data eller denne politik
+            kan sendes til{" "}
+            <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">scaniqapp1@gmail.com</a>.
+            Betalinger på web håndteres af <b>Paddle.com Market Limited</b>
+            som Merchant of Record og selvstændig dataansvarlig for
+            betalingsdata.
           </p>
         </Section>
 
