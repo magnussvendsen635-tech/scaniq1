@@ -141,7 +141,6 @@ const App = () => {
               <Route path="*" element={<Navigate to="/onboarding" replace />} />
             ) : (
               <>
-                <Route path="/" element={<Shell><Home /></Shell>} />
                 <Route path="/scan" element={<Shell><FoodScan /></Shell>} />
                 
                 <Route path="/diary" element={<Shell><Diary /></Shell>} />
