@@ -35,13 +35,19 @@ Deno.serve(async (req) => {
       });
     }
 
-    const [{ data: users }, mealsRes, workoutsRes, weightsRes, subsRes, profilesRes] = await Promise.all([
+    const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [{ data: users }, mealsRes, workoutsRes, weightsRes, subsRes, activeSubsRes, profilesRes, scansRes, viewsRes, viewsTotalRes] = await Promise.all([
       admin.auth.admin.listUsers({ perPage: 500 }),
       admin.from("meals").select("id", { count: "exact", head: true }),
       admin.from("workouts").select("id", { count: "exact", head: true }),
       admin.from("weights").select("id", { count: "exact", head: true }),
       admin.from("subscriptions").select("id", { count: "exact", head: true }),
+      admin.from("subscriptions").select("id", { count: "exact", head: true }).in("status", ["active", "trialing"]),
       admin.from("profiles").select("id, email, display_name, is_banned, banned_at, ban_reason, signup_ip, device_id, email_verified_at, created_at, is_premium"),
+      admin.from("meals").select("created_at").gte("created_at", since30),
+      admin.from("page_views").select("created_at").gte("created_at", since30),
+      admin.from("page_views").select("id", { count: "exact", head: true }),
     ]);
 
     const profileMap = new Map<string, any>();
@@ -65,6 +71,19 @@ Deno.serve(async (req) => {
       };
     });
 
+    // Daily series for last 30 days
+    const dayKey = (iso: string) => new Date(iso).toISOString().slice(0, 10);
+    const buildSeries = (rows: { created_at: string }[] | null) => {
+      const counts = new Map<string, number>();
+      for (const r of rows ?? []) counts.set(dayKey(r.created_at), (counts.get(dayKey(r.created_at)) ?? 0) + 1);
+      const out: { date: string; count: number }[] = [];
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        out.push({ date: d, count: counts.get(d) ?? 0 });
+      }
+      return out;
+    };
+
     return new Response(
       JSON.stringify({
         counts: {
@@ -74,8 +93,12 @@ Deno.serve(async (req) => {
           workouts: workoutsRes.count ?? 0,
           weights: weightsRes.count ?? 0,
           subscriptions: subsRes.count ?? 0,
+          active_subscribers: activeSubsRes.count ?? 0,
+          page_views_total: viewsTotalRes.count ?? 0,
         },
         users: userList,
+        scans_daily: buildSeries(scansRes.data as any),
+        views_daily: buildSeries(viewsRes.data as any),
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

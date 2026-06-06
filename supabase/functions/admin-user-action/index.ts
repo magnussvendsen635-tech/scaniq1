@@ -7,9 +7,10 @@ const corsHeaders = {
 };
 
 interface Body {
-  action: "ban" | "unban" | "delete";
+  action: "ban" | "unban" | "delete" | "set_premium";
   user_id: string;
   reason?: string;
+  is_premium?: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -46,7 +47,6 @@ Deno.serve(async (req) => {
         banned_at: new Date().toISOString(),
         ban_reason: body.reason ?? null,
       }).eq("id", body.user_id);
-      // Invalidate all sessions for the banned user
       await admin.auth.admin.updateUserById(body.user_id, { ban_duration: "876000h" });
       return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
@@ -58,6 +58,14 @@ Deno.serve(async (req) => {
         ban_reason: null,
       }).eq("id", body.user_id);
       await admin.auth.admin.updateUserById(body.user_id, { ban_duration: "none" });
+      return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    if (body.action === "set_premium") {
+      const { error } = await admin.from("profiles")
+        .update({ is_premium: !!body.is_premium })
+        .eq("id", body.user_id);
+      if (error) throw error;
       return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
