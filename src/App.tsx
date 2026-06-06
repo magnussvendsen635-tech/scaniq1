@@ -51,6 +51,19 @@ const Shell = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+const RootRoute = () => {
+  const { session, loading } = useAuth();
+  const onboarded = useKStore((s) => s.onboarded);
+  if (loading) return <div className="min-h-screen bg-background" />;
+  if (!session) return <LandingPage />;
+  if (!onboarded) return <Navigate to="/onboarding" replace />;
+  return (
+    <Shell>
+      <Home />
+    </Shell>
+  );
+};
+
 const App = () => {
   const onboarded = useKStore((s) => s.onboarded);
   const language = useKStore((s) => s.language);
