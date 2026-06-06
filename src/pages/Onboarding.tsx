@@ -77,7 +77,7 @@ export default function Onboarding() {
       setLoadingMsg(tt(m));
       await new Promise((r) => setTimeout(r, 900));
     }
-    const p = computePlan({ weight, height, goal, activity });
+    const p = computePlan({ weight, height, goal, activity, sex, age });
     setPlan(p);
     setStep(TOTAL_QUESTIONS + 1);
   };
@@ -85,7 +85,7 @@ export default function Onboarding() {
   const finish = () => {
     if (!plan) return;
     setLanguage(lang);
-    updateUser({ name: name.trim(), age, weight, targetWeight, height, goal, activity, pace, frequency, diet, ...plan });
+    updateUser({ name: name.trim(), age, weight, targetWeight, height, goal, sex, activity, pace, frequency, diet, ...plan });
     setOnboarded(true);
     nav("/premium", { replace: true });
   };
