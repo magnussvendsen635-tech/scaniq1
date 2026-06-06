@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useKStore, caloriesToday, macrosToday, caloriesBurnedToday } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Ring } from "@/components/Ring";
-import { BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, ScanLine, Scale } from "lucide-react";
+import { BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, Scale } from "lucide-react";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 import { PremiumWrapper } from "@/components/PremiumWrapper";
