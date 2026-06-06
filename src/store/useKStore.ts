@@ -173,6 +173,7 @@ export const useKStore = create<KState>()(
         targetWeight: 73,
         height: 175,
         goal: "lose",
+        sex: "male",
         activity: "moderate",
         pace: "balanced",
         frequency: "2-3",
