@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
-import { useKStore } from "@/store/useKStore";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
 interface PremiumWrapperProps {
@@ -10,27 +9,25 @@ interface PremiumWrapperProps {
   className?: string;
   title?: string;
   description?: string;
+  /** Deprecated: kept for compatibility, ignored. Hard paywall is always on. */
   disabled?: boolean;
 }
 
 /**
- * Gates content behind an active subscription.
- * Non-premium users see the content heavily blurred. Tapping anywhere on
- * the locked area redirects to the /premium upgrade page.
+ * Hard paywall gate: content is blurred and clicking redirects to /premium.
+ * Unlock state is driven exclusively by a server-verified active subscription
+ * (useSubscription.isActive). No local flag or timer can bypass the lock.
  */
 export function PremiumWrapper({
   children,
   className = "",
   title = "Premium-funktion",
   description = "Opgradér til ScanIQ Pro for at låse op.",
-  disabled = false,
 }: PremiumWrapperProps) {
   const navigate = useNavigate();
   const { isActive } = useSubscription();
-  const localPremium = useKStore((s) => s.premium);
-  const unlocked = disabled || isActive || localPremium;
 
-  if (unlocked) return <div className={className}>{children}</div>;
+  if (isActive) return <div className={className}>{children}</div>;
 
   const goPremium = () => navigate("/premium");
 
