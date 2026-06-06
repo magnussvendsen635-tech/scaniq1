@@ -1337,6 +1337,7 @@ export default function FoodScan() {
           </div>
         </div>
       )}
+      </PremiumWrapper>
     </div>
   );
 }
