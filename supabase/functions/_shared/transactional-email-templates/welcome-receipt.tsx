@@ -44,10 +44,8 @@ const copy = {
     features: [
       'Up to 20 scans per day',
       'Advanced macro insights',
-      '600+ premium workouts',
       'Progress trends & exports',
       'Priority new features',
-      '2 x weekly Streak Freezes for your flame',
     ],
     receiptTitle: 'YOUR RECEIPT',
     order: 'Order',
