@@ -751,6 +751,12 @@ export default function FoodScan() {
         </span>
       </header>
 
+      <PremiumWrapper
+        title="Scan er en Premium-funktion"
+        description="Opgradér til ScanIQ Pro for at scanne mad og se detaljerede resultater."
+      >
+
+
       <input
         ref={fileRef}
         type="file"
