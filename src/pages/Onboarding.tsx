@@ -130,6 +130,15 @@ export default function Onboarding() {
         )}
 
         {step === 2 && (
+          <Step title="Hvad er dit køn?" sub="Vi bruger dette til at beregne præcise kalorier og makroer for dig.">
+            <div className="space-y-3">
+              <SelectCard active={sex === "male"} onClick={() => setSex("male")} title="Mand" sub="Beregner BMR for mandlig fysiologi" Icon={UserIcon} />
+              <SelectCard active={sex === "female"} onClick={() => setSex("female")} title="Kvinde" sub="Beregner BMR for kvindelig fysiologi" Icon={UserIcon} />
+            </div>
+          </Step>
+        )}
+
+        {step === 3 && (
           <Step title={tt("onboarding.q_goal")} sub={tt("onboarding.q_goal_sub")}>
             <div className="space-y-3">
               {goals.map(({ id, titleKey, subKey, Icon }) => (
@@ -139,31 +148,31 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <Step title={tt("onboarding.q_age")} sub={tt("onboarding.q_age_sub")}>
             <NumberInput value={age} onChange={setAge} suffix={tt("onboarding.suffix_yrs")} min={13} max={100} />
           </Step>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <Step title={tt("onboarding.q_height")} sub={tt("onboarding.q_height_sub")}>
             <NumberInput value={height} onChange={setHeight} suffix={tt("onboarding.suffix_cm")} min={120} max={230} />
           </Step>
         )}
 
-        {step === 5 && (
+        {step === 6 && (
           <Step title={tt("onboarding.q_weight")} sub={tt("onboarding.q_weight_sub")}>
             <NumberInput value={weight} onChange={setWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
           </Step>
         )}
 
-        {step === 6 && (
+        {step === 7 && (
           <Step title={tt("onboarding.q_target")} sub={tt("onboarding.q_target_sub")}>
             <NumberInput value={targetWeight} onChange={setTargetWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
           </Step>
         )}
 
-        {step === 7 && (
+        {step === 8 && (
           <Step title={tt("onboarding.q_pace")} sub={tt("onboarding.q_pace_sub")}>
             <div className="space-y-3">
               {paces.map(({ id, titleKey, subKey, Icon }) => (
@@ -173,7 +182,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 8 && (
+        {step === 9 && (
           <Step title={tt("onboarding.q_freq")} sub={tt("onboarding.q_freq_sub")}>
             <div className="space-y-2.5">
               {frequencies.map((f) => (
@@ -196,7 +205,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 9 && (
+        {step === 10 && (
           <Step title={tt("onboarding.q_diet")} sub={tt("onboarding.q_diet_sub")}>
             <div className="space-y-3">
               {diets.map(({ id, titleKey, subKey, Icon }) => (
@@ -206,7 +215,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 10 && (
+        {step === 11 && (
           <Step title={tt("onboarding.q_activity")} sub={tt("onboarding.q_activity_sub")}>
             <div className="space-y-2.5">
               {activities.map((a) => (
@@ -229,7 +238,7 @@ export default function Onboarding() {
           </Step>
         )}
 
-        {step === 11 && (
+        {step === 12 && (
           <Step title={tt("onboarding.health_title")} sub={tt("onboarding.health_sub")}>
             <div className="k-card p-6 flex flex-col items-center text-center gap-5">
               <div className="w-20 h-20 rounded-3xl bg-gradient-soft flex items-center justify-center">
