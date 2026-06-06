@@ -295,7 +295,7 @@ export default function Onboarding() {
       </div>
 
       <div className="pt-8 flex gap-3">
-        {step < TOTAL_QUESTIONS && step > 0 && step !== 11 && (
+        {step < TOTAL_QUESTIONS && step > 0 && step !== 12 && (
           <Button
             size="lg"
             variant="outline"
