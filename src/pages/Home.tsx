@@ -6,6 +6,7 @@ import { BarChart3, User, Flame, ChevronRight, Heart, Leaf, Sparkles, Scale } fr
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
 import { PremiumWrapper } from "@/components/PremiumWrapper";
+import { useSubscription } from "@/hooks/useSubscription";
 
 import { HealthScoreCard } from "@/components/HealthScoreCard";
 import { HealthSyncCard } from "@/components/HealthSyncCard";
@@ -16,7 +17,8 @@ import { Seo } from "@/components/Seo";
 
 export default function Home() {
   const t = useT();
-  const { user, meals, workouts, streak, premium } = useKStore();
+  const { user, meals, workouts, streak } = useKStore();
+  const { isActive: premium } = useSubscription();
   const eaten = caloriesToday(meals);
   const burned = caloriesBurnedToday(workouts);
   const remaining = Math.max(0, user.calories - eaten + burned);
@@ -47,7 +49,7 @@ export default function Home() {
       </header>
 
       {/* PRIMARY CTA — AI food scan is the hero of the app */}
-      <PremiumWrapper className="mb-5 block" title="Scan-funktion låst" description="Opgradér til ScanIQ Pro for at scanne din mad." disabled={premium}>
+      <PremiumWrapper className="mb-5 block" title="Scan-funktion låst" description="Opgradér til ScanIQ Pro for at scanne din mad.">
         <Link
           to="/scan?auto=1"
           className="k-tap relative block rounded-3xl overflow-hidden bg-gradient-primary p-6 border-[3px] border-foreground shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.55)] active:scale-[0.98] transition-transform"
@@ -73,7 +75,7 @@ export default function Home() {
 
 
       {/* Hero ring card — KCAL TILBAGE */}
-      <PremiumWrapper className="mb-5 block" title="KCAL tilbage låst" description="Opgradér til ScanIQ Pro for at se dine daglige kalorier." disabled={premium}>
+      <PremiumWrapper className="mb-5 block" title="KCAL tilbage låst" description="Opgradér til ScanIQ Pro for at se dine daglige kalorier.">
         <div className="k-card p-6 bg-gradient-surface relative overflow-hidden">
           <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-gradient-primary opacity-20 blur-3xl" />
           <div className="relative flex flex-col items-center">
