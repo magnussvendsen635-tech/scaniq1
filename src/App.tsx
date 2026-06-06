@@ -40,6 +40,7 @@ import LandingPage from "./pages/LandingPage";
 import { CookieConsent } from "@/components/CookieConsent";
 import { UpgradeFab } from "@/components/UpgradeFab";
 import { SplashScreen } from "@/components/SplashScreen";
+import { PageViewTracker } from "@/components/PageViewTracker";
 
 const queryClient = new QueryClient();
 
@@ -123,6 +124,7 @@ const App = () => {
         <Toaster />
         <Sonner theme="dark" />
         <BrowserRouter>
+          <PageViewTracker />
           <Routes>
             <Route path="/" element={<RootRoute />} />
             <Route path="/auth" element={<Auth />} />
