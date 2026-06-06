@@ -77,6 +77,27 @@ const App = () => {
     };
   }, []);
 
+  // Force midnight UI reset so daily totals (kcal, water, health score) start at 0
+  // when the local day rolls over while the app is open. Historical data stays intact.
+  useEffect(() => {
+    let lastDay = new Date().toDateString();
+    const tick = () => {
+      const now = new Date().toDateString();
+      if (now !== lastDay) {
+        lastDay = now;
+        // Bump a noop state to trigger re-render of all useKStore subscribers
+        useKStore.setState((s) => ({ ...s }));
+      }
+    };
+    const interval = window.setInterval(tick, 30 * 1000);
+    const onVis = () => { if (document.visibilityState === "visible") tick(); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, []);
+
   // Re-schedule native reminders whenever settings or logged meals change.
   useEffect(() => {
     if (!reminders.enabled) return;
