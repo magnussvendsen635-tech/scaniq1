@@ -63,6 +63,7 @@ export interface UserProfile {
   targetWeight: number; // kg
   height: number; // cm
   goal: Goal;
+  sex: Sex;
   activity: Activity;
   pace: Pace;
   frequency: Frequency;
