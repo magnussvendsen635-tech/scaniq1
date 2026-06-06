@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet } from "@/store/useKStore";
+import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet, type Sex } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { translate, type TKey } from "@/i18n/translations";
-import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf, Heart } from "lucide-react";
+import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf, Heart, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isHealthAvailable, requestHealthPermissions } from "@/lib/health";
 import { toast } from "sonner";
 
-const TOTAL_QUESTIONS = 12; // steps 0..11 (0 = language, 1 = name, 11 = Apple Health)
+const TOTAL_QUESTIONS = 13; // steps 0..12 (0 = language, 1 = name, 2 = sex, 12 = Apple Health)
 
 export default function Onboarding() {
   const nav = useNavigate();
