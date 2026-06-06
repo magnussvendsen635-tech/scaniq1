@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, type Goal, type Activity } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronRight, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { LANGUAGES } from "@/data/languages";
 import { LanguagePicker } from "@/components/LanguagePicker";
@@ -10,14 +10,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useT } from "@/i18n/useT";
 import { translate } from "@/i18n/translations";
 import { HealthSyncCard } from "@/components/HealthSyncCard";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Settings() {
   const nav = useNavigate();
   const t = useT();
+  const { user: authUser } = useAuth();
   const { user, updateUser, language, setLanguage, calorieAccuracy, setCalorieAccuracy } = useKStore();
   const [form, setForm] = useState(user);
   const [langOpen, setLangOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const currentLang = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!authUser) { setIsAdmin(false); return; }
+    supabase.rpc("has_role", { _user_id: authUser.id, _role: "admin" }).then(({ data, error }) => {
+      if (!cancelled) setIsAdmin(!error && data === true);
+    });
+    return () => { cancelled = true; };
+  }, [authUser]);
 
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm({ ...form, [k]: v });
 
