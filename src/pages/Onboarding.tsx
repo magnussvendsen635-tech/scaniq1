@@ -306,7 +306,7 @@ export default function Onboarding() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
         )}
-        {step < TOTAL_QUESTIONS && step !== 11 && (
+        {step < TOTAL_QUESTIONS && step !== 12 && (
           <Button
             size="lg"
             className="group flex-1 h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
