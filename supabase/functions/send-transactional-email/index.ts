@@ -26,14 +26,47 @@ function generateToken(): string {
 }
 
 // Auth note: this function uses verify_jwt = true in config.toml, so Supabase's
-// gateway validates the caller's JWT (anon or service_role) before the request
-// reaches this code. No in-function auth check is needed.
+// gateway validates that a JWT is present. We additionally enforce per-caller
+// authorization below: service_role callers (e.g. payments-webhook) may send to
+// any recipient using any registered template; end-user callers (anon-keyed JWT
+// with a real `sub`) may only send to their own email and only with templates
+// in CLIENT_ALLOWED_TEMPLATES.
+const CLIENT_ALLOWED_TEMPLATES = new Set<string>(['welcome-receipt']);
+
+function parseJwtClaims(token: string): Record<string, unknown> | null {
+  const parts = token.split('.');
+  if (parts.length < 2) return null;
+  try {
+    const payload = parts[1]
+      .replaceAll('-', '+')
+      .replaceAll('_', '/')
+      .padEnd(Math.ceil(parts[1].length / 4) * 4, '=');
+    return JSON.parse(atob(payload)) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
+
+  // Authorize caller — distinguish service_role from end users
+  const authHeader = req.headers.get('Authorization') ?? ''
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length).trim() : ''
+  const claims = parseJwtClaims(token)
+  const callerRole = typeof claims?.role === 'string' ? (claims!.role as string) : null
+  const callerEmail = typeof claims?.email === 'string' ? (claims!.email as string).toLowerCase() : null
+  const isServiceRole = callerRole === 'service_role'
+  if (!isServiceRole && !callerEmail) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    )
+  }
+
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
@@ -115,6 +148,23 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
+  }
+
+  // Authorization: end-user callers may only trigger an allowlisted template
+  // sent to their own email. service_role bypasses this restriction.
+  if (!isServiceRole) {
+    if (!CLIENT_ALLOWED_TEMPLATES.has(templateName)) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: template not callable by clients' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+    if (!callerEmail || effectiveRecipient.toLowerCase() !== callerEmail) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: recipient must match authenticated user' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
   }
 
   // Create Supabase client with service role (bypasses RLS)

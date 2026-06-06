@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
@@ -32,10 +32,24 @@ export default function Profile() {
   const { isActive, refetch } = useSubscription();
   const [restoring, setRestoring] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const ADMIN_EMAILS = ["magnussvendsen635@gmail.com"];
-  const isAdmin =
-    (authUser?.email && ADMIN_EMAILS.includes(authUser.email)) ||
-    (typeof window !== "undefined" && window.localStorage.getItem("scaniq_admin") === "1");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!authUser?.id) {
+      setIsAdmin(false);
+      return;
+    }
+    supabase
+      .rpc("has_role", { _user_id: authUser.id, _role: "admin" })
+      .then(({ data, error }) => {
+        if (!cancelled) setIsAdmin(!error && data === true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [authUser?.id]);
+  
   
 
   const restorePurchase = async () => {
