@@ -894,14 +894,14 @@ export default function FoodScan() {
                   <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold">Olie</span>
-                      <span className="text-[11px] text-muted-foreground">AI estimerer skjult madolie/smør på dit måltid</span>
+                      <span className="text-[11px] text-muted-foreground">AI vurderer skjult madolie/smør visuelt ud fra måltidets størrelse</span>
                     </div>
                     <Switch checked={addOil} onCheckedChange={setAddOil} />
                   </label>
                   <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold">Dressing</span>
-                      <span className="text-[11px] text-muted-foreground">AI estimerer dressing/sauce/mayo på dit måltid</span>
+                      <span className="text-[11px] text-muted-foreground">AI vurderer dressing/sauce/mayo visuelt ud fra portionen</span>
                     </div>
                     <Switch checked={addDressing} onCheckedChange={setAddDressing} />
                   </label>
