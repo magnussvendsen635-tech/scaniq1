@@ -25,7 +25,17 @@ export function PremiumWrapper({
   description = "Opgradér til ScanIQ Pro for at låse op.",
 }: PremiumWrapperProps) {
   const navigate = useNavigate();
-  const { isActive } = useSubscription();
+  const { isActive, loading } = useSubscription();
+
+  // Skeleton only when no cached state exists. Non-payers hit the locked
+  // branch immediately via cached isActive=false, so the paywall is never bypassed.
+  if (loading && !isActive) {
+    return (
+      <div className={"relative " + className} aria-busy="true">
+        <div className="absolute inset-0 rounded-3xl bg-muted/40 animate-pulse" />
+      </div>
+    );
+  }
 
   if (isActive) return <div className={className}>{children}</div>;
 

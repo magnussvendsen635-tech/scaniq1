@@ -16,7 +16,17 @@ export function PremiumLock({
   className?: string;
 }) {
   const navigate = useNavigate();
-  const { isActive } = useSubscription();
+  const { isActive, loading } = useSubscription();
+
+  // Only show skeleton on first-ever load (no cached state). Cache hits
+  // render instantly — Pro users see content, non-payers see the lock.
+  if (loading && !isActive) {
+    return (
+      <div className={"relative " + className} aria-busy="true">
+        <div className="absolute inset-0 rounded-md bg-muted/40 animate-pulse" />
+      </div>
+    );
+  }
 
   if (isActive) return <div className={className}>{children}</div>;
 
