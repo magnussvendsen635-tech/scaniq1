@@ -157,6 +157,18 @@ export default function Settings() {
         </Button>
 
         <Section title="About">
+          {isAdmin && (
+            <button
+              onClick={() => nav("/admin")}
+              className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
+            >
+              <span className="text-sm flex items-center gap-2">
+                <Shield className="w-4 h-4 text-primary-glow" />
+                Admin panel
+              </span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
+          )}
           <button
             onClick={() => nav("/data-privacy")}
             className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
