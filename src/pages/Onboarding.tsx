@@ -20,6 +20,7 @@ export default function Onboarding() {
   const tt = (k: TKey) => translate(lang, k);
   const [name, setName] = useState(user.name ?? "");
   const [goal, setGoal] = useState<Goal>(user.goal);
+  const [sex, setSex] = useState<Sex>(user.sex);
   const [age, setAge] = useState(user.age);
   const [weight, setWeight] = useState(user.weight);
   const [targetWeight, setTargetWeight] = useState(user.targetWeight);
