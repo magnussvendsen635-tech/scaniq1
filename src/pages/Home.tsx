@@ -38,7 +38,7 @@ export default function Home() {
       />
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3 min-w-0">
-          <Logo size={40} withText={!firstName} />
+          <Logo size={52} withText={!firstName} />
           {firstName && (
             <div className="min-w-0">
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{greet}</div>
