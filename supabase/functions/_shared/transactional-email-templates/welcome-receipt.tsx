@@ -24,10 +24,8 @@ const copy = {
     features: [
       'Op til 20 scanninger om dagen',
       'Avanceret makro-indsigt',
-      '600+ premium træningsprogrammer',
       'Fremskridtstendenser & eksport',
       'Prioritet på nye funktioner',
-      '2 x ugentlige Streak Freezes til din flamme',
     ],
     receiptTitle: 'DIN KVITTERING',
     order: 'Ordre',
@@ -46,10 +44,8 @@ const copy = {
     features: [
       'Up to 20 scans per day',
       'Advanced macro insights',
-      '600+ premium workouts',
       'Progress trends & exports',
       'Priority new features',
-      '2 x weekly Streak Freezes for your flame',
     ],
     receiptTitle: 'YOUR RECEIPT',
     order: 'Order',

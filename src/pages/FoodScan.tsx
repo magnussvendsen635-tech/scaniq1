@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import { PremiumLock } from "@/components/PremiumLock";
+import { PremiumWrapper } from "@/components/PremiumWrapper";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
@@ -750,6 +751,12 @@ export default function FoodScan() {
         </span>
       </header>
 
+      <PremiumWrapper
+        title="Scan er en Premium-funktion"
+        description="Opgradér til ScanIQ Pro for at scanne mad og se detaljerede resultater."
+      >
+
+
       <input
         ref={fileRef}
         type="file"
@@ -1330,6 +1337,7 @@ export default function FoodScan() {
           </div>
         </div>
       )}
+      </PremiumWrapper>
     </div>
   );
 }
