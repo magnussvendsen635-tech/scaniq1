@@ -24,17 +24,23 @@ export default function Terms() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 4. juni 2026 · ScanIQ · scaniqapp1@gmail.com
+          Sidst opdateret: 6. juni 2026 · KCALLY (handelsnavn: ScanIQ) · scaniqapp1@gmail.com
         </p>
 
         <div className="rounded-2xl border border-primary/40 bg-primary/10 p-4 text-xs leading-relaxed">
-          <b className="block mb-1">Forhandler & betalingsbehandler</b>
-          Vores ordreproces håndteres af vores online-forhandler{" "}
-          <b>Paddle.com</b>. Paddle.com er <b>Merchant of Record</b> for alle
-          vores ordrer på web og fremgår som betalingsmodtager på din
-          kontoudtog. Paddle behandler alle kundehenvendelser vedrørende
-          betaling og håndterer refunderinger. Se Paddles{" "}
-          <a className="underline" href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener">Buyer Terms</a>.
+          <b className="block mb-1">Sælger & Merchant of Record</b>
+          ScanIQ-appen drives og sælges af <b>KCALLY</b> ("vi", "os"). Når du
+          køber et abonnement, indgår du en aftale med KCALLY om brug af
+          tjenesten. Vores ordreproces for web-køb håndteres af vores
+          online-forhandler <b>Paddle.com Market Limited</b>. Paddle er{" "}
+          <b>Merchant of Record (MoR) og reseller</b> for alle web-ordrer:
+          Paddle behandler betalingen, fremgår som betalingsmodtager på din
+          bank-/kontoudtog, udsteder fakturaen, opkræver moms/sales tax og
+          håndterer alle refunderinger og kundehenvendelser om betaling. Se
+          Paddles{" "}
+          <a className="underline" href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener">Buyer Terms</a>{" "}
+          og{" "}
+          <a className="underline" href="https://www.paddle.com/legal/refund-policy" target="_blank" rel="noopener">Refund Policy</a>.
         </div>
 
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
