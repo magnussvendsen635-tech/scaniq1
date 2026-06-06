@@ -24,10 +24,8 @@ const copy = {
     features: [
       'Op til 20 scanninger om dagen',
       'Avanceret makro-indsigt',
-      '600+ premium træningsprogrammer',
       'Fremskridtstendenser & eksport',
       'Prioritet på nye funktioner',
-      '2 x ugentlige Streak Freezes til din flamme',
     ],
     receiptTitle: 'DIN KVITTERING',
     order: 'Ordre',
