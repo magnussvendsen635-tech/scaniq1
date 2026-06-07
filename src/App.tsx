@@ -11,6 +11,7 @@ import { TabBar } from "@/components/TabBar";
 const RTL_LANGS = new Set(["ar", "ur", "he", "fa"]);
 
 import Auth from "./pages/Auth";
+import Landing from "./pages/Landing";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
