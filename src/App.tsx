@@ -126,7 +126,9 @@ const App = () => {
         <BrowserRouter>
           <PageViewTracker />
           <Routes>
-            <Route path="/" element={<RootRoute />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/app" element={<AppRoute />} />
+
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<Privacy />} />
