@@ -36,7 +36,6 @@ import Reminders from "./pages/Reminders";
 import BonusTerms from "./pages/BonusTerms";
 import NotFound from "./pages/NotFound.tsx";
 import Unsubscribe from "./pages/Unsubscribe";
-import LandingPage from "./pages/LandingPage";
 import { CookieConsent } from "@/components/CookieConsent";
 import { UpgradeFab } from "@/components/UpgradeFab";
 import { SplashScreen } from "@/components/SplashScreen";
@@ -52,18 +51,6 @@ const Shell = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-const AppRoute = () => {
-  const { session, loading } = useAuth();
-  const onboarded = useKStore((s) => s.onboarded);
-  if (loading) return <div className="min-h-screen bg-background" />;
-  if (!session) return <Navigate to="/auth" replace />;
-  if (!onboarded) return <Navigate to="/onboarding" replace />;
-  return (
-    <Shell>
-      <Home />
-    </Shell>
-  );
-};
 
 const App = () => {
   const onboarded = useKStore((s) => s.onboarded);
@@ -126,9 +113,6 @@ const App = () => {
         <BrowserRouter>
           <PageViewTracker />
           <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/app" element={<AppRoute />} />
-
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<Privacy />} />
@@ -145,6 +129,7 @@ const App = () => {
               <Route path="*" element={<Navigate to="/onboarding" replace />} />
             ) : (
               <>
+                <Route path="/" element={<Shell><Home /></Shell>} />
                 <Route path="/scan" element={<Shell><FoodScan /></Shell>} />
                 
                 <Route path="/diary" element={<Shell><Diary /></Shell>} />
