@@ -11,6 +11,7 @@ import { TabBar } from "@/components/TabBar";
 const RTL_LANGS = new Set(["ar", "ur", "he", "fa"]);
 
 import Auth from "./pages/Auth";
+import Landing from "./pages/Landing";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
@@ -113,6 +114,7 @@ const App = () => {
         <BrowserRouter>
           <PageViewTracker />
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<Privacy />} />
@@ -124,12 +126,12 @@ const App = () => {
             {loading ? (
               <Route path="*" element={<div className="min-h-screen bg-background" />} />
             ) : !session ? (
-              <Route path="*" element={<Navigate to="/auth" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             ) : !onboarded ? (
               <Route path="*" element={<Navigate to="/onboarding" replace />} />
             ) : (
               <>
-                <Route path="/" element={<Shell><Home /></Shell>} />
+                <Route path="/app" element={<Shell><Home /></Shell>} />
                 <Route path="/scan" element={<Shell><FoodScan /></Shell>} />
                 
                 <Route path="/diary" element={<Shell><Diary /></Shell>} />

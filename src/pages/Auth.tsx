@@ -21,7 +21,7 @@ export default function Auth() {
   const [consent, setConsent] = useState(false);
 
   if (loading) return null;
-  if (session) return <Navigate to="/" replace />;
+  if (session) return <Navigate to="/app" replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

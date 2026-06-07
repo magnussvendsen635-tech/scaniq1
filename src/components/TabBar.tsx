@@ -5,7 +5,7 @@ import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 
 const items: { to: string; key: TKey; Icon: any }[] = [
-  { to: "/", key: "nav.home", Icon: Home },
+  { to: "/app", key: "nav.home", Icon: Home },
   { to: "/diary", key: "nav.diary", Icon: LayoutDashboard },
   { to: "/progress", key: "nav.progress", Icon: BarChart3 },
   { to: "/profile", key: "nav.profile", Icon: User },
@@ -29,7 +29,7 @@ export const TabBar = () => {
         <div className="pointer-events-none absolute inset-x-6 top-px h-px rounded-full bg-gradient-to-r from-transparent via-foreground/20 to-transparent" />
 
         {left.map(({ to, key, Icon }) => (
-          <TabItem key={to} to={to} label={t(key)} Icon={Icon} end={to === "/"} />
+          <TabItem key={to} to={to} label={t(key)} Icon={Icon} end={to === "/app"} />
         ))}
 
         {/* Center scan button — premium gradient + halo */}
