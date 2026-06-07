@@ -41,7 +41,7 @@ export default function LandingPage() {
 
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
-            to="/auth"
+            to="/app"
             className="inline-flex items-center justify-center gap-2 h-14 px-8 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white font-bold text-base shadow-[0_10px_24px_-8px_hsl(14_100%_55%/0.6)] transition-colors"
           >
             Kom i gang
@@ -122,7 +122,7 @@ export default function LandingPage() {
             ubegrænset scanning og avancerede indsigter.
           </p>
           <Link
-            to="/auth"
+            to="/app"
             className="inline-flex items-center justify-center gap-2 h-14 px-8 rounded-2xl bg-white text-[hsl(14_100%_55%)] font-bold text-base shadow-[0_8px_20px_-4px_rgba(0,0,0,0.2)] hover:bg-white/90 transition-colors"
           >
             Kom i gang gratis
