@@ -29,7 +29,7 @@ export const TabBar = () => {
         <div className="pointer-events-none absolute inset-x-6 top-px h-px rounded-full bg-gradient-to-r from-transparent via-foreground/20 to-transparent" />
 
         {left.map(({ to, key, Icon }) => (
-          <TabItem key={to} to={to} label={t(key)} Icon={Icon} end={to === "/"} />
+          <TabItem key={to} to={to} label={t(key)} Icon={Icon} end={to === "/app"} />
         ))}
 
         {/* Center scan button — premium gradient + halo */}
