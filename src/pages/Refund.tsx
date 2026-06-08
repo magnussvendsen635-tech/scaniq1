@@ -24,13 +24,13 @@ export default function Refund() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 6. juni 2026 · KCALLY (handelsnavn: ScanIQ) · scaniqapp1@gmail.com
+          Last updated: June 8, 2026 · Kinetex Intelligens (under stiftelse) · scaniqapp1@gmail.com
         </p>
 
         <p className="text-xs">
-          ScanIQ sælges af <b>KCALLY</b>. Web-køb behandles af vores online-forhandler{" "}
-          <b>Paddle.com Market Limited</b>, som er <b>Merchant of Record</b> og
-          står for fakturering, moms og refunderinger.
+          ScanIQ is sold by <b>Kinetex Intelligens (under stiftelse)</b>. Web purchases are processed by our online reseller{" "}
+          <b>Paddle.com Market Limited</b>, which is the <b>Merchant of Record</b> and
+          handles invoicing, tax, and refunds.
         </p>
 
         <section>

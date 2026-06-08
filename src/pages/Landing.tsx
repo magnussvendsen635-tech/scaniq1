@@ -16,8 +16,8 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-[hsl(40_40%_97%)] text-foreground">
       <Seo
-        title="ScanIQ — AI-drevet ernærings- og fitness-tracker"
-        description="Scan din mad med AI, track makroer, vand og træning. Få personlige indsigter og nå dine mål med ScanIQ."
+        title="ScanIQ — AI-Powered Nutrition & Fitness Tracker"
+        description="Scan your food with AI, track macros, water and workouts. Get personalized insights and reach your goals with ScanIQ."
         path="/"
       />
 
@@ -29,13 +29,13 @@ export default function Landing() {
             <span className="text-base font-semibold tracking-[0.18em] k-gradient-text">ScanIQ</span>
           </Link>
           <nav className="hidden sm:flex items-center gap-6 text-sm text-muted-foreground">
-            <Link to="/pricing" className="hover:text-foreground transition-colors">Priser</Link>
-            <Link to="/terms" className="hover:text-foreground transition-colors">Vilkår</Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privatliv</Link>
+            <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
           </nav>
           <Link to="/auth">
             <Button className="h-9 px-4 rounded-full bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-sm font-semibold">
-              Log ind
+              Log in
             </Button>
           </Link>
         </div>
@@ -49,38 +49,40 @@ export default function Landing() {
         </div>
 
         <div className="relative max-w-6xl mx-auto px-5 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center">
+          <img src={logo} alt="ScanIQ Logo" className="h-24 w-24 mx-auto mb-6 rounded-full object-cover" />
+
           <div className="inline-flex items-center gap-2 rounded-full bg-white border border-border/60 px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-[hsl(24_95%_53%)]" />
-            AI-drevet ernæringstracker
+            AI-powered nutrition tracker
           </div>
 
           <h1 className="mt-6 text-4xl sm:text-6xl font-bold tracking-tight leading-[1.05]">
-            Forstå din mad.
+            Understand your food.
             <br />
-            <span className="k-gradient-text">Nå dine mål.</span>
+            <span className="k-gradient-text">Reach your goals.</span>
           </h1>
 
           <p className="mt-5 max-w-xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Scan måltider med kameraet, få makroer på sekunder, og lad ScanIQ guide dig
-            mod en sundere hverdag — uden manuel indtastning.
+            Scan meals with your camera, get macros in seconds, and let ScanIQ guide you
+            toward a healthier everyday life — without manual entry.
           </p>
 
           <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link to="/auth" className="w-full sm:w-auto">
               <Button className="w-full sm:w-auto h-13 px-7 rounded-2xl bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-base font-semibold shadow-[0_10px_30px_-8px_hsl(24_95%_55%/0.55)]">
-                Kom i gang
+                Get Started
                 <ArrowRight className="w-5 h-5 ml-1" />
               </Button>
             </Link>
             <Link to="/pricing" className="w-full sm:w-auto">
               <Button variant="outline" className="w-full sm:w-auto h-13 px-7 rounded-2xl border-border bg-white text-base font-semibold">
-                Se priser
+                View Pricing
               </Button>
             </Link>
           </div>
 
           <p className="mt-5 text-xs text-muted-foreground">
-            14 dages pengene-tilbage-garanti · Ingen binding
+            14-day money-back guarantee · No commitment
           </p>
         </div>
       </section>
@@ -89,9 +91,9 @@ export default function Landing() {
       <section className="max-w-6xl mx-auto px-5 pb-20">
         <div className="grid sm:grid-cols-3 gap-4">
           {[
-            { icon: Camera, title: "Scan med AI", desc: "Tag et billede af din mad — vi genkender ingredienser og kalorier automatisk." },
-            { icon: LineChart, title: "Track makroer", desc: "Protein, kulhydrater og fedt holdes opdateret dag for dag." },
-            { icon: Flame, title: "Træning & vægt", desc: "Log workouts og følg din vægt-udvikling med smukke grafer." },
+            { icon: Camera, title: "Scan with AI", desc: "Take a picture of your meal — we recognize ingredients and calories automatically." },
+            { icon: LineChart, title: "Track macros", desc: "Protein, carbs and fat kept up to date day by day." },
+            { icon: Flame, title: "Workouts & weight", desc: "Log workouts and follow your weight journey with beautiful charts." },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="rounded-3xl bg-white border border-border/50 p-6 shadow-sm">
               <div className="w-11 h-11 rounded-2xl bg-[hsl(24_95%_53%/0.12)] flex items-center justify-center mb-4">
@@ -110,19 +112,19 @@ export default function Landing() {
           <div className="grid sm:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                Bygget til at holde dig motiveret
+                Built to keep you motivated
               </h2>
               <p className="mt-3 text-white/90 text-base leading-relaxed">
-                Daglige opgaver, streaks, vand-tracking og personlige opskrifter
-                — alt sammen i én simpel app.
+                Daily tasks, streaks, water tracking and personal recipes
+                — all in one simple app.
               </p>
             </div>
             <ul className="space-y-3">
               {[
-                "Ubegrænsede AI-scans",
-                "Personlige opskrifter",
-                "Træningsprogrammer",
-                "Trends og indsigter",
+                "Unlimited AI scans",
+                "Personal recipes",
+                "Workout programs",
+                "Trends and insights",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
@@ -143,15 +145,15 @@ export default function Landing() {
             <Shield className="w-6 h-6 text-[hsl(120_40%_30%)]" />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold tracking-tight">Sikker betaling via Paddle</h3>
+            <h3 className="text-lg font-semibold tracking-tight">Secure payment via Paddle</h3>
             <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-              Web-betalinger håndteres af Paddle.com som Merchant of Record.
-              14 dages pengene-tilbage-garanti på alle abonnementer.
+              Web payments are handled by Paddle.com as Merchant of Record.
+              14-day money-back guarantee on all subscriptions.
             </p>
           </div>
           <Link to="/pricing">
             <Button variant="outline" className="rounded-xl border-border bg-white whitespace-nowrap">
-              Se priser
+              View Pricing
             </Button>
           </Link>
         </div>
@@ -159,11 +161,11 @@ export default function Landing() {
 
       {/* CTA */}
       <section className="max-w-3xl mx-auto px-5 pb-20 text-center">
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Klar til at komme i gang?</h2>
-        <p className="mt-3 text-muted-foreground">Opret en konto på under et minut.</p>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Ready to get started?</h2>
+        <p className="mt-3 text-muted-foreground">Create an account in under a minute.</p>
         <Link to="/auth">
           <Button className="mt-7 h-13 px-8 rounded-2xl bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-base font-semibold shadow-[0_10px_30px_-8px_hsl(24_95%_55%/0.55)]">
-            Kom i gang gratis
+            Get Started free
             <ArrowRight className="w-5 h-5 ml-1" />
           </Button>
         </Link>
@@ -179,13 +181,13 @@ export default function Landing() {
             </div>
             <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
               <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
-              <Link to="/terms" className="hover:text-foreground transition-colors">Servicevilkår</Link>
-              <Link to="/refund" className="hover:text-foreground transition-colors">Refundering</Link>
-              <Link to="/privacy" className="hover:text-foreground transition-colors">Privatliv</Link>
+              <Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
+              <Link to="/refund" className="hover:text-foreground transition-colors">Refund Policy</Link>
+              <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
             </nav>
           </div>
           <p className="mt-6 text-xs text-muted-foreground">
-            © {new Date().getFullYear()} ScanIQ. Alle rettigheder forbeholdes.
+            © 2026 ScanIQ. All rights reserved. Last updated: June 8, 2026 · Kinetex Intelligens (under stiftelse) · scaniqapp1@gmail.com
           </p>
         </div>
       </footer>
