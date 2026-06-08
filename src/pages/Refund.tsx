@@ -24,7 +24,7 @@ export default function Refund() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Sidst opdateret: 6. juni 2026 · KCALLY (handelsnavn: ScanIQ) · scaniqapp1@gmail.com
+          Last updated: June 8, 2026 · Kinetex Intelligens (under stiftelse) · scaniqapp1@gmail.com
         </p>
 
         <p className="text-xs">
