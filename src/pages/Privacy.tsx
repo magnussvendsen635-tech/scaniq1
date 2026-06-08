@@ -6,8 +6,8 @@ export default function Privacy() {
   return (
     <div className="k-page max-w-2xl mx-auto pb-32">
       <Seo
-        title="Privatlivspolitik — ScanIQ"
-        description="Sådan behandler ScanIQ dine personoplysninger. GDPR-overholdelse, datalagring og dine rettigheder."
+        title="Privacy Policy — ScanIQ"
+        description="How ScanIQ handles your personal data. GDPR compliance, data collection, and your rights."
         path="/privacy"
       />
       <header className="flex items-center gap-3 mb-6">
