@@ -28,18 +28,18 @@ export default function Terms() {
         </p>
 
         <div className="rounded-2xl border border-primary/40 bg-primary/10 p-4 text-xs leading-relaxed">
-          <b className="block mb-1">Sælger & Merchant of Record</b>
-          ScanIQ-appen drives og sælges af <b>KCALLY</b> ("vi", "os"). Når du
-          køber et abonnement, indgår du en aftale med KCALLY om brug af
-          tjenesten. Vores ordreproces for web-køb håndteres af vores
-          online-forhandler <b>Paddle.com Market Limited</b>. Paddle er{" "}
-          <b>Merchant of Record (MoR) og reseller</b> for alle web-ordrer:
-          Paddle behandler betalingen, fremgår som betalingsmodtager på din
-          bank-/kontoudtog, udsteder fakturaen, opkræver moms/sales tax og
-          håndterer alle refunderinger og kundehenvendelser om betaling. Se
-          Paddles{" "}
+          <b className="block mb-1">Seller & Merchant of Record</b>
+          ScanIQ is sold by <b>Kinetex Intelligens</b> ("we", "us"). When you
+          purchase a subscription, you enter an agreement with Kinetex Intelligens for the
+          use of the service. Our order process for web purchases is handled by our
+          online reseller <b>Paddle.com Market Limited</b>. Paddle is the{" "}
+          <b>Merchant of Record (MoR) and reseller</b> for all web orders:
+          Paddle processes the payment, appears as the merchant on your
+          bank statement, issues the invoice, collects sales tax/VAT, and
+          handles all refunds and payment-related customer inquiries. See
+          Paddle's{" "}
           <a className="underline" href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener">Buyer Terms</a>{" "}
-          og{" "}
+          and{" "}
           <a className="underline" href="https://www.paddle.com/legal/refund-policy" target="_blank" rel="noopener">Refund Policy</a>.
         </div>
 

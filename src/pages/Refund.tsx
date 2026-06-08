@@ -28,9 +28,9 @@ export default function Refund() {
         </p>
 
         <p className="text-xs">
-          ScanIQ sælges af <b>KCALLY</b>. Web-køb behandles af vores online-forhandler{" "}
-          <b>Paddle.com Market Limited</b>, som er <b>Merchant of Record</b> og
-          står for fakturering, moms og refunderinger.
+          ScanIQ is sold by <b>Kinetex Intelligens (under stiftelse)</b>. Web purchases are processed by our online reseller{" "}
+          <b>Paddle.com Market Limited</b>, which is the <b>Merchant of Record</b> and
+          handles invoicing, tax, and refunds.
         </p>
 
         <section>
