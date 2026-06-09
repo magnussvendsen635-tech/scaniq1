@@ -20,8 +20,8 @@ export default function Pricing() {
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto max-w-2xl mx-auto" style={{ paddingBottom: 60 }}>
       <Seo
-        title="Priser — ScanIQ Premium"
-        description="ScanIQ Premium fra $19/måned eller $179/år. 14 dages pengene-tilbage-garanti via Paddle."
+        title="Pricing — ScanIQ Premium"
+        description="ScanIQ Premium from $19/month or $179/year. Subscribe via the App Store or Google Play."
         path="/pricing"
       />
       <header className="flex items-center gap-3 mb-6 pt-2">
