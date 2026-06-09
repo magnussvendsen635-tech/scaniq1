@@ -430,7 +430,7 @@ export default function Admin() {
             </div>
             <Button onClick={createDiscount} className="w-full mt-3">Opret rabatkode</Button>
             <p className="text-[10px] text-muted-foreground mt-2">
-              Bemærk: Selve rabatten skal også oprettes i Paddle for at virke ved checkout. Dette er en intern tracker.
+              Bemærk: Dette er en intern rabatkode-tracker. Selve indløsning skal håndteres separat (f.eks. App Store promo codes).
             </p>
           </div>
 

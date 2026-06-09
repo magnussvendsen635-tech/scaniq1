@@ -7,70 +7,70 @@ export default function Refund() {
   return (
     <div className="k-page max-w-2xl mx-auto pb-32">
       <Seo
-        title="Refunderingspolitik — ScanIQ"
-        description="Refunderingspolitik for ScanIQ-abonnementer. 14 dages fortrydelsesret håndteret af Paddle."
+        title="Refund Policy — ScanIQ"
+        description="Refund policy for ScanIQ subscriptions. 14-day money-back guarantee handled by Paddle."
         path="/refund"
       />
       <header className="flex items-center gap-3 mb-6">
         <button
           onClick={() => nav(-1)}
           className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center"
-          aria-label="Tilbage"
+          aria-label="Back"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight">Refunderingspolitik</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Refund Policy</h1>
       </header>
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">
-          Last updated: June 8, 2026 · Kinetex Intelligens (under stiftelse) · scaniqapp1@gmail.com
+          Last updated: June 8, 2026 · Kinetex Intelligens (under formation) · scaniqapp1@gmail.com
         </p>
 
         <p className="text-xs">
-          ScanIQ is sold by <b>Kinetex Intelligens (under stiftelse)</b>. Web purchases are processed by our online reseller{" "}
-          <b>Paddle.com Market Limited</b>, which is the <b>Merchant of Record</b> and
-          handles invoicing, tax, and refunds.
+          ScanIQ is sold by <b>Kinetex Intelligens (under formation)</b>. Web purchases are
+          processed by our online reseller <b>Paddle.com Market Limited</b>, which is the{" "}
+          <b>Merchant of Record</b> and handles invoicing, tax, and refunds.
         </p>
 
         <section>
-          <h2 className="text-base font-semibold mb-2">14 dages fortrydelsesret</h2>
+          <h2 className="text-base font-semibold mb-2">14-Day Money-Back Guarantee</h2>
           <p>
-            Vi tilbyder en <b>14 dages pengene-tilbage-garanti</b> på alle nye
-            Premium-abonnementer. Hvis du ikke er tilfreds med dit køb, kan du
-            anmode om fuld refundering inden for 14 dage efter købsdatoen.
+            We offer a <b>14-day money-back guarantee</b> on all new Premium subscriptions.
+            If you are not satisfied with your purchase, you may request a full refund
+            within 14 days of the purchase date.
           </p>
         </section>
 
         <section>
-          <h2 className="text-base font-semibold mb-2">Sådan anmoder du om refundering</h2>
+          <h2 className="text-base font-semibold mb-2">How to Request a Refund</h2>
           <p>
-            Vores ordrer behandles af vores online-forhandler{" "}
-            <b>Paddle.com</b>, som er Merchant of Record for alle køb foretaget
-            via web. Du anmoder om refundering på en af følgende måder:
+            Our orders are processed by our online reseller <b>Paddle.com</b>, which is the
+            Merchant of Record for all web purchases. You can request a refund in one of
+            the following ways:
           </p>
           <ul className="list-disc pl-5 space-y-1 mt-2">
             <li>
-              Gå til{" "}
+              Go to{" "}
               <a className="text-primary-glow underline" href="https://paddle.net" target="_blank" rel="noopener">
                 paddle.net
               </a>{" "}
-              og log ind med den e-mail, du brugte ved købet.
+              and log in with the email used for the purchase.
             </li>
             <li>
-              Eller kontakt os på{" "}
+              Or contact us at{" "}
               <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">
                 scaniqapp1@gmail.com
               </a>{" "}
-              — så hjælper vi dig videre.
+              — and we will assist you.
             </li>
           </ul>
           <p className="mt-2">
-            Refunderinger behandles efter Paddles{" "}
+            Refunds are processed according to Paddle's{" "}
             <a className="text-primary-glow underline" href="https://www.paddle.com/legal/refund-policy" target="_blank" rel="noopener">
               Refund Policy
             </a>{" "}
-            og{" "}
+            and{" "}
             <a className="text-primary-glow underline" href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener">
               Buyer Terms
             </a>
@@ -79,27 +79,27 @@ export default function Refund() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold mb-2">Køb via App Store / Google Play</h2>
+          <h2 className="text-base font-semibold mb-2">Purchases via App Store / Google Play</h2>
           <p>
-            Køb foretaget via Apple App Store eller Google Play håndteres af
-            den respektive platform. Refundering anmodes direkte hos Apple
-            (reportaproblem.apple.com) eller Google Play (play.google.com).
+            Purchases made via the Apple App Store or Google Play are handled by the
+            respective platform. Refund requests must be made directly to Apple
+            (reportaproblem.apple.com) or Google Play (play.google.com).
           </p>
         </section>
 
         <section>
-          <h2 className="text-base font-semibold mb-2">Opsigelse af abonnement</h2>
+          <h2 className="text-base font-semibold mb-2">Subscription Cancellation</h2>
           <p>
-            Du kan opsige dit abonnement når som helst via{" "}
-            <b>Profil → Premium → Administrér abonnement</b>. Opsigelse træder
-            i kraft ved periodens udløb, og du beholder Premium frem til den
-            dato. Allerede betalte perioder refunderes ikke ved opsigelse
-            efter de 14 dages fortrydelsesret, medmindre andet er aftalt.
+            You can cancel your subscription at any time via{" "}
+            <b>Profile → Premium → Manage Subscription</b>. Cancellation takes effect at
+            the end of the period, and you retain Premium access until that date. Already
+            paid periods are not refunded after the 14-day cancellation window, unless
+            otherwise agreed.
           </p>
         </section>
 
         <section>
-          <h2 className="text-base font-semibold mb-2">Kontakt</h2>
+          <h2 className="text-base font-semibold mb-2">Contact</h2>
           <p>
             ScanIQ ·{" "}
             <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">

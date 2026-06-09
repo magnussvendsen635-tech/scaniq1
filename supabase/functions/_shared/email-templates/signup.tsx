@@ -28,25 +28,25 @@ export const SignupEmail = ({
   recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="da" dir="ltr">
+  <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Bekræft din e-mail hos {siteName}</Preview>
+    <Preview>Confirm your email for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={card}>
-          <Heading style={h1}>Velkommen til ScanIQ 👋</Heading>
+          <Heading style={h1}>Welcome to ScanIQ 👋</Heading>
           <Text style={text}>
-            Tak fordi du oprettede en konto hos{' '}
+            Thank you for signing up at{' '}
             <Link href={siteUrl} style={link}><strong>{siteName}</strong></Link>.
           </Text>
           <Text style={text}>
-            Bekræft venligst din e-mailadresse (
+            Please confirm your email address (
             <Link href={`mailto:${recipient}`} style={link}>{recipient}</Link>
-            ) ved at trykke på knappen herunder:
+            ) by clicking the button below:
           </Text>
-          <Button style={button} href={confirmationUrl}>Bekræft e-mail</Button>
+          <Button style={button} href={confirmationUrl}>Confirm email</Button>
           <Text style={footer}>
-            Hvis du ikke har oprettet en konto, kan du roligt ignorere denne mail.
+            If you didn't create an account, you can safely ignore this email.
           </Text>
         </Section>
       </Container>

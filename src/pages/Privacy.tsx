@@ -31,7 +31,7 @@ export default function Privacy() {
 
         <Section title="1. Data Controller">
           <p>
-            ScanIQ is operated by <b>Kinetex Intelligens (under stiftelse)</b>. If you have
+            ScanIQ is operated by <b>Kinetex Intelligens (under formation)</b>. If you have
             questions regarding your data, contact us at{" "}
             <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">scaniqapp1@gmail.com</a>.
             Web payments are handled by <b>Paddle.com Market Limited</b> as Merchant of Record

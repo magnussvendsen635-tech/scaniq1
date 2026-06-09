@@ -20,19 +20,19 @@ export default function Pricing() {
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto max-w-2xl mx-auto" style={{ paddingBottom: 60 }}>
       <Seo
-        title="Priser — ScanIQ Premium"
-        description="ScanIQ Premium fra $19/måned eller $179/år. 14 dages pengene-tilbage-garanti via Paddle."
+        title="Pricing — ScanIQ Premium"
+        description="ScanIQ Premium from $19/month or $179/year. Subscribe via the App Store or Google Play."
         path="/pricing"
       />
       <header className="flex items-center gap-3 mb-6 pt-2">
         <button
           onClick={() => nav(-1)}
-          aria-label="Tilbage"
+          aria-label="Back"
           className="k-tap w-10 h-10 rounded-full bg-white border border-border/60 flex items-center justify-center shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-semibold tracking-tight">Priser</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Pricing</h1>
       </header>
 
       <section className="rounded-3xl bg-white border border-border/50 p-7 mb-6 text-center shadow-[0_8px_30px_-12px_hsl(24_95%_55%/0.25)]">
@@ -78,21 +78,20 @@ export default function Pricing() {
         className="w-full h-14 rounded-2xl bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-base font-semibold shadow-[0_10px_24px_-8px_hsl(24_95%_55%/0.6)]"
       >
         <Sparkles className="w-5 h-5 mr-2" />
-        Kom i gang
+        Get Started
       </Button>
 
       <p className="text-[11px] text-muted-foreground text-center mt-3 px-6 leading-relaxed">
-        Abonnementet fornyes automatisk. 14 dages pengene-tilbage-garanti.
-        Web-betalinger håndteres af Paddle.com som Merchant of Record.
+        Subscription auto-renews. Purchases are handled by the App Store and Google Play.
       </p>
 
       <footer className="mt-8 pt-6 border-t border-border/50">
         <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground flex-wrap">
-          <button onClick={() => nav("/terms")} className="hover:text-foreground underline-offset-4 hover:underline">Servicevilkår</button>
+          <button onClick={() => nav("/terms")} className="hover:text-foreground underline-offset-4 hover:underline">Terms of Service</button>
           <span className="text-border">·</span>
-          <button onClick={() => nav("/refund")} className="hover:text-foreground underline-offset-4 hover:underline">Refunderingspolitik</button>
+          <button onClick={() => nav("/refund")} className="hover:text-foreground underline-offset-4 hover:underline">Refund Policy</button>
           <span className="text-border">·</span>
-          <button onClick={() => nav("/privacy")} className="hover:text-foreground underline-offset-4 hover:underline">Privatlivspolitik</button>
+          <button onClick={() => nav("/privacy")} className="hover:text-foreground underline-offset-4 hover:underline">Privacy Policy</button>
         </div>
       </footer>
     </div>

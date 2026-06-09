@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { getPaddleEnvironment } from "@/lib/paddle";
 
 export interface SubscriptionRow {
   id: string;
@@ -13,7 +12,7 @@ export interface SubscriptionRow {
   environment: string;
 }
 
-const cacheKey = (userId: string) => `scaniq.sub.${userId}.${getPaddleEnvironment()}`;
+const cacheKey = (userId: string) => `scaniq.sub.${userId}`;
 
 const readCache = (userId: string | undefined): { hit: boolean; isActive: boolean } => {
   if (!userId) return { hit: false, isActive: false };
@@ -21,7 +20,6 @@ const readCache = (userId: string | undefined): { hit: boolean; isActive: boolea
     const raw = localStorage.getItem(cacheKey(userId));
     if (!raw) return { hit: false, isActive: false };
     const parsed = JSON.parse(raw) as { isActive: boolean; periodEnd: string | null };
-    // If cached period has ended, do not trust active=true.
     if (parsed.isActive && parsed.periodEnd && new Date(parsed.periodEnd) <= new Date()) {
       return { hit: true, isActive: false };
     }
@@ -51,8 +49,6 @@ const computeActive = (sub: SubscriptionRow | null) =>
 export function useSubscription() {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(null);
-  // Seed from cache so paying users render unlocked instantly (no blink),
-  // and non-payers render locked instantly (paywall stays effective).
   const initial = readCache(user?.id);
   const [cachedActive, setCachedActive] = useState<boolean>(initial.isActive);
   const [loading, setLoading] = useState<boolean>(!initial.hit);
@@ -70,7 +66,6 @@ export function useSubscription() {
       .from("subscriptions")
       .select("*")
       .eq("user_id", user.id)
-      .eq("environment", getPaddleEnvironment())
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -84,7 +79,6 @@ export function useSubscription() {
   };
 
   useEffect(() => {
-    // Re-seed when user changes.
     const seed = readCache(user?.id);
     setCachedActive(seed.isActive);
     setLoading(!seed.hit);
