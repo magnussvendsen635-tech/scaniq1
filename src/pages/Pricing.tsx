@@ -82,8 +82,7 @@ export default function Pricing() {
       </Button>
 
       <p className="text-[11px] text-muted-foreground text-center mt-3 px-6 leading-relaxed">
-        Abonnementet fornyes automatisk. 14 dages pengene-tilbage-garanti.
-        Web-betalinger håndteres af Paddle.com som Merchant of Record.
+        Subscription auto-renews. Purchases are handled by the App Store and Google Play.
       </p>
 
       <footer className="mt-8 pt-6 border-t border-border/50">

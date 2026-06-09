@@ -1,18 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw, Settings } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
 import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
-import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useSubscription } from "@/hooks/useSubscription";
-import { Input } from "@/components/ui/input";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
-import { supabase } from "@/integrations/supabase/client";
-import { getPaddleEnvironment } from "@/lib/paddle";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
 const featureKeys: TKey[] = [
@@ -22,114 +17,49 @@ const featureKeys: TKey[] = [
   "premium.feat_priority",
 ];
 
-const isNativePlatform = (): boolean =>
-  typeof (window as any).Capacitor?.isNativePlatform === "function"
-    ? (window as any).Capacitor.isNativePlatform()
-    : false;
-
 export default function Premium() {
   const nav = useNavigate();
   const t = useT();
   const { user } = useAuth();
-  const { isActive, subscription, refetch } = useSubscription();
-  const { purchase, restore: restoreIAP, loading: iapLoading } = useIAP();
-  const { openCheckout, loading: paddleLoading } = usePaddleCheckout();
-  const loading = iapLoading || paddleLoading;
+  const { isActive, refetch } = useSubscription();
+  const { purchase, restore: restoreIAP, loading } = useIAP();
   const [plan, setPlan] = useState<"month" | "year">("year");
   const [restoring, setRestoring] = useState(false);
-  const [portalLoading, setPortalLoading] = useState(false);
-  const [promoInput, setPromoInput] = useState("");
-  const [promoApplied, setPromoApplied] = useState(false);
-  const [promoError, setPromoError] = useState(false);
 
-  const monthlyBase = 19;
-  const yearlyBase = 179;
-  const discount = promoApplied ? 0.1 : 0;
-  const monthlyPrice = (monthlyBase * (1 - discount)).toFixed(2);
-  const yearlyPrice = (yearlyBase * (1 - discount)).toFixed(2);
-  const displayPrice = (n: string) => (n.endsWith(".00") ? n.slice(0, -3) : n);
-
-  const applyPromo = () => {
-    if (promoInput.trim().toUpperCase() === "PROMO10") {
-      setPromoApplied(true);
-      setPromoError(false);
-      toast.success("Rabatkode anvendt! 10% trukket fra");
-    } else {
-      setPromoApplied(false);
-      setPromoError(true);
-      toast.error("Ugyldig kode");
-    }
-  };
+  const monthlyPrice = 19;
+  const yearlyPrice = 179;
 
   const upgrade = async () => {
     if (!user) {
-      toast.error("Du skal være logget ind");
+      toast.error("You must be signed in");
       return;
     }
-    if (isNativePlatform()) {
-      const productId = plan === "month" ? IAP_PRODUCTS.monthly : IAP_PRODUCTS.yearly;
-      const { success } = await purchase(productId);
-      if (success) {
-        toast.success("Tak for dit køb!");
-        await refetch();
-      }
-      return;
-    }
-    // Web → Paddle
-    try {
-      const priceId = plan === "month" ? "kcally_premium_monthly" : "kcally_premium_yearly";
-      await openCheckout({
-        priceId,
-        customerEmail: user.email,
-        customData: {
-          userId: user.id,
-          ...(promoApplied ? { promoCode: "PROMO10" } : {}),
-        },
-        discountCode: promoApplied ? "PROMO10" : undefined,
-        successUrl: `${window.location.origin}/profile?checkout=success`,
-      });
-    } catch (e: any) {
-      toast.error("Kunne ikke åbne betaling", { description: e?.message });
+    const productId = plan === "month" ? IAP_PRODUCTS.monthly : IAP_PRODUCTS.yearly;
+    const { success } = await purchase(productId);
+    if (success) {
+      toast.success("Thanks for your purchase!");
+      await refetch();
     }
   };
 
   const restore = async () => {
     setRestoring(true);
     try {
-      if (isNativePlatform()) {
-        await restoreIAP();
-      }
+      await restoreIAP();
       await refetch();
-      if (isActive) toast.success("Dit abonnement er gendannet");
-      else toast("Intet aktivt abonnement fundet");
+      if (isActive) toast.success("Your subscription has been restored");
+      else toast("No active subscription found");
     } finally {
       setRestoring(false);
     }
   };
 
-  const openPortal = async () => {
-    setPortalLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("customer-portal", {
-        body: { environment: getPaddleEnvironment() },
-      });
-      if (error || !data?.url) throw new Error(error?.message || "Kunne ikke åbne portal");
-      window.open(data.url, "_blank");
-    } catch (e: any) {
-      toast.error("Kunne ikke åbne abonnementsstyring", { description: e?.message });
-    } finally {
-      setPortalLoading(false);
-    }
-  };
-
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto" style={{ paddingBottom: 100 }}>
-      <PaymentTestModeBanner />
-
       <header className="flex items-center gap-3 mb-6 pt-2">
         <button
           onClick={() => nav(-1)}
-          aria-label="Tilbage"
+          aria-label="Back"
           className="k-tap w-10 h-10 rounded-full bg-white border border-border/60 flex items-center justify-center shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -171,8 +101,7 @@ export default function Premium() {
           active={plan === "month"}
           onClick={() => setPlan("month")}
           title={t("premium.monthly")}
-          price={`$${displayPrice(monthlyPrice)}`}
-          oldPrice={promoApplied ? `$${monthlyBase}` : undefined}
+          price={`$${monthlyPrice}`}
           unit={t("premium.per_month")}
           sub={t("premium.cancel_anytime")}
         />
@@ -180,8 +109,7 @@ export default function Premium() {
           active={plan === "year"}
           onClick={() => setPlan("year")}
           title={t("premium.yearly")}
-          price={`$${displayPrice(yearlyPrice)}`}
-          oldPrice={promoApplied ? `$${yearlyBase}` : undefined}
+          price={`$${yearlyPrice}`}
           unit={t("premium.per_year")}
           sub={t("premium.lifetime")}
           badge="Most Popular"
@@ -202,68 +130,31 @@ export default function Premium() {
         {isActive ? t("premium.youre_premium") : t("premium.upgrade_now")}
       </Button>
 
-      {isActive && subscription && (
-        <Button
-          onClick={openPortal}
-          disabled={portalLoading}
-          variant="outline"
-          className="w-full h-12 rounded-2xl mt-3"
-        >
-          {portalLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Settings className="w-4 h-4 mr-2" />}
-          Administrér abonnement
-        </Button>
-      )}
-
       <p className="text-[11px] text-muted-foreground text-center mt-3 px-6 leading-relaxed">
-        Abonnementet fornyes automatisk. Du kan opsige når som helst.
+        Subscription auto-renews. You can cancel anytime in your App Store or Google Play account.
       </p>
 
       {/* Footer actions */}
       <footer className="mt-8 pt-6 border-t border-border/50">
-        <div className="grid grid-cols-2 gap-2 mb-2">
+        <div className="grid grid-cols-1 gap-2 mb-2">
           <FooterAction
             icon={<RefreshCw className="w-4 h-4" />}
-            label={restoring ? "Gendanner…" : "Gendan køb"}
+            label={restoring ? "Restoring…" : "Restore Purchases"}
             onClick={restore}
             disabled={restoring}
           />
-          <div className="flex gap-2 items-center h-11">
-            <Input
-              value={promoInput}
-              onChange={(e) => { setPromoInput(e.target.value); setPromoError(false); }}
-              placeholder="Rabatkode"
-              disabled={promoApplied}
-              className={"h-11 rounded-xl flex-1 text-sm " + (promoError ? "border-destructive" : promoApplied ? "border-green-500" : "")}
-            />
-            <Button
-              onClick={promoApplied ? () => { setPromoApplied(false); setPromoInput(""); } : applyPromo}
-              disabled={!promoApplied && !promoInput.trim()}
-              variant="outline"
-              className="h-11 rounded-xl px-3 shrink-0 text-sm"
-            >
-              {promoApplied ? "Fjern" : "Anvend"}
-            </Button>
-          </div>
         </div>
-        {promoApplied && (
-          <p className="text-xs text-green-600 mb-2 font-medium">
-            ✓ Rabatkode anvendt! 10% trukket fra ved checkout
-          </p>
-        )}
-        {promoError && (
-          <p className="text-xs text-destructive mb-2 font-medium">Ugyldig kode</p>
-        )}
-        <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground flex-wrap">
+        <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground flex-wrap mt-4">
           <button onClick={() => nav("/terms")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
-            Servicevilkår
+            Terms of Service
           </button>
           <span className="text-border">·</span>
           <button onClick={() => nav("/refund")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
-            Refundering
+            Refund Policy
           </button>
           <span className="text-border">·</span>
           <button onClick={() => nav("/privacy")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
-            Privatlivspolitik
+            Privacy Policy
           </button>
         </div>
       </footer>
@@ -272,10 +163,10 @@ export default function Premium() {
 }
 
 const PlanOption = ({
-  active, onClick, title, price, oldPrice, unit, sub, badge, highlight,
+  active, onClick, title, price, unit, sub, badge, highlight,
 }: {
   active: boolean; onClick: () => void; title: string; price: string;
-  oldPrice?: string; unit: string; sub: string; badge?: string; highlight?: boolean;
+  unit: string; sub: string; badge?: string; highlight?: boolean;
 }) => (
   <button
     onClick={onClick}
@@ -295,7 +186,6 @@ const PlanOption = ({
     <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{title}</div>
     <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
       <span className="text-3xl font-bold tracking-tight">{price}</span>
-      {oldPrice && <span className="text-sm text-muted-foreground line-through">{oldPrice}</span>}
       <span className="text-xs text-muted-foreground">{unit}</span>
     </div>
     <div className="text-xs mt-1 text-muted-foreground">{sub}</div>

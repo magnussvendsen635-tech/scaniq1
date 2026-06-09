@@ -145,10 +145,10 @@ export default function Landing() {
             <Shield className="w-6 h-6 text-[hsl(120_40%_30%)]" />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold tracking-tight">Secure payment via Paddle</h3>
+            <h3 className="text-lg font-semibold tracking-tight">Privacy-first &amp; secure</h3>
             <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-              Web payments are handled by Paddle.com as Merchant of Record.
-              14-day money-back guarantee on all subscriptions.
+              Your data stays yours. Encrypted in transit and at rest, with full GDPR
+              rights — access, export, or delete at any time.
             </p>
           </div>
           <Link to="/pricing">
@@ -187,7 +187,7 @@ export default function Landing() {
             </nav>
           </div>
           <p className="mt-6 text-xs text-muted-foreground">
-            © 2026 ScanIQ. All rights reserved. Last updated: June 8, 2026 · Kinetex Intelligens (under stiftelse) · scaniqapp1@gmail.com
+            © 2026 ScanIQ. All rights reserved. Last updated: June 8, 2026 · Kinetex Intelligens (under formation) · scaniqapp1@gmail.com
           </p>
         </div>
       </footer>
