@@ -92,7 +92,35 @@ export type TKey =
   | "scan.nutrition_focus" | "scan.nutrition_focus_sub" | "scan.nutrition_focus_processed"
   | "scan.nutrition_focus_nova1" | "scan.nutrition_focus_nova2" | "scan.nutrition_focus_nova3" | "scan.nutrition_focus_nova4"
   | "onboarding.health_title" | "onboarding.health_sub" | "onboarding.health_connect" | "onboarding.health_later"
-  | "settings.health" | "settings.health_connect" | "settings.health_connected" | "settings.health_sub";
+  | "settings.health" | "settings.health_connect" | "settings.health_connected" | "settings.health_sub"
+  // Help page
+  | "help.title" | "help.disclaimer" | "help.disclaimer_body"
+  | "help.contact_support" | "help.contact_sub" | "help.report_bug" | "help.report_bug_sub"
+  | "help.bug_subject" | "help.bug_body" | "help.support_subject"
+  | "help.service_status" | "help.status_ok" | "help.status_ok_sub"
+  | "help.faq" | "help.about" | "help.about_body" | "help.version" | "help.privacy_link"
+  | "help.account" | "help.export" | "help.export_sub" | "help.delete" | "help.delete_sub"
+  | "help.confirm_delete_1" | "help.confirm_delete_2" | "help.deleted" | "help.delete_failed_email"
+  | "help.delete_email_subject" | "help.delete_email_body"
+  | "help.export_done" | "help.export_failed" | "help.remove"
+  | "help.faq_q1" | "help.faq_a1" | "help.faq_q2" | "help.faq_a2" | "help.faq_q3" | "help.faq_a3"
+  | "help.faq_q4" | "help.faq_a4" | "help.faq_q5" | "help.faq_a5" | "help.faq_q6" | "help.faq_a6"
+  // Pricing & Premium extras
+  | "pricing.title" | "pricing.cta_get_started" | "pricing.note" | "pricing.most_popular"
+  | "premium.restore" | "premium.restoring" | "premium.restored" | "premium.no_active"
+  | "premium.auto_renew_note" | "premium.most_popular" | "premium.must_sign_in" | "premium.thanks"
+  // Landing page
+  | "landing.nav_pricing" | "landing.nav_terms" | "landing.nav_privacy" | "landing.nav_login"
+  | "landing.hero_badge" | "landing.hero_h1_a" | "landing.hero_h1_b" | "landing.hero_sub"
+  | "landing.cta_get_started" | "landing.cta_view_pricing" | "landing.cta_disclaimer"
+  | "landing.f1_t" | "landing.f1_d" | "landing.f2_t" | "landing.f2_d" | "landing.f3_t" | "landing.f3_d"
+  | "landing.value_t" | "landing.value_d" | "landing.v1" | "landing.v2" | "landing.v3" | "landing.v4"
+  | "landing.trust_t" | "landing.trust_d"
+  | "landing.cta_ready_t" | "landing.cta_ready_sub" | "landing.cta_ready_btn"
+  | "landing.footer_pricing" | "landing.footer_terms" | "landing.footer_refund" | "landing.footer_privacy"
+  | "landing.footer_copyright"
+  // Legal page titles
+  | "legal.terms_title" | "legal.privacy_title" | "legal.refund_title";
 
 type Dict = Partial<Record<TKey, string>>;
 
@@ -258,6 +286,102 @@ const en: Record<TKey, string> = {
   "settings.health_sub": "Sync workouts, steps and weight",
   "settings.health_connect": "Connect",
   "settings.health_connected": "Connected",
+  // Help
+  "help.title": "Help",
+  "help.disclaimer": "Health disclaimer",
+  "help.disclaimer_body": "ScanIQ is not medical advice and does not replace consultation with a doctor or dietitian. Calories and nutrition are estimates and may be inaccurate. Talk to a healthcare professional before making major changes to your diet or exercise.",
+  "help.contact_support": "Contact support",
+  "help.contact_sub": "Email us — we usually reply within 1 business day.",
+  "help.report_bug": "Report a bug",
+  "help.report_bug_sub": "Send a bug report to our team",
+  "help.bug_subject": "ScanIQ bug report",
+  "help.bug_body": "Please describe the bug and the device you are using:\n\n",
+  "help.support_subject": "ScanIQ support",
+  "help.service_status": "Service status",
+  "help.status_ok": "All systems operational",
+  "help.status_ok_sub": "AI scanner, login and sync OK",
+  "help.faq": "Frequently asked questions",
+  "help.about": "About",
+  "help.about_body": "ScanIQ is a calorie and nutrition tracker that makes it easy to log your meals via photo scanning. ScanIQ is a Kinetex Intelligens product, built to help you reach your health goals.",
+  "help.version": "Version 1.0.0 · © 2026 Kinetex Intelligens",
+  "help.privacy_link": "Privacy policy",
+  "help.account": "Account",
+  "help.export": "Export my data",
+  "help.export_sub": "Download all your data as JSON (GDPR)",
+  "help.delete": "Delete account",
+  "help.delete_sub": "Permanently delete your account and all data",
+  "help.confirm_delete_1": "Are you sure you want to delete your account? This cannot be undone.",
+  "help.confirm_delete_2": "Last warning: all your data will be permanently deleted. Continue?",
+  "help.deleted": "Your account has been deleted",
+  "help.delete_failed_email": "Could not delete automatically — email opened to support",
+  "help.delete_email_subject": "Account deletion request",
+  "help.delete_email_body": "Hi ScanIQ support,\n\nI would like my account to be deleted.\nUser ID: {id}\nEmail: {email}\n\nThanks.",
+  "help.export_done": "Your data has been downloaded",
+  "help.export_failed": "Could not export data",
+  "help.remove": "Remove",
+  "help.faq_q1": "How do I scan food?",
+  "help.faq_a1": "Tap the big orange scan button at the bottom of the screen. Take a photo of your meal and the app will analyze calories and nutrients automatically. Results are estimates.",
+  "help.faq_q2": "Is my data private?",
+  "help.faq_a2": "Yes. We follow GDPR. Your data is stored securely, never sold, and you can delete your account at any time.",
+  "help.faq_q3": "How do I upgrade to Premium?",
+  "help.faq_a3": "Go to Profile → Go Premium. Premium gives you unlimited scans, AI meal suggestions and advanced analytics. Subscriptions are processed by Apple App Store and Google Play.",
+  "help.faq_q4": "How accurate is the scan?",
+  "help.faq_a4": "The scanner gives good estimates for common foods, but results are estimates and can vary. You can always adjust portion size and nutrition manually after scanning.",
+  "help.faq_q5": "Is ScanIQ medical advice?",
+  "help.faq_a5": "No. ScanIQ is not medical advice and does not replace consultation with a doctor or dietitian. Talk to a healthcare professional before making major changes to your diet or training.",
+  "help.faq_q6": "Can I use the app offline?",
+  "help.faq_a6": "Most features require internet because AI scanning and sync run in the cloud.",
+  // Pricing & Premium
+  "pricing.title": "Pricing",
+  "pricing.cta_get_started": "Get Started",
+  "pricing.note": "Subscriptions auto-renew. Purchases are handled by the App Store and Google Play.",
+  "pricing.most_popular": "Most Popular",
+  "premium.restore": "Restore Purchases",
+  "premium.restoring": "Restoring…",
+  "premium.restored": "Your subscription has been restored",
+  "premium.no_active": "No active subscription found",
+  "premium.auto_renew_note": "Subscription auto-renews. You can cancel anytime in your App Store or Google Play account.",
+  "premium.most_popular": "Most Popular",
+  "premium.must_sign_in": "You must be signed in",
+  "premium.thanks": "Thanks for your purchase!",
+  // Landing
+  "landing.nav_pricing": "Pricing",
+  "landing.nav_terms": "Terms",
+  "landing.nav_privacy": "Privacy",
+  "landing.nav_login": "Log in",
+  "landing.hero_badge": "AI-powered nutrition tracker",
+  "landing.hero_h1_a": "Understand your food.",
+  "landing.hero_h1_b": "Reach your goals.",
+  "landing.hero_sub": "Scan meals with your camera, get macros in seconds, and let ScanIQ guide you toward a healthier everyday life — without manual entry.",
+  "landing.cta_get_started": "Get Started",
+  "landing.cta_view_pricing": "View Pricing",
+  "landing.cta_disclaimer": "Subscriptions handled by Apple App Store & Google Play.",
+  "landing.f1_t": "Scan with AI",
+  "landing.f1_d": "Take a picture of your meal — we recognize ingredients and calories automatically.",
+  "landing.f2_t": "Track macros",
+  "landing.f2_d": "Protein, carbs and fat kept up to date day by day.",
+  "landing.f3_t": "Workouts & weight",
+  "landing.f3_d": "Log workouts and follow your weight journey with beautiful charts.",
+  "landing.value_t": "Built to keep you motivated",
+  "landing.value_d": "Daily tasks, streaks, water tracking and personal recipes — all in one simple app.",
+  "landing.v1": "Unlimited AI scans",
+  "landing.v2": "Personal recipes",
+  "landing.v3": "Workout programs",
+  "landing.v4": "Trends and insights",
+  "landing.trust_t": "Privacy-first & secure",
+  "landing.trust_d": "Your data stays yours. Encrypted in transit and at rest, with full GDPR rights — access, export, or delete at any time.",
+  "landing.cta_ready_t": "Ready to get started?",
+  "landing.cta_ready_sub": "Create an account in under a minute.",
+  "landing.cta_ready_btn": "Get Started free",
+  "landing.footer_pricing": "Pricing",
+  "landing.footer_terms": "Terms of Service",
+  "landing.footer_refund": "Refund Policy",
+  "landing.footer_privacy": "Privacy Policy",
+  "landing.footer_copyright": "© 2026 ScanIQ — a Kinetex Intelligens product. All rights reserved.",
+  // Legal titles
+  "legal.terms_title": "Terms of Service",
+  "legal.privacy_title": "Privacy Policy",
+  "legal.refund_title": "Refund Policy",
 };
 
 const da: Dict = {
@@ -402,6 +526,102 @@ const da: Dict = {
   "settings.health_sub": "Synkroniser træning, skridt og vægt",
   "settings.health_connect": "Forbind",
   "settings.health_connected": "Forbundet",
+  // Help
+  "help.title": "Hjælp",
+  "help.disclaimer": "Sundhedsforbehold",
+  "help.disclaimer_body": "ScanIQ er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist. Kalorier og næringsindhold er estimater og kan være unøjagtige. Tal med en sundhedsprofessionel før du foretager større ændringer i kost eller træning.",
+  "help.contact_support": "Kontakt support",
+  "help.contact_sub": "Skriv til os — vi svarer normalt inden for én hverdag.",
+  "help.report_bug": "Rapportér en fejl",
+  "help.report_bug_sub": "Send en bug-rapport til vores team",
+  "help.bug_subject": "ScanIQ fejlrapport",
+  "help.bug_body": "Beskriv venligst fejlen og hvilken enhed du bruger:\n\n",
+  "help.support_subject": "ScanIQ support",
+  "help.service_status": "Service-status",
+  "help.status_ok": "Alle systemer kører",
+  "help.status_ok_sub": "AI-scanner, login og synkronisering OK",
+  "help.faq": "Ofte stillede spørgsmål",
+  "help.about": "Om os",
+  "help.about_body": "ScanIQ er en kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. ScanIQ er et Kinetex Intelligens-produkt, bygget for at hjælpe dig med at nå dine helbredsmål.",
+  "help.version": "Version 1.0.0 · © 2026 Kinetex Intelligens",
+  "help.privacy_link": "Privatlivspolitik",
+  "help.account": "Konto",
+  "help.export": "Eksportér mine data",
+  "help.export_sub": "Download alle dine data som JSON (GDPR)",
+  "help.delete": "Slet konto",
+  "help.delete_sub": "Slet permanent din konto og alle data",
+  "help.confirm_delete_1": "Er du sikker på, at du vil slette din konto? Dette kan ikke fortrydes.",
+  "help.confirm_delete_2": "Sidste advarsel: Alle dine data slettes permanent. Fortsæt?",
+  "help.deleted": "Din konto er slettet",
+  "help.delete_failed_email": "Kunne ikke slette automatisk — e-mail åbnet til support",
+  "help.delete_email_subject": "Anmodning om kontosletning",
+  "help.delete_email_body": "Hej ScanIQ support,\n\nJeg ønsker at få min konto slettet.\nBruger-ID: {id}\nEmail: {email}\n\nTak.",
+  "help.export_done": "Dine data er downloadet",
+  "help.export_failed": "Kunne ikke eksportere data",
+  "help.remove": "Fjern",
+  "help.faq_q1": "Hvordan scanner jeg mad?",
+  "help.faq_a1": "Tryk på den store orange scan-knap i bunden af skærmen. Tag et billede af din mad, så analyserer appen kalorier og næringsstoffer automatisk. Bemærk: resultater er estimater.",
+  "help.faq_q2": "Er mine data private?",
+  "help.faq_a2": "Ja. Vi følger GDPR. Dine data gemmes sikkert, deles ikke med tredjeparter, og du kan slette din konto når som helst.",
+  "help.faq_q3": "Hvordan opgraderer jeg til Premium?",
+  "help.faq_a3": "Gå til Profil → Bliv Premium. Premium giver dig ubegrænsede scanninger, AI-måltidsforslag og avancerede analyser. Abonnementer håndteres af Apple App Store og Google Play.",
+  "help.faq_q4": "Hvor præcis er scanningen?",
+  "help.faq_a4": "Scanneren giver gode estimater for almindelige fødevarer, men resultater er estimater og kan afvige. Du kan altid justere portionsstørrelse og næringsindhold manuelt efter scanning.",
+  "help.faq_q5": "Er ScanIQ medicinsk rådgivning?",
+  "help.faq_a5": "Nej. ScanIQ er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist. Tal med en sundhedsprofessionel før du foretager større ændringer i kost eller træning.",
+  "help.faq_q6": "Kan jeg bruge appen offline?",
+  "help.faq_a6": "De fleste funktioner kræver internet, da AI-scanning og synkronisering sker i skyen.",
+  // Pricing & Premium
+  "pricing.title": "Priser",
+  "pricing.cta_get_started": "Kom i gang",
+  "pricing.note": "Abonnementer fornyes automatisk. Køb håndteres af App Store og Google Play.",
+  "pricing.most_popular": "Mest populære",
+  "premium.restore": "Gendan køb",
+  "premium.restoring": "Gendanner…",
+  "premium.restored": "Dit abonnement er gendannet",
+  "premium.no_active": "Ingen aktivt abonnement fundet",
+  "premium.auto_renew_note": "Abonnementet fornyes automatisk. Du kan opsige når som helst i din App Store- eller Google Play-konto.",
+  "premium.most_popular": "Mest populære",
+  "premium.must_sign_in": "Du skal være logget ind",
+  "premium.thanks": "Tak for dit køb!",
+  // Landing
+  "landing.nav_pricing": "Priser",
+  "landing.nav_terms": "Vilkår",
+  "landing.nav_privacy": "Privatliv",
+  "landing.nav_login": "Log ind",
+  "landing.hero_badge": "AI-drevet ernæringstracker",
+  "landing.hero_h1_a": "Forstå din mad.",
+  "landing.hero_h1_b": "Nå dine mål.",
+  "landing.hero_sub": "Scan måltider med dit kamera, få makroer på sekunder, og lad ScanIQ guide dig mod en sundere hverdag — uden manuel indtastning.",
+  "landing.cta_get_started": "Kom i gang",
+  "landing.cta_view_pricing": "Se priser",
+  "landing.cta_disclaimer": "Abonnementer håndteres af Apple App Store og Google Play.",
+  "landing.f1_t": "Scan med AI",
+  "landing.f1_d": "Tag et billede af dit måltid — vi genkender ingredienser og kalorier automatisk.",
+  "landing.f2_t": "Følg makroer",
+  "landing.f2_d": "Protein, kulhydrater og fedt holdes opdateret dag for dag.",
+  "landing.f3_t": "Træning & vægt",
+  "landing.f3_d": "Log træning og følg din vægtrejse med flotte grafer.",
+  "landing.value_t": "Bygget til at holde dig motiveret",
+  "landing.value_d": "Daglige gøremål, streaks, vandtracking og personlige opskrifter — alt i én simpel app.",
+  "landing.v1": "Ubegrænsede AI-scanninger",
+  "landing.v2": "Personlige opskrifter",
+  "landing.v3": "Træningsprogrammer",
+  "landing.v4": "Tendenser og indsigter",
+  "landing.trust_t": "Privatliv først og sikkert",
+  "landing.trust_d": "Dine data forbliver dine. Krypteret under overførsel og opbevaring, med fulde GDPR-rettigheder — tilgå, eksportér eller slet når som helst.",
+  "landing.cta_ready_t": "Klar til at komme i gang?",
+  "landing.cta_ready_sub": "Opret en konto på under et minut.",
+  "landing.cta_ready_btn": "Kom i gang gratis",
+  "landing.footer_pricing": "Priser",
+  "landing.footer_terms": "Servicevilkår",
+  "landing.footer_refund": "Refunderingspolitik",
+  "landing.footer_privacy": "Privatlivspolitik",
+  "landing.footer_copyright": "© 2026 ScanIQ — et Kinetex Intelligens-produkt. Alle rettigheder forbeholdes.",
+  // Legal titles
+  "legal.terms_title": "Servicevilkår",
+  "legal.privacy_title": "Privatlivspolitik",
+  "legal.refund_title": "Refunderingspolitik",
 };
 
 const es: Dict = {
