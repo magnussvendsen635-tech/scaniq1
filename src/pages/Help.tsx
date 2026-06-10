@@ -1,42 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronDown, Mail, Info, Trash2, Bug, HelpCircle, Activity, ExternalLink, Download } from "lucide-react";
+import { ArrowLeft, ChevronDown, Mail, Trash2, Bug, HelpCircle, Activity, ExternalLink, Download } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Seo } from "@/components/Seo";
+import { useT } from "@/i18n/useT";
+import type { TKey } from "@/i18n/translations";
 
 const SUPPORT_EMAIL = "scaniqapp1@gmail.com";
 
-const FAQS = [
-  {
-    q: "Hvordan scanner jeg mad?",
-    a: "Tryk på den store orange scan-knap i bunden af skærmen. Tag et billede af din mad, så analyserer appen kalorier og næringsstoffer automatisk. Bemærk: resultater er estimater.",
-  },
-  {
-    q: "Er mine data private?",
-    a: "Ja. Vi følger GDPR. Dine data gemmes sikkert, deles ikke med tredjeparter, og du kan slette din konto når som helst.",
-  },
-  {
-    q: "Hvordan opgraderer jeg til Premium?",
-    a: "Gå til Profil → Go Premium. Premium giver dig ubegrænsede scanninger, AI-måltidsforslag og avancerede analyser.",
-  },
-  {
-    q: "Hvor præcis er scanningen?",
-    a: "Scanneren giver gode estimater for almindelige fødevarer, men resultater er estimater og kan afvige. Du kan altid justere portionsstørrelse og næringsindhold manuelt efter scanning.",
-  },
-  {
-    q: "Er ScanIQ medicinsk rådgivning?",
-    a: "Nej. ScanIQ er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist. Resultater og kalorieanslag er estimater. Tal med en sundhedsprofessionel før du foretager større ændringer i kost eller træning.",
-  },
-  {
-    q: "Kan jeg bruge appen offline?",
-    a: "De fleste funktioner kræver internet, da AI-scanning og synkronisering sker i skyen.",
-  },
+const FAQ_KEYS: { q: TKey; a: TKey }[] = [
+  { q: "help.faq_q1", a: "help.faq_a1" },
+  { q: "help.faq_q2", a: "help.faq_a2" },
+  { q: "help.faq_q3", a: "help.faq_a3" },
+  { q: "help.faq_q4", a: "help.faq_a4" },
+  { q: "help.faq_q5", a: "help.faq_a5" },
+  { q: "help.faq_q6", a: "help.faq_a6" },
 ];
 
 export default function Help() {
   const nav = useNavigate();
+  const t = useT();
   const { user, signOut } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -51,21 +36,21 @@ export default function Help() {
         exported_at: new Date().toISOString(),
         user: { id: user.id, email: user.email },
       };
-      for (const t of tables) {
-        const col = t === "profiles" ? "id" : "user_id";
-        const { data: rows } = await (supabase.from(t as any).select("*").eq(col, user.id) as any);
-        data[t] = rows ?? [];
+      for (const tbl of tables) {
+        const col = tbl === "profiles" ? "id" : "user_id";
+        const { data: rows } = await (supabase.from(tbl as any).select("*").eq(col, user.id) as any);
+        data[tbl] = rows ?? [];
       }
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `kcally-data-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `scaniq-data-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("Dine data er downloadet");
-    } catch (e: any) {
-      toast.error("Kunne ikke eksportere data");
+      toast.success(t("help.export_done"));
+    } catch {
+      toast.error(t("help.export_failed"));
     } finally {
       setExporting(false);
     }
@@ -76,22 +61,21 @@ export default function Help() {
 
   const handleDelete = async () => {
     if (!user) return;
-    if (!confirm("Er du sikker på, at du vil slette din konto? Dette kan ikke fortrydes.")) return;
-    if (!confirm("Sidste advarsel: Alle dine data slettes permanent. Fortsæt?")) return;
+    if (!confirm(t("help.confirm_delete_1"))) return;
+    if (!confirm(t("help.confirm_delete_2"))) return;
     setDeleting(true);
     try {
       const { error } = await supabase.functions.invoke("delete-account");
       if (error) throw error;
-      toast.success("Din konto er slettet");
+      toast.success(t("help.deleted"));
       await signOut();
       nav("/auth", { replace: true });
-    } catch (e: any) {
-      // Fallback: open email request
-      window.location.href = mailto(
-        "Anmodning om kontosletning",
-        `Hej ScanIQ support,\n\nJeg ønsker at få min konto slettet.\nBruger-ID: ${user.id}\nEmail: ${user.email}\n\nTak.`,
-      );
-      toast.error("Kunne ikke slette automatisk – e-mail åbnet til support");
+    } catch {
+      const body = t("help.delete_email_body")
+        .replace("{id}", user.id)
+        .replace("{email}", user.email ?? "");
+      window.location.href = mailto(t("help.delete_email_subject"), body);
+      toast.error(t("help.delete_failed_email"));
     } finally {
       setDeleting(false);
     }
@@ -100,75 +84,60 @@ export default function Help() {
   return (
     <div className="k-page pb-32">
       <Seo
-        title="Hjælp & FAQ — ScanIQ"
-        description="Ofte stillede spørgsmål om ScanIQ: scanning, præcision, premium, privatliv og kontoadministration."
+        title={`${t("help.title")} — ScanIQ`}
+        description="ScanIQ help, FAQ, privacy and account management."
         path="/help"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: FAQS.map((f) => ({
-            "@type": "Question",
-            name: f.q,
-            acceptedAnswer: { "@type": "Answer", text: f.a },
-          })),
-        }}
       />
       <header className="flex items-center gap-3 mb-6">
-        <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
+        <button onClick={() => nav(-1)} aria-label={t("common.back")} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight">Hjælp</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("help.title")}</h1>
       </header>
 
-      {/* Health disclaimer */}
       <div className="mb-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
-        <b className="block mb-1 text-amber-300">Sundhedsforbehold</b>
-        ScanIQ er ikke medicinsk rådgivning og erstatter ikke konsultation med læge eller diætist.
-        Kalorier og næringsindhold er estimater og kan være unøjagtige. Tal med en
-        sundhedsprofessionel før du foretager større ændringer i kost eller træning.
+        <b className="block mb-1 text-amber-300">{t("help.disclaimer")}</b>
+        {t("help.disclaimer_body")}
       </div>
 
-      {/* Contact support */}
       <Section>
-        <a href={mailto("ScanIQ support")} className="row">
+        <a href={mailto(t("help.support_subject"))} className="row">
           <Icon Cmp={Mail} />
           <div className="flex-1">
-            <div className="font-medium">Kontakt support</div>
+            <div className="font-medium">{t("help.contact_support")}</div>
             <div className="text-xs text-muted-foreground">{SUPPORT_EMAIL}</div>
           </div>
           <ExternalLink className="w-4 h-4 text-muted-foreground" />
         </a>
-        <a href={mailto("Fejlrapport", "Beskriv venligst fejlen og hvilken enhed du bruger:\n\n")} className="row">
+        <a href={mailto(t("help.bug_subject"), t("help.bug_body"))} className="row">
           <Icon Cmp={Bug} />
           <div className="flex-1">
-            <div className="font-medium">Rapporter en fejl</div>
-            <div className="text-xs text-muted-foreground">Send bug-rapport til vores team</div>
+            <div className="font-medium">{t("help.report_bug")}</div>
+            <div className="text-xs text-muted-foreground">{t("help.report_bug_sub")}</div>
           </div>
           <ExternalLink className="w-4 h-4 text-muted-foreground" />
         </a>
       </Section>
 
-      {/* Service status */}
-      <Section title="Service status">
+      <Section title={t("help.service_status")}>
         <div className="row !cursor-default">
           <Icon Cmp={Activity} />
           <div className="flex-1">
-            <div className="font-medium">Alle systemer kører</div>
-            <div className="text-xs text-muted-foreground">AI-scanner, login og synkronisering OK</div>
+            <div className="font-medium">{t("help.status_ok")}</div>
+            <div className="text-xs text-muted-foreground">{t("help.status_ok_sub")}</div>
           </div>
           <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
         </div>
       </Section>
 
-      {/* FAQ */}
-      <Section title="Ofte stillede spørgsmål">
-        {FAQS.map((f, i) => (
+      <Section title={t("help.faq")}>
+        {FAQ_KEYS.map((f, i) => (
           <button key={i} onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full text-left">
             <div className="row">
               <Icon Cmp={HelpCircle} />
               <div className="flex-1">
-                <div className="font-medium text-sm">{f.q}</div>
-                {openFaq === i && <div className="text-xs text-muted-foreground mt-2 leading-relaxed">{f.a}</div>}
+                <div className="font-medium text-sm">{t(f.q)}</div>
+                {openFaq === i && <div className="text-xs text-muted-foreground mt-2 leading-relaxed">{t(f.a)}</div>}
               </div>
               <ChevronDown className={"w-4 h-4 text-muted-foreground transition-transform " + (openFaq === i ? "rotate-180" : "")} />
             </div>
@@ -176,27 +145,23 @@ export default function Help() {
         ))}
       </Section>
 
-      {/* About */}
-      <Section title="Om os">
+      <Section title={t("help.about")}>
         <div className="px-4 py-4 space-y-2">
           <div className="font-medium">ScanIQ</div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            ScanIQ er en kalorie- og ernæringstracker, der gør det nemt at logge dine måltider via foto-scanning. Bygget af By Kinetix Intelligence for at hjælpe dig med at nå dine helbredsmål.
-          </p>
-          <div className="text-xs text-muted-foreground">Version 1.0.0 • © 2026 By Kinetix Intelligence</div>
-          <button onClick={() => nav("/privacy")} className="text-xs text-primary-glow underline">Privatlivspolitik</button>
+          <p className="text-xs text-muted-foreground leading-relaxed">{t("help.about_body")}</p>
+          <div className="text-xs text-muted-foreground">{t("help.version")}</div>
+          <button onClick={() => nav("/privacy")} className="text-xs text-primary-glow underline">{t("help.privacy_link")}</button>
         </div>
       </Section>
 
-      {/* Account */}
-      <Section title="Konto">
+      <Section title={t("help.account")}>
         <button onClick={handleExport} disabled={exporting} className="row disabled:opacity-50">
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gradient-soft">
             <Download className="w-4.5 h-4.5 text-primary-glow" />
           </div>
           <div className="flex-1 text-left">
-            <div className="font-medium">Eksportér mine data</div>
-            <div className="text-xs text-muted-foreground">Download alle dine data som JSON (GDPR)</div>
+            <div className="font-medium">{t("help.export")}</div>
+            <div className="text-xs text-muted-foreground">{t("help.export_sub")}</div>
           </div>
         </button>
         <button onClick={handleDelete} disabled={deleting} className="row hover:bg-destructive/10 disabled:opacity-50">
@@ -204,8 +169,8 @@ export default function Help() {
             <Trash2 className="w-4.5 h-4.5 text-destructive" />
           </div>
           <div className="flex-1 text-left">
-            <div className="font-medium text-destructive">Slet konto</div>
-            <div className="text-xs text-muted-foreground">Slet permanent din konto og alle data</div>
+            <div className="font-medium text-destructive">{t("help.delete")}</div>
+            <div className="text-xs text-muted-foreground">{t("help.delete_sub")}</div>
           </div>
         </button>
       </Section>

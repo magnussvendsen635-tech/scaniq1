@@ -30,14 +30,11 @@ export default function Premium() {
   const yearlyPrice = 179;
 
   const upgrade = async () => {
-    if (!user) {
-      toast.error("You must be signed in");
-      return;
-    }
+    if (!user) { toast.error(t("premium.must_sign_in")); return; }
     const productId = plan === "month" ? IAP_PRODUCTS.monthly : IAP_PRODUCTS.yearly;
     const { success } = await purchase(productId);
     if (success) {
-      toast.success("Thanks for your purchase!");
+      toast.success(t("premium.thanks"));
       await refetch();
     }
   };
@@ -47,8 +44,8 @@ export default function Premium() {
     try {
       await restoreIAP();
       await refetch();
-      if (isActive) toast.success("Your subscription has been restored");
-      else toast("No active subscription found");
+      if (isActive) toast.success(t("premium.restored"));
+      else toast(t("premium.no_active"));
     } finally {
       setRestoring(false);
     }
@@ -59,7 +56,7 @@ export default function Premium() {
       <header className="flex items-center gap-3 mb-6 pt-2">
         <button
           onClick={() => nav(-1)}
-          aria-label="Back"
+          aria-label={t("common.back")}
           className="k-tap w-10 h-10 rounded-full bg-white border border-border/60 flex items-center justify-center shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -67,7 +64,6 @@ export default function Premium() {
         <h1 className="text-xl font-semibold tracking-tight">{t("premium.title")}</h1>
       </header>
 
-      {/* Hero */}
       <section className="rounded-3xl bg-white border border-border/50 p-7 mb-6 text-center shadow-[0_8px_30px_-12px_hsl(24_95%_55%/0.25)]">
         <div className="relative w-20 h-20 mx-auto mb-4">
           <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,hsl(24_95%_60%/0.45)_0%,transparent_70%)] blur-xl scale-125" />
@@ -76,12 +72,9 @@ export default function Premium() {
           </div>
         </div>
         <h2 className="text-2xl font-semibold tracking-tight">{t("premium.unlock")}</h2>
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
-          {t("premium.unlock_sub")}
-        </p>
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">{t("premium.unlock_sub")}</p>
       </section>
 
-      {/* Features */}
       <section className="rounded-3xl bg-white border border-border/50 p-5 mb-6 shadow-sm">
         <div className="space-y-3">
           {featureKeys.map((k) => (
@@ -95,7 +88,6 @@ export default function Premium() {
         </div>
       </section>
 
-      {/* Plans */}
       <section className="grid grid-cols-2 gap-3 mb-5">
         <PlanOption
           active={plan === "month"}
@@ -112,7 +104,7 @@ export default function Premium() {
           price={`$${yearlyPrice}`}
           unit={t("premium.per_year")}
           sub={t("premium.lifetime")}
-          badge="Most Popular"
+          badge={t("premium.most_popular")}
           highlight
         />
       </section>
@@ -122,49 +114,38 @@ export default function Premium() {
         disabled={isActive || loading}
         className="w-full h-14 rounded-2xl bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-base font-semibold tracking-tight shadow-[0_10px_24px_-8px_hsl(24_95%_55%/0.6)] transition-all"
       >
-        {loading ? (
-          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-        ) : (
-          <Sparkles className="w-5 h-5 mr-2" />
-        )}
+        {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Sparkles className="w-5 h-5 mr-2" />}
         {isActive ? t("premium.youre_premium") : t("premium.upgrade_now")}
       </Button>
 
       <p className="text-[11px] text-muted-foreground text-center mt-3 px-6 leading-relaxed">
-        Subscription auto-renews. You can cancel anytime in your App Store or Google Play account.
+        {t("premium.auto_renew_note")}
       </p>
 
-      {/* Footer actions */}
       <footer className="mt-8 pt-6 border-t border-border/50">
         <div className="grid grid-cols-1 gap-2 mb-2">
-          <FooterAction
-            icon={<RefreshCw className="w-4 h-4" />}
-            label={restoring ? "Restoring…" : "Restore Purchases"}
+          <button
             onClick={restore}
             disabled={restoring}
-          />
+            className="k-tap flex items-center justify-center gap-2 h-11 rounded-xl bg-white border border-border/60 text-sm font-medium text-foreground/80 hover:text-foreground hover:border-border transition-all disabled:opacity-60"
+          >
+            <RefreshCw className="w-4 h-4" />
+            {restoring ? t("premium.restoring") : t("premium.restore")}
+          </button>
         </div>
         <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground flex-wrap mt-4">
-          <button onClick={() => nav("/terms")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
-            Terms of Service
-          </button>
+          <button onClick={() => nav("/terms")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">{t("landing.footer_terms")}</button>
           <span className="text-border">·</span>
-          <button onClick={() => nav("/refund")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
-            Refund Policy
-          </button>
+          <button onClick={() => nav("/refund")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">{t("landing.footer_refund")}</button>
           <span className="text-border">·</span>
-          <button onClick={() => nav("/privacy")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">
-            Privacy Policy
-          </button>
+          <button onClick={() => nav("/privacy")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">{t("landing.footer_privacy")}</button>
         </div>
       </footer>
     </div>
   );
 }
 
-const PlanOption = ({
-  active, onClick, title, price, unit, sub, badge, highlight,
-}: {
+const PlanOption = ({ active, onClick, title, price, unit, sub, badge, highlight }: {
   active: boolean; onClick: () => void; title: string; price: string;
   unit: string; sub: string; badge?: string; highlight?: boolean;
 }) => (
@@ -189,18 +170,5 @@ const PlanOption = ({
       <span className="text-xs text-muted-foreground">{unit}</span>
     </div>
     <div className="text-xs mt-1 text-muted-foreground">{sub}</div>
-  </button>
-);
-
-const FooterAction = ({ icon, label, onClick, disabled }: {
-  icon: React.ReactNode; label: string; onClick: () => void; disabled?: boolean;
-}) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    className="k-tap flex items-center justify-center gap-2 h-11 rounded-xl bg-white border border-border/60 text-sm font-medium text-foreground/80 hover:text-foreground hover:border-border transition-all disabled:opacity-60"
-  >
-    {icon}
-    {label}
   </button>
 );
