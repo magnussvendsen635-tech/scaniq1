@@ -5,15 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 /**
  * Native In-App Purchase hook for Apple StoreKit & Google Play Billing.
  *
- * Configure these product IDs in App Store Connect and Google Play Console:
+ * Product IDs to configure in App Store Connect and Google Play Console:
  *   - com.scaniq.pro.monthly       (monthly auto-renewable subscription)
  *   - com.scaniq.pro.yearly        (yearly auto-renewable subscription)
  *   - com.scaniq.streak.repair     (one-time consumable)
  *
+ * Subscriptions are handled directly by Apple App Store and Google Play
+ * Billing. Apple / Google act as the merchant for every in-app purchase:
+ * they take the payment, issue the receipt and manage refunds.
+ *
  * Wire up to a real SDK on device. Recommended: RevenueCat
- * (@revenuecat/purchases-capacitor) — it handles StoreKit + Play Billing,
- * receipt validation, and entitlements with one API. Replace the TODO blocks
- * below with the SDK calls.
+ * (@revenuecat/purchases-capacitor) — handles StoreKit + Play Billing,
+ * receipt validation, and entitlements with one API. Replace the TODO
+ * blocks below with the SDK calls.
  */
 
 export type IAPProductId =
@@ -38,9 +42,11 @@ async function unlockPremium(productId: IAPProductId) {
   if (!user) return;
   const isYearly = productId === IAP_PRODUCTS.yearly;
   const periodEnd = new Date();
-  periodEnd.setFullYear(periodEnd.getFullYear() + (isYearly ? 1 : 0));
-  if (!isYearly) periodEnd.setMonth(periodEnd.getMonth() + 1);
+  if (isYearly) periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+  else periodEnd.setMonth(periodEnd.getMonth() + 1);
 
+  // NOTE: DB columns are historically named paddle_* — they now store the
+  // native IAP transaction id and the App Store / Play Store customer key.
   await supabase.from("subscriptions").upsert(
     {
       user_id: user.id,
@@ -67,22 +73,11 @@ export function useIAP() {
       if (!isNative()) {
         toast.info("In-App Purchase", {
           description:
-            "Purchases are only available in the native iOS/Android app.",
+            "Purchases are only available in the native iOS / Android app via the App Store and Google Play.",
         });
         return { success: false };
       }
-
       // TODO: Replace with RevenueCat / StoreKit / Play Billing call.
-      // Example with RevenueCat:
-      //   const offerings = await Purchases.getOfferings();
-      //   const pkg = offerings.current?.availablePackages.find(
-      //     p => p.product.identifier === productId
-      //   );
-      //   const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg! });
-      //   const active = !!customerInfo.entitlements.active["pro"];
-      //   if (active) await unlockPremium(productId);
-      //   return { success: active };
-
       throw new Error("Native IAP SDK not yet configured");
     } catch (e: any) {
       toast.error("Purchase failed", { description: e?.message });
@@ -96,13 +91,10 @@ export function useIAP() {
     setLoading(true);
     try {
       if (!isNative()) {
-        toast.info("Restore purchases is only available in the app");
+        toast.info("Restore purchases is only available in the native app");
         return { restored: false };
       }
       // TODO: const { customerInfo } = await Purchases.restorePurchases();
-      //       const active = !!customerInfo.entitlements.active["pro"];
-      //       if (active) await unlockPremium(IAP_PRODUCTS.yearly);
-      //       return { restored: active };
       return { restored: false };
     } finally {
       setLoading(false);
