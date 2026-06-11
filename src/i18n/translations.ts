@@ -589,7 +589,7 @@ const da: Dict = {
   "landing.nav_terms": "Vilkår",
   "landing.nav_privacy": "Privatliv",
   "landing.nav_login": "Log ind",
-  "landing.hero_badge": "AI-drevet ernæringstracker",
+  "landing.hero_badge": "Mestr dine makroer, transformér dit helbred",
   "landing.hero_h1_a": "Forstå din mad.",
   "landing.hero_h1_b": "Nå dine mål.",
   "landing.hero_sub": "Scan måltider med dit kamera, få makroer på sekunder, og lad ScanIQ guide dig mod en sundere hverdag — uden manuel indtastning.",
