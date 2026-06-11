@@ -274,19 +274,19 @@ export default function Onboarding() {
                 onClick={async () => {
                   if (!isHealthAvailable()) {
                     toast.info(tt("onboarding.health_later"), { description: "Apple Health er kun tilgængelig i den native app." });
-                    generate();
+                    next();
                     return;
                   }
                   const ok = await requestHealthPermissions();
                   if (ok) toast.success(tt("settings.health_connected"));
-                  generate();
+                  next();
                 }}
               >
                 <Heart className="w-5 h-5 mr-2" fill="currentColor" />
                 {tt("onboarding.health_connect")}
               </Button>
               <button
-                onClick={generate}
+                onClick={next}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
               >
                 {tt("onboarding.health_later")}
@@ -294,6 +294,37 @@ export default function Onboarding() {
             </div>
           </Step>
         )}
+
+        {step === 13 && (
+          <div>
+            <div className="flex items-start justify-between mb-2">
+              <h1 className="text-3xl font-semibold tracking-tight">{tt("survey.title")}</h1>
+              <button
+                onClick={generate}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full"
+              >
+                {tt("survey.skip")}
+              </button>
+            </div>
+            <p className="text-muted-foreground mb-8">{tt("survey.sub")}</p>
+            <div className="space-y-2.5">
+              {SURVEY_OPTIONS.map((o) => (
+                <button
+                  key={o.id}
+                  onClick={() => setChannel(o.id)}
+                  className={cn(
+                    "k-card k-tap w-full p-4 flex items-center justify-between text-left",
+                    channel === o.id && "ring-2 ring-primary"
+                  )}
+                >
+                  <div className="font-medium">{tt(o.key)}</div>
+                  {channel === o.id && <Check className="w-5 h-5 text-primary" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
 
         {step === TOTAL_QUESTIONS && (
           <div className="flex flex-col items-center justify-center text-center pt-24 gap-6">
