@@ -120,7 +120,25 @@ export type TKey =
   | "landing.footer_pricing" | "landing.footer_terms" | "landing.footer_refund" | "landing.footer_privacy"
   | "landing.footer_copyright"
   // Legal page titles
-  | "legal.terms_title" | "legal.privacy_title" | "legal.refund_title";
+  | "legal.terms_title" | "legal.privacy_title" | "legal.refund_title"
+  // Acquisition survey
+  | "survey.title" | "survey.sub" | "survey.skip" | "survey.saved"
+  | "survey.tiktok" | "survey.instagram" | "survey.ai_search" | "survey.influencer"
+  | "survey.friends" | "survey.app_store" | "survey.google" | "survey.other"
+  // Misc profile / settings
+  | "profile.weight_tracker" | "profile.weight_tracker_sub"
+  | "profile.restore" | "profile.restore_sub" | "profile.restoring"
+  | "profile.manage_sub" | "profile.manage_sub_sub"
+  | "profile.privacy" | "profile.privacy_sub"
+  | "profile.terms" | "profile.terms_sub"
+  | "profile.pricing" | "profile.pricing_sub"
+  | "profile.bonus_terms" | "profile.bonus_terms_sub"
+  | "profile.help" | "profile.help_sub"
+  | "profile.admin" | "profile.admin_sub"
+  | "profile.restart_onb" | "profile.restart_onb_sub"
+  | "profile.delete_account" | "profile.delete_account_sub"
+  | "profile.delete_confirm_title" | "profile.delete_confirm_body" | "profile.deleting" | "profile.delete_permanent"
+  | "profile.deleted" | "profile.delete_failed" | "profile.logout_confirm_body";
 
 type Dict = Partial<Record<TKey, string>>;
 
