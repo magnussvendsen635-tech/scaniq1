@@ -364,8 +364,9 @@ export default function Onboarding() {
         {step < TOTAL_QUESTIONS && step !== 12 && (
           <Button
             size="lg"
-            className="group flex-1 h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
-            onClick={next}
+            disabled={step === 13 && !channel}
+            className="group flex-1 h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0 disabled:opacity-50"
+            onClick={step === 13 ? generate : next}
           >
             <span className="text-white">{tt("common.continue")}</span>
             <span className="ml-2 inline-flex items-center -space-x-2 transition-transform group-hover:translate-x-1">
