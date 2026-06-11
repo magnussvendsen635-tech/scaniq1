@@ -42,6 +42,7 @@ export default function Onboarding() {
   const [pace, setPace] = useState<Pace>(user.pace);
   const [frequency, setFrequency] = useState<Frequency>(user.frequency);
   const [diet, setDiet] = useState<Diet>(user.diet);
+  const [channel, setChannel] = useState<string | null>(null);
   const [loadingMsg, setLoadingMsg] = useState("");
   const [plan, setPlan] = useState<{ calories: number; protein: number; carbs: number; fat: number } | null>(null);
 
