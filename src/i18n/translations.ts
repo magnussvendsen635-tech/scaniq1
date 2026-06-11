@@ -349,7 +349,7 @@ const en: Record<TKey, string> = {
   "landing.nav_terms": "Terms",
   "landing.nav_privacy": "Privacy",
   "landing.nav_login": "Log in",
-  "landing.hero_badge": "AI-powered nutrition tracker",
+  "landing.hero_badge": "Master Your Macros, Transform Your Health",
   "landing.hero_h1_a": "Understand your food.",
   "landing.hero_h1_b": "Reach your goals.",
   "landing.hero_sub": "Scan meals with your camera, get macros in seconds, and let ScanIQ guide you toward a healthier everyday life — without manual entry.",
