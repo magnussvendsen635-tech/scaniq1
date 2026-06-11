@@ -10,7 +10,20 @@ import { cn } from "@/lib/utils";
 import { isHealthAvailable, requestHealthPermissions } from "@/lib/health";
 import { toast } from "sonner";
 
-const TOTAL_QUESTIONS = 13; // steps 0..12 (0 = language, 1 = name, 2 = sex, 12 = Apple Health)
+import { supabase } from "@/integrations/supabase/client";
+
+const TOTAL_QUESTIONS = 14; // 0=lang, 1=name, 2=sex, ... 12=AppleHealth, 13=Acquisition survey
+
+const SURVEY_OPTIONS: { id: string; key: TKey }[] = [
+  { id: "tiktok", key: "survey.tiktok" },
+  { id: "instagram", key: "survey.instagram" },
+  { id: "ai_search", key: "survey.ai_search" },
+  { id: "influencer", key: "survey.influencer" },
+  { id: "friends", key: "survey.friends" },
+  { id: "app_store", key: "survey.app_store" },
+  { id: "google", key: "survey.google" },
+  { id: "other", key: "survey.other" },
+];
 
 export default function Onboarding() {
   const nav = useNavigate();
