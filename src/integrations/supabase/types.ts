@@ -367,6 +367,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          acquisition_channel: string | null
           avatar_url: string | null
           ban_reason: string | null
           banned_at: string | null
@@ -386,6 +387,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          acquisition_channel?: string | null
           avatar_url?: string | null
           ban_reason?: string | null
           banned_at?: string | null
@@ -405,6 +407,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          acquisition_channel?: string | null
           avatar_url?: string | null
           ban_reason?: string | null
           banned_at?: string | null

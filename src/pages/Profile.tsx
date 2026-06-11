@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
-import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift } from "lucide-react";
+import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift, Tag } from "lucide-react";
 import leafLogo from "@/assets/scaniq-leaf-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -101,7 +101,7 @@ export default function Profile() {
       {!premium && (
         <Link
           to="/premium"
-          className="k-card k-tap p-5 mb-4 flex items-center gap-4 !border-transparent shadow-[0_12px_28px_-8px_rgba(245,158,91,0.55)] bg-gradient-to-r from-[#F59E5B] to-[#EA6A1F]"
+          className="k-tap rounded-3xl p-5 mb-4 flex items-center gap-4 shadow-[0_12px_28px_-8px_rgba(245,158,91,0.55)] bg-gradient-to-r from-[#F59E5B] to-[#EA6A1F] border-0"
         >
           <img
             src={leafLogo}
@@ -118,30 +118,30 @@ export default function Profile() {
       )}
 
       <div className="k-card divide-y divide-border/60 overflow-hidden">
-        <Row Icon={Scale} title="Weight tracker" sub="Log weight & see your trend" onClick={() => nav("/weight")} />
-        
+        <Row Icon={Scale} title={t("profile.weight_tracker")} sub={t("profile.weight_tracker_sub")} onClick={() => nav("/weight")} />
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
+        <Row Icon={Tag} title={t("profile.pricing")} sub={t("profile.pricing_sub")} onClick={() => nav("/pricing")} />
         <Row
           Icon={RefreshCw}
-          title={restoring ? "Gendanner…" : "Restore Purchase"}
-          sub="Gendan et eksisterende abonnement"
+          title={restoring ? t("profile.restoring") : t("profile.restore")}
+          sub={t("profile.restore_sub")}
           onClick={restorePurchase}
         />
         <Row
           Icon={ExternalLink}
-          title="Manage Subscription"
-          sub="Administrer i App Store / Google Play"
+          title={t("profile.manage_sub")}
+          sub={t("profile.manage_sub_sub")}
           onClick={manageSubscription}
         />
-        <Row Icon={Shield} title="Privacy Policy" sub="Sådan bruger vi dine data" onClick={() => nav("/privacy")} />
-        <Row Icon={FileText} title="Terms of Service" sub="Vilkår og betingelser" onClick={() => nav("/terms")} />
-        <Row Icon={Gift} title="Bonus Terms" sub="Vilkår for refer-a-friend bonus" onClick={() => nav("/bonus-terms")} />
-        <Row Icon={LifeBuoy} title="Hjælp & support" sub="Kontakt, FAQ, om os, slet konto" onClick={() => nav("/help")} />
-        {isAdmin && <Row Icon={Database} title="Admin panel" sub="Brugere, måltider & data" onClick={() => nav("/admin")} />}
+        <Row Icon={Shield} title={t("profile.privacy")} sub={t("profile.privacy_sub")} onClick={() => nav("/privacy")} />
+        <Row Icon={FileText} title={t("profile.terms")} sub={t("profile.terms_sub")} onClick={() => nav("/terms")} />
+        <Row Icon={Gift} title={t("profile.bonus_terms")} sub={t("profile.bonus_terms_sub")} onClick={() => nav("/bonus-terms")} />
+        <Row Icon={LifeBuoy} title={t("profile.help")} sub={t("profile.help_sub")} onClick={() => nav("/help")} />
+        {isAdmin && <Row Icon={Database} title={t("profile.admin")} sub={t("profile.admin_sub")} onClick={() => nav("/admin")} />}
         <Row
           Icon={RefreshCw}
-          title="Genstart onboarding"
-          sub="Gennemgå opsætningen forfra"
+          title={t("profile.restart_onb")}
+          sub={t("profile.restart_onb_sub")}
           onClick={() => {
             useKStore.getState().setOnboarded(false);
             nav("/onboarding", { replace: true });
@@ -154,21 +154,21 @@ export default function Profile() {
                 <Trash2 className="w-4.5 h-4.5 text-destructive" />
               </div>
               <div className="flex-1">
-                <div className="font-medium text-destructive">Slet konto</div>
-                <div className="text-xs text-muted-foreground">Slet din konto og alle data permanent</div>
+                <div className="font-medium text-destructive">{t("profile.delete_account")}</div>
+                <div className="text-xs text-muted-foreground">{t("profile.delete_account_sub")}</div>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Slet konto?</AlertDialogTitle>
+              <AlertDialogTitle>{t("profile.delete_confirm_title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Denne handling kan ikke fortrydes. Din konto og alle tilknyttede data slettes permanent.
+                {t("profile.delete_confirm_body")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Annuller</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 disabled={deleting}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -179,16 +179,16 @@ export default function Profile() {
                     const { error } = await supabase.functions.invoke("delete-account");
                     if (error) throw error;
                     await signOut();
-                    toast.success("Din konto er slettet");
+                    toast.success(t("profile.deleted"));
                     nav("/auth", { replace: true });
                   } catch (err: any) {
-                    toast.error("Kunne ikke slette konto", { description: err?.message ?? "Prøv igen senere" });
+                    toast.error(t("profile.delete_failed"), { description: err?.message ?? "" });
                   } finally {
                     setDeleting(false);
                   }
                 }}
               >
-                {deleting ? "Sletter…" : "Slet permanent"}
+                {deleting ? t("profile.deleting") : t("profile.delete_permanent")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -210,22 +210,23 @@ export default function Profile() {
             <AlertDialogHeader>
               <AlertDialogTitle>{t("profile.logout")}?</AlertDialogTitle>
               <AlertDialogDescription>
-                Du bliver logget ud af din konto.
+                {t("profile.logout_confirm_body")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={async () => {
                   await signOut();
                   nav("/auth", { replace: true });
                 }}
               >
-                Log out
+                {t("profile.logout")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
       </div>
     </div>
   );

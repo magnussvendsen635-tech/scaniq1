@@ -120,7 +120,25 @@ export type TKey =
   | "landing.footer_pricing" | "landing.footer_terms" | "landing.footer_refund" | "landing.footer_privacy"
   | "landing.footer_copyright"
   // Legal page titles
-  | "legal.terms_title" | "legal.privacy_title" | "legal.refund_title";
+  | "legal.terms_title" | "legal.privacy_title" | "legal.refund_title"
+  // Acquisition survey
+  | "survey.title" | "survey.sub" | "survey.skip" | "survey.saved"
+  | "survey.tiktok" | "survey.instagram" | "survey.ai_search" | "survey.influencer"
+  | "survey.friends" | "survey.app_store" | "survey.google" | "survey.other"
+  // Misc profile / settings
+  | "profile.weight_tracker" | "profile.weight_tracker_sub"
+  | "profile.restore" | "profile.restore_sub" | "profile.restoring"
+  | "profile.manage_sub" | "profile.manage_sub_sub"
+  | "profile.privacy" | "profile.privacy_sub"
+  | "profile.terms" | "profile.terms_sub"
+  | "profile.pricing" | "profile.pricing_sub"
+  | "profile.bonus_terms" | "profile.bonus_terms_sub"
+  | "profile.help" | "profile.help_sub"
+  | "profile.admin" | "profile.admin_sub"
+  | "profile.restart_onb" | "profile.restart_onb_sub"
+  | "profile.delete_account" | "profile.delete_account_sub"
+  | "profile.delete_confirm_title" | "profile.delete_confirm_body" | "profile.deleting" | "profile.delete_permanent"
+  | "profile.deleted" | "profile.delete_failed" | "profile.logout_confirm_body";
 
 type Dict = Partial<Record<TKey, string>>;
 
@@ -349,7 +367,7 @@ const en: Record<TKey, string> = {
   "landing.nav_terms": "Terms",
   "landing.nav_privacy": "Privacy",
   "landing.nav_login": "Log in",
-  "landing.hero_badge": "AI-powered nutrition tracker",
+  "landing.hero_badge": "Master Your Macros, Transform Your Health",
   "landing.hero_h1_a": "Understand your food.",
   "landing.hero_h1_b": "Reach your goals.",
   "landing.hero_sub": "Scan meals with your camera, get macros in seconds, and let ScanIQ guide you toward a healthier everyday life — without manual entry.",
@@ -382,6 +400,50 @@ const en: Record<TKey, string> = {
   "legal.terms_title": "Terms of Service",
   "legal.privacy_title": "Privacy Policy",
   "legal.refund_title": "Refund Policy",
+  // Acquisition survey
+  "survey.title": "How did you hear about us?",
+  "survey.sub": "This helps us understand how to reach more people like you.",
+  "survey.skip": "Skip",
+  "survey.saved": "Thanks for letting us know!",
+  "survey.tiktok": "TikTok",
+  "survey.instagram": "Instagram",
+  "survey.ai_search": "ChatGPT or AI Search",
+  "survey.influencer": "Influencer",
+  "survey.friends": "Friends or Family",
+  "survey.app_store": "App Store",
+  "survey.google": "Google Search or Web Article",
+  "survey.other": "Other",
+  // Profile / menu
+  "profile.weight_tracker": "Weight tracker",
+  "profile.weight_tracker_sub": "Log weight & see your trend",
+  "profile.restore": "Restore Purchase",
+  "profile.restore_sub": "Restore an existing subscription",
+  "profile.restoring": "Restoring…",
+  "profile.manage_sub": "Manage Subscription",
+  "profile.manage_sub_sub": "Manage in App Store / Google Play",
+  "profile.privacy": "Privacy Policy",
+  "profile.privacy_sub": "How we use your data",
+  "profile.terms": "Terms of Service",
+  "profile.terms_sub": "Terms and conditions",
+  "profile.pricing": "Pricing",
+  "profile.pricing_sub": "Plans and prices",
+  "profile.bonus_terms": "Bonus Terms",
+  "profile.bonus_terms_sub": "Refer-a-friend bonus terms",
+  "profile.help": "Help & support",
+  "profile.help_sub": "Contact, FAQ, about, delete account",
+  "profile.admin": "Admin panel",
+  "profile.admin_sub": "Users, meals & data",
+  "profile.restart_onb": "Restart onboarding",
+  "profile.restart_onb_sub": "Go through setup again",
+  "profile.delete_account": "Delete account",
+  "profile.delete_account_sub": "Permanently delete your account and all data",
+  "profile.delete_confirm_title": "Delete account?",
+  "profile.delete_confirm_body": "This cannot be undone. Your account and all related data will be permanently deleted.",
+  "profile.deleting": "Deleting…",
+  "profile.delete_permanent": "Delete permanently",
+  "profile.deleted": "Your account has been deleted",
+  "profile.delete_failed": "Could not delete account",
+  "profile.logout_confirm_body": "You will be signed out of your account.",
 };
 
 const da: Dict = {
@@ -589,7 +651,7 @@ const da: Dict = {
   "landing.nav_terms": "Vilkår",
   "landing.nav_privacy": "Privatliv",
   "landing.nav_login": "Log ind",
-  "landing.hero_badge": "AI-drevet ernæringstracker",
+  "landing.hero_badge": "Mestr dine makroer, transformér dit helbred",
   "landing.hero_h1_a": "Forstå din mad.",
   "landing.hero_h1_b": "Nå dine mål.",
   "landing.hero_sub": "Scan måltider med dit kamera, få makroer på sekunder, og lad ScanIQ guide dig mod en sundere hverdag — uden manuel indtastning.",
@@ -622,6 +684,50 @@ const da: Dict = {
   "legal.terms_title": "Servicevilkår",
   "legal.privacy_title": "Privatlivspolitik",
   "legal.refund_title": "Refunderingspolitik",
+  // Survey
+  "survey.title": "Hvor hørte du om os?",
+  "survey.sub": "Det hjælper os med at nå flere som dig.",
+  "survey.skip": "Spring over",
+  "survey.saved": "Tak fordi du fortalte os det!",
+  "survey.tiktok": "TikTok",
+  "survey.instagram": "Instagram",
+  "survey.ai_search": "ChatGPT eller AI-søgning",
+  "survey.influencer": "Influencer",
+  "survey.friends": "Venner eller familie",
+  "survey.app_store": "App Store",
+  "survey.google": "Google-søgning eller webartikel",
+  "survey.other": "Andet",
+  // Profile / menu
+  "profile.weight_tracker": "Vægt-tracker",
+  "profile.weight_tracker_sub": "Log vægt og se din udvikling",
+  "profile.restore": "Gendan køb",
+  "profile.restore_sub": "Gendan et eksisterende abonnement",
+  "profile.restoring": "Gendanner…",
+  "profile.manage_sub": "Administrér abonnement",
+  "profile.manage_sub_sub": "Administrér i App Store / Google Play",
+  "profile.privacy": "Privatlivspolitik",
+  "profile.privacy_sub": "Sådan bruger vi dine data",
+  "profile.terms": "Servicevilkår",
+  "profile.terms_sub": "Vilkår og betingelser",
+  "profile.pricing": "Priser",
+  "profile.pricing_sub": "Pakker og priser",
+  "profile.bonus_terms": "Bonus-vilkår",
+  "profile.bonus_terms_sub": "Vilkår for refer-a-friend bonus",
+  "profile.help": "Hjælp & support",
+  "profile.help_sub": "Kontakt, FAQ, om os, slet konto",
+  "profile.admin": "Admin-panel",
+  "profile.admin_sub": "Brugere, måltider & data",
+  "profile.restart_onb": "Genstart onboarding",
+  "profile.restart_onb_sub": "Gennemgå opsætningen forfra",
+  "profile.delete_account": "Slet konto",
+  "profile.delete_account_sub": "Slet din konto og alle data permanent",
+  "profile.delete_confirm_title": "Slet konto?",
+  "profile.delete_confirm_body": "Denne handling kan ikke fortrydes. Din konto og alle tilknyttede data slettes permanent.",
+  "profile.deleting": "Sletter…",
+  "profile.delete_permanent": "Slet permanent",
+  "profile.deleted": "Din konto er slettet",
+  "profile.delete_failed": "Kunne ikke slette konto",
+  "profile.logout_confirm_body": "Du bliver logget ud af din konto.",
 };
 
 const es: Dict = {
@@ -828,6 +934,52 @@ const fr: Dict = {
   "onboarding.personalizing": "Personnalisation de votre expérience ScanIQ",
   "onboarding.plan_ready": "Votre plan est prêt",
   "onboarding.plan_ready_sub": "Adapté à votre corps et à votre objectif.",
+  // Survey
+  "survey.title": "Comment avez-vous entendu parler de nous ?",
+  "survey.sub": "Cela nous aide à toucher plus de personnes comme vous.",
+  "survey.skip": "Passer",
+  "survey.saved": "Merci de nous l'avoir dit !",
+  "survey.tiktok": "TikTok",
+  "survey.instagram": "Instagram",
+  "survey.ai_search": "ChatGPT ou recherche IA",
+  "survey.influencer": "Influenceur",
+  "survey.friends": "Amis ou famille",
+  "survey.app_store": "App Store",
+  "survey.google": "Recherche Google ou article web",
+  "survey.other": "Autre",
+  // Landing headline
+  "landing.hero_badge": "Maîtrisez vos macros, transformez votre santé",
+  // Profile / menu
+  "profile.weight_tracker": "Suivi du poids",
+  "profile.weight_tracker_sub": "Enregistrez votre poids et voyez votre évolution",
+  "profile.restore": "Restaurer l'achat",
+  "profile.restore_sub": "Restaurer un abonnement existant",
+  "profile.restoring": "Restauration…",
+  "profile.manage_sub": "Gérer l'abonnement",
+  "profile.manage_sub_sub": "Gérer dans l'App Store / Google Play",
+  "profile.privacy": "Politique de confidentialité",
+  "profile.privacy_sub": "Comment nous utilisons vos données",
+  "profile.terms": "Conditions d'utilisation",
+  "profile.terms_sub": "Conditions générales",
+  "profile.pricing": "Tarifs",
+  "profile.pricing_sub": "Forfaits et prix",
+  "profile.bonus_terms": "Conditions du bonus",
+  "profile.bonus_terms_sub": "Conditions du bonus de parrainage",
+  "profile.help": "Aide et assistance",
+  "profile.help_sub": "Contact, FAQ, à propos, supprimer le compte",
+  "profile.admin": "Panneau admin",
+  "profile.admin_sub": "Utilisateurs, repas et données",
+  "profile.restart_onb": "Recommencer la configuration",
+  "profile.restart_onb_sub": "Refaire la configuration",
+  "profile.delete_account": "Supprimer le compte",
+  "profile.delete_account_sub": "Supprimer définitivement votre compte et toutes les données",
+  "profile.delete_confirm_title": "Supprimer le compte ?",
+  "profile.delete_confirm_body": "Action irréversible. Votre compte et toutes les données associées seront définitivement supprimés.",
+  "profile.deleting": "Suppression…",
+  "profile.delete_permanent": "Supprimer définitivement",
+  "profile.deleted": "Votre compte a été supprimé",
+  "profile.delete_failed": "Impossible de supprimer le compte",
+  "profile.logout_confirm_body": "Vous serez déconnecté de votre compte.",
 };
 
 const de: Dict = {

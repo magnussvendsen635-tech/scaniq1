@@ -10,7 +10,20 @@ import { cn } from "@/lib/utils";
 import { isHealthAvailable, requestHealthPermissions } from "@/lib/health";
 import { toast } from "sonner";
 
-const TOTAL_QUESTIONS = 13; // steps 0..12 (0 = language, 1 = name, 2 = sex, 12 = Apple Health)
+import { supabase } from "@/integrations/supabase/client";
+
+const TOTAL_QUESTIONS = 14; // 0=lang, 1=name, 2=sex, ... 12=AppleHealth, 13=Acquisition survey
+
+const SURVEY_OPTIONS: { id: string; key: TKey }[] = [
+  { id: "tiktok", key: "survey.tiktok" },
+  { id: "instagram", key: "survey.instagram" },
+  { id: "ai_search", key: "survey.ai_search" },
+  { id: "influencer", key: "survey.influencer" },
+  { id: "friends", key: "survey.friends" },
+  { id: "app_store", key: "survey.app_store" },
+  { id: "google", key: "survey.google" },
+  { id: "other", key: "survey.other" },
+];
 
 export default function Onboarding() {
   const nav = useNavigate();
@@ -29,6 +42,7 @@ export default function Onboarding() {
   const [pace, setPace] = useState<Pace>(user.pace);
   const [frequency, setFrequency] = useState<Frequency>(user.frequency);
   const [diet, setDiet] = useState<Diet>(user.diet);
+  const [channel, setChannel] = useState<string | null>(null);
   const [loadingMsg, setLoadingMsg] = useState("");
   const [plan, setPlan] = useState<{ calories: number; protein: number; carbs: number; fat: number } | null>(null);
 
@@ -82,10 +96,20 @@ export default function Onboarding() {
     setStep(TOTAL_QUESTIONS + 1);
   };
 
-  const finish = () => {
+  const finish = async () => {
     if (!plan) return;
     setLanguage(lang);
     updateUser({ name: name.trim(), age, weight, targetWeight, height, goal, sex, activity, pace, frequency, diet, ...plan });
+    if (channel) {
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+          await supabase.from("profiles").update({ acquisition_channel: channel }).eq("id", authUser.id);
+        }
+      } catch (e) {
+        console.warn("Failed to save acquisition channel", e);
+      }
+    }
     setOnboarded(true);
     nav("/premium", { replace: true });
   };
@@ -250,19 +274,19 @@ export default function Onboarding() {
                 onClick={async () => {
                   if (!isHealthAvailable()) {
                     toast.info(tt("onboarding.health_later"), { description: "Apple Health er kun tilgængelig i den native app." });
-                    generate();
+                    next();
                     return;
                   }
                   const ok = await requestHealthPermissions();
                   if (ok) toast.success(tt("settings.health_connected"));
-                  generate();
+                  next();
                 }}
               >
                 <Heart className="w-5 h-5 mr-2" fill="currentColor" />
                 {tt("onboarding.health_connect")}
               </Button>
               <button
-                onClick={generate}
+                onClick={next}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
               >
                 {tt("onboarding.health_later")}
@@ -270,6 +294,37 @@ export default function Onboarding() {
             </div>
           </Step>
         )}
+
+        {step === 13 && (
+          <div>
+            <div className="flex items-start justify-between mb-2">
+              <h1 className="text-3xl font-semibold tracking-tight">{tt("survey.title")}</h1>
+              <button
+                onClick={generate}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full"
+              >
+                {tt("survey.skip")}
+              </button>
+            </div>
+            <p className="text-muted-foreground mb-8">{tt("survey.sub")}</p>
+            <div className="space-y-2.5">
+              {SURVEY_OPTIONS.map((o) => (
+                <button
+                  key={o.id}
+                  onClick={() => setChannel(o.id)}
+                  className={cn(
+                    "k-card k-tap w-full p-4 flex items-center justify-between text-left",
+                    channel === o.id && "ring-2 ring-primary"
+                  )}
+                >
+                  <div className="font-medium">{tt(o.key)}</div>
+                  {channel === o.id && <Check className="w-5 h-5 text-primary" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
 
         {step === TOTAL_QUESTIONS && (
           <div className="flex flex-col items-center justify-center text-center pt-24 gap-6">
@@ -309,8 +364,9 @@ export default function Onboarding() {
         {step < TOTAL_QUESTIONS && step !== 12 && (
           <Button
             size="lg"
-            className="group flex-1 h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
-            onClick={next}
+            disabled={step === 13 && !channel}
+            className="group flex-1 h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0 disabled:opacity-50"
+            onClick={step === 13 ? generate : next}
           >
             <span className="text-white">{tt("common.continue")}</span>
             <span className="ml-2 inline-flex items-center -space-x-2 transition-transform group-hover:translate-x-1">
