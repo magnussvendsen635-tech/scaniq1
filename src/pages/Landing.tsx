@@ -12,7 +12,7 @@ import { useT } from "@/i18n/useT";
 import logo from "@/assets/scaniq-leaf-logo.png";
 import slideScan from "@/assets/slide-scan.jpg";
 import slideMacros from "@/assets/slide-macros.jpg";
-import slideMotivation from "@/assets/slide-motivation.jpg";
+import slideInsights from "@/assets/slide-insights.jpg";
 import slidePrivacy from "@/assets/slide-privacy.jpg";
 
 const BRAND = "hsl(24 95% 53%)";
@@ -55,9 +55,9 @@ export default function Landing() {
     },
     {
       icon: Sparkles,
-      image: slideMotivation,
-      title: "Motivation & Streaks",
-      desc: "Build daily streaks, complete tasks and watch your progress grow week after week.",
+      image: slideInsights,
+      title: "Intelligent Health Insights",
+      desc: "Visualize your progress with smart data trends. We analyze your long-term patterns to help you transform your health.",
     },
     {
       icon: Shield,

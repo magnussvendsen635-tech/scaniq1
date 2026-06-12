@@ -181,7 +181,7 @@ export function StreakCard() {
           }
         >
           <Snowflake className="w-3.5 h-3.5" />
-          <span>Frys</span>
+          <span>{t("streak.freeze")}</span>
           <span className="text-[9px] opacity-70">{freezesLeft}/2</span>
         </button>
       </div>

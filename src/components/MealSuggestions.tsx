@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, RefreshCw, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { categoryForNow } from "@/store/useKStore";
+import { useT } from "@/i18n/useT";
 
 interface Suggestion {
   name: string;
@@ -16,6 +17,7 @@ interface Suggestion {
 }
 
 export const MealSuggestions = () => {
+  const t = useT();
   const { user, meals, addMeal, premium } = useKStore();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
@@ -84,7 +86,7 @@ export const MealSuggestions = () => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-primary-glow" />
-          <h3 className="font-semibold text-sm">Meal ideas for you</h3>
+          <h3 className="font-semibold text-sm">{t("meal.ideas_for_you")}</h3>
         </div>
         <button
           onClick={fetchSuggestions}

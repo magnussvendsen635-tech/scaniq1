@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { LANGUAGES } from "@/data/languages";
 import { Check, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/useT";
 
 interface Props {
   value: string;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function LanguagePicker({ value, onChange, className }: Props) {
+  const t = useT();
   const [q, setQ] = useState("");
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -55,7 +57,7 @@ export function LanguagePicker({ value, onChange, className }: Props) {
           );
         })}
         {filtered.length === 0 && (
-          <div className="p-6 text-center text-sm text-muted-foreground">No languages found.</div>
+          <div className="p-6 text-center text-sm text-muted-foreground">{t("lang.none_found")}</div>
         )}
       </div>
     </div>

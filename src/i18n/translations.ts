@@ -155,7 +155,20 @@ export type TKey =
   | "home.weight_title" | "home.weight_sub"
   // Progress extras
   | "progress.weekly_locked_title" | "progress.weekly_locked_sub"
-  | "progress.detail_locked_title" | "progress.detail_locked_sub";
+  | "progress.detail_locked_title" | "progress.detail_locked_sub"
+  // Cookie consent
+  | "cookie.title" | "cookie.body_pre" | "cookie.body_link" | "cookie.accept_all" | "cookie.essential" | "cookie.close"
+  // Streak
+  | "streak.freeze"
+  // Meal suggestions
+  | "meal.ideas_for_you"
+  // Health sync
+  | "health.unavailable_title" | "health.unavailable_sub" | "health.tap_to_sync" | "health.steps"
+  | "health.permission_denied" | "health.enable_in_settings" | "health.synced" | "health.sync_failed" | "health.try_again"
+  // Exercise figure
+  | "exercise.reps" | "exercise.sets"
+  // Language picker
+  | "lang.none_found";
 
 type Dict = Partial<Record<TKey, string>>;
 
@@ -505,6 +518,26 @@ const en: Record<TKey, string> = {
   "progress.weekly_locked_sub": "Upgrade to ScanIQ Pro to see your weekly report.",
   "progress.detail_locked_title": "Detailed progress",
   "progress.detail_locked_sub": "Upgrade to ScanIQ Pro to see the calorie chart, weight curve and weekly stats.",
+  "cookie.title": "We use cookies",
+  "cookie.body_pre": "ScanIQ uses essential cookies for login and security, plus optional cookies to improve the app. Read more in our",
+  "cookie.body_link": "privacy policy",
+  "cookie.accept_all": "Accept all",
+  "cookie.essential": "Only essential",
+  "cookie.close": "Close",
+  "streak.freeze": "Freeze",
+  "meal.ideas_for_you": "Meal ideas for you",
+  "health.unavailable_title": "Apple Health & Google Fit",
+  "health.unavailable_sub": "Available in the native app only.",
+  "health.tap_to_sync": "Tap to sync today's data",
+  "health.steps": "steps",
+  "health.permission_denied": "Permission denied",
+  "health.enable_in_settings": "Enable health access in Settings.",
+  "health.synced": "Synced!",
+  "health.sync_failed": "Sync failed",
+  "health.try_again": "Try again",
+  "exercise.reps": "Reps",
+  "exercise.sets": "Sets",
+  "lang.none_found": "No languages found.",
 };
 
 const da: Dict = {
@@ -828,6 +861,26 @@ const da: Dict = {
   "progress.weekly_locked_sub": "Opgradér til ScanIQ Pro for at se din ugerapport.",
   "progress.detail_locked_title": "Detaljeret fremskridt",
   "progress.detail_locked_sub": "Opgradér til ScanIQ Pro for at se kaloriegrafen, vægtkurven og din uge-statistik.",
+  "cookie.title": "Vi bruger cookies",
+  "cookie.body_pre": "ScanIQ bruger nødvendige cookies til login og sikkerhed, samt valgfri cookies til at forbedre appen. Læs mere i vores",
+  "cookie.body_link": "privatlivspolitik",
+  "cookie.accept_all": "Accepter alle",
+  "cookie.essential": "Kun nødvendige",
+  "cookie.close": "Luk",
+  "streak.freeze": "Frys",
+  "meal.ideas_for_you": "Måltidsforslag til dig",
+  "health.unavailable_title": "Apple Health & Google Fit",
+  "health.unavailable_sub": "Kun tilgængelig i den native app.",
+  "health.tap_to_sync": "Tryk for at synkronisere dagens data",
+  "health.steps": "skridt",
+  "health.permission_denied": "Adgang nægtet",
+  "health.enable_in_settings": "Aktivér sundhedsadgang i Indstillinger.",
+  "health.synced": "Synkroniseret!",
+  "health.sync_failed": "Synkronisering mislykkedes",
+  "health.try_again": "Prøv igen",
+  "exercise.reps": "Reps",
+  "exercise.sets": "Sæt",
+  "lang.none_found": "Ingen sprog fundet.",
 };
 
 const es: Dict = {

@@ -173,7 +173,10 @@ function repsSets(ex: Exercise): { reps: string; sets: string } | null {
   }
 }
 
+import { useT } from "@/i18n/useT";
+
 export function ExerciseFigure({ exercise }: { exercise: Exercise }) {
+  const t = useT();
   const anim = pickAnim(exercise);
   const steps = STEPS[anim];
   const muscles = MUSCLES[anim];
@@ -208,11 +211,11 @@ export function ExerciseFigure({ exercise }: { exercise: Exercise }) {
         {rs && (
           <div className="flex gap-2">
             <div className="flex-1 rounded-xl bg-card/60 border border-border/50 px-3 py-2">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Reps</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("exercise.reps")}</div>
               <div className="text-sm font-semibold">{rs.reps}</div>
             </div>
             <div className="flex-1 rounded-xl bg-card/60 border border-border/50 px-3 py-2">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Sæt</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("exercise.sets")}</div>
               <div className="text-sm font-semibold">{rs.sets}</div>
             </div>
           </div>
