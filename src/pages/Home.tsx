@@ -33,7 +33,7 @@ export default function Home() {
     <div className="k-page pb-32">
       <Seo
         title="ScanIQ"
-        description="Scan din mad med ét billede. ScanIQ analyserer kalorier, makroer og sundhedsscore automatisk og hjælper dig med at nå dine mål."
+        description="Scan your meal with one photo. ScanIQ analyzes calories, macros and a health score automatically to help you reach your goals."
         path="/"
       />
       <header className="flex items-center justify-between mb-4">
