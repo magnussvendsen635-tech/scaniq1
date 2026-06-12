@@ -45,8 +45,8 @@ export function PremiumWrapper({
     <div className={"relative " + className}>
       <div
         aria-hidden
-        className="pointer-events-none select-none"
-        style={{ filter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", backdropFilter: "blur(8px)", opacity: 0.6 }}
+        className="select-none"
+        style={{ filter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", backdropFilter: "blur(8px)", opacity: 0.5, pointerEvents: "auto" }}
       >
         {children}
       </div>

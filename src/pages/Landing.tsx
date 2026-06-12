@@ -10,6 +10,10 @@ import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n/useT";
 import logo from "@/assets/scaniq-leaf-logo.png";
+import slideScan from "@/assets/slide-scan.jpg";
+import slideMacros from "@/assets/slide-macros.jpg";
+import slideMotivation from "@/assets/slide-motivation.jpg";
+import slidePrivacy from "@/assets/slide-privacy.jpg";
 
 const BRAND = "hsl(24 95% 53%)";
 const BRAND_DARK = "hsl(24 95% 48%)";
@@ -36,11 +40,12 @@ export default function Landing() {
   if (session) return <Navigate to={onboarded ? "/app" : "/onboarding"} replace />;
 
   const slides = [
-    { icon: Camera, title: t("landing.f1_t"), desc: t("landing.f1_d") },
-    { icon: LineChart, title: t("landing.f2_t"), desc: t("landing.f2_d") },
-    { icon: Sparkles, title: t("landing.value_t"), desc: t("landing.value_d") },
+    { icon: Camera, image: slideScan, title: t("landing.f1_t"), desc: t("landing.f1_d") },
+    { icon: LineChart, image: slideMacros, title: t("landing.f2_t"), desc: t("landing.f2_d") },
+    { icon: Sparkles, image: slideMotivation, title: t("landing.value_t"), desc: t("landing.value_d") },
     {
       icon: Shield,
+      image: slidePrivacy,
       title: t("landing.trust_t"),
       desc: `${t("landing.cta_disclaimer")} ${t("landing.trust_d")}`,
     },
@@ -88,14 +93,25 @@ export default function Landing() {
       <div className="flex-1 flex flex-col justify-center py-8 min-h-0">
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex">
-            {slides.map(({ icon: Icon, title, desc }, i) => (
+            {slides.map(({ icon: Icon, image, title, desc }, i) => (
               <div key={i} className="min-w-0 shrink-0 grow-0 basis-full px-6">
-                <div className="max-w-md mx-auto rounded-3xl bg-white border border-border/50 p-8 shadow-sm text-center">
+                <div className="max-w-md mx-auto rounded-3xl bg-white border border-border/50 p-6 shadow-sm text-center">
+                  {/* Image container — centered, ready for asset */}
+                  <div className="mx-auto mb-5 w-full aspect-square max-w-[260px] rounded-2xl overflow-hidden flex items-center justify-center bg-[hsl(40_40%_97%)]">
+                    <img
+                      src={image}
+                      alt={title}
+                      loading="lazy"
+                      width={1024}
+                      height={1024}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                   <div
-                    className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4"
+                    className="w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-3"
                     style={{ background: "hsl(24 95% 53% / 0.12)" }}
                   >
-                    <Icon className="w-6 h-6" style={{ color: BRAND_DARK }} />
+                    <Icon className="w-5 h-5" style={{ color: BRAND_DARK }} />
                   </div>
                   <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
