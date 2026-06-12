@@ -14150,7 +14150,7 @@ const uk: Dict = {
   "water.bottle": "Пляшка",
   "water.large": "Велика",
   "water.sub": "Залишайтеся зволоженими протягом дня",
-  "water.empty": "Натисніть, щоб записати свій перший стакан"
+  "water.empty": "Натисніть, щоб записати свій перший стакан",
   "diary.quick_add": "Швидко додати",
   "diary.ai_insight": "Аналіз ШІ",
   "diary.analyzing": "Аналізуємо ваш день…",
@@ -14739,7 +14739,7 @@ const sk: Dict = {
   "water.bottle": "Fľaša",
   "water.large": "Veľké",
   "water.sub": "Zostaňte hydratovaní celý deň",
-  "water.empty": "Klepnutím zaznamenáte prvý pohár"
+  "water.empty": "Klepnutím zaznamenáte prvý pohár",
   "diary.quick_add": "Rýchle pridanie",
   "diary.ai_insight": "Návrhy AI",
   "diary.analyzing": "Analyzujem váš deň…",
@@ -15328,7 +15328,7 @@ const cs: Dict = {
   "water.bottle": "Láhev",
   "water.large": "Velká",
   "water.sub": "Zůstaňte hydratovaní celý den",
-  "water.empty": "Klepnutím zaznamenejte svou první sklenici"
+  "water.empty": "Klepnutím zaznamenejte svou první sklenici",
   "diary.quick_add": "Rychlé přidání",
   "diary.ai_insight": "AI vhled",
   "diary.analyzing": "Analyzuji váš den…",
@@ -15917,7 +15917,7 @@ const ro: Dict = {
   "water.bottle": "Sticlă",
   "water.large": "Mare",
   "water.sub": "Rămâi hidratat pe tot parcursul zilei",
-  "water.empty": "Atinge pentru a înregistra primul pahar"
+  "water.empty": "Atinge pentru a înregistra primul pahar",
   "diary.quick_add": "Adăugare rapidă",
   "diary.ai_insight": "Analiză AI",
   "diary.analyzing": "Analizăm ziua ta…",
@@ -16506,7 +16506,7 @@ const be: Dict = {
   "water.bottle": "Бутэлька",
   "water.large": "Вялікі",
   "water.sub": "Заставайцеся ўвільготненымі ўвесь дзень",
-  "water.empty": "Націсніце, каб запісаць ваш першы шклянку"
+  "water.empty": "Націсніце, каб запісаць ваш першы шклянку",
   "diary.quick_add": "Хуткае даданне",
   "diary.ai_insight": "Аналіз ІІ",
   "diary.analyzing": "Аналізуем ваш дзень…",
@@ -17095,7 +17095,7 @@ const hu: Dict = {
   "water.bottle": "Palack",
   "water.large": "Nagy",
   "water.sub": "Egész nap hidratált marad",
-  "water.empty": "Koppintson az első pohár naplózásához"
+  "water.empty": "Koppintson az első pohár naplózásához",
   "diary.quick_add": "Gyors hozzáadás",
   "diary.ai_insight": "MI betekintés",
   "diary.analyzing": "Napod elemzése…",
@@ -17684,7 +17684,7 @@ const sr: Dict = {
   "water.bottle": "Boca",
   "water.large": "Velika",
   "water.sub": "Ostanite hidrirani ceo dan",
-  "water.empty": "Dodirnite da zabeležite svoju prvu čašu"
+  "water.empty": "Dodirnite da zabeležite svoju prvu čašu",
   "diary.quick_add": "Brzo dodavanje",
   "diary.ai_insight": "AI uvid",
   "diary.analyzing": "Analiziram tvoj dan…",
@@ -18273,7 +18273,7 @@ const sl: Dict = {
   "water.bottle": "Steklenica",
   "water.large": "Veliko",
   "water.sub": "Ostani hidriran cel dan",
-  "water.empty": "Tapni, da zabeležiš prvi kozarec"
+  "water.empty": "Tapni, da zabeležiš prvi kozarec",
   "diary.quick_add": "Hitri dodatek",
   "diary.ai_insight": "VP vpogled",
   "diary.analyzing": "Analiziram vaš dan...",
@@ -18862,7 +18862,7 @@ const hr: Dict = {
   "water.bottle": "Boca",
   "water.large": "Velika",
   "water.sub": "Ostanite hidrirani cijeli dan",
-  "water.empty": "Dodirnite za bilježenje prve čaše"
+  "water.empty": "Dodirnite za bilježenje prve čaše",
   "diary.quick_add": "Brzo dodaj",
   "diary.ai_insight": "AI uvid",
   "diary.analyzing": "Analiziram vaš dan…",
@@ -19451,7 +19451,7 @@ const bs: Dict = {
   "water.bottle": "Boca",
   "water.large": "Veliko",
   "water.sub": "Ostanite hidrirani cijeli dan",
-  "water.empty": "Dodirnite da zabilježite svoju prvu čašu"
+  "water.empty": "Dodirnite da zabilježite svoju prvu čašu",
   "diary.quick_add": "Brzo dodaj",
   "diary.ai_insight": "AI uvid",
   "diary.analyzing": "Analiziram tvoj dan…",
@@ -20040,7 +20040,7 @@ const mk: Dict = {
   "water.bottle": "Шише",
   "water.large": "Големо",
   "water.sub": "Остани хидриран цел ден",
-  "water.empty": "Допрете за да ја запишете вашата прва чаша"
+  "water.empty": "Допрете за да ја запишете вашата прва чаша",
   "diary.quick_add": "Брзо додавање",
   "diary.ai_insight": "Увид од АИ",
   "diary.analyzing": "Го анализирам вашиот ден…",
@@ -20629,7 +20629,7 @@ const sq: Dict = {
   "water.bottle": "Shishe",
   "water.large": "E madhe",
   "water.sub": "Qëndroni të hidratuar gjatë gjithë ditës",
-  "water.empty": "Prekni për të regjistruar gotën tuaj të parë"
+  "water.empty": "Prekni për të regjistruar gotën tuaj të parë",
   "diary.quick_add": "Shto shpejt",
   "diary.ai_insight": "Analizë me AI",
   "diary.analyzing": "Duke analizuar ditën tuaj…",
@@ -21218,7 +21218,7 @@ const bg: Dict = {
   "water.bottle": "Бутилка",
   "water.large": "Голяма",
   "water.sub": "Останете хидратирани през целия ден",
-  "water.empty": "Докоснете, за да запишете първата си чаша"
+  "water.empty": "Докоснете, за да запишете първата си чаша",
   "diary.quick_add": "Бързо добавяне",
   "diary.ai_insight": "Прозрение от ИИ",
   "diary.analyzing": "Анализиране на деня ви…",
@@ -21807,7 +21807,7 @@ const el: Dict = {
   "water.bottle": "Μπουκάλι",
   "water.large": "Μεγάλο",
   "water.sub": "Μείνετε ενυδατωμένοι όλη μέρα",
-  "water.empty": "Πατήστε για να καταγράψετε το πρώτο σας ποτήρι"
+  "water.empty": "Πατήστε για να καταγράψετε το πρώτο σας ποτήρι",
   "diary.quick_add": "Γρήγορη Προσθήκη",
   "diary.ai_insight": "Ανάλυση AI",
   "diary.analyzing": "Αναλύεται η μέρα σας…",
@@ -22396,7 +22396,7 @@ const lt: Dict = {
   "water.bottle": "Butelis",
   "water.large": "Didelis",
   "water.sub": "Būkite hidratuoti visą dieną",
-  "water.empty": "Bakstelėkite, kad užregistruotumėte savo pirmąją stiklinę"
+  "water.empty": "Bakstelėkite, kad užregistruotumėte savo pirmąją stiklinę",
   "diary.quick_add": "Greitas pridėjimas",
   "diary.ai_insight": "AI įžvalga",
   "diary.analyzing": "Analizuojama jūsų diena…",
@@ -22985,7 +22985,7 @@ const lv: Dict = {
   "water.bottle": "Pudelīte",
   "water.large": "Liela",
   "water.sub": "Uzturiet hidratāciju visu dienu",
-  "water.empty": "Pieskarieties, lai reģistrētu savu pirmo glāzi"
+  "water.empty": "Pieskarieties, lai reģistrētu savu pirmo glāzi",
   "diary.quick_add": "Ātrā pievienošana",
   "diary.ai_insight": "AI ieskats",
   "diary.analyzing": "Analizējam jūsu dienu…",
@@ -23574,7 +23574,7 @@ const et: Dict = {
   "water.bottle": "Pudel",
   "water.large": "Suur",
   "water.sub": "Püsi hüdreeritud kogu päeva",
-  "water.empty": "Vajuta oma esimese klaasi logimiseks"
+  "water.empty": "Vajuta oma esimese klaasi logimiseks",
   "diary.quick_add": "Kiir lisamine",
   "diary.ai_insight": "AI ülevaade",
   "diary.analyzing": "Analüüsin teie päeva…",
@@ -24163,7 +24163,7 @@ const mt: Dict = {
   "water.bottle": "Flixkun",
   "water.large": "Kbir",
   "water.sub": "Ħu deidrazzjoni l-ġurnata kollha",
-  "water.empty": "Taptap biex tirreġistra l-ewwel tazza tiegħek"
+  "water.empty": "Taptap biex tirreġistra l-ewwel tazza tiegħek",
   "diary.quick_add": "Żid malajr",
   "diary.ai_insight": "Ħarsa intwittiva tal-AI",
   "diary.analyzing": "Qed tanalizza l-ġurnata tiegħek...",
@@ -24752,7 +24752,7 @@ const ga: Dict = {
   "water.bottle": "Buidéal",
   "water.large": "Mór",
   "water.sub": "Fan hiodráitithe an lá ar fad",
-  "water.empty": "Tapáil chun do chéad ghloine a logáil"
+  "water.empty": "Tapáil chun do chéad ghloine a logáil",
   "diary.quick_add": "Cuir go tapa",
   "diary.ai_insight": "Éirim an SA",
   "diary.analyzing": "Ag anailísiú do lae…",
@@ -25341,7 +25341,7 @@ const cy: Dict = {
   "water.bottle": "Potel",
   "water.large": "Mawr",
   "water.sub": "Arhoswch yn hydradol drwy'r dydd",
-  "water.empty": "Tapiwch i logio'ch gwydr cyntaf"
+  "water.empty": "Tapiwch i logio'ch gwydr cyntaf",
   "diary.quick_add": "Ychwanegu cyflym",
   "diary.ai_insight": "Mewnwelediad AI",
   "diary.analyzing": "Yn dadansoddi eich diwrnod…",
@@ -25930,7 +25930,7 @@ const eu: Dict = {
   "water.bottle": "Botila",
   "water.large": "Handia",
   "water.sub": "Egon hidratatuta egun osoan",
-  "water.empty": "Sakatu zure lehen edalontzia erregistratzeko"
+  "water.empty": "Sakatu zure lehen edalontzia erregistratzeko",
   "diary.quick_add": "Gehitu azkar",
   "diary.ai_insight": "AI ikuspegia",
   "diary.analyzing": "Zure eguna aztertzen…",
@@ -26519,7 +26519,7 @@ const ca: Dict = {
   "water.bottle": "Ampolla",
   "water.large": "Gran",
   "water.sub": "Mantén-te hidratat durant tot el dia",
-  "water.empty": "Toca per registrar el teu primer got"
+  "water.empty": "Toca per registrar el teu primer got",
   "diary.quick_add": "Afegir ràpid",
   "diary.ai_insight": "Informació de l'IA",
   "diary.analyzing": "Analitzant el teu dia…",
@@ -27108,7 +27108,7 @@ const gd: Dict = {
   "water.bottle": "Botal",
   "water.large": "Mòr",
   "water.sub": "Fuirich hydrated fad an latha",
-  "water.empty": "Tap gus do chiad ghlainne a chlàradh"
+  "water.empty": "Tap gus do chiad ghlainne a chlàradh",
   "diary.quick_add": "Cur-chlàradh luath",
   "diary.ai_insight": "Sealladh AI",
   "diary.analyzing": "A' sgrùdadh do latha…",
@@ -27697,7 +27697,7 @@ const gl: Dict = {
   "water.bottle": "Botella",
   "water.large": "Grande",
   "water.sub": "Mantente hidratado todo o día",
-  "water.empty": "Toca para rexistrar o teu primeiro vaso"
+  "water.empty": "Toca para rexistrar o teu primeiro vaso",
   "diary.quick_add": "Engadir rápido",
   "diary.ai_insight": "Análise intelixente da IA",
   "diary.analyzing": "Analizando o teu día…",
@@ -28286,7 +28286,7 @@ const lb: Dict = {
   "water.bottle": "Flasch",
   "water.large": "Grouss",
   "water.sub": "Bleift de ganzen Dag hydratiséiert",
-  "water.empty": "Tippen fir Äert éischt Glas ze loggen"
+  "water.empty": "Tippen fir Äert éischt Glas ze loggen",
   "diary.quick_add": "Séier derbäi",
   "diary.ai_insight": "AI Abléck",
   "diary.analyzing": "Ären Dag gëtt analyséiert…",
@@ -28875,7 +28875,7 @@ const fil: Dict = {
   "water.bottle": "Bote",
   "water.large": "Malaki",
   "water.sub": "Manatiling hydrated buong araw",
-  "water.empty": "I-tap para mag-log ng iyong unang baso"
+  "water.empty": "I-tap para mag-log ng iyong unang baso",
   "diary.quick_add": "Mabilis na idagdag",
   "diary.ai_insight": "Pananaw ng AI",
   "diary.analyzing": "Sinusuri ang iyong araw…",
@@ -29464,7 +29464,7 @@ const fo: Dict = {
   "water.bottle": "Flaska",
   "water.large": "Stór",
   "water.sub": "Ver væl vætað allan dagin",
-  "water.empty": "Trýst fyri at skráseta títt fyrsta glas"
+  "water.empty": "Trýst fyri at skráseta títt fyrsta glas",
   "diary.quick_add": "Kvikt at leggja afturat",
   "diary.ai_insight": "AI Innlit",
   "diary.analyzing": "Greinar tín dag…",
@@ -30053,7 +30053,7 @@ const sw: Dict = {
   "water.bottle": "Chupa",
   "water.large": "Kubwa",
   "water.sub": "Kaa na maji siku nzima",
-  "water.empty": "Gusa ili kuingiza glasi yako ya kwanza"
+  "water.empty": "Gusa ili kuingiza glasi yako ya kwanza",
   "diary.quick_add": "Ongeza haraka",
   "diary.ai_insight": "Maarifa ya AI",
   "diary.analyzing": "Kuchambua siku yako…",
@@ -30642,7 +30642,7 @@ const ha: Dict = {
   "water.bottle": "Kwaltar",
   "water.large": "Mai girma",
   "water.sub": "Kiyaye ruwa duk rana",
-  "water.empty": "Danna don rubuta gilashinku na farko"
+  "water.empty": "Danna don rubuta gilashinku na farko",
   "diary.quick_add": "Ƙara da sauri",
   "diary.ai_insight": "Hangen nesa na AI",
   "diary.analyzing": "Muna bincika ranarka…",
@@ -31231,7 +31231,7 @@ const ig: Dict = {
   "water.bottle": "Karama",
   "water.large": "Nnukwu",
   "water.sub": "Nọgide na-enye mmiri mmiri ụbọchị niile",
-  "water.empty": "Metụ iji dekọọ iko mbụ gị"
+  "water.empty": "Metụ iji dekọọ iko mbụ gị",
   "diary.quick_add": "Tinye ngwa ngwa",
   "diary.ai_insight": "Nghọta AI",
   "diary.analyzing": "Na-enyocha ụbọchị gị…",
@@ -31820,7 +31820,7 @@ const yo: Dict = {
   "water.bottle": "Àgùbá",
   "water.large": "Títóbi",
   "water.sub": "Wà ní hydrate ní gbogbo ọjọ́",
-  "water.empty": "Tẹ́ láti șe àkọsílẹ gilasi àkọ́kọ́ rẹ"
+  "water.empty": "Tẹ́ láti șe àkọsílẹ gilasi àkọ́kọ́ rẹ",
   "diary.quick_add": "Fikun ni kiakia",
   "diary.ai_insight": "Oye AI",
   "diary.analyzing": "Ṣiṣe ayẹwo ọjọ rẹ…",
@@ -32409,7 +32409,7 @@ const af: Dict = {
   "water.bottle": "Bottel",
   "water.large": "Groot",
   "water.sub": "Bly gehidreer die hele dag",
-  "water.empty": "Tik om jou eerste glas aan te teken"
+  "water.empty": "Tik om jou eerste glas aan te teken",
   "diary.quick_add": "Vinnig byvoeg",
   "diary.ai_insight": "AI insig",
   "diary.analyzing": "Ontleed jou dag…",
@@ -32998,7 +32998,7 @@ const am: Dict = {
   "water.bottle": "ጠርሙስ",
   "water.large": "ትልቅ",
   "water.sub": "ቀኑን ሙሉ እርጥበት ይኑርዎት",
-  "water.empty": "የመጀመሪያ ብርጭቆዎን ለመመዝገብ መታ ያድርጉ"
+  "water.empty": "የመጀመሪያ ብርጭቆዎን ለመመዝገብ መታ ያድርጉ",
   "diary.quick_add": "ፈጣን አክል",
   "diary.ai_insight": "AI ግንዛቤ",
   "diary.analyzing": "ቀንዎን በመተንተን ላይ…",
@@ -33587,7 +33587,7 @@ const zu: Dict = {
   "water.bottle": "Ibhothini",
   "water.large": "Okukhulu",
   "water.sub": "Hlala unamanzi usuku lonke",
-  "water.empty": "Thepha ukuze ufake ingilazi yakho yokuqala"
+  "water.empty": "Thepha ukuze ufake ingilazi yakho yokuqala",
   "diary.quick_add": "Engeza ngokushesha",
   "diary.ai_insight": "Ulwazi lwe-AI",
   "diary.analyzing": "Sihlaziya usuku lwakho…",
@@ -34176,7 +34176,7 @@ const xh: Dict = {
   "water.bottle": "Ibhotile",
   "water.large": "Elikhulu",
   "water.sub": "Hlala umanzi imini yonke",
-  "water.empty": "Cofa ukuze ubhale iglasi yakho yokuqala"
+  "water.empty": "Cofa ukuze ubhale iglasi yakho yokuqala",
   "diary.quick_add": "Faka ngokukhawuleza",
   "diary.ai_insight": "Ingqiqo ye-AI",
   "diary.analyzing": "Sihlola usuku lwakho…",
@@ -34765,7 +34765,7 @@ const so: Dict = {
   "water.bottle": "Dhalo",
   "water.large": "Weynan",
   "water.sub": "Maalin walba biyo isku hay",
-  "water.empty": "Taabo si aad u diiwaan geliso koobkaaga ugu horreeya"
+  "water.empty": "Taabo si aad u diiwaan geliso koobkaaga ugu horreeya",
   "diary.quick_add": "Si degdeg ah u dar",
   "diary.ai_insight": "Falanqaynta AI",
   "diary.analyzing": "Maalintaada ayaan falanqaynayaa…",
@@ -35354,7 +35354,7 @@ const rw: Dict = {
   "water.bottle": "Icupa",
   "water.large": "Nini",
   "water.sub": "Komeza unywe amazi umunsi wose",
-  "water.empty": "Kanda kugira ngo wandike ikaramu yawe ya mbere"
+  "water.empty": "Kanda kugira ngo wandike ikaramu yawe ya mbere",
   "diary.quick_add": "Ongeraho vuba",
   "diary.ai_insight": "Incamake za AI",
   "diary.analyzing": "Turasesengura umunsi wawe…",
@@ -35943,7 +35943,7 @@ const sn: Dict = {
   "water.bottle": "Bhokisi",
   "water.large": "Guru",
   "water.sub": "Ramba wakaoma zuva rose",
-  "water.empty": "Dzvanya kuti unyore girasi rako rekutanga"
+  "water.empty": "Dzvanya kuti unyore girasi rako rekutanga",
   "diary.quick_add": "Wedzera nekukurumidza",
   "diary.ai_insight": "Nzwisiso yeAI",
   "diary.analyzing": "Kuongorora zuva rako…",
@@ -36532,7 +36532,7 @@ const mg: Dict = {
   "water.bottle": "Tavoahangy",
   "water.large": "Lehibe",
   "water.sub": "Tazony hatramin'ny andro rehetra ny rano",
-  "water.empty": "Tsindrio mba hanoratana ny vatanao voalohany"
+  "water.empty": "Tsindrio mba hanoratana ny vatanao voalohany",
   "diary.quick_add": "Ampiana haingana",
   "diary.ai_insight": "Fahatakarana AI",
   "diary.analyzing": "Mamakafaka ny andronao…",
@@ -37121,7 +37121,7 @@ const fa: Dict = {
   "water.bottle": "بطری",
   "water.large": "بزرگ",
   "water.sub": "تمام طول روز هیدراته بمانید",
-  "water.empty": "برای ثبت اولین لیوان خود ضربه بزنید"
+  "water.empty": "برای ثبت اولین لیوان خود ضربه بزنید",
   "diary.quick_add": "افزودن سریع",
   "diary.ai_insight": "بینش هوش مصنوعی",
   "diary.analyzing": "در حال تحلیل روز شما…",
@@ -37710,7 +37710,7 @@ const ny: Dict = {
   "water.bottle": "Botolo",
   "water.large": "Lalikulu",
   "water.sub": "Khalani osamwa madzi tsiku lonse",
-  "water.empty": "Dinani kuti mulembe galasi lanu loyamba"
+  "water.empty": "Dinani kuti mulembe galasi lanu loyamba",
   "diary.quick_add": "Kuonjezera mwachangu",
   "diary.ai_insight": "Kuganiza kwa AI",
   "diary.analyzing": "Kuwunika tsiku lanu…",
@@ -38299,7 +38299,7 @@ const he: Dict = {
   "water.bottle": "בקבוק",
   "water.large": "גדול",
   "water.sub": "שמור על לחות כל היום",
-  "water.empty": "הקש כדי לתעד את הכוס הראשונה שלך"
+  "water.empty": "הקש כדי לתעד את הכוס הראשונה שלך",
   "diary.quick_add": "הוספה מהירה",
   "diary.ai_insight": "תובנת AI",
   "diary.analyzing": "מנתח את יומנך...",
@@ -38888,7 +38888,7 @@ const ps: Dict = {
   "water.bottle": "بوتل",
   "water.large": "لوی",
   "water.sub": "ټوله ورځ هایدریټ پاتې شئ",
-  "water.empty": "خپل لومړی ګیلاس د ثبتولو لپاره ټایپ کړئ"
+  "water.empty": "خپل لومړی ګیلاس د ثبتولو لپاره ټایپ کړئ",
   "diary.quick_add": "چټک اضافه",
   "diary.ai_insight": "د AI لید",
   "diary.analyzing": "ستاسو د ورځې تحلیل کول ...",
@@ -39477,7 +39477,7 @@ const az: Dict = {
   "water.bottle": "Şüşə",
   "water.large": "Böyük",
   "water.sub": "Bütün gün nəmləndirilmiş qalın",
-  "water.empty": "İlk stəkanınızı qeyd etmək üçün toxunun"
+  "water.empty": "İlk stəkanınızı qeyd etmək üçün toxunun",
   "diary.quick_add": "Tez əlavə et",
   "diary.ai_insight": "AI analizi",
   "diary.analyzing": "Gününüz təhlil edilir…",
@@ -40066,7 +40066,7 @@ const ku: Dict = {
   "water.bottle": "Şûşe",
   "water.large": "Mezin",
   "water.sub": "Her roj hydrated bimîne",
-  "water.empty": "Ji bo tomarkirina qedeha xwe ya yekem bipelîne"
+  "water.empty": "Ji bo tomarkirina qedeha xwe ya yekem bipelîne",
   "diary.quick_add": "Zûde lê zêde bike",
   "diary.ai_insight": "Têgihîştina AI",
   "diary.analyzing": "Roja we analîz dikim…",
@@ -40655,7 +40655,7 @@ const uz: Dict = {
   "water.bottle": "Shisha",
   "water.large": "Katta",
   "water.sub": "Kun bo'yi gidratlangan holda qoling",
-  "water.empty": "Birinchi stakaningizni qayd qilish uchun bosing"
+  "water.empty": "Birinchi stakaningizni qayd qilish uchun bosing",
   "diary.quick_add": "Tez qo'shish",
   "diary.ai_insight": "AI tushunchasi",
   "diary.analyzing": "Kun tahlil qilinmoqda…",
@@ -41244,7 +41244,7 @@ const kk: Dict = {
   "water.bottle": "Бөтелке",
   "water.large": "Үлкен",
   "water.sub": "Күні бойы гидратталған болыңыз",
-  "water.empty": "Бірінші стақаныңызды тіркеу үшін түртіңіз"
+  "water.empty": "Бірінші стақаныңызды тіркеу үшін түртіңіз",
   "diary.quick_add": "Жылдам қосу",
   "diary.ai_insight": "ЖИ түсінігі",
   "diary.analyzing": "Күніңізді талдау…",
@@ -41833,7 +41833,7 @@ const ky: Dict = {
   "water.bottle": "Бөтөлкө",
   "water.large": "Чоң",
   "water.sub": "Күнү бою суу ичиңиз",
-  "water.empty": "Биринчи стаканыңызды каттатуу үчүн басыңыз"
+  "water.empty": "Биринчи стаканыңызды каттатуу үчүн басыңыз",
   "diary.quick_add": "Ыкчам кошуу",
   "diary.ai_insight": "Жасалма интеллекттин түшүнүгү",
   "diary.analyzing": "Күнүңүздү талдоодо…",
@@ -42422,7 +42422,7 @@ const tg: Dict = {
   "water.bottle": "Шиша",
   "water.large": "Калон",
   "water.sub": "Ҳама рӯз обдор бимонед",
-  "water.empty": "Барои сабти аввалин шишаи худ пахш кунед"
+  "water.empty": "Барои сабти аввалин шишаи худ пахш кунед",
   "diary.quick_add": "Иловаи зуд",
   "diary.ai_insight": "Назари АИ",
   "diary.analyzing": "Рӯзи шуморо таҳлил мекунем…",
@@ -43011,7 +43011,7 @@ const tk: Dict = {
   "water.bottle": "Çüýşe",
   "water.large": "Uly",
   "water.sub": "Günüň dowamynda suwuklyk sakla",
-  "water.empty": "Ilkinji stakan üçin bas"
+  "water.empty": "Ilkinji stakan üçin bas",
   "diary.quick_add": "Çalt goşmak",
   "diary.ai_insight": "AI düşünjesi",
   "diary.analyzing": "Günüňizi derňeýäris…",
@@ -43600,7 +43600,7 @@ const mn: Dict = {
   "water.bottle": "Лонх",
   "water.large": "Том",
   "water.sub": "Бүтэн өдрийн турш усаар хангагдсан байх",
-  "water.empty": "Эхний стаканаа бүртгэхийн тулд дарна уу"
+  "water.empty": "Эхний стаканаа бүртгэхийн тулд дарна уу",
   "diary.quick_add": "Түргэн нэмэлт",
   "diary.ai_insight": "Хиймэл оюуны дүгнэлт",
   "diary.analyzing": "Таны өдрийг шинжилж байна…",
@@ -44189,7 +44189,7 @@ const hy: Dict = {
   "water.bottle": "Շիշ",
   "water.large": "Մեծ",
   "water.sub": "Մնացեք խոնավացած ամբողջ օրը",
-  "water.empty": "Սեղմեք՝ ձեր առաջին բաժակը գրանցելու համար"
+  "water.empty": "Սեղմեք՝ ձեր առաջին բաժակը գրանցելու համար",
   "diary.quick_add": "Արագ ավելացում",
   "diary.ai_insight": "AI պատկերացում",
   "diary.analyzing": "Վերլուծում եմ ձեր օրը…",
@@ -44778,7 +44778,7 @@ const ka: Dict = {
   "water.bottle": "ბოთლი",
   "water.large": "დიდი",
   "water.sub": "იყავით ჰიდრატირებული მთელი დღის განმავლობაში",
-  "water.empty": "შეეხეთ თქვენი პირველი ჭიქის დასარეგისტრირებლად"
+  "water.empty": "შეეხეთ თქვენი პირველი ჭიქის დასარეგისტრირებლად",
   "diary.quick_add": "სწრაფი დამატება",
   "diary.ai_insight": "AI შეხედულება",
   "diary.analyzing": "თქვენი დღის ანალიზი...",
@@ -45367,7 +45367,7 @@ const ta: Dict = {
   "water.bottle": "பாட்டில்",
   "water.large": "பெரிய",
   "water.sub": "நாள் முழுவதும் நீரேற்றமாக இருங்கள்",
-  "water.empty": "உங்கள் முதல் கோப்பையை பதிவு செய்ய தட்டவும்"
+  "water.empty": "உங்கள் முதல் கோப்பையை பதிவு செய்ய தட்டவும்",
   "diary.quick_add": "விரைவாகச் சேர்க்க",
   "diary.ai_insight": "AI நுண்ணறிவு",
   "diary.analyzing": "உங்கள் நாளை பகுப்பாய்வு செய்கிறது...",
@@ -45956,7 +45956,7 @@ const mr: Dict = {
   "water.bottle": "बाटली",
   "water.large": "मोठा",
   "water.sub": "दिवसभर हायड्रेटेड रहा",
-  "water.empty": "तुमचा पहिला ग्लास लॉग करण्यासाठी टॅप करा"
+  "water.empty": "तुमचा पहिला ग्लास लॉग करण्यासाठी टॅप करा",
   "diary.quick_add": "जलद जोडा",
   "diary.ai_insight": "AI अंतर्दृष्टी",
   "diary.analyzing": "तुमच्या दिवसाचे विश्लेषण करत आहे…",
@@ -46545,7 +46545,7 @@ const te: Dict = {
   "water.bottle": "సీసా",
   "water.large": "పెద్ద",
   "water.sub": "రోజు అంతా హైడ్రేటెడ్‌గా ఉండండి",
-  "water.empty": "మీ మొదటి గ్లాసును లాగ్ చేయడానికి నొక్కండి"
+  "water.empty": "మీ మొదటి గ్లాసును లాగ్ చేయడానికి నొక్కండి",
   "diary.quick_add": "త్వరిత జోడింపు",
   "diary.ai_insight": "AI అంతర్దృష్టి",
   "diary.analyzing": "మీ రోజును విశ్లేషిస్తోంది…",
@@ -47134,7 +47134,7 @@ const gu: Dict = {
   "water.bottle": "બોટલ",
   "water.large": "મોટું",
   "water.sub": "આખો દિવસ હાઇડ્રેટેડ રહો",
-  "water.empty": "તમારો પહેલો ગ્લાસ લોગ કરવા માટે ટેપ કરો"
+  "water.empty": "તમારો પહેલો ગ્લાસ લોગ કરવા માટે ટેપ કરો",
   "diary.quick_add": "ઝડપી ઉમેરો",
   "diary.ai_insight": "AI અંતર્દૃષ્ટિ",
   "diary.analyzing": "તમારા દિવસનું વિશ્લેષણ કરી રહ્યા છીએ...",
@@ -47723,7 +47723,7 @@ const ml: Dict = {
   "water.bottle": "കുപ്പി",
   "water.large": "വലുത്",
   "water.sub": "ദിവസം മുഴുവൻ ശരീരത്തിൽ ജലാംശം നിലനിർത്തുക",
-  "water.empty": "നിങ്ങളുടെ ആദ്യ ഗ്ലാസ് രേഖപ്പെടുത്താൻ ടാപ്പുചെയ്യുക"
+  "water.empty": "നിങ്ങളുടെ ആദ്യ ഗ്ലാസ് രേഖപ്പെടുത്താൻ ടാപ്പുചെയ്യുക",
   "diary.quick_add": "വേഗത്തിൽ ചേർക്കുക",
   "diary.ai_insight": "AI ഉൾക്കാഴ്ച",
   "diary.analyzing": "നിങ്ങളുടെ ദിവസം വിശകലനം ചെയ്യുന്നു…",
@@ -48312,7 +48312,7 @@ const kn: Dict = {
   "water.bottle": "ಬಾಟಲ್",
   "water.large": "ದೊಡ್ಡ",
   "water.sub": "ದಿನವಿಡೀ ಹೈಡ್ರೇಟ್ ಆಗಿರಿ",
-  "water.empty": "ನಿಮ್ಮ ಮೊದಲ ಗ್ಲಾಸ್ ಅನ್ನು ಲಾಗ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ"
+  "water.empty": "ನಿಮ್ಮ ಮೊದಲ ಗ್ಲಾಸ್ ಅನ್ನು ಲಾಗ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ",
   "diary.quick_add": "ತ್ವರಿತ ಸೇರ್ಪಡೆ",
   "diary.ai_insight": "AI ಒಳನೋಟ",
   "diary.analyzing": "ನಿಮ್ಮ ದಿನವನ್ನು ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ…",
@@ -48901,7 +48901,7 @@ const pa: Dict = {
   "water.bottle": "ਬੋਤਲ",
   "water.large": "ਵੱਡਾ",
   "water.sub": "ਸਾਰਾ ਦਿਨ ਹਾਈਡ੍ਰੇਟਿਡ ਰਹੋ",
-  "water.empty": "ਆਪਣਾ ਪਹਿਲਾ ਗਲਾਸ ਲੌਗ ਕਰਨ ਲਈ ਟੈਪ ਕਰੋ"
+  "water.empty": "ਆਪਣਾ ਪਹਿਲਾ ਗਲਾਸ ਲੌਗ ਕਰਨ ਲਈ ਟੈਪ ਕਰੋ",
   "diary.quick_add": "ਤੇਜ਼ ਸ਼ਾਮਲ ਕਰੋ",
   "diary.ai_insight": "AI ਇਨਸਾਈਟ",
   "diary.analyzing": "ਤੁਹਾਡੇ ਦਿਨ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...",
@@ -49490,7 +49490,7 @@ const as: Dict = {
   "water.bottle": "বটল",
   "water.large": "ডাঙৰ",
   "water.sub": "গোটেই দিনটো হাইড্ৰেটেড থাকক",
-  "water.empty": "আপোনাৰ প্ৰথম গিলাচ ল’গ কৰিবলৈ টেপ কৰক"
+  "water.empty": "আপোনাৰ প্ৰথম গিলাচ ল’গ কৰিবলৈ টেপ কৰক",
   "diary.quick_add": "খৰখেদাকৈ যোগ কৰক",
   "diary.ai_insight": "AI অন্তৰ্দৃষ্টি",
   "diary.analyzing": "আপোনাৰ দিনটো বিশ্লেষণ কৰা হৈছে…",
@@ -50079,7 +50079,7 @@ const ne: Dict = {
   "water.bottle": "बोतल",
   "water.large": "ठूलो",
   "water.sub": "दिनभर हाइड्रेटेड रहनुहोस्",
-  "water.empty": "आफ्नो पहिलो गिलास लग गर्न ट्याप गर्नुहोस्"
+  "water.empty": "आफ्नो पहिलो गिलास लग गर्न ट्याप गर्नुहोस्",
   "diary.quick_add": "छिटो थप्नुहोस्",
   "diary.ai_insight": "AI अन्तरदृष्टि",
   "diary.analyzing": "तपाईंको दिन विश्लेषण गर्दै...",
@@ -50668,7 +50668,7 @@ const or: Dict = {
   "water.bottle": "ବୋତଲ",
   "water.large": "ବଡ଼",
   "water.sub": "ସାରା ଦିନ ଜଳୀୟ ଅଂଶରେ ରୁହନ୍ତୁ",
-  "water.empty": "ଆପଣଙ୍କର ପ୍ରଥମ ଗ୍ଲାସ ଲଗ୍ କରିବାକୁ ଟ୍ୟାପ୍ କରନ୍ତୁ"
+  "water.empty": "ଆପଣଙ୍କର ପ୍ରଥମ ଗ୍ଲାସ ଲଗ୍ କରିବାକୁ ଟ୍ୟାପ୍ କରନ୍ତୁ",
   "diary.quick_add": "ଶୀଘ୍ର ଯୋଡନ୍ତୁ",
   "diary.ai_insight": "AI ଅନ୍ତର୍ଦୃଷ୍ଟି",
   "diary.analyzing": "ଆପଣଙ୍କ ଦିନକୁ ବିଶ୍ଳେଷଣ କରୁଛି…",
@@ -51257,7 +51257,7 @@ const si: Dict = {
   "water.bottle": "බෝතලය",
   "water.large": "විශාල",
   "water.sub": "දවස පුරා සජලව සිටින්න",
-  "water.empty": "ඔබේ පළමු වීදුරුව සටහන් කිරීමට තට්ටු කරන්න"
+  "water.empty": "ඔබේ පළමු වීදුරුව සටහන් කිරීමට තට්ටු කරන්න",
   "diary.quick_add": "ඉක්මන් එකතු කිරීම",
   "diary.ai_insight": "AI අවබෝධය",
   "diary.analyzing": "ඔබේ දවස විශ්ලේෂණය කරමින්…",
@@ -51846,7 +51846,7 @@ const km: Dict = {
   "water.bottle": "ដប",
   "water.large": "ធំ",
   "water.sub": "រក្សាជាតិទឹកពេញមួយថ្ងៃ",
-  "water.empty": "ចុចដើម្បីកត់ត្រាកែវដំបូងរបស់អ្នក"
+  "water.empty": "ចុចដើម្បីកត់ត្រាកែវដំបូងរបស់អ្នក",
   "diary.quick_add": "បន្ថែមរហ័ស",
   "diary.ai_insight": "បន្សំ AI",
   "diary.analyzing": "កំពុងវិភាគថ្ងៃរបស់អ្នក...",
@@ -52435,7 +52435,7 @@ const yue: Dict = {
   "water.bottle": "樽",
   "water.large": "大",
   "water.sub": "全日保持水分充足",
-  "water.empty": "輕觸以記錄你嘅第一杯"
+  "water.empty": "輕觸以記錄你嘅第一杯",
   "diary.quick_add": "快速添加",
   "diary.ai_insight": "AI 洞察",
   "diary.analyzing": "正在分析您嘅一日...",
@@ -53024,7 +53024,7 @@ const my: Dict = {
   "water.bottle": "ပုလင်း",
   "water.large": "ကြီးမားသော",
   "water.sub": "တစ်နေ့တာလုံး ရေဓာတ်ပြည့်ဝနေပါစေ",
-  "water.empty": "သင်၏ပထမဆုံးဖန်ခွက်ကို မှတ်တမ်းတင်ရန် နှိပ်ပါ"
+  "water.empty": "သင်၏ပထမဆုံးဖန်ခွက်ကို မှတ်တမ်းတင်ရန် နှိပ်ပါ",
   "diary.quick_add": "မြန်မြန်ထည့်ရန်",
   "diary.ai_insight": "AI မှ သိမြင်နိုင်သော အရာများ",
   "diary.analyzing": "သင့်နေ့ကို ဆန်းစစ်နေသည်...",
@@ -53613,7 +53613,7 @@ const ht: Dict = {
   "water.bottle": "Boutèy",
   "water.large": "Gwo",
   "water.sub": "Rete idrate tout jounen",
-  "water.empty": "Tape pou anrejistre premye vè ou"
+  "water.empty": "Tape pou anrejistre premye vè ou",
   "diary.quick_add": "Ajoute rapid",
   "diary.ai_insight": "Ensight AI",
   "diary.analyzing": "Analize jounen w la…",
@@ -54202,7 +54202,7 @@ const lo: Dict = {
   "water.bottle": "ຂວດ",
   "water.large": "ໃຫຍ່",
   "water.sub": "ຮັກສາຄວາມຊຸ່ມຊື້ນຕະຫຼອດມື້",
-  "water.empty": "ແຕະເພື່ອບັນທຶກແກ້ວທຳອິດຂອງທ່ານ"
+  "water.empty": "ແຕະເພື່ອບັນທຶກແກ້ວທຳອິດຂອງທ່ານ",
   "diary.quick_add": "ເພີ່ມດ່ວນ",
   "diary.ai_insight": "ຂໍ້ມູນ AI",
   "diary.analyzing": "ກຳລັງວິເຄາະມື້ຂອງທ່ານ…",
@@ -54791,7 +54791,7 @@ const qu: Dict = {
   "water.bottle": "Puyu",
   "water.large": "Hatun",
   "water.sub": "Llapan p'unchaw yakuyllayay",
-  "water.empty": "Ñawpaq q'illuykita qillqanaykipaq t'iqyay"
+  "water.empty": "Ñawpaq q'illuykita qillqanaykipaq t'iqyay",
   "diary.quick_add": "Utqaylla yapay",
   "diary.ai_insight": "AI yuyay",
   "diary.analyzing": "P'unchayniykita qhawaspa...",
@@ -55380,7 +55380,7 @@ const sm: Dict = {
   "water.bottle": "Fagu",
   "water.large": "Tele",
   "water.sub": "Tumau le faʻasusu i le aso atoa",
-  "water.empty": "Kiliki e saini lau ipu muamua"
+  "water.empty": "Kiliki e saini lau ipu muamua",
   "diary.quick_add": "Fa'aopoopo vave",
   "diary.ai_insight": "AI fa'amatalaga",
   "diary.analyzing": "Su'eina lou aso…",
@@ -55969,7 +55969,7 @@ const gn: Dict = {
   "water.bottle": "Botella",
   "water.large": "Guasu",
   "water.sub": "Eñembohyatývo ára ha ára",
-  "water.empty": "Eñeha embyatývo nde vaso peteĩva"
+  "water.empty": "Eñeha embyatývo nde vaso peteĩva",
   "diary.quick_add": "Japovyvy jehecha",
   "diary.ai_insight": "AI ohechaukáva",
   "diary.analyzing": "Oma'ẽpa nde ára…",
@@ -56558,7 +56558,7 @@ const to: Dict = {
   "water.bottle": "Fagu",
   "water.large": "Lahi",
   "water.sub": "Tokangaʻi ke nava ʻi he ʻaho kotoa",
-  "water.empty": "Lomiʻi ke tohinoa hoʻo ipu ʻuluaki"
+  "water.empty": "Lomiʻi ke tohinoa hoʻo ipu ʻuluaki",
   "diary.quick_add": "Fokotuʻu fakavave",
   "diary.ai_insight": "ʻi he fakakaukau AI",
   "diary.analyzing": "Fakafuofua ho ʻaho…",
@@ -57147,7 +57147,7 @@ const mi: Dict = {
   "water.bottle": "Pounamu",
   "water.large": "Nui",
   "water.sub": "Kia waiwai i te rā katoa",
-  "water.empty": "Pāwhiritia kia tuhia tō karaihe tuatahi"
+  "water.empty": "Pāwhiritia kia tuhia tō karaihe tuatahi",
   "diary.quick_add": "Tāpiri tere",
   "diary.ai_insight": "Mōhiotanga AI",
   "diary.analyzing": "Te tātari i tō rā…",
@@ -57736,7 +57736,7 @@ const haw: Dict = {
   "water.bottle": "Ōmole",
   "water.large": "Nui",
   "water.sub": "E hoʻomau i ka hydrating i ka lā a pau",
-  "water.empty": "Paʻi no ka hoʻopaʻa ʻana i kāu aniani mua"
+  "water.empty": "Paʻi no ka hoʻopaʻa ʻana i kāu aniani mua",
   "diary.quick_add": "Hoʻohui koke",
   "diary.ai_insight": "Ka ʻike AI",
   "diary.analyzing": "Ke nānā ana i kou lā…",
@@ -58325,7 +58325,7 @@ const fj: Dict = {
   "water.bottle": "Tavo",
   "water.large": "Levu",
   "water.sub": "Maroroi tikoga nomu wai ena veisiga",
-  "water.empty": "Tabaka me logitaki na nomu kasi imatai"
+  "water.empty": "Tabaka me logitaki na nomu kasi imatai",
   "diary.quick_add": "Vakatotolo",
   "diary.ai_insight": "AI vakadidike",
   "diary.analyzing": "Vakadidike ni nomu siga…",
@@ -58914,7 +58914,7 @@ const eo: Dict = {
   "water.bottle": "Botelo",
   "water.large": "Granda",
   "water.sub": "Restu hidratigita la tutan tagon",
-  "water.empty": "Frapetu por registri vian unuan glason"
+  "water.empty": "Frapetu por registri vian unuan glason",
   "diary.quick_add": "Rapida aldono",
   "diary.ai_insight": "AI-kompreno",
   "diary.analyzing": "Analizante vian tagon...",
