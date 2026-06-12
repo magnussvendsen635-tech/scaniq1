@@ -230,7 +230,7 @@ export default function Diary() {
         <div className="k-card p-3 mb-4 flex items-center justify-between">
           <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("diary.last_log_time")}</span>
           <span className="text-sm font-medium tabular-nums">
-            {lastMealAt.toLocaleString(undefined, {
+            {lastMealAt.toLocaleString(language || undefined, {
               weekday: "short",
               day: "numeric",
               month: "short",
