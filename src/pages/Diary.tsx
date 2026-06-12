@@ -135,7 +135,10 @@ export default function Diary() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, dayMeals.length]);
 
-  const dayLabels = ["M", "T", "O", "T", "F", "L", "S"];
+  const dayLabels = useMemo(() => {
+    const fmt = new Intl.DateTimeFormat(language || undefined, { weekday: "narrow" });
+    return weekDays.map((d) => fmt.format(d));
+  }, [language, weekDays]);
 
   return (
     <div className="k-page">
@@ -158,7 +161,7 @@ export default function Diary() {
             <ChevronLeft className="w-4 h-4" />
           </button>
           <div className="text-sm font-medium">
-            {selected.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
+            {selected.toLocaleDateString(language || undefined, { weekday: "long", day: "numeric", month: "long" })}
           </div>
           <button
             onClick={() => {
@@ -208,7 +211,7 @@ export default function Diary() {
         <div className="flex items-baseline justify-between mb-4">
           <div>
             <div className="text-xs text-muted-foreground tracking-widest uppercase">
-              {isToday ? t("common.today") : selected.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
+              {isToday ? t("common.today") : selected.toLocaleDateString(language || undefined, { weekday: "short", day: "numeric", month: "short" })}
             </div>
             <div className="text-4xl font-semibold k-gradient-text">
               {cal}
@@ -227,7 +230,7 @@ export default function Diary() {
         <div className="k-card p-3 mb-4 flex items-center justify-between">
           <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("diary.last_log_time")}</span>
           <span className="text-sm font-medium tabular-nums">
-            {lastMealAt.toLocaleString(undefined, {
+            {lastMealAt.toLocaleString(language || undefined, {
               weekday: "short",
               day: "numeric",
               month: "short",
