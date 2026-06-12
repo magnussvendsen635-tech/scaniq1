@@ -155,7 +155,20 @@ export type TKey =
   | "home.weight_title" | "home.weight_sub"
   // Progress extras
   | "progress.weekly_locked_title" | "progress.weekly_locked_sub"
-  | "progress.detail_locked_title" | "progress.detail_locked_sub";
+  | "progress.detail_locked_title" | "progress.detail_locked_sub"
+  // Cookie consent
+  | "cookie.title" | "cookie.body_pre" | "cookie.body_link" | "cookie.accept_all" | "cookie.essential" | "cookie.close"
+  // Streak
+  | "streak.freeze"
+  // Meal suggestions
+  | "meal.ideas_for_you"
+  // Health sync
+  | "health.unavailable_title" | "health.unavailable_sub" | "health.tap_to_sync" | "health.steps"
+  | "health.permission_denied" | "health.enable_in_settings" | "health.synced" | "health.sync_failed" | "health.try_again"
+  // Exercise figure
+  | "exercise.reps" | "exercise.sets"
+  // Language picker
+  | "lang.none_found";
 
 type Dict = Partial<Record<TKey, string>>;
 
