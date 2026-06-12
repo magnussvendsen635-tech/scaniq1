@@ -771,12 +771,12 @@ export default function FoodScan() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-primary flex items-center justify-center mb-4 shadow-glow">
             <Crown className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold mb-2">Daily scan limit reached</h2>
+          <h2 className="text-xl font-bold mb-2">{t("scan.daily_limit_title")}</h2>
           <p className="text-sm text-muted-foreground mb-5">
-            You've used all <span className="text-foreground font-semibold">{DAILY_LIMIT} scans</span> for today. The counter resets at midnight (UTC).
+            {t("scan.daily_limit_sub")} ({DAILY_LIMIT})
           </p>
           <Button onClick={() => nav("/diary")} className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow">
-            View diary
+            {t("scan.view_diary")}
           </Button>
         </div>
       ) : !canScan ? (
@@ -886,22 +886,22 @@ export default function FoodScan() {
               </div>
 
               <div className="k-card p-5 mb-5">
-                <h2 className="text-lg font-semibold mb-1">Tilføj skjulte kalorier</h2>
+                <h2 className="text-lg font-semibold mb-1">{t("scan.hidden_calories_title")}</h2>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Slå til hvis dit måltid faktisk indeholder olie eller dressing. Som standard tilføjes intet automatisk.
+                  {t("scan.hidden_calories_sub")}
                 </p>
                 <div className="space-y-3">
                   <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Olie</span>
-                      <span className="text-[11px] text-muted-foreground">AI vurderer skjult madolie/smør visuelt ud fra måltidets størrelse</span>
+                      <span className="text-sm font-semibold">{t("scan.oil")}</span>
+                      <span className="text-[11px] text-muted-foreground">{t("scan.oil_sub")}</span>
                     </div>
                     <Switch checked={addOil} onCheckedChange={setAddOil} />
                   </label>
                   <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Dressing</span>
-                      <span className="text-[11px] text-muted-foreground">AI vurderer dressing/sauce/mayo visuelt ud fra portionen</span>
+                      <span className="text-sm font-semibold">{t("scan.dressing")}</span>
+                      <span className="text-[11px] text-muted-foreground">{t("scan.dressing_sub")}</span>
                     </div>
                     <Switch checked={addDressing} onCheckedChange={setAddDressing} />
                   </label>
@@ -1128,11 +1128,11 @@ export default function FoodScan() {
 
               {(result.satietyHours || result.energyEffect) && (
                 <div className="k-card p-4 bg-gradient-soft border border-primary/20">
-                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Real life score</div>
+                  <div className="text-xs text-muted-foreground tracking-widest uppercase mb-2">{t("scan.real_life_score")}</div>
                   {result.satietyHours !== undefined && (
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">Mæthed</span>
-                      <span className="font-semibold">~{result.satietyHours.toFixed(1)} timer</span>
+                      <span className="text-muted-foreground">{t("scan.satiety")}</span>
+                      <span className="font-semibold">~{result.satietyHours.toFixed(1)} {t("scan.satiety_hours")}</span>
                     </div>
                   )}
                   {result.energyEffect && (
@@ -1144,8 +1144,8 @@ export default function FoodScan() {
               {scaledItems && scaledItems.length > 0 && (
                 <div className="k-card p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-xs text-muted-foreground tracking-widest uppercase">Items</div>
-                    <div className="text-[10px] text-muted-foreground">Sum: {itemsSum} kcal</div>
+                    <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.items")}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("scan.items_sum")}: {itemsSum} kcal</div>
                   </div>
                   <ul className="divide-y divide-border">
                     {scaledItems.map((it, i) => (
@@ -1220,9 +1220,9 @@ export default function FoodScan() {
                 const fmt = (n: number) => (n >= 10 ? Math.round(n).toString() : (Math.round(n * 10) / 10).toString());
                 return (
                   <div className="k-card p-4">
-                    <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Vitamins & minerals</div>
+                    <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">{t("scan.vitamins_minerals")}</div>
                     <div className="mb-3">
-                      <div className="text-[11px] font-semibold text-foreground/70 mb-1.5">Vitamins</div>
+                      <div className="text-[11px] font-semibold text-foreground/70 mb-1.5">{t("scan.vitamins")}</div>
                       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                         {vitamins.filter(v => v.value !== undefined).map((v) => (
                           <Micro key={v.label} label={v.label} value={`${fmt(v.value!)}${v.unit}`} />
@@ -1230,7 +1230,7 @@ export default function FoodScan() {
                       </div>
                     </div>
                     <div>
-                      <div className="text-[11px] font-semibold text-foreground/70 mb-1.5">Minerals</div>
+                      <div className="text-[11px] font-semibold text-foreground/70 mb-1.5">{t("scan.minerals")}</div>
                       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                         {minerals.filter(v => v.value !== undefined).map((v) => (
                           <Micro key={v.label} label={v.label} value={`${fmt(v.value!)}${v.unit}`} />
@@ -1267,24 +1267,24 @@ export default function FoodScan() {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in p-4">
           <div className="w-full max-w-md bg-card border-2 border-border rounded-3xl p-5 shadow-card animate-scale-in">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold">Search food manually</h3>
+              <h3 className="text-lg font-semibold">{t("scan.search_manually")}</h3>
               <button
                 onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
                 className="k-tap w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center"
-                aria-label="Close"
+                aria-label={t("scan.close")}
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Type the food name, and optionally exact grams. Examples: "apple", "pasta carbonara", "skyr".
+              {t("scan.search_help")}
             </p>
             <Input
               autoFocus
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !searching) runManualSearch(); }}
-              placeholder="e.g. banana"
+              placeholder={t("scan.search_placeholder")}
               maxLength={200}
               className="h-12 rounded-2xl mb-2"
             />
@@ -1296,7 +1296,7 @@ export default function FoodScan() {
                 max={5000}
                 value={searchGrams}
                 onChange={(e) => setSearchGrams(e.target.value)}
-                placeholder="grams (optional)"
+                placeholder={t("scan.search_grams_optional")}
                 className="h-12 rounded-2xl flex-1"
               />
               <span className="text-sm text-muted-foreground">g</span>
@@ -1324,17 +1324,17 @@ export default function FoodScan() {
               {searching ? (
                 <>
                   <Sparkles className="w-4 h-4 mr-1 animate-pulse" />
-                  Looking up…
+                  {t("scan.looking_up")}
                 </>
               ) : (
                 <>
                   <Search className="w-4 h-4 mr-1" />
-                  Search
+                  {t("scan.search_btn")}
                 </>
               )}
             </Button>
             <p className="text-[11px] text-muted-foreground mt-3 text-center">
-              Counts as 1 scan toward your daily limit ({dailyUsed}/{DAILY_LIMIT})
+              {t("scan.search_count")} ({dailyUsed}/{DAILY_LIMIT})
             </p>
           </div>
         </div>
