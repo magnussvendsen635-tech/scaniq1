@@ -161,7 +161,7 @@ export default function Diary() {
             <ChevronLeft className="w-4 h-4" />
           </button>
           <div className="text-sm font-medium">
-            {selected.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
+            {selected.toLocaleDateString(language || undefined, { weekday: "long", day: "numeric", month: "long" })}
           </div>
           <button
             onClick={() => {
