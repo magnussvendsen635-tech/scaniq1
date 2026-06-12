@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useT } from "@/i18n/useT";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
 interface PremiumWrapperProps {
@@ -21,10 +22,13 @@ interface PremiumWrapperProps {
 export function PremiumWrapper({
   children,
   className = "",
-  title = "Premium-funktion",
-  description = "Opgradér til ScanIQ Pro for at låse op.",
+  title,
+  description,
 }: PremiumWrapperProps) {
   const navigate = useNavigate();
+  const t = useT();
+  const lockedTitle = title ?? t("premium.locked_title");
+  const lockedDesc = description ?? t("premium.locked_desc");
   const { isActive, loading } = useSubscription();
 
   // Skeleton only when no cached state exists. Non-payers hit the locked
@@ -54,15 +58,15 @@ export function PremiumWrapper({
       <button
         type="button"
         onClick={goPremium}
-        aria-label="Opgradér til Premium"
+        aria-label={t("premium.lock_aria")}
         className="absolute inset-0 flex items-center justify-center p-4 cursor-pointer bg-background/20 hover:bg-background/30 transition-colors"
       >
         <div className="w-full max-w-sm rounded-3xl bg-card/90 backdrop-blur-xl border border-border/60 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)] p-5 text-center">
           <div className="mx-auto mb-3 inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-[#F59E5B] to-[#EA6A1F] shadow-[0_8px_22px_-6px_rgba(245,158,91,0.7)]">
             <Lock className="w-5 h-5 text-white" strokeWidth={2.5} />
           </div>
-          <div className="text-base font-semibold mb-1">{title}</div>
-          <p className="text-xs text-muted-foreground mb-4">{description}</p>
+          <div className="text-base font-semibold mb-1">{lockedTitle}</div>
+          <p className="text-xs text-muted-foreground mb-4">{lockedDesc}</p>
           <span
             className="inline-flex items-center gap-2 pl-1 pr-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider text-white shadow-[0_6px_18px_-4px_rgba(245,158,91,0.65)] bg-gradient-to-r from-[#F59E5B] to-[#EA6A1F]"
           >
@@ -82,7 +86,7 @@ export function PremiumWrapper({
                 }}
               />
             </span>
-            Upgrade
+            {t("premium.upgrade_btn")}
           </span>
         </div>
       </button>

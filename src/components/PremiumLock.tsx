@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useT } from "@/i18n/useT";
 
 /**
  * Hard paywall lock: blurs content and redirects to /premium on tap.
@@ -16,6 +17,7 @@ export function PremiumLock({
   className?: string;
 }) {
   const navigate = useNavigate();
+  const t = useT();
   const { isActive, loading } = useSubscription();
 
   // Only show skeleton on first-ever load (no cached state). Cache hits
@@ -42,12 +44,12 @@ export function PremiumLock({
       <button
         type="button"
         onClick={() => navigate("/premium")}
-        aria-label="Opgradér til ScanIQ Pro"
+        aria-label={t("premium.lock_aria")}
         className="absolute inset-0 flex items-center justify-center cursor-pointer bg-background/10 hover:bg-background/20 transition-colors"
       >
         <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/90 backdrop-blur-md border border-border/60 shadow-md text-xs font-semibold">
           <Lock className="w-3.5 h-3.5 text-primary-glow" strokeWidth={2.5} />
-          Lås op med Pro
+          {t("premium.lock_label")}
         </span>
       </button>
     </div>

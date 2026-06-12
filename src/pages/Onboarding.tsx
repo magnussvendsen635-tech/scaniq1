@@ -136,13 +136,13 @@ export default function Onboarding() {
         )}
 
         {step === 1 && (
-          <Step title="Hvad hedder du?" sub="Så kan vi hilse personligt på dig hver dag.">
+          <Step title={tt("onboarding.q_name")} sub={tt("onboarding.q_name_sub")}>
             <div className="k-card p-6">
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Dit fornavn"
+                placeholder={tt("onboarding.q_name_placeholder")}
                 autoFocus
                 maxLength={30}
                 className="bg-transparent w-full text-center text-3xl font-semibold tracking-tight outline-none k-gradient-text placeholder:text-muted-foreground/40 placeholder:font-normal"
@@ -152,10 +152,10 @@ export default function Onboarding() {
         )}
 
         {step === 2 && (
-          <Step title="Hvad er dit køn?" sub="Vi bruger dette til at beregne præcise kalorier og makroer for dig.">
+          <Step title={tt("onboarding.q_sex")} sub={tt("onboarding.q_sex_sub")}>
             <div className="space-y-3">
-              <SelectCard active={sex === "male"} onClick={() => setSex("male")} title="Mand" sub="Beregner BMR for mandlig fysiologi" Icon={UserIcon} />
-              <SelectCard active={sex === "female"} onClick={() => setSex("female")} title="Kvinde" sub="Beregner BMR for kvindelig fysiologi" Icon={UserIcon} />
+              <SelectCard active={sex === "male"} onClick={() => setSex("male")} title={tt("onboarding.sex_male")} sub={tt("onboarding.sex_male_sub")} Icon={UserIcon} />
+              <SelectCard active={sex === "female"} onClick={() => setSex("female")} title={tt("onboarding.sex_female")} sub={tt("onboarding.sex_female_sub")} Icon={UserIcon} />
             </div>
           </Step>
         )}
@@ -271,7 +271,7 @@ export default function Onboarding() {
                 className="w-full h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
                 onClick={async () => {
                   if (!isHealthAvailable()) {
-                    toast.info(tt("onboarding.health_later"), { description: "Apple Health er kun tilgængelig i den native app." });
+                    toast.info(tt("onboarding.health_later"), { description: tt("onboarding.health_native_only") });
                     next();
                     return;
                   }
