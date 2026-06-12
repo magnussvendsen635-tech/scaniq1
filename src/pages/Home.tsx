@@ -27,7 +27,7 @@ export default function Home() {
   const lastMeal = meals.length ? [...meals].sort((a, b) => b.at - a.at)[0] : null;
   const firstName = (user.name ?? "").trim().split(/\s+/)[0];
   const hour = new Date().getHours();
-  const greet = hour < 10 ? "God morgen" : hour < 14 ? "God dag" : hour < 18 ? "God eftermiddag" : "God aften";
+  const greet = hour < 10 ? t("home.greet_morning") : hour < 14 ? t("home.greet_day") : hour < 18 ? t("home.greet_afternoon") : t("home.greet_evening");
 
   return (
     <div className="k-page pb-32">
