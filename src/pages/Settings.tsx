@@ -118,13 +118,13 @@ export default function Settings() {
           </Field>
         </Section>
 
-        <Section title="Scan-nøjagtighed">
+        <Section title={t("settings.scan_accuracy")}>
           <div className="px-5 py-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium">Kalorie-justering</div>
+                <div className="text-sm font-medium">{t("settings.cal_adjust")}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Kompenserer for at AI'en ofte undervurderer kalorier.
+                  {t("settings.cal_adjust_sub")}
                 </div>
               </div>
               <div className="text-sm font-semibold tabular-nums">
@@ -143,7 +143,7 @@ export default function Settings() {
             <div className="flex justify-between text-[10px] text-muted-foreground">
               <span>80%</span>
               <span>100%</span>
-              <span>115% (anbefalet)</span>
+              <span>115% ({t("settings.recommended")})</span>
               <span>150%</span>
             </div>
           </div>
