@@ -135,7 +135,10 @@ export default function Diary() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, dayMeals.length]);
 
-  const dayLabels = ["M", "T", "O", "T", "F", "L", "S"];
+  const dayLabels = useMemo(() => {
+    const fmt = new Intl.DateTimeFormat(language || undefined, { weekday: "narrow" });
+    return weekDays.map((d) => fmt.format(d));
+  }, [language, weekDays]);
 
   return (
     <div className="k-page">
