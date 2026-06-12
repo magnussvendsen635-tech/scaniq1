@@ -1,3 +1,5 @@
+// ⚠️ HARD RESET — previous Landing implementation deleted in full.
+// This file is the single source of truth for the public landing page.
 import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
@@ -11,6 +13,7 @@ import logo from "@/assets/scaniq-leaf-logo.png";
 
 const BRAND = "hsl(24 95% 53%)";
 const BRAND_DARK = "hsl(24 95% 48%)";
+const BG = "hsl(40 40% 97%)";
 
 export default function Landing() {
   const { session, loading } = useAuth();
@@ -29,25 +32,13 @@ export default function Landing() {
     };
   }, [emblaApi]);
 
-  if (loading) return <div className="min-h-screen bg-[hsl(40_40%_97%)]" />;
+  if (loading) return <div className="min-h-screen" style={{ background: BG }} />;
   if (session) return <Navigate to={onboarded ? "/app" : "/onboarding"} replace />;
 
   const slides = [
-    {
-      icon: Camera,
-      title: t("landing.f1_t"),
-      desc: t("landing.f1_d"),
-    },
-    {
-      icon: LineChart,
-      title: t("landing.f2_t"),
-      desc: t("landing.f2_d"),
-    },
-    {
-      icon: Sparkles,
-      title: t("landing.value_t"),
-      desc: t("landing.value_d"),
-    },
+    { icon: Camera, title: t("landing.f1_t"), desc: t("landing.f1_d") },
+    { icon: LineChart, title: t("landing.f2_t"), desc: t("landing.f2_d") },
+    { icon: Sparkles, title: t("landing.value_t"), desc: t("landing.value_d") },
     {
       icon: Shield,
       title: t("landing.trust_t"),
@@ -56,19 +47,22 @@ export default function Landing() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(40_40%_97%)] text-foreground">
+    <div
+      className="min-h-screen flex flex-col text-foreground"
+      style={{ background: BG }}
+    >
       <Seo
         title="ScanIQ — AI Nutrition & Fitness Tracker"
-        description="Master your macros, transform your health. Scan meals with your camera, get macros in seconds — by Kinetex Intelligens."
+        description="Master your macros, transform your health. Scan meals with your camera, get macros in seconds — by Kinetex Intelligence."
         path="/"
       />
 
-      {/* Header */}
-      <header className="pt-8 pb-4 flex flex-col items-center">
+      {/* Top — logo at 2x size */}
+      <header className="pt-10 pb-4 flex flex-col items-center">
         <img
           src={logo}
           alt="ScanIQ"
-          className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover"
+          className="w-28 h-28 sm:w-32 sm:h-32 object-contain"
         />
         <span
           className="mt-3 text-2xl font-bold tracking-[0.18em]"
@@ -90,7 +84,7 @@ export default function Landing() {
         </p>
       </div>
 
-      {/* Swipe Slides */}
+      {/* Center — horizontal PageView with 4 slides */}
       <div className="flex-1 flex flex-col justify-center py-8 min-h-0">
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex">
@@ -130,7 +124,7 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Fixed bottom CTAs */}
+      {/* Bottom — fixed Sign up (orange) and Log in (outline) */}
       <div className="px-6 pb-6 pt-2 space-y-3 max-w-md mx-auto w-full">
         <Link to="/auth?mode=signup" className="block">
           <Button

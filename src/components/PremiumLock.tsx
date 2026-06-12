@@ -35,7 +35,7 @@ export function PremiumLock({
       <div
         aria-hidden
         className="pointer-events-none select-none"
-        style={{ filter: "blur(10px)", opacity: 0.55 }}
+        style={{ filter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", backdropFilter: "blur(8px)", opacity: 0.6 }}
       >
         {children}
       </div>
