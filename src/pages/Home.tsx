@@ -75,7 +75,7 @@ export default function Home() {
 
 
       {/* Hero ring card — KCAL TILBAGE */}
-      <PremiumWrapper className="mb-5 block" title="KCAL tilbage låst" description="Opgradér til ScanIQ Pro for at se dine daglige kalorier.">
+      <PremiumWrapper className="mb-5 block" title={t("home.kcal_locked_title")} description={t("home.kcal_locked_sub")}>
         <div className="k-card p-6 bg-gradient-surface relative overflow-hidden">
           <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-gradient-primary opacity-20 blur-3xl" />
           <div className="relative flex flex-col items-center">
