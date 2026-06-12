@@ -100,18 +100,16 @@ export default function Onboarding() {
     if (!plan) return;
     setLanguage(lang);
     updateUser({ name: name.trim(), age, weight, targetWeight, height, goal, sex, activity, pace, frequency, diet, ...plan });
-    if (channel) {
-      try {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (authUser) {
-          await supabase.from("profiles").update({ acquisition_channel: channel }).eq("id", authUser.id);
-        }
-      } catch (e) {
-        console.warn("Failed to save acquisition channel", e);
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        await supabase.from("profiles").update({ acquisition_channel: channel || null }).eq("id", authUser.id);
       }
+    } catch (e) {
+      console.warn("Failed to save acquisition channel", e);
     }
     setOnboarded(true);
-    nav("/premium", { replace: true });
+    nav("/app", { replace: true });
   };
 
   const progressIndex = Math.min(step + 1, TOTAL_QUESTIONS);

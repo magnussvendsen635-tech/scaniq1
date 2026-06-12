@@ -26,16 +26,16 @@ export default function Progress() {
       <h1 className="text-3xl font-semibold tracking-tight mb-6">{t("progress.title")}</h1>
 
       <PremiumWrapper
-        title="Ugentlig rapport"
-        description="Opgradér til ScanIQ Pro for at se din ugerapport."
+        title={t("progress.weekly_locked_title")}
+        description={t("progress.weekly_locked_sub")}
       >
         <WeeklyReport />
       </PremiumWrapper>
 
       <PremiumWrapper
         className="mt-4"
-        title="Detaljeret fremskridt"
-        description="Opgradér til ScanIQ Pro for at se kaloriegrafen, vægtkurven og din uge-statistik."
+        title={t("progress.detail_locked_title")}
+        description={t("progress.detail_locked_sub")}
       >
         <div className="k-card p-5 mb-4 bg-gradient-surface">
           <div className="flex items-baseline justify-between mb-4">

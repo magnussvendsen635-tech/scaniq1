@@ -1,16 +1,16 @@
 import { useKStore } from "@/store/useKStore";
 import { CalendarCheck, Target, Droplet, Scale } from "lucide-react";
+import { useT } from "@/i18n/useT";
 
 export const WeeklyReport = () => {
+  const t = useT();
   const { meals, water, waterGoal, weights, user } = useKStore();
 
-  // Last 7 days
   const days: string[] = [];
   for (let i = 6; i >= 0; i--) {
     days.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
   }
 
-  // Days hit calorie goal (within ±15%)
   let goalHits = 0;
   let waterHits = 0;
   let mealsLogged = 0;
@@ -25,7 +25,6 @@ export const WeeklyReport = () => {
     if (w >= waterGoal * 0.8) waterHits++;
   }
 
-  // Weight change last 7 days
   const weekAgo = Date.now() - 7 * 86400000;
   const recent = [...weights].sort((a, b) => a.at - b.at);
   const oldest = recent.find((w) => w.at >= weekAgo) ?? recent[0];
@@ -38,23 +37,23 @@ export const WeeklyReport = () => {
       <div className="relative">
         <div className="flex items-center gap-2 mb-4">
           <CalendarCheck className="w-4 h-4 text-primary-glow" />
-          <h3 className="font-semibold">This week's summary</h3>
+          <h3 className="font-semibold">{t("weekly.title")}</h3>
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <Stat Icon={Target} label="Calorie goal hit" value={`${goalHits}/7`} sub="days" />
-          <Stat Icon={Droplet} label="Water goal hit" value={`${waterHits}/7`} sub="days" />
+          <Stat Icon={Target} label={t("weekly.cal_hit")} value={`${goalHits}/7`} sub={t("weekly.days")} />
+          <Stat Icon={Droplet} label={t("weekly.water_hit")} value={`${waterHits}/7`} sub={t("weekly.days")} />
           <Stat
             Icon={Scale}
-            label="Weight change"
+            label={t("weekly.weight_change")}
             value={`${wDelta > 0 ? "+" : ""}${wDelta.toFixed(1)}`}
-            sub="kg"
+            sub={t("weekly.kg")}
           />
         </div>
 
         <div className="text-xs text-muted-foreground border-t border-border/60 pt-3">
-          <span className="text-foreground font-semibold">{mealsLogged}</span> meals logged ·{" "}
-          <span className="text-foreground font-semibold">{Math.round(totalCal / 7)}</span> kcal/day average
+          <span className="text-foreground font-semibold">{mealsLogged}</span> {t("weekly.meals_logged_count")} ·{" "}
+          <span className="text-foreground font-semibold">{Math.round(totalCal / 7)}</span> {t("weekly.kcal_per_day_avg")}
         </div>
       </div>
     </div>

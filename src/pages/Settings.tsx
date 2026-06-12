@@ -118,13 +118,13 @@ export default function Settings() {
           </Field>
         </Section>
 
-        <Section title="Scan-nøjagtighed">
+        <Section title={t("settings.scan_accuracy")}>
           <div className="px-5 py-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium">Kalorie-justering</div>
+                <div className="text-sm font-medium">{t("settings.cal_adjust")}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Kompenserer for at AI'en ofte undervurderer kalorier.
+                  {t("settings.cal_adjust_sub")}
                 </div>
               </div>
               <div className="text-sm font-semibold tabular-nums">
@@ -143,7 +143,7 @@ export default function Settings() {
             <div className="flex justify-between text-[10px] text-muted-foreground">
               <span>80%</span>
               <span>100%</span>
-              <span>115% (anbefalet)</span>
+              <span>115% ({t("settings.recommended")})</span>
               <span>150%</span>
             </div>
           </div>
@@ -156,7 +156,7 @@ export default function Settings() {
           {t("settings.save_changes")}
         </Button>
 
-        <Section title="About">
+        <Section title={t("settings.about")}>
           {isAdmin && (
             <button
               onClick={() => nav("/admin")}
@@ -164,7 +164,7 @@ export default function Settings() {
             >
               <span className="text-sm flex items-center gap-2">
                 <Shield className="w-4 h-4 text-primary-glow" />
-                Admin panel
+                {t("settings.admin_panel")}
               </span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -173,25 +173,25 @@ export default function Settings() {
             onClick={() => nav("/data-privacy")}
             className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
           >
-            <span className="text-sm">Data & privatliv</span>
+            <span className="text-sm">{t("settings.data_privacy")}</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
           <button
             onClick={() => nav("/privacy")}
             className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
           >
-            <span className="text-sm">Privatlivspolitik</span>
+            <span className="text-sm">{t("settings.privacy_policy")}</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
           <button
             onClick={() => nav("/terms")}
             className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
           >
-            <span className="text-sm">Servicevilkår</span>
+            <span className="text-sm">{t("settings.terms_of_service")}</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
           <div className="px-5 py-3 flex items-center justify-between gap-4">
-            <span className="text-sm">Developer</span>
+            <span className="text-sm">{t("settings.developer")}</span>
             <span className="text-sm text-muted-foreground">Kinetex Intelligens</span>
           </div>
         </Section>

@@ -27,13 +27,13 @@ export default function Home() {
   const lastMeal = meals.length ? [...meals].sort((a, b) => b.at - a.at)[0] : null;
   const firstName = (user.name ?? "").trim().split(/\s+/)[0];
   const hour = new Date().getHours();
-  const greet = hour < 10 ? "God morgen" : hour < 14 ? "God dag" : hour < 18 ? "God eftermiddag" : "God aften";
+  const greet = hour < 10 ? t("home.greet_morning") : hour < 14 ? t("home.greet_day") : hour < 18 ? t("home.greet_afternoon") : t("home.greet_evening");
 
   return (
     <div className="k-page pb-32">
       <Seo
         title="ScanIQ"
-        description="Scan din mad med ét billede. ScanIQ analyserer kalorier, makroer og sundhedsscore automatisk og hjælper dig med at nå dine mål."
+        description="Scan your meal with one photo. ScanIQ analyzes calories, macros and a health score automatically to help you reach your goals."
         path="/"
       />
       <header className="flex items-center justify-between mb-4">
@@ -49,7 +49,7 @@ export default function Home() {
       </header>
 
       {/* PRIMARY CTA — AI food scan is the hero of the app */}
-      <PremiumWrapper className="mb-5 block" title="Scan-funktion låst" description="Opgradér til ScanIQ Pro for at scanne din mad.">
+      <PremiumWrapper className="mb-5 block" title={t("home.scan_locked_title")} description={t("home.scan_locked_sub")}>
         <Link
           to="/scan?auto=1"
           className="k-tap relative block rounded-3xl overflow-hidden bg-gradient-primary p-6 border-[3px] border-foreground shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.55)] active:scale-[0.98] transition-transform"
@@ -57,13 +57,13 @@ export default function Home() {
           <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/20 rounded-full blur-3xl pointer-events-none" />
           <div className="relative flex items-center gap-4">
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] uppercase tracking-widest text-foreground/80 font-bold mb-0.5">Food scan</div>
+              <div className="text-[10px] uppercase tracking-widest text-foreground/80 font-bold mb-0.5">{t("home.food_scan_label")}</div>
               <div className="font-bold text-foreground text-xl leading-tight">
-                {lastMeal ? "Tap to scan your food" : "Scan your first meal"}
+                {lastMeal ? t("home.tap_to_scan") : t("home.scan_first_meal")}
               </div>
               {lastMeal && (
                 <div className="text-xs text-foreground/85 mt-1 font-medium truncate">
-                  Last scan: {lastMeal.calories} kcal · {lastMeal.name}
+                  {t("home.last_scan")}: {lastMeal.calories} kcal · {lastMeal.name}
                 </div>
               )}
             </div>
@@ -75,7 +75,7 @@ export default function Home() {
 
 
       {/* Hero ring card — KCAL TILBAGE */}
-      <PremiumWrapper className="mb-5 block" title="KCAL tilbage låst" description="Opgradér til ScanIQ Pro for at se dine daglige kalorier.">
+      <PremiumWrapper className="mb-5 block" title={t("home.kcal_locked_title")} description={t("home.kcal_locked_sub")}>
         <div className="k-card p-6 bg-gradient-surface relative overflow-hidden">
           <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-gradient-primary opacity-20 blur-3xl" />
           <div className="relative flex flex-col items-center">
@@ -168,7 +168,7 @@ export default function Home() {
       {/* Quick actions — secondary features */}
       <div className="grid grid-cols-3 gap-2">
         <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
-        <ActionCard to="/weight" Icon={Scale} title="Weight" sub="Track & log progress" />
+        <ActionCard to="/weight" Icon={Scale} title={t("home.weight_title")} sub={t("home.weight_sub")} />
         <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
       </div>
     </div>

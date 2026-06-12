@@ -138,7 +138,24 @@ export type TKey =
   | "profile.restart_onb" | "profile.restart_onb_sub"
   | "profile.delete_account" | "profile.delete_account_sub"
   | "profile.delete_confirm_title" | "profile.delete_confirm_body" | "profile.deleting" | "profile.delete_permanent"
-  | "profile.deleted" | "profile.delete_failed" | "profile.logout_confirm_body";
+  | "profile.deleted" | "profile.delete_failed" | "profile.logout_confirm_body"
+  // Weekly report
+  | "weekly.title" | "weekly.cal_hit" | "weekly.water_hit" | "weekly.weight_change"
+  | "weekly.days" | "weekly.kg" | "weekly.meals_logged_count" | "weekly.kcal_per_day_avg"
+  // Reminders card
+  | "reminders.title" | "reminders.sub_on" | "reminders.sub_off"
+  // Settings extras
+  | "settings.scan_accuracy" | "settings.cal_adjust" | "settings.cal_adjust_sub" | "settings.recommended"
+  | "settings.about" | "settings.data_privacy" | "settings.privacy_policy" | "settings.terms_of_service"
+  | "settings.developer" | "settings.admin_panel"
+  // Home extras
+  | "home.greet_morning" | "home.greet_day" | "home.greet_afternoon" | "home.greet_evening"
+  | "home.food_scan_label" | "home.scan_first_meal" | "home.tap_to_scan" | "home.last_scan"
+  | "home.scan_locked_title" | "home.scan_locked_sub" | "home.kcal_locked_title" | "home.kcal_locked_sub"
+  | "home.weight_title" | "home.weight_sub"
+  // Progress extras
+  | "progress.weekly_locked_title" | "progress.weekly_locked_sub"
+  | "progress.detail_locked_title" | "progress.detail_locked_sub";
 
 type Dict = Partial<Record<TKey, string>>;
 
@@ -173,7 +190,7 @@ const en: Record<TKey, string> = {
   "diary.couldnt_load_insight": "Couldn't load insight", "diary.meal_removed": "Meal removed",
   "diary.cat_breakfast": "Breakfast", "diary.cat_lunch": "Lunch", "diary.cat_dinner": "Dinner", "diary.cat_snack": "Snacks",
   "diary.add_breakfast": "+ Add breakfast", "diary.add_lunch": "+ Add lunch", "diary.add_dinner": "+ Add dinner", "diary.add_snack": "+ Add snack",
-  "tasks.title": "Daily tasks", "tasks.placeholder": "Add new task…", "tasks.empty": "No tasks for this day yet.",
+  "tasks.title": "Daily Tasks", "tasks.placeholder": "Add new task…", "tasks.empty": "No tasks for this day yet.",
   "settings.title": "Settings", "settings.app": "App",
   "settings.language": "Language", "settings.choose_language": "Choose language",
   "settings.language_updated": "Language updated",
@@ -444,6 +461,50 @@ const en: Record<TKey, string> = {
   "profile.deleted": "Your account has been deleted",
   "profile.delete_failed": "Could not delete account",
   "profile.logout_confirm_body": "You will be signed out of your account.",
+  // Weekly report
+  "weekly.title": "This week's summary",
+  "weekly.cal_hit": "Calorie goal hit",
+  "weekly.water_hit": "Water goal hit",
+  "weekly.weight_change": "Weight change",
+  "weekly.days": "days",
+  "weekly.kg": "kg",
+  "weekly.meals_logged_count": "meals logged",
+  "weekly.kcal_per_day_avg": "kcal/day average",
+  // Reminders
+  "reminders.title": "Reminders",
+  "reminders.sub_on": "Meals · water · smart & subtle",
+  "reminders.sub_off": "Get reminded about meals and water",
+  // Settings extras
+  "settings.scan_accuracy": "Scan accuracy",
+  "settings.cal_adjust": "Calorie adjustment",
+  "settings.cal_adjust_sub": "Compensates for the AI's tendency to underestimate calories.",
+  "settings.recommended": "recommended",
+  "settings.about": "About",
+  "settings.data_privacy": "Data & privacy",
+  "settings.privacy_policy": "Privacy policy",
+  "settings.terms_of_service": "Terms of service",
+  "settings.developer": "Developer",
+  "settings.admin_panel": "Admin panel",
+  // Home extras
+  "home.greet_morning": "Good morning",
+  "home.greet_day": "Good day",
+  "home.greet_afternoon": "Good afternoon",
+  "home.greet_evening": "Good evening",
+  "home.food_scan_label": "Food scan",
+  "home.scan_first_meal": "Scan your first meal",
+  "home.tap_to_scan": "Tap to scan your food",
+  "home.last_scan": "Last scan",
+  "home.scan_locked_title": "Scan feature locked",
+  "home.scan_locked_sub": "Upgrade to ScanIQ Pro to scan your food.",
+  "home.kcal_locked_title": "Calories left locked",
+  "home.kcal_locked_sub": "Upgrade to ScanIQ Pro to see your daily calories.",
+  "home.weight_title": "Weight",
+  "home.weight_sub": "Track & log progress",
+  // Progress extras
+  "progress.weekly_locked_title": "Weekly report",
+  "progress.weekly_locked_sub": "Upgrade to ScanIQ Pro to see your weekly report.",
+  "progress.detail_locked_title": "Detailed progress",
+  "progress.detail_locked_sub": "Upgrade to ScanIQ Pro to see the calorie chart, weight curve and weekly stats.",
 };
 
 const da: Dict = {
@@ -474,7 +535,7 @@ const da: Dict = {
   "diary.couldnt_load_insight": "Kunne ikke hente indsigt", "diary.meal_removed": "Måltid fjernet",
   "diary.cat_breakfast": "Morgenmad", "diary.cat_lunch": "Frokost", "diary.cat_dinner": "Aftensmad", "diary.cat_snack": "Snacks",
   "diary.add_breakfast": "+ Tilføj morgenmad", "diary.add_lunch": "+ Tilføj frokost", "diary.add_dinner": "+ Tilføj aftensmad", "diary.add_snack": "+ Tilføj snack",
-  "tasks.title": "Dagens gøremål", "tasks.placeholder": "Tilføj ny opgave…", "tasks.empty": "Ingen gøremål for denne dag endnu.",
+  "tasks.title": "Dagens opgaver", "tasks.placeholder": "Tilføj ny opgave…", "tasks.empty": "Ingen opgaver for denne dag endnu.",
   "settings.title": "Indstillinger", "settings.app": "App",
   "settings.language": "Sprog", "settings.choose_language": "Vælg sprog", "settings.language_updated": "Sprog opdateret",
   "settings.body": "Krop", "settings.weight_kg": "Vægt (kg)",
@@ -728,6 +789,45 @@ const da: Dict = {
   "profile.deleted": "Din konto er slettet",
   "profile.delete_failed": "Kunne ikke slette konto",
   "profile.logout_confirm_body": "Du bliver logget ud af din konto.",
+  "weekly.title": "Denne uges opsummering",
+  "weekly.cal_hit": "Kaloriemål nået",
+  "weekly.water_hit": "Vandmål nået",
+  "weekly.weight_change": "Vægtændring",
+  "weekly.days": "dage",
+  "weekly.kg": "kg",
+  "weekly.meals_logged_count": "måltider logget",
+  "weekly.kcal_per_day_avg": "kcal/dag i gennemsnit",
+  "reminders.title": "Påmindelser",
+  "reminders.sub_on": "Måltider · vand · smart & subtil",
+  "reminders.sub_off": "Bliv mindet om måltider og vand",
+  "settings.scan_accuracy": "Scan-nøjagtighed",
+  "settings.cal_adjust": "Kaloriejustering",
+  "settings.cal_adjust_sub": "Kompenserer for at AI'en ofte undervurderer kalorier.",
+  "settings.recommended": "anbefalet",
+  "settings.about": "Om",
+  "settings.data_privacy": "Data & privatliv",
+  "settings.privacy_policy": "Privatlivspolitik",
+  "settings.terms_of_service": "Servicevilkår",
+  "settings.developer": "Udvikler",
+  "settings.admin_panel": "Admin-panel",
+  "home.greet_morning": "God morgen",
+  "home.greet_day": "God dag",
+  "home.greet_afternoon": "God eftermiddag",
+  "home.greet_evening": "God aften",
+  "home.food_scan_label": "Food scan",
+  "home.scan_first_meal": "Scan dit første måltid",
+  "home.tap_to_scan": "Tryk for at scanne din mad",
+  "home.last_scan": "Sidste scan",
+  "home.scan_locked_title": "Scan-funktion låst",
+  "home.scan_locked_sub": "Opgradér til ScanIQ Pro for at scanne din mad.",
+  "home.kcal_locked_title": "KCAL tilbage låst",
+  "home.kcal_locked_sub": "Opgradér til ScanIQ Pro for at se dine daglige kalorier.",
+  "home.weight_title": "Vægt",
+  "home.weight_sub": "Spor & log fremskridt",
+  "progress.weekly_locked_title": "Ugentlig rapport",
+  "progress.weekly_locked_sub": "Opgradér til ScanIQ Pro for at se din ugerapport.",
+  "progress.detail_locked_title": "Detaljeret fremskridt",
+  "progress.detail_locked_sub": "Opgradér til ScanIQ Pro for at se kaloriegrafen, vægtkurven og din uge-statistik.",
 };
 
 const es: Dict = {
@@ -980,6 +1080,48 @@ const fr: Dict = {
   "profile.deleted": "Votre compte a été supprimé",
   "profile.delete_failed": "Impossible de supprimer le compte",
   "profile.logout_confirm_body": "Vous serez déconnecté de votre compte.",
+  "tasks.title": "Tâches du jour",
+  "tasks.placeholder": "Ajouter une nouvelle tâche…",
+  "tasks.empty": "Aucune tâche pour ce jour.",
+  "weekly.title": "Résumé de la semaine",
+  "weekly.cal_hit": "Objectif calorique atteint",
+  "weekly.water_hit": "Objectif d'eau atteint",
+  "weekly.weight_change": "Évolution du poids",
+  "weekly.days": "jours",
+  "weekly.kg": "kg",
+  "weekly.meals_logged_count": "repas enregistrés",
+  "weekly.kcal_per_day_avg": "kcal/jour en moyenne",
+  "reminders.title": "Rappels",
+  "reminders.sub_on": "Repas · eau · discret et intelligent",
+  "reminders.sub_off": "Soyez rappelé pour les repas et l'eau",
+  "settings.scan_accuracy": "Précision du scan",
+  "settings.cal_adjust": "Ajustement des calories",
+  "settings.cal_adjust_sub": "Compense la tendance de l'IA à sous-estimer les calories.",
+  "settings.recommended": "recommandé",
+  "settings.about": "À propos",
+  "settings.data_privacy": "Données et confidentialité",
+  "settings.privacy_policy": "Politique de confidentialité",
+  "settings.terms_of_service": "Conditions d'utilisation",
+  "settings.developer": "Développeur",
+  "settings.admin_panel": "Panneau admin",
+  "home.greet_morning": "Bonjour",
+  "home.greet_day": "Bonne journée",
+  "home.greet_afternoon": "Bon après-midi",
+  "home.greet_evening": "Bonsoir",
+  "home.food_scan_label": "Scan repas",
+  "home.scan_first_meal": "Scannez votre premier repas",
+  "home.tap_to_scan": "Appuyez pour scanner votre repas",
+  "home.last_scan": "Dernier scan",
+  "home.scan_locked_title": "Fonction scan verrouillée",
+  "home.scan_locked_sub": "Passez à ScanIQ Pro pour scanner vos repas.",
+  "home.kcal_locked_title": "Kcal restantes verrouillées",
+  "home.kcal_locked_sub": "Passez à ScanIQ Pro pour voir vos calories quotidiennes.",
+  "home.weight_title": "Poids",
+  "home.weight_sub": "Suivez et enregistrez vos progrès",
+  "progress.weekly_locked_title": "Rapport hebdomadaire",
+  "progress.weekly_locked_sub": "Passez à ScanIQ Pro pour voir votre rapport hebdomadaire.",
+  "progress.detail_locked_title": "Progrès détaillés",
+  "progress.detail_locked_sub": "Passez à ScanIQ Pro pour voir le graphique des calories, la courbe de poids et les statistiques de la semaine.",
 };
 
 const de: Dict = {
