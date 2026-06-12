@@ -39,15 +39,31 @@ export default function Landing() {
   if (loading) return <div className="min-h-screen" style={{ background: BG }} />;
   if (session) return <Navigate to={onboarded ? "/app" : "/onboarding"} replace />;
 
+  // Landing page is English-only by product decision (public marketing page).
   const slides = [
-    { icon: Camera, image: slideScan, title: t("landing.f1_t"), desc: t("landing.f1_d") },
-    { icon: LineChart, image: slideMacros, title: t("landing.f2_t"), desc: t("landing.f2_d") },
-    { icon: Sparkles, image: slideMotivation, title: t("landing.value_t"), desc: t("landing.value_d") },
+    {
+      icon: Camera,
+      image: slideScan,
+      title: "AI Scanning",
+      desc: "Snap a photo of your meal and our AI instantly identifies the food and breaks it down into calories and macros.",
+    },
+    {
+      icon: LineChart,
+      image: slideMacros,
+      title: "Macro Tracking",
+      desc: "See protein, carbs and fat at a glance with clean charts that keep you on track toward your daily goal.",
+    },
+    {
+      icon: Sparkles,
+      image: slideMotivation,
+      title: "Motivation & Streaks",
+      desc: "Build daily streaks, complete tasks and watch your progress grow week after week.",
+    },
     {
       icon: Shield,
       image: slidePrivacy,
-      title: t("landing.trust_t"),
-      desc: `${t("landing.cta_disclaimer")} ${t("landing.trust_d")}`,
+      title: "Privacy First",
+      desc: "Your data stays yours. Encrypted in transit and at rest, with full GDPR rights — access, export or delete anytime.",
     },
   ];
 
@@ -85,7 +101,7 @@ export default function Landing() {
           <span style={{ color: BRAND }}>transform your health.</span>
         </h1>
         <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
-          {t("landing.hero_sub")}
+          Track every meal in seconds with AI-powered food scanning, macro insights, streaks, water tracking and personalized recipes — all in one simple app.
         </p>
       </div>
 
@@ -95,28 +111,30 @@ export default function Landing() {
           <div className="flex">
             {slides.map(({ icon: Icon, image, title, desc }, i) => (
               <div key={i} className="min-w-0 shrink-0 grow-0 basis-full px-6">
-                <div className="max-w-md mx-auto rounded-3xl bg-white border border-border/50 p-6 shadow-sm text-center">
-                  {/* Image container — centered, ready for asset */}
-                  <div className="mx-auto mb-5 w-full aspect-square max-w-[260px] rounded-2xl overflow-hidden flex items-center justify-center bg-[hsl(40_40%_97%)]">
+                <div className="max-w-md mx-auto rounded-3xl bg-white border border-border/50 shadow-sm overflow-hidden text-center">
+                  {/* Full-width rectangular illustration filling the top container */}
+                  <div className="w-full aspect-[16/10] bg-[hsl(40_40%_97%)]">
                     <img
                       src={image}
                       alt={title}
                       loading="lazy"
-                      width={1024}
-                      height={1024}
-                      className="w-full h-full object-contain"
+                      width={1280}
+                      height={800}
+                      className="w-full h-full object-cover block"
                     />
                   </div>
-                  <div
-                    className="w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-3"
-                    style={{ background: "hsl(24 95% 53% / 0.12)" }}
-                  >
-                    <Icon className="w-5 h-5" style={{ color: BRAND_DARK }} />
+                  <div className="p-6">
+                    <div
+                      className="w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-3"
+                      style={{ background: "hsl(24 95% 53% / 0.12)" }}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: BRAND_DARK }} />
+                    </div>
+                    <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                      {desc}
+                    </p>
                   </div>
-                  <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                    {desc}
-                  </p>
                 </div>
               </div>
             ))}
