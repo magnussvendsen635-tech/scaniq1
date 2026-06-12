@@ -138,7 +138,24 @@ export type TKey =
   | "profile.restart_onb" | "profile.restart_onb_sub"
   | "profile.delete_account" | "profile.delete_account_sub"
   | "profile.delete_confirm_title" | "profile.delete_confirm_body" | "profile.deleting" | "profile.delete_permanent"
-  | "profile.deleted" | "profile.delete_failed" | "profile.logout_confirm_body";
+  | "profile.deleted" | "profile.delete_failed" | "profile.logout_confirm_body"
+  // Weekly report
+  | "weekly.title" | "weekly.cal_hit" | "weekly.water_hit" | "weekly.weight_change"
+  | "weekly.days" | "weekly.kg" | "weekly.meals_logged_count" | "weekly.kcal_per_day_avg"
+  // Reminders card
+  | "reminders.title" | "reminders.sub_on" | "reminders.sub_off"
+  // Settings extras
+  | "settings.scan_accuracy" | "settings.cal_adjust" | "settings.cal_adjust_sub" | "settings.recommended"
+  | "settings.about" | "settings.data_privacy" | "settings.privacy_policy" | "settings.terms_of_service"
+  | "settings.developer" | "settings.admin_panel"
+  // Home extras
+  | "home.greet_morning" | "home.greet_day" | "home.greet_afternoon" | "home.greet_evening"
+  | "home.food_scan_label" | "home.scan_first_meal" | "home.tap_to_scan" | "home.last_scan"
+  | "home.scan_locked_title" | "home.scan_locked_sub" | "home.kcal_locked_title" | "home.kcal_locked_sub"
+  | "home.weight_title" | "home.weight_sub"
+  // Progress extras
+  | "progress.weekly_locked_title" | "progress.weekly_locked_sub"
+  | "progress.detail_locked_title" | "progress.detail_locked_sub";
 
 type Dict = Partial<Record<TKey, string>>;
 
