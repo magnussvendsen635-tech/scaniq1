@@ -2,9 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { useKStore, categoryForNow } from "@/store/useKStore";
 import { ArrowLeft, Star, Plus, Trash2, Heart } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/i18n/useT";
 
 export default function Favorites() {
   const nav = useNavigate();
+  const t = useT();
   const { favorites, removeFavorite, addMeal, meals } = useKStore();
 
   const recent = (() => {
@@ -37,7 +39,7 @@ export default function Favorites() {
       category: categoryForNow(),
       at: Date.now(),
     });
-    toast.success("Added to diary", { description: `${m.name} · ${m.calories} kcal` });
+    toast.success(t("fav.added"), { description: `${m.name} · ${m.calories} kcal` });
   };
 
   return (
@@ -46,18 +48,18 @@ export default function Favorites() {
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight flex-1">Quick add</h1>
+        <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("fav.title")}</h1>
       </header>
 
       {/* Favorites */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-3 px-1">
           <Star className="w-4 h-4 text-primary-glow" />
-          <h2 className="text-sm font-medium text-muted-foreground tracking-widest uppercase">Favorites</h2>
+          <h2 className="text-sm font-medium text-muted-foreground tracking-widest uppercase">{t("fav.section")}</h2>
         </div>
         {favorites.length === 0 ? (
           <div className="k-card p-6 text-center text-sm text-muted-foreground">
-            No favorites yet. Tap the star icon on any scanned meal to save it here.
+            {t("fav.empty")}
           </div>
         ) : (
           <div className="space-y-2.5">
@@ -89,7 +91,7 @@ export default function Favorites() {
         <div>
           <div className="flex items-center gap-2 mb-3 px-1">
             <Heart className="w-4 h-4 text-primary-glow" />
-            <h2 className="text-sm font-medium text-muted-foreground tracking-widest uppercase">Recent meals</h2>
+            <h2 className="text-sm font-medium text-muted-foreground tracking-widest uppercase">{t("fav.recent")}</h2>
           </div>
           <div className="space-y-2.5">
             {recent.map((m) => (
