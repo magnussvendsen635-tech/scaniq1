@@ -13,10 +13,7 @@ const corsHeaders = {
 const DAILY_SCAN_LIMIT = 30;
 // Minimum seconds between scans (anti-bot rate limit, shared with barcode lookup).
 const SCAN_COOLDOWN_SECONDS = 5;
-// Admin user IDs — bypass all quota and cooldown limits.
-const ADMIN_USER_IDS = new Set<string>([
-  "7d5a801c-8bac-4eb9-bcd3-3bd8c20b28f0",
-]);
+// Admin status is checked via the is_admin() RPC against the user_roles table.
 
 const HIDDEN_FAT_ITEM_PATTERN = /hidden|skjult|oil|olie|dressing|butter|smør|fat|fedt|mayo|remoulade|aioli|sauce|sovs/i;
 const RAW_NOVA1_ITEM_PATTERN = /cucumber|agurk|banana|banan|apple|æble|orange|appelsin|berry|berries|bær|grape|druer|tomato|tomat|carrot|gulerod|pepper|peberfrugt|lettuce|salat|cabbage|kål|celery|selleri|radish|radise|spinach|spinat|broccoli|cauliflower|blomkål|courgette|zucchini/i;
