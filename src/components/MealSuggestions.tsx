@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, RefreshCw, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { categoryForNow } from "@/store/useKStore";
+import { useT } from "@/i18n/useT";
 
 interface Suggestion {
   name: string;
@@ -16,6 +17,7 @@ interface Suggestion {
 }
 
 export const MealSuggestions = () => {
+  const t = useT();
   const { user, meals, addMeal, premium } = useKStore();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);

@@ -173,7 +173,10 @@ function repsSets(ex: Exercise): { reps: string; sets: string } | null {
   }
 }
 
+import { useT } from "@/i18n/useT";
+
 export function ExerciseFigure({ exercise }: { exercise: Exercise }) {
+  const t = useT();
   const anim = pickAnim(exercise);
   const steps = STEPS[anim];
   const muscles = MUSCLES[anim];
