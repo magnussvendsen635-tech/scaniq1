@@ -168,7 +168,44 @@ export type TKey =
   // Exercise figure
   | "exercise.reps" | "exercise.sets"
   // Language picker
-  | "lang.none_found";
+  | "lang.none_found"
+  // Reminders page
+  | "reminders.page_title" | "reminders.web_warning"
+  | "reminders.enable_title" | "reminders.enable_sub"
+  | "reminders.permission_denied_title" | "reminders.permission_denied_sub"
+  | "reminders.meals" | "reminders.meals_sub"
+  | "reminders.breakfast" | "reminders.lunch" | "reminders.dinner"
+  | "reminders.water" | "reminders.water_sub"
+  | "reminders.every_hours" | "reminders.hours_short" | "reminders.footer"
+  // Weight tracker
+  | "weight.title" | "weight.invalid" | "weight.logged" | "weight.adjusted"
+  | "weight.premium_title" | "weight.premium_sub"
+  | "weight.current" | "weight.total_change" | "weight.goal_label"
+  | "weight.trend" | "weight.log_new" | "weight.log_btn"
+  | "weight.auto_adjust" | "weight.history"
+  // Favorites
+  | "fav.title" | "fav.section" | "fav.empty" | "fav.recent" | "fav.added"
+  // Recipes
+  | "recipes.title" | "recipes.coming_chip" | "recipes.heading"
+  | "recipes.body" | "recipes.future"
+  // Misc page strings
+  | "profile.goal_sub" | "settings.developer_name" | "diary.last_log_time"
+  // FoodScan
+  | "scan.daily_limit_title" | "scan.daily_limit_sub" | "scan.view_diary"
+  | "scan.hidden_calories_title" | "scan.hidden_calories_sub"
+  | "scan.oil" | "scan.oil_sub" | "scan.dressing" | "scan.dressing_sub"
+  | "scan.real_life_score" | "scan.satiety" | "scan.satiety_hours"
+  | "scan.items" | "scan.items_sum"
+  | "scan.vitamins_minerals" | "scan.vitamins" | "scan.minerals"
+  | "scan.search_manually" | "scan.search_help"
+  | "scan.search_placeholder" | "scan.search_grams_optional"
+  | "scan.looking_up" | "scan.search_btn" | "scan.search_count" | "scan.close"
+  // Streak repair
+  | "streak.repair_title" | "streak.repair_sub" | "streak.repair_cta"
+  | "streak.repair_cancel" | "streak.repair_buy"
+  | "streak.restored" | "streak.repair_failed"
+  | "streak.freeze_limit" | "streak.freeze_already"
+  | "streak.freeze_toast" | "streak.freeze_toast_sub";
 
 type Dict = Partial<Record<TKey, string>>;
 
@@ -538,6 +575,85 @@ const en: Record<TKey, string> = {
   "exercise.reps": "Reps",
   "exercise.sets": "Sets",
   "lang.none_found": "No languages found.",
+  "reminders.page_title": "Reminders",
+  "reminders.web_warning": "Push notifications only work in the ScanIQ mobile app (iOS/Android). In the browser these settings are saved and will be used when you open the app on your phone.",
+  "reminders.enable_title": "Enable reminders",
+  "reminders.enable_sub": "Smart, minimal — only when you forget to log.",
+  "reminders.permission_denied_title": "Notifications are not allowed",
+  "reminders.permission_denied_sub": "Allow them in settings to receive reminders.",
+  "reminders.meals": "Meals",
+  "reminders.meals_sub": "Breakfast, lunch, dinner",
+  "reminders.breakfast": "Breakfast",
+  "reminders.lunch": "Lunch",
+  "reminders.dinner": "Dinner",
+  "reminders.water": "Water",
+  "reminders.water_sub": "Get reminded to drink",
+  "reminders.every_hours": "Every (hours)",
+  "reminders.hours_short": "h",
+  "reminders.footer": "Meal reminders are only sent if you haven't already logged that category. When you log e.g. lunch, further lunch reminders are skipped until tomorrow.",
+  "weight.title": "Weight tracker",
+  "weight.invalid": "Invalid weight",
+  "weight.logged": "Weight logged",
+  "weight.adjusted": "Calorie goal auto-adjusted",
+  "weight.premium_title": "Weight tracker",
+  "weight.premium_sub": "Upgrade to ScanIQ Pro to see your weight curve and history.",
+  "weight.current": "Current weight",
+  "weight.total_change": "total",
+  "weight.goal_label": "Goal",
+  "weight.trend": "Trend",
+  "weight.log_new": "Log new weight",
+  "weight.log_btn": "Log weight",
+  "weight.auto_adjust": "Auto-adjust calorie goal",
+  "weight.history": "History",
+  "fav.title": "Quick add",
+  "fav.section": "Favorites",
+  "fav.empty": "No favorites yet. Tap the star icon on any scanned meal to save it here.",
+  "fav.recent": "Recent meals",
+  "fav.added": "Added to diary",
+  "recipes.title": "Recipes",
+  "recipes.coming_chip": "Coming soon",
+  "recipes.heading": "Recipes coming soon 🍽️",
+  "recipes.body": "We're building a premium recipe experience with healthy meals, world cuisine, smoothies, snacks & smart AI meal plans.",
+  "recipes.future": "Launching in a future update.",
+  "profile.goal_sub": "Stay on top of your calories",
+  "settings.developer_name": "Kinetex Intelligens",
+  "diary.last_log_time": "Time of last log",
+  "scan.daily_limit_title": "Daily scan limit reached",
+  "scan.daily_limit_sub": "You've used all your scans for today. The counter resets at midnight (UTC).",
+  "scan.view_diary": "View diary",
+  "scan.hidden_calories_title": "Add hidden calories",
+  "scan.hidden_calories_sub": "Turn on if your meal actually contains oil or dressing. By default nothing is added automatically.",
+  "scan.oil": "Oil",
+  "scan.oil_sub": "AI visually estimates hidden cooking oil/butter from the meal's size",
+  "scan.dressing": "Dressing",
+  "scan.dressing_sub": "AI visually estimates dressing/sauce/mayo from the portion",
+  "scan.real_life_score": "Real life score",
+  "scan.satiety": "Satiety",
+  "scan.satiety_hours": "hours",
+  "scan.items": "Items",
+  "scan.items_sum": "Sum",
+  "scan.vitamins_minerals": "Vitamins & minerals",
+  "scan.vitamins": "Vitamins",
+  "scan.minerals": "Minerals",
+  "scan.search_manually": "Search food manually",
+  "scan.search_help": "Type the food name, and optionally exact grams. Examples: \"apple\", \"pasta carbonara\", \"skyr\".",
+  "scan.search_placeholder": "e.g. banana",
+  "scan.search_grams_optional": "grams (optional)",
+  "scan.looking_up": "Looking up…",
+  "scan.search_btn": "Search",
+  "scan.search_count": "Counts as 1 scan toward your daily limit",
+  "scan.close": "Close",
+  "streak.repair_title": "Repair your streak",
+  "streak.repair_sub": "Buy Streak Repair for $3 and restore your streak.",
+  "streak.repair_cta": "Repair streak — $3",
+  "streak.repair_cancel": "Cancel",
+  "streak.repair_buy": "Buy for $3",
+  "streak.restored": "Streak restored! 🔥",
+  "streak.repair_failed": "Could not restore streak",
+  "streak.freeze_limit": "You've used both freezes this week",
+  "streak.freeze_already": "Streak is already frozen today",
+  "streak.freeze_toast": "Streak frozen for 24h ❄️",
+  "streak.freeze_toast_sub": "freezes left this week.",
 };
 
 const da: Dict = {
@@ -881,6 +997,85 @@ const da: Dict = {
   "exercise.reps": "Reps",
   "exercise.sets": "Sæt",
   "lang.none_found": "Ingen sprog fundet.",
+  "reminders.page_title": "Påmindelser",
+  "reminders.web_warning": "Push-notifikationer virker kun i ScanIQ-mobilappen (iOS/Android). I browseren er disse indstillinger gemt og bruges når du åbner appen på din telefon.",
+  "reminders.enable_title": "Aktivér påmindelser",
+  "reminders.enable_sub": "Smart, minimal — kun når du har glemt at logge.",
+  "reminders.permission_denied_title": "Notifikationer er ikke tilladt",
+  "reminders.permission_denied_sub": "Tillad i indstillinger for at få påmindelser.",
+  "reminders.meals": "Måltider",
+  "reminders.meals_sub": "Morgenmad, frokost, aftensmad",
+  "reminders.breakfast": "Morgenmad",
+  "reminders.lunch": "Frokost",
+  "reminders.dinner": "Aftensmad",
+  "reminders.water": "Vand",
+  "reminders.water_sub": "Bliv mindet om at drikke",
+  "reminders.every_hours": "Hvert (timer)",
+  "reminders.hours_short": "t",
+  "reminders.footer": "Måltidspåmindelser sendes kun, hvis du ikke allerede har logget for den kategori. Når du logger fx frokost, springes flere frokost-påmindelser over indtil i morgen.",
+  "weight.title": "Vægt-tracker",
+  "weight.invalid": "Ugyldig vægt",
+  "weight.logged": "Vægt registreret",
+  "weight.adjusted": "Kaloriemål justeret automatisk",
+  "weight.premium_title": "Vægt-tracker",
+  "weight.premium_sub": "Opgradér til ScanIQ Pro for at se din vægtkurve og historik.",
+  "weight.current": "Aktuel vægt",
+  "weight.total_change": "i alt",
+  "weight.goal_label": "Mål",
+  "weight.trend": "Tendens",
+  "weight.log_new": "Log ny vægt",
+  "weight.log_btn": "Log vægt",
+  "weight.auto_adjust": "Justér kaloriemål automatisk",
+  "weight.history": "Historik",
+  "fav.title": "Hurtig tilføj",
+  "fav.section": "Favoritter",
+  "fav.empty": "Ingen favoritter endnu. Tryk på stjernen på et scannet måltid for at gemme det her.",
+  "fav.recent": "Seneste måltider",
+  "fav.added": "Tilføjet til dagbog",
+  "recipes.title": "Opskrifter",
+  "recipes.coming_chip": "Kommer snart",
+  "recipes.heading": "Opskrifter kommer snart 🍽️",
+  "recipes.body": "Vi bygger en premium-opskriftsoplevelse med sunde måltider, verdenskøkken, smoothies, snacks og smarte AI-måltidsplaner.",
+  "recipes.future": "Lanceres i en kommende opdatering.",
+  "profile.goal_sub": "Hold styr på dine kalorier",
+  "settings.developer_name": "Kinetex Intelligens",
+  "diary.last_log_time": "Tid for seneste log",
+  "scan.daily_limit_title": "Daglig scan-grænse nået",
+  "scan.daily_limit_sub": "Du har brugt alle dine scanninger for i dag. Tælleren nulstilles ved midnat (UTC).",
+  "scan.view_diary": "Se dagbog",
+  "scan.hidden_calories_title": "Tilføj skjulte kalorier",
+  "scan.hidden_calories_sub": "Slå til hvis dit måltid faktisk indeholder olie eller dressing. Som standard tilføjes intet automatisk.",
+  "scan.oil": "Olie",
+  "scan.oil_sub": "AI vurderer skjult madolie/smør visuelt ud fra måltidets størrelse",
+  "scan.dressing": "Dressing",
+  "scan.dressing_sub": "AI vurderer dressing/sauce/mayo visuelt ud fra portionen",
+  "scan.real_life_score": "Real life score",
+  "scan.satiety": "Mæthed",
+  "scan.satiety_hours": "timer",
+  "scan.items": "Elementer",
+  "scan.items_sum": "Sum",
+  "scan.vitamins_minerals": "Vitaminer & mineraler",
+  "scan.vitamins": "Vitaminer",
+  "scan.minerals": "Mineraler",
+  "scan.search_manually": "Søg mad manuelt",
+  "scan.search_help": "Indtast madens navn og evt. præcise gram. Eksempler: \"æble\", \"pasta carbonara\", \"skyr\".",
+  "scan.search_placeholder": "fx banan",
+  "scan.search_grams_optional": "gram (valgfrit)",
+  "scan.looking_up": "Slår op…",
+  "scan.search_btn": "Søg",
+  "scan.search_count": "Tæller som 1 scanning af din daglige grænse",
+  "scan.close": "Luk",
+  "streak.repair_title": "Gendan din streak",
+  "streak.repair_sub": "Køb Streak Repair for $3 og få din streak tilbage.",
+  "streak.repair_cta": "Gendan streak — $3",
+  "streak.repair_cancel": "Annullér",
+  "streak.repair_buy": "Køb for $3",
+  "streak.restored": "Streak gendannet! 🔥",
+  "streak.repair_failed": "Kunne ikke gendanne streak",
+  "streak.freeze_limit": "Du har brugt begge frys denne uge",
+  "streak.freeze_already": "Streak er allerede frosset i dag",
+  "streak.freeze_toast": "Streak frosset i 24t ❄️",
+  "streak.freeze_toast_sub": "frys tilbage denne uge.",
 };
 
 const es: Dict = {

@@ -192,7 +192,7 @@ export default function Settings() {
           </button>
           <div className="px-5 py-3 flex items-center justify-between gap-4">
             <span className="text-sm">{t("settings.developer")}</span>
-            <span className="text-sm text-muted-foreground">Kinetex Intelligens</span>
+            <span className="text-sm text-muted-foreground">{t("settings.developer_name")}</span>
           </div>
         </Section>
 

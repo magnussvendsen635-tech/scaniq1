@@ -87,7 +87,7 @@ export default function Profile() {
           <div className="flex-1">
             <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("profile.goal")}</div>
             <div className="text-xl font-semibold">{t(goalKey[user.goal])}</div>
-            <div className="text-[10px] text-muted-foreground/80 mt-0.5">Hold styr på dine kalorier</div>
+            <div className="text-[10px] text-muted-foreground/80 mt-0.5">{t("profile.goal_sub")}</div>
           </div>
         </div>
       </div>

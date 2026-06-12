@@ -71,10 +71,10 @@ export function StreakCard() {
     e.stopPropagation();
     const r = freezeStreak();
     if (!r.ok) {
-      toast.error(r.reason === "limit" ? "Du har brugt begge frys denne uge" : "Streak er allerede frosset i dag");
+      toast.error(r.reason === "limit" ? t("streak.freeze_limit") : t("streak.freeze_already"));
       return;
     }
-    toast.success(`Streak frosset i 24t ❄️`, { description: `${r.remaining} frys tilbage denne uge.` });
+    toast.success(t("streak.freeze_toast"), { description: `${r.remaining} ${t("streak.freeze_toast_sub")}` });
   };
 
   const canRepair = streak === 0 && lastResetStreak > 0;
@@ -105,10 +105,10 @@ export function StreakCard() {
           },
         });
       }
-      toast.success(language?.startsWith("da") ? "Streak gendannet! 🔥" : "Streak restored! 🔥");
+      toast.success(t("streak.restored"));
       setRepairOpen(false);
     } catch (err: any) {
-      toast.error(err?.message || "Kunne ikke gendanne streak");
+      toast.error(err?.message || t("streak.repair_failed"));
     } finally {
       setRepairing(false);
     }
@@ -241,25 +241,19 @@ export function StreakCard() {
           className="mt-4 w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-yellow-400 text-white text-sm font-semibold shadow-[0_4px_14px_-4px_rgba(249,115,22,0.6)]"
         >
           <Wrench className="w-4 h-4" />
-          {language?.startsWith("da") ? "Gendan streak — $3" : "Repair streak — $3"}
+          {t("streak.repair_cta")}
         </button>
       )}
 
       <Dialog open={repairOpen} onOpenChange={setRepairOpen}>
         <DialogContent onClick={(e) => e.stopPropagation()} className="rounded-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {language?.startsWith("da") ? "Gendan din streak" : "Repair your streak"}
-            </DialogTitle>
-            <DialogDescription>
-              {language?.startsWith("da")
-                ? `Køb Streak Repair for $3 og få din streak på ${Math.max(lastResetStreak, 1)} dage tilbage.`
-                : `Buy Streak Repair for $3 and restore your ${Math.max(lastResetStreak, 1)}-day streak.`}
-            </DialogDescription>
+            <DialogTitle>{t("streak.repair_title")}</DialogTitle>
+            <DialogDescription>{t("streak.repair_sub")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={(e) => { e.stopPropagation(); setRepairOpen(false); }}>
-              {language?.startsWith("da") ? "Annullér" : "Cancel"}
+              {t("streak.repair_cancel")}
             </Button>
             <Button
               onClick={(e) => { e.stopPropagation(); handleRepair(); }}
@@ -267,7 +261,7 @@ export function StreakCard() {
               className="bg-gradient-to-r from-orange-500 to-yellow-400 text-white"
             >
               {repairing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Wrench className="w-4 h-4 mr-2" />}
-              {language?.startsWith("da") ? "Køb for $3" : "Buy for $3"}
+              {t("streak.repair_buy")}
             </Button>
           </DialogFooter>
         </DialogContent>

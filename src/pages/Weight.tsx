@@ -6,21 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { PremiumWrapper } from "@/components/PremiumWrapper";
+import { useT } from "@/i18n/useT";
 
 export default function Weight() {
   const nav = useNavigate();
+  const t = useT();
   const { user, weights, logWeight, removeWeight, autoAdjustGoal, setAutoAdjustGoal } = useKStore();
   const [val, setVal] = useState<string>(String(user.weight));
 
   const submit = () => {
     const kg = parseFloat(val);
     if (!kg || kg < 25 || kg > 400) {
-      toast.error("Invalid weight");
+      toast.error(t("weight.invalid"));
       return;
     }
     logWeight(kg);
-    toast.success("Weight logged", {
-      description: autoAdjustGoal ? "Calorie goal auto-adjusted" : undefined,
+    toast.success(t("weight.logged"), {
+      description: autoAdjustGoal ? t("weight.adjusted") : undefined,
     });
   };
 
@@ -42,18 +44,18 @@ export default function Weight() {
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight flex-1">Weight tracker</h1>
+        <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("weight.title")}</h1>
       </header>
 
       <PremiumWrapper
-        title="Vægt-tracker"
-        description="Opgradér til ScanIQ Pro for at se din vægtkurve og historik."
+        title={t("weight.premium_title")}
+        description={t("weight.premium_sub")}
       >
         {/* Hero */}
         <div className="k-card p-6 mb-4 bg-gradient-surface relative overflow-hidden">
           <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-gradient-primary opacity-20 blur-3xl" />
           <div className="relative">
-            <div className="text-xs text-muted-foreground tracking-widest uppercase">Current weight</div>
+            <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("weight.current")}</div>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-5xl font-semibold k-gradient-text">{latest.toFixed(1)}</span>
               <span className="text-base text-muted-foreground">kg</span>
@@ -61,10 +63,10 @@ export default function Weight() {
             <div className="flex items-center gap-4 mt-3 text-xs">
               <span className="flex items-center gap-1 text-muted-foreground">
                 {diff < 0 ? <TrendingDown className="w-3.5 h-3.5 text-primary-glow" /> : diff > 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <Minus className="w-3.5 h-3.5" />}
-                <span className="text-foreground font-medium">{diff > 0 ? "+" : ""}{diff.toFixed(1)} kg</span> total
+                <span className="text-foreground font-medium">{diff > 0 ? "+" : ""}{diff.toFixed(1)} kg</span> {t("weight.total_change")}
               </span>
               <span className="text-muted-foreground">
-                Goal <span className="text-foreground font-medium">{user.targetWeight} kg</span> ({toGoal > 0 ? "-" : "+"}{Math.abs(toGoal).toFixed(1)})
+                {t("weight.goal_label")} <span className="text-foreground font-medium">{user.targetWeight} kg</span> ({toGoal > 0 ? "-" : "+"}{Math.abs(toGoal).toFixed(1)})
               </span>
             </div>
           </div>
@@ -72,7 +74,7 @@ export default function Weight() {
 
         {/* Chart */}
         <div className="k-card p-5 mb-4">
-          <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Trend</div>
+          <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">{t("weight.trend")}</div>
           <svg viewBox="0 0 300 120" className="w-full h-32">
             <defs>
               <linearGradient id="wlg" x1="0" x2="0" y1="0" y2="1">
@@ -107,7 +109,7 @@ export default function Weight() {
 
         {/* Quick log */}
         <div className="k-card p-5 mb-4">
-          <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Log new weight</div>
+          <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">{t("weight.log_new")}</div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setVal(String(Math.max(25, (parseFloat(val) || 0) - 0.1).toFixed(1)))}
@@ -130,10 +132,10 @@ export default function Weight() {
             </button>
           </div>
           <Button onClick={submit} className="w-full h-12 mt-3 rounded-2xl bg-gradient-primary font-semibold shadow-glow">
-            <Scale className="w-4 h-4 mr-2" /> Log weight
+            <Scale className="w-4 h-4 mr-2" /> {t("weight.log_btn")}
           </Button>
           <label className="flex items-center justify-between mt-4 text-sm">
-            <span className="text-muted-foreground">Auto-adjust calorie goal</span>
+            <span className="text-muted-foreground">{t("weight.auto_adjust")}</span>
             <input
               type="checkbox"
               checked={autoAdjustGoal}
@@ -146,7 +148,7 @@ export default function Weight() {
         {/* History */}
         {weights.length > 0 && (
           <div className="k-card divide-y divide-border/60 overflow-hidden">
-            <div className="p-4 text-xs text-muted-foreground tracking-widest uppercase">History</div>
+            <div className="p-4 text-xs text-muted-foreground tracking-widest uppercase">{t("weight.history")}</div>
             {weights.slice(0, 20).map((w) => (
               <div key={w.at} className="flex items-center justify-between p-4">
                 <div>

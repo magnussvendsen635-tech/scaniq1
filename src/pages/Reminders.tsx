@@ -5,9 +5,11 @@ import { ensurePermission, rescheduleReminders, cancelAllScanIQ } from "@/lib/no
 import { Switch } from "@/components/ui/switch";
 import { Capacitor } from "@capacitor/core";
 import { toast } from "sonner";
+import { useT } from "@/i18n/useT";
 
 export default function Reminders() {
   const nav = useNavigate();
+  const t = useT();
   const { reminders, setReminders, meals } = useKStore();
   const native = Capacitor.isNativePlatform();
 
@@ -25,7 +27,7 @@ export default function Reminders() {
       const granted = await ensurePermission(!!reminders.permissionAsked);
       setReminders({ permissionAsked: true });
       if (!granted) {
-        toast.error("Notifikationer er ikke tilladt", { description: "Tillad i indstillinger for at få påmindelser." });
+        toast.error(t("reminders.permission_denied_title"), { description: t("reminders.permission_denied_sub") });
         return;
       }
     }
@@ -38,12 +40,12 @@ export default function Reminders() {
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-semibold tracking-tight">Påmindelser</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("reminders.page_title")}</h1>
       </header>
 
       {!native && (
         <div className="k-card p-4 mb-4 bg-surface-2 text-xs text-muted-foreground">
-          Push-notifikationer virker kun i ScanIQ-mobilappen (iOS/Android). I browseren er disse indstillinger gemt og bruges når du åbner appen på din telefon.
+          {t("reminders.web_warning")}
         </div>
       )}
 
@@ -52,14 +54,14 @@ export default function Reminders() {
           <Bell className="w-5 h-5 text-foreground" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-semibold">Aktivér påmindelser</div>
-          <div className="text-xs text-muted-foreground">Smart, minimal — kun når du har glemt at logge.</div>
+          <div className="font-semibold">{t("reminders.enable_title")}</div>
+          <div className="text-xs text-muted-foreground">{t("reminders.enable_sub")}</div>
         </div>
         <Switch checked={reminders.enabled} onCheckedChange={toggleEnabled} />
       </div>
 
       <div className="k-card overflow-hidden mb-4 divide-y divide-border/60">
-        <Row Icon={UtensilsCrossed} title="Måltider" sub="Morgenmad, frokost, aftensmad">
+        <Row Icon={UtensilsCrossed} title={t("reminders.meals")} sub={t("reminders.meals_sub")}>
           <Switch
             checked={reminders.meals}
             disabled={!reminders.enabled}
@@ -67,19 +69,19 @@ export default function Reminders() {
           />
         </Row>
         <TimeRow
-          label="Morgenmad"
+          label={t("reminders.breakfast")}
           value={reminders.breakfastTime ?? "08:00"}
           disabled={!reminders.enabled || !reminders.meals}
           onChange={(v) => apply({ ...reminders, breakfastTime: v })}
         />
         <TimeRow
-          label="Frokost"
+          label={t("reminders.lunch")}
           value={reminders.lunchTime ?? "12:30"}
           disabled={!reminders.enabled || !reminders.meals}
           onChange={(v) => apply({ ...reminders, lunchTime: v })}
         />
         <TimeRow
-          label="Aftensmad"
+          label={t("reminders.dinner")}
           value={reminders.dinnerTime ?? "18:30"}
           disabled={!reminders.enabled || !reminders.meals}
           onChange={(v) => apply({ ...reminders, dinnerTime: v })}
@@ -87,7 +89,7 @@ export default function Reminders() {
       </div>
 
       <div className="k-card overflow-hidden divide-y divide-border/60">
-        <Row Icon={Droplet} title="Vand" sub="Bliv mindet om at drikke">
+        <Row Icon={Droplet} title={t("reminders.water")} sub={t("reminders.water_sub")}>
           <Switch
             checked={reminders.water}
             disabled={!reminders.enabled}
@@ -95,20 +97,20 @@ export default function Reminders() {
           />
         </Row>
         <div className="px-5 py-3 flex items-center justify-between">
-          <span className="text-sm">Hvert (timer)</span>
+          <span className="text-sm">{t("reminders.every_hours")}</span>
           <select
             value={reminders.waterEveryHours ?? 3}
             disabled={!reminders.enabled || !reminders.water}
             onChange={(e) => apply({ ...reminders, waterEveryHours: Number(e.target.value) })}
             className="w-24 h-10 rounded-xl bg-surface-2 border border-border/60 px-3 text-right text-sm disabled:opacity-50"
           >
-            {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}t</option>)}
+            {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}{t("reminders.hours_short")}</option>)}
           </select>
         </div>
       </div>
 
       <p className="text-[11px] text-muted-foreground mt-4 px-1 leading-relaxed">
-        Måltidspåmindelser sendes kun, hvis du ikke allerede har logget for den kategori. Når du logger fx frokost, springes flere frokost-påmindelser over indtil i morgen.
+        {t("reminders.footer")}
       </p>
     </div>
   );
