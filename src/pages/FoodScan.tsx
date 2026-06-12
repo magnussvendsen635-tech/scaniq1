@@ -303,8 +303,7 @@ export default function FoodScan() {
   const REQUIRED_PHOTOS = 2;
   const MAX_PHOTOS = 3;
   const DAILY_LIMIT = 20;
-  const ADMIN_IDS = new Set<string>(["7d5a801c-8bac-4eb9-bcd3-3bd8c20b28f0"]);
-  const isAdmin = !!profile && ADMIN_IDS.has(profile.id);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const todayUTC = () => new Date().toISOString().slice(0, 10);
   const canScan = isPremiumServer || isAdmin;
   const preview = previews[previews.length - 1] ?? null;
