@@ -332,6 +332,9 @@ export default function FoodScan() {
   useEffect(() => {
     if (!profile) return;
     refreshQuota();
+    supabase.rpc("has_role", { _user_id: profile.id, _role: "admin" }).then(({ data }) => {
+      setIsAdmin(!!data);
+    });
   }, [profile]);
 
 
