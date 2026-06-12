@@ -31,7 +31,7 @@ export function LanguagePicker({ value, onChange, className }: Props) {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search language…"
+          placeholder={t("lang.search_placeholder")}
           className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
         />
       </div>
