@@ -190,7 +190,7 @@ const en: Record<TKey, string> = {
   "diary.couldnt_load_insight": "Couldn't load insight", "diary.meal_removed": "Meal removed",
   "diary.cat_breakfast": "Breakfast", "diary.cat_lunch": "Lunch", "diary.cat_dinner": "Dinner", "diary.cat_snack": "Snacks",
   "diary.add_breakfast": "+ Add breakfast", "diary.add_lunch": "+ Add lunch", "diary.add_dinner": "+ Add dinner", "diary.add_snack": "+ Add snack",
-  "tasks.title": "Daily tasks", "tasks.placeholder": "Add new task…", "tasks.empty": "No tasks for this day yet.",
+  "tasks.title": "Daily Tasks", "tasks.placeholder": "Add new task…", "tasks.empty": "No tasks for this day yet.",
   "settings.title": "Settings", "settings.app": "App",
   "settings.language": "Language", "settings.choose_language": "Choose language",
   "settings.language_updated": "Language updated",
