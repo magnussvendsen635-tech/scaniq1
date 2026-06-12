@@ -168,7 +168,7 @@ export default function Home() {
       {/* Quick actions — secondary features */}
       <div className="grid grid-cols-3 gap-2">
         <ActionCard to="/progress" Icon={BarChart3} title={t("home.progress")} sub={t("home.see_week")} />
-        <ActionCard to="/weight" Icon={Scale} title="Weight" sub="Track & log progress" />
+        <ActionCard to="/weight" Icon={Scale} title={t("home.weight_title")} sub={t("home.weight_sub")} />
         <ActionCard to="/profile" Icon={User} title={t("home.profile")} sub={t("home.settings_plan")} />
       </div>
     </div>
