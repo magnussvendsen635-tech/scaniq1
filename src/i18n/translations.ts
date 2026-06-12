@@ -168,7 +168,44 @@ export type TKey =
   // Exercise figure
   | "exercise.reps" | "exercise.sets"
   // Language picker
-  | "lang.none_found";
+  | "lang.none_found"
+  // Reminders page
+  | "reminders.page_title" | "reminders.web_warning"
+  | "reminders.enable_title" | "reminders.enable_sub"
+  | "reminders.permission_denied_title" | "reminders.permission_denied_sub"
+  | "reminders.meals" | "reminders.meals_sub"
+  | "reminders.breakfast" | "reminders.lunch" | "reminders.dinner"
+  | "reminders.water" | "reminders.water_sub"
+  | "reminders.every_hours" | "reminders.hours_short" | "reminders.footer"
+  // Weight tracker
+  | "weight.title" | "weight.invalid" | "weight.logged" | "weight.adjusted"
+  | "weight.premium_title" | "weight.premium_sub"
+  | "weight.current" | "weight.total_change" | "weight.goal_label"
+  | "weight.trend" | "weight.log_new" | "weight.log_btn"
+  | "weight.auto_adjust" | "weight.history"
+  // Favorites
+  | "fav.title" | "fav.section" | "fav.empty" | "fav.recent" | "fav.added"
+  // Recipes
+  | "recipes.title" | "recipes.coming_chip" | "recipes.heading"
+  | "recipes.body" | "recipes.future"
+  // Misc page strings
+  | "profile.goal_sub" | "settings.developer_name" | "diary.last_log_time"
+  // FoodScan
+  | "scan.daily_limit_title" | "scan.daily_limit_sub" | "scan.view_diary"
+  | "scan.hidden_calories_title" | "scan.hidden_calories_sub"
+  | "scan.oil" | "scan.oil_sub" | "scan.dressing" | "scan.dressing_sub"
+  | "scan.real_life_score" | "scan.satiety" | "scan.satiety_hours"
+  | "scan.items" | "scan.items_sum"
+  | "scan.vitamins_minerals" | "scan.vitamins" | "scan.minerals"
+  | "scan.search_manually" | "scan.search_help"
+  | "scan.search_placeholder" | "scan.search_grams_optional"
+  | "scan.looking_up" | "scan.search_btn" | "scan.search_count" | "scan.close"
+  // Streak repair
+  | "streak.repair_title" | "streak.repair_sub" | "streak.repair_cta"
+  | "streak.repair_cancel" | "streak.repair_buy"
+  | "streak.restored" | "streak.repair_failed"
+  | "streak.freeze_limit" | "streak.freeze_already"
+  | "streak.freeze_toast" | "streak.freeze_toast_sub";
 
 type Dict = Partial<Record<TKey, string>>;
 
