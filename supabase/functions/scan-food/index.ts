@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
     const today = todayUTC();
     const scanCount = profile?.scan_count ?? 0;
     const isPremium = profile?.is_premium ?? false;
-    const isAdmin = ADMIN_USER_IDS.has(userId);
+    const { data: isAdmin } = await adminClient.rpc("is_admin", { _user_id: userId });
     const lastDate = profile?.last_scan_date ?? null;
     // Reset daily counter if it's a new day
     const dailyUsed = lastDate === today ? (profile?.daily_scan_count ?? 0) : 0;
