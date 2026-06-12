@@ -71,10 +71,10 @@ export function StreakCard() {
     e.stopPropagation();
     const r = freezeStreak();
     if (!r.ok) {
-      toast.error(r.reason === "limit" ? "Du har brugt begge frys denne uge" : "Streak er allerede frosset i dag");
+      toast.error(r.reason === "limit" ? t("streak.freeze_limit") : t("streak.freeze_already"));
       return;
     }
-    toast.success(`Streak frosset i 24t ❄️`, { description: `${r.remaining} frys tilbage denne uge.` });
+    toast.success(t("streak.freeze_toast"), { description: `${r.remaining} ${t("streak.freeze_toast_sub")}` });
   };
 
   const canRepair = streak === 0 && lastResetStreak > 0;
@@ -105,10 +105,10 @@ export function StreakCard() {
           },
         });
       }
-      toast.success(language?.startsWith("da") ? "Streak gendannet! 🔥" : "Streak restored! 🔥");
+      toast.success(t("streak.restored"));
       setRepairOpen(false);
     } catch (err: any) {
-      toast.error(err?.message || "Kunne ikke gendanne streak");
+      toast.error(err?.message || t("streak.repair_failed"));
     } finally {
       setRepairing(false);
     }
