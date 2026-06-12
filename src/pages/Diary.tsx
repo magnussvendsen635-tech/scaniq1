@@ -211,7 +211,7 @@ export default function Diary() {
         <div className="flex items-baseline justify-between mb-4">
           <div>
             <div className="text-xs text-muted-foreground tracking-widest uppercase">
-              {isToday ? t("common.today") : selected.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
+              {isToday ? t("common.today") : selected.toLocaleDateString(language || undefined, { weekday: "short", day: "numeric", month: "short" })}
             </div>
             <div className="text-4xl font-semibold k-gradient-text">
               {cal}
