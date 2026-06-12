@@ -55,7 +55,7 @@ export function LanguagePicker({ value, onChange, className }: Props) {
           );
         })}
         {filtered.length === 0 && (
-          <div className="p-6 text-center text-sm text-muted-foreground">No languages found.</div>
+          <div className="p-6 text-center text-sm text-muted-foreground">{t("lang.none_found")}</div>
         )}
       </div>
     </div>

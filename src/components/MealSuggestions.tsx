@@ -84,7 +84,7 @@ export const MealSuggestions = () => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-primary-glow" />
-          <h3 className="font-semibold text-sm">Meal ideas for you</h3>
+          <h3 className="font-semibold text-sm">{t("meal.ideas_for_you")}</h3>
         </div>
         <button
           onClick={fetchSuggestions}

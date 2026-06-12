@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Activity, RefreshCw, Loader2 } from "lucide-react";
 import { isHealthAvailable, requestHealthPermissions, readTodayHealth, healthPlatform } from "@/lib/health";
 import { useKStore } from "@/store/useKStore";
 import { toast } from "@/hooks/use-toast";
+import { useT } from "@/i18n/useT";
 
 export function HealthSyncCard() {
+  const t = useT();
   const [loading, setLoading] = useState(false);
   const [snapshot, setSnapshot] = useState<{ steps?: number; cal?: number; weight?: number } | null>(null);
   const { logWeight, addWorkout } = useKStore();
@@ -16,7 +18,7 @@ export function HealthSyncCard() {
     try {
       const ok = await requestHealthPermissions();
       if (!ok) {
-        toast({ title: "Permission denied", description: "Enable health access in Settings.", variant: "destructive" });
+        toast({ title: t("health.permission_denied"), description: t("health.enable_in_settings"), variant: "destructive" });
         return;
       }
       const data = await readTodayHealth();
@@ -31,9 +33,9 @@ export function HealthSyncCard() {
           at: Date.now(),
         });
       }
-      toast({ title: "Synced!", description: `${data.steps ?? 0} steps · ${data.caloriesBurned ?? 0} kcal burned` });
+      toast({ title: t("health.synced"), description: `${data.steps ?? 0} ${t("health.steps")} · ${data.caloriesBurned ?? 0} kcal` });
     } catch (e: any) {
-      toast({ title: "Sync failed", description: e?.message ?? "Try again", variant: "destructive" });
+      toast({ title: t("health.sync_failed"), description: e?.message ?? t("health.try_again"), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -47,8 +49,8 @@ export function HealthSyncCard() {
             <Activity className="w-5 h-5 text-muted-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium">Apple Health & Google Fit</div>
-            <div className="text-xs text-muted-foreground">Available in the native app only.</div>
+            <div className="text-sm font-medium">{t("health.unavailable_title")}</div>
+            <div className="text-xs text-muted-foreground">{t("health.unavailable_sub")}</div>
           </div>
         </div>
       </div>
@@ -64,7 +66,7 @@ export function HealthSyncCard() {
         <div className="flex-1 min-w-0">
           <div className="text-sm font-medium">{platform === "ios" ? "Apple Health" : "Google Fit"}</div>
           <div className="text-xs text-muted-foreground">
-            {snapshot ? `${snapshot.steps ?? 0} steps · ${snapshot.cal ?? 0} kcal` : "Tap to sync today's data"}
+            {snapshot ? `${snapshot.steps ?? 0} ${t("health.steps")} · ${snapshot.cal ?? 0} kcal` : t("health.tap_to_sync")}
           </div>
         </div>
         <RefreshCw className="w-4 h-4 text-muted-foreground" />
