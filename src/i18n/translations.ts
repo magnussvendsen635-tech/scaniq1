@@ -535,7 +535,7 @@ const da: Dict = {
   "diary.couldnt_load_insight": "Kunne ikke hente indsigt", "diary.meal_removed": "Måltid fjernet",
   "diary.cat_breakfast": "Morgenmad", "diary.cat_lunch": "Frokost", "diary.cat_dinner": "Aftensmad", "diary.cat_snack": "Snacks",
   "diary.add_breakfast": "+ Tilføj morgenmad", "diary.add_lunch": "+ Tilføj frokost", "diary.add_dinner": "+ Tilføj aftensmad", "diary.add_snack": "+ Tilføj snack",
-  "tasks.title": "Dagens gøremål", "tasks.placeholder": "Tilføj ny opgave…", "tasks.empty": "Ingen gøremål for denne dag endnu.",
+  "tasks.title": "Dagens opgaver", "tasks.placeholder": "Tilføj ny opgave…", "tasks.empty": "Ingen opgaver for denne dag endnu.",
   "settings.title": "Indstillinger", "settings.app": "App",
   "settings.language": "Sprog", "settings.choose_language": "Vælg sprog", "settings.language_updated": "Sprog opdateret",
   "settings.body": "Krop", "settings.weight_kg": "Vægt (kg)",
