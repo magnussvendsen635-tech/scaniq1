@@ -322,7 +322,7 @@ export default function FoodScan() {
     setScansUsed(scans);
     setDailyUsed(daily);
     setIsPremiumServer(serverPremium);
-    setLimitReached(!ADMIN_IDS.has(profile.id) && daily >= DAILY_LIMIT);
+    setLimitReached(!isAdmin && daily >= DAILY_LIMIT);
     return { daily, premium: serverPremium };
   };
 
