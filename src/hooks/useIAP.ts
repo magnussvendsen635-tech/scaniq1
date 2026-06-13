@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { RC_CONFIG } from "@/config/revenuecat";
 
 /**
  * Native In-App Purchase hook backed by RevenueCat.
@@ -11,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
  * Configure in RevenueCat:
  *   - Entitlement identifier: "pro"
  *   - Offering with the monthly package above
- *   - iOS public API key → store as RC_API_KEY_IOS (frontend env) or hardcode below
+ *   - Paste your iOS public SDK key into src/config/revenuecat.ts
  *
  * Apple is the merchant of record. Apple handles payment, receipt, and refunds.
  * After a successful purchase the SDK gives us CustomerInfo; we forward the
@@ -25,8 +26,8 @@ export const IAP_PRODUCTS = {
 
 export type IAPProductId = (typeof IAP_PRODUCTS)[keyof typeof IAP_PRODUCTS];
 
-const RC_API_KEY_IOS = import.meta.env.VITE_RC_API_KEY_IOS as string | undefined;
-const ENTITLEMENT_ID = "pro";
+const RC_API_KEY_IOS = RC_CONFIG.iosApiKey;
+const ENTITLEMENT_ID = RC_CONFIG.entitlementId;
 
 const isNative = (): boolean =>
   typeof (window as any).Capacitor?.isNativePlatform === "function"
