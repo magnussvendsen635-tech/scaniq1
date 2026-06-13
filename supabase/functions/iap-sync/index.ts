@@ -187,9 +187,14 @@ Deno.serve(async (req) => {
           currency: tier.currency,
         });
         // bump times_used best-effort
-        await admin.rpc as any; // no-op placeholder; using direct update below
-        await admin.from("discount_codes")
-          .update({ times_used: (await admin.from("discount_codes").select("times_used").eq("id", discountCodeId).single()).data?.times_used + 1 || 1 })
+        const { data: codeRow } = await admin
+          .from("discount_codes")
+          .select("times_used")
+          .eq("id", discountCodeId)
+          .single();
+        await admin
+          .from("discount_codes")
+          .update({ times_used: (codeRow?.times_used ?? 0) + 1 })
           .eq("id", discountCodeId);
       }
 
