@@ -1024,20 +1024,7 @@ export default function FoodScan() {
                 <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
               )}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                {scanning ? (
-                  <>
-                    <div className="relative w-20 h-20 mb-4">
-                      <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-40" />
-                      <div className="absolute inset-0 rounded-full bg-primary border-[3px] border-foreground flex items-center justify-center">
-                        <Sparkles className="w-9 h-9 text-foreground" />
-                      </div>
-                    </div>
-                    <p className="text-sm text-foreground/70 font-medium">{t("scan.identifying")}</p>
-                    {scanStatus && (
-                      <p className="text-xs text-foreground/60 mt-2 px-4 max-w-[260px]">{scanStatus}</p>
-                    )}
-                  </>
-                ) : result ? (
+                {scanning ? null : result ? (
                   <div className="animate-scale-in">
                     <div className="w-16 h-16 mx-auto rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
                       <Check className="w-8 h-8 text-foreground" strokeWidth={3} />
