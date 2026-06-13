@@ -68,6 +68,9 @@ export default function Premium() {
       });
       if (Date.now() < end) requestAnimationFrame(frame);
     })();
+  };
+
+
 
   const restore = async () => {
     setRestoring(true);
