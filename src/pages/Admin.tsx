@@ -118,10 +118,15 @@ export default function Admin() {
     const { data, error } = await supabase.from("discount_codes" as any).select("*").order("created_at", { ascending: false });
     if (error) setError(error.message); else setDiscounts((data as unknown as DiscountCode[]) ?? []);
   };
+  const loadFinancials = async () => {
+    const { data, error } = await supabase.functions.invoke("admin-financials");
+    if (error) setError(error.message);
+    else setFinancials(data as Financials);
+  };
 
   useEffect(() => {
     if (!allowed) return;
-    loadStats(); loadPayouts(); loadDiscounts();
+    loadStats(); loadPayouts(); loadDiscounts(); loadFinancials();
   }, [allowed]);
 
   const userById = useMemo(() => {
