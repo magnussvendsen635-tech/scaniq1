@@ -294,6 +294,16 @@ export default function FoodScan() {
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>("");
+  const [scanProgress, setScanProgress] = useState<number>(0);
+
+  useEffect(() => {
+    if (!scanning) { setScanProgress(0); return; }
+    setScanProgress(2);
+    const id = setInterval(() => {
+      setScanProgress((p) => (p < 95 ? p + Math.max(1, Math.round((96 - p) / 18)) : p));
+    }, 180);
+    return () => clearInterval(id);
+  }, [scanning]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchGrams, setSearchGrams] = useState<string>("");
@@ -887,28 +897,6 @@ export default function FoodScan() {
                 </div>
               </div>
 
-              <div className="k-card p-5 mb-5">
-                <h2 className="text-lg font-semibold mb-1">{t("scan.hidden_calories_title")}</h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t("scan.hidden_calories_sub")}
-                </p>
-                <div className="space-y-3">
-                  <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">{t("scan.oil")}</span>
-                      <span className="text-[11px] text-muted-foreground">{t("scan.oil_sub")}</span>
-                    </div>
-                    <Switch checked={addOil} onCheckedChange={setAddOil} />
-                  </label>
-                  <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">{t("scan.dressing")}</span>
-                      <span className="text-[11px] text-muted-foreground">{t("scan.dressing_sub")}</span>
-                    </div>
-                    <Switch checked={addDressing} onCheckedChange={setAddDressing} />
-                  </label>
-                </div>
-              </div>
 
               </div>
 
@@ -1021,10 +1009,22 @@ export default function FoodScan() {
                 <div key={i} className={`absolute w-12 h-12 rounded-md border-primary ${c}`} />
               ))}
               {scanning && (
-                <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
+                <>
+                  <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
+                  <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
+                  <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
+                </>
               )}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                {scanning ? null : result ? (
+                {scanning ? (
+                  <div className="relative flex items-center justify-center">
+                    <div className="absolute w-36 h-36 rounded-full border-2 border-primary/70 shadow-[0_0_50px_hsl(var(--primary))] animate-pulse" />
+                    <div className="relative w-32 h-32 rounded-full bg-black/75 backdrop-blur-sm border border-primary/60 flex flex-col items-center justify-center">
+                      <span className="text-white text-base font-semibold tracking-wide">ScanIQ…</span>
+                      <span className="text-white/80 text-[11px] mt-1">Analyserer {scanProgress}%</span>
+                    </div>
+                  </div>
+                ) : result ? (
                   <div className="animate-scale-in">
                     <div className="w-16 h-16 mx-auto rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
                       <Check className="w-8 h-8 text-foreground" strokeWidth={3} />
