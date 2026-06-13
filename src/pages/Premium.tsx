@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw } from "lucide-react";
 import { useState } from "react";
+import confetti from "canvas-confetti";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
