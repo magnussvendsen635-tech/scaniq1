@@ -294,6 +294,16 @@ export default function FoodScan() {
   const [isPremiumServer, setIsPremiumServer] = useState<boolean>(false);
   const [limitReached, setLimitReached] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>("");
+  const [scanProgress, setScanProgress] = useState<number>(0);
+
+  useEffect(() => {
+    if (!scanning) { setScanProgress(0); return; }
+    setScanProgress(2);
+    const id = setInterval(() => {
+      setScanProgress((p) => (p < 95 ? p + Math.max(1, Math.round((96 - p) / 18)) : p));
+    }, 180);
+    return () => clearInterval(id);
+  }, [scanning]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchGrams, setSearchGrams] = useState<string>("");
