@@ -108,7 +108,7 @@ export default function Premium() {
         <Input
           value={discountCode}
           onChange={(e) => setDiscountCode(e.target.value.toUpperCase().slice(0, 32))}
-          placeholder="e.g. SAVE10"
+          placeholder=""
           className="h-12 rounded-xl bg-white"
           maxLength={32}
         />
