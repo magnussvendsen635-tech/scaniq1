@@ -26,6 +26,7 @@ export default function Premium() {
   const { purchase, restore: restoreIAP, loading, monthlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
 
   const upgrade = async () => {
     if (!user) { toast.error(t("premium.must_sign_in")); return; }
@@ -75,15 +76,33 @@ export default function Premium() {
 
       {/* Tier comparison: Basic vs Premium */}
       <section className="grid grid-cols-2 gap-3 mb-5">
-        <div className="rounded-2xl border border-border/60 bg-white p-5 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setSelectedPlan("basic")}
+          aria-pressed={selectedPlan === "basic"}
+          className={`k-tap text-left rounded-2xl bg-white p-5 shadow-sm transition-all ${
+            selectedPlan === "basic"
+              ? "border-2 border-[hsl(24_95%_53%)] ring-2 ring-[hsl(24_95%_53%/0.25)] shadow-[0_8px_24px_-10px_hsl(24_95%_55%/0.5)]"
+              : "border border-border/60"
+          }`}
+        >
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">Basic</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-3xl font-bold tracking-tight">$179</span>
+            <span className="text-3xl font-bold tracking-tight">$119</span>
             <span className="text-xs text-muted-foreground">{t("premium.per_year")}</span>
           </div>
           <div className="text-xs mt-1 text-muted-foreground">3 scans / day</div>
-        </div>
-        <div className="rounded-2xl border border-[hsl(24_95%_53%)] bg-white p-5 shadow-[0_8px_24px_-10px_hsl(24_95%_55%/0.5)] ring-2 ring-[hsl(24_95%_53%/0.25)] relative">
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedPlan("premium")}
+          aria-pressed={selectedPlan === "premium"}
+          className={`k-tap text-left rounded-2xl bg-white p-5 shadow-sm transition-all relative ${
+            selectedPlan === "premium"
+              ? "border-2 border-[hsl(24_95%_53%)] ring-2 ring-[hsl(24_95%_53%/0.25)] shadow-[0_8px_24px_-10px_hsl(24_95%_55%/0.5)]"
+              : "border border-border/60"
+          }`}
+        >
           <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-wider bg-[hsl(24_95%_53%)] text-white rounded-full px-2.5 py-0.5 shadow-sm whitespace-nowrap">
             {t("premium.most_popular")}
           </span>
@@ -93,7 +112,7 @@ export default function Premium() {
             <span className="text-xs text-muted-foreground">{t("premium.per_month")}</span>
           </div>
           <div className="text-xs mt-1 text-muted-foreground">{t("premium.cancel_anytime")}</div>
-        </div>
+        </button>
       </section>
 
       <section className="rounded-3xl bg-white border border-border/50 p-5 mb-6 shadow-sm">
