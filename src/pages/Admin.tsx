@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Users, Utensils, Dumbbell, Scale, Crown, Ban, Trash2, ShieldOff,
   Search, ArrowUpDown, Wallet, Download, CheckCircle2, DollarSign, AlertTriangle,
-  BarChart3, Tag, Eye, Plus, Power,
+  BarChart3, Tag, Eye, Plus, Power, TrendingUp, Receipt,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
