@@ -8,6 +8,7 @@ import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
 import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
 import { useSubscription } from "@/hooks/useSubscription";
+import { Input } from "@/components/ui/input";
 import logo from "@/assets/scaniq-leaf-logo.png";
 
 const featureKeys: TKey[] = [
@@ -22,17 +23,14 @@ export default function Premium() {
   const t = useT();
   const { user } = useAuth();
   const { isActive, refetch } = useSubscription();
-  const { purchase, restore: restoreIAP, loading } = useIAP();
-  const [plan, setPlan] = useState<"month" | "year">("year");
+  const { purchase, restore: restoreIAP, loading, monthlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
-
-  const monthlyPrice = 19;
-  const yearlyPrice = 179;
+  const [discountCode, setDiscountCode] = useState("");
 
   const upgrade = async () => {
     if (!user) { toast.error(t("premium.must_sign_in")); return; }
-    const productId = plan === "month" ? IAP_PRODUCTS.monthly : IAP_PRODUCTS.yearly;
-    const { success } = await purchase(productId);
+    const code = discountCode.trim().toUpperCase().slice(0, 32);
+    const { success } = await purchase(IAP_PRODUCTS.monthly, code ? { discountCode: code } : undefined);
     if (success) {
       toast.success(t("premium.thanks"));
       await refetch();
@@ -75,6 +73,28 @@ export default function Premium() {
         <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">{t("premium.unlock_sub")}</p>
       </section>
 
+      {/* Tier comparison: Basic (free) vs Premium */}
+      <section className="grid grid-cols-2 gap-3 mb-5">
+        <div className="rounded-2xl border border-border/60 bg-white p-5 shadow-sm">
+          <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">Basic</div>
+          <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
+            <span className="text-3xl font-bold tracking-tight">Free</span>
+          </div>
+          <div className="text-xs mt-1 text-muted-foreground">3 scans / day</div>
+        </div>
+        <div className="rounded-2xl border border-[hsl(24_95%_53%)] bg-white p-5 shadow-[0_8px_24px_-10px_hsl(24_95%_55%/0.5)] ring-2 ring-[hsl(24_95%_53%/0.25)] relative">
+          <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-wider bg-[hsl(24_95%_53%)] text-white rounded-full px-2.5 py-0.5 shadow-sm whitespace-nowrap">
+            {t("premium.most_popular")}
+          </span>
+          <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">Premium</div>
+          <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
+            <span className="text-3xl font-bold tracking-tight">{monthlyPriceLabel}</span>
+            <span className="text-xs text-muted-foreground">{t("premium.per_month")}</span>
+          </div>
+          <div className="text-xs mt-1 text-muted-foreground">{t("premium.cancel_anytime")}</div>
+        </div>
+      </section>
+
       <section className="rounded-3xl bg-white border border-border/50 p-5 mb-6 shadow-sm">
         <div className="space-y-3">
           {featureKeys.map((k) => (
@@ -88,24 +108,16 @@ export default function Premium() {
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 mb-5">
-        <PlanOption
-          active={plan === "month"}
-          onClick={() => setPlan("month")}
-          title={t("premium.monthly")}
-          price={`$${monthlyPrice}`}
-          unit={t("premium.per_month")}
-          sub={t("premium.cancel_anytime")}
-        />
-        <PlanOption
-          active={plan === "year"}
-          onClick={() => setPlan("year")}
-          title={t("premium.yearly")}
-          price={`$${yearlyPrice}`}
-          unit={t("premium.per_year")}
-          sub={t("premium.lifetime")}
-          badge={t("premium.most_popular")}
-          highlight
+      <section className="mb-4">
+        <label className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5 block">
+          Discount code (optional)
+        </label>
+        <Input
+          value={discountCode}
+          onChange={(e) => setDiscountCode(e.target.value.toUpperCase().slice(0, 32))}
+          placeholder="e.g. SAVE10"
+          className="h-12 rounded-xl bg-white"
+          maxLength={32}
         />
       </section>
 
@@ -144,31 +156,3 @@ export default function Premium() {
     </div>
   );
 }
-
-const PlanOption = ({ active, onClick, title, price, unit, sub, badge, highlight }: {
-  active: boolean; onClick: () => void; title: string; price: string;
-  unit: string; sub: string; badge?: string; highlight?: boolean;
-}) => (
-  <button
-    onClick={onClick}
-    className={
-      "k-tap p-5 text-left relative rounded-2xl transition-all border " +
-      (active
-        ? "border-[hsl(24_95%_53%)] bg-white shadow-[0_8px_24px_-10px_hsl(24_95%_55%/0.5)] ring-2 ring-[hsl(24_95%_53%/0.25)]"
-        : "border-border/60 bg-white shadow-sm hover:shadow-md") +
-      (highlight && !active ? " ring-1 ring-[hsl(24_95%_53%/0.3)]" : "")
-    }
-  >
-    {badge && (
-      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-wider bg-[hsl(24_95%_53%)] text-white rounded-full px-2.5 py-0.5 shadow-sm whitespace-nowrap">
-        {badge}
-      </span>
-    )}
-    <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{title}</div>
-    <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-      <span className="text-3xl font-bold tracking-tight">{price}</span>
-      <span className="text-xs text-muted-foreground">{unit}</span>
-    </div>
-    <div className="text-xs mt-1 text-muted-foreground">{sub}</div>
-  </button>
-);
