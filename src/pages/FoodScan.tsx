@@ -897,28 +897,6 @@ export default function FoodScan() {
                 </div>
               </div>
 
-              <div className="k-card p-5 mb-5">
-                <h2 className="text-lg font-semibold mb-1">{t("scan.hidden_calories_title")}</h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t("scan.hidden_calories_sub")}
-                </p>
-                <div className="space-y-3">
-                  <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">{t("scan.oil")}</span>
-                      <span className="text-[11px] text-muted-foreground">{t("scan.oil_sub")}</span>
-                    </div>
-                    <Switch checked={addOil} onCheckedChange={setAddOil} />
-                  </label>
-                  <label className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">{t("scan.dressing")}</span>
-                      <span className="text-[11px] text-muted-foreground">{t("scan.dressing_sub")}</span>
-                    </div>
-                    <Switch checked={addDressing} onCheckedChange={setAddDressing} />
-                  </label>
-                </div>
-              </div>
 
               </div>
 
