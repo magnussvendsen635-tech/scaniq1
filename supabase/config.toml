@@ -21,3 +21,8 @@ project_id = "uqnwhypjrisbfkouwcge"
     verify_jwt = false
   [functions.translate-text]
     verify_jwt = false
+  [functions.iap-sync]
+    verify_jwt = false
+  [functions.admin-financials]
+    verify_jwt = true
+

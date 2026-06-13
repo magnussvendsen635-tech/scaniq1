@@ -89,6 +89,54 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_redemptions: {
+        Row: {
+          amount_saved_cents: number
+          code_id: string
+          code_text: string
+          created_at: string
+          currency: string
+          id: string
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_saved_cents?: number
+          code_id: string
+          code_text: string
+          created_at?: string
+          currency?: string
+          id?: string
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_saved_cents?: number
+          code_id?: string
+          code_text?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "discount_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discount_redemptions_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -499,10 +547,13 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          amount_paid_cents: number | null
           cancel_at_period_end: boolean | null
           created_at: string | null
+          currency: string | null
           current_period_end: string | null
           current_period_start: string | null
+          discount_code_id: string | null
           environment: string
           id: string
           paddle_customer_id: string
@@ -514,10 +565,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          amount_paid_cents?: number | null
           cancel_at_period_end?: boolean | null
           created_at?: string | null
+          currency?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          discount_code_id?: string | null
           environment?: string
           id?: string
           paddle_customer_id: string
@@ -529,10 +583,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          amount_paid_cents?: number | null
           cancel_at_period_end?: boolean | null
           created_at?: string | null
+          currency?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          discount_code_id?: string | null
           environment?: string
           id?: string
           paddle_customer_id?: string
@@ -543,7 +600,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_discount_code_id_fkey"
+            columns: ["discount_code_id"]
+            isOneToOne: false
+            referencedRelation: "discount_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       suppressed_emails: {
         Row: {
