@@ -1031,10 +1031,22 @@ export default function FoodScan() {
                 <div key={i} className={`absolute w-12 h-12 rounded-md border-primary ${c}`} />
               ))}
               {scanning && (
-                <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
+                <>
+                  <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
+                  <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
+                  <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
+                </>
               )}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                {scanning ? null : result ? (
+                {scanning ? (
+                  <div className="relative flex items-center justify-center">
+                    <div className="absolute w-36 h-36 rounded-full border-2 border-primary/70 shadow-[0_0_50px_hsl(var(--primary))] animate-pulse" />
+                    <div className="relative w-32 h-32 rounded-full bg-black/75 backdrop-blur-sm border border-primary/60 flex flex-col items-center justify-center">
+                      <span className="text-white text-base font-semibold tracking-wide">ScanIQ…</span>
+                      <span className="text-white/80 text-[11px] mt-1">Analyserer {scanProgress}%</span>
+                    </div>
+                  </div>
+                ) : result ? (
                   <div className="animate-scale-in">
                     <div className="w-16 h-16 mx-auto rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
                       <Check className="w-8 h-8 text-foreground" strokeWidth={3} />
