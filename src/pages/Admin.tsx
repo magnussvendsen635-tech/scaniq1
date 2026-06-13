@@ -56,7 +56,27 @@ interface DiscountCode {
 }
 
 type SortKey = "created_at" | "signup_ip" | "device_id" | "email";
-type Tab = "analytics" | "users" | "discounts" | "payouts" | "audit";
+type Tab = "analytics" | "financials" | "users" | "discounts" | "payouts" | "audit";
+
+interface Financials {
+  revenue: {
+    total_cents: number;
+    currency: string;
+    premium_count: number;
+    basic_count: number;
+    active_subscriptions: number;
+  };
+  transactions: {
+    id: string; email: string; tier: string; amount_cents: number;
+    currency: string; status: string; environment: string;
+    discount_code_id: string | null; created_at: string;
+  }[];
+  redemptions: {
+    id: string; code_text: string; email: string;
+    amount_saved_cents: number; currency: string; created_at: string;
+  }[];
+  signups_daily: { date: string; count: number }[];
+}
 
 export default function Admin() {
   const nav = useNavigate();
