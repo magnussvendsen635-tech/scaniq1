@@ -26,6 +26,7 @@ export default function Premium() {
   const { purchase, restore: restoreIAP, loading, monthlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
 
   const upgrade = async () => {
     if (!user) { toast.error(t("premium.must_sign_in")); return; }
