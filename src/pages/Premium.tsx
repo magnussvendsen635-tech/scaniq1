@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, Loader2, Sparkles, RefreshCw } from "lucide-react";
 import { useState } from "react";
+import confetti from "canvas-confetti";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
@@ -34,9 +35,42 @@ export default function Premium() {
     const { success } = await purchase(IAP_PRODUCTS.monthly, code ? { discountCode: code } : undefined);
     if (success) {
       toast.success(t("premium.thanks"));
+      fireConfetti();
       await refetch();
     }
   };
+
+  const fireConfetti = () => {
+    const end = Date.now() + 2500;
+    const colors = ["#f97316", "#fb923c", "#fdba74", "#fff7ed", "#0f172a"];
+    (function frame() {
+      confetti({
+        particleCount: 4,
+        angle: 60,
+        spread: 70,
+        startVelocity: 55,
+        origin: { x: 0, y: 0 },
+        colors,
+        gravity: 0.9,
+        scalar: 1,
+        zIndex: 9999,
+      });
+      confetti({
+        particleCount: 4,
+        angle: 120,
+        spread: 70,
+        startVelocity: 55,
+        origin: { x: 1, y: 0 },
+        colors,
+        gravity: 0.9,
+        scalar: 1,
+        zIndex: 9999,
+      });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+  };
+
+
 
   const restore = async () => {
     setRestoring(true);
