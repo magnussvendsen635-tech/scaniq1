@@ -284,19 +284,108 @@ export default function Admin() {
       </div>
 
       {/* Tabs */}
-      <div className="k-card p-1 mb-4 grid grid-cols-5 gap-1">
-        {(["analytics", "users", "discounts", "payouts", "audit"] as const).map((t) => (
+      <div className="k-card p-1 mb-4 grid grid-cols-6 gap-1">
+        {(["analytics", "financials", "users", "discounts", "payouts", "audit"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`py-2 rounded-xl text-[10px] font-medium uppercase tracking-widest ${
+            className={`py-2 rounded-xl text-[9px] font-medium uppercase tracking-widest ${
               tab === t ? "bg-gradient-primary text-primary-foreground" : "text-muted-foreground"
             }`}
           >
-            {t === "analytics" ? "Analytics" : t === "users" ? "Brugere" : t === "discounts" ? "Rabat" : t === "payouts" ? "Udbetal." : "Audit"}
+            {t === "analytics" ? "Analytics" : t === "financials" ? "$" : t === "users" ? "Brugere" : t === "discounts" ? "Rabat" : t === "payouts" ? "Udbetal." : "Audit"}
           </button>
         ))}
       </div>
+
+      {/* FINANCIALS tab */}
+      {tab === "financials" && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="k-card p-4">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-widest">
+                <DollarSign className="w-3.5 h-3.5" /> Total revenue
+              </div>
+              <div className="text-2xl font-semibold mt-1">
+                ${((financials?.revenue.total_cents ?? 0) / 100).toFixed(2)}
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">Live transactions</div>
+            </div>
+            <div className="k-card p-4">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-widest">
+                <Crown className="w-3.5 h-3.5 text-primary-glow" /> Active subs
+              </div>
+              <div className="text-2xl font-semibold mt-1">{financials?.revenue.active_subscriptions ?? 0}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                Premium: {financials?.revenue.premium_count ?? 0} · Basic: {financials?.revenue.basic_count ?? 0}
+              </div>
+            </div>
+          </div>
+
+          <div className="k-card p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="w-4 h-4 text-primary-glow" />
+              <span className="text-sm font-semibold">Nye brugere (sidste 30 dage)</span>
+              <span className="ml-auto text-xs text-muted-foreground">
+                Total: {financials?.signups_daily.reduce((s, d) => s + d.count, 0) ?? 0}
+              </span>
+            </div>
+            <BarSeries data={financials?.signups_daily ?? []} color="hsl(var(--primary-glow))" />
+          </div>
+
+          <div className="k-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
+              <Tag className="w-4 h-4 text-primary-glow" />
+              <span className="text-sm font-semibold">Discount-kode brug</span>
+              <span className="text-xs text-muted-foreground ml-auto">{financials?.redemptions.length ?? 0}</span>
+            </div>
+            <div className="divide-y divide-border/60 max-h-[40vh] overflow-y-auto">
+              {(financials?.redemptions ?? []).map((r) => (
+                <div key={r.id} className="px-4 py-3 flex items-center gap-3 text-xs">
+                  <span className="font-mono font-semibold">{r.code_text}</span>
+                  <span className="text-muted-foreground truncate flex-1">{r.email}</span>
+                  <span>-${(r.amount_saved_cents / 100).toFixed(2)}</span>
+                  <span className="text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</span>
+                </div>
+              ))}
+              {(!financials || financials.redemptions.length === 0) && (
+                <div className="px-4 py-6 text-sm text-muted-foreground text-center">Ingen koder brugt endnu</div>
+              )}
+            </div>
+          </div>
+
+          <div className="k-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
+              <Receipt className="w-4 h-4 text-primary-glow" />
+              <span className="text-sm font-semibold">Transaktioner</span>
+              <span className="text-xs text-muted-foreground ml-auto">{financials?.transactions.length ?? 0}</span>
+            </div>
+            <div className="divide-y divide-border/60 max-h-[60vh] overflow-y-auto">
+              {(financials?.transactions ?? []).map((tx) => (
+                <div key={tx.id} className="px-4 py-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium truncate flex-1">{tx.email}</span>
+                    <span className="font-mono">${(tx.amount_cents / 100).toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                    <span>{tx.tier}</span>
+                    <span>·</span>
+                    <span>{tx.status}</span>
+                    <span>·</span>
+                    <span className={tx.environment === "live" ? "text-green-600" : "text-yellow-600"}>{tx.environment}</span>
+                    {tx.discount_code_id && <><span>·</span><Tag className="w-2.5 h-2.5 text-primary-glow" /></>}
+                    <span className="ml-auto">{new Date(tx.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+              {(!financials || financials.transactions.length === 0) && (
+                <div className="px-4 py-6 text-sm text-muted-foreground text-center">Ingen transaktioner endnu</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* ANALYTICS tab */}
       {tab === "analytics" && (
