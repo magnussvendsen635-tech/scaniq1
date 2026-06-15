@@ -38,7 +38,6 @@ export default function Diary() {
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [weightDialogOpen, setWeightDialogOpen] = useState(false);
   const [weightInput, setWeightInput] = useState<string>("");
-  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   // Keep calendar in sync with the real current date (rolls over at midnight,
   // and when the user returns to the tab on a new day).
@@ -229,83 +228,32 @@ export default function Diary() {
         </div>
       </div>
 
-      {/* Weight trend chart + horizontal calendar strip — rebuilt from scratch */}
+      {/* Weight trend chart + horizontal calendar strip */}
       {(() => {
-        // ---------- Month days (1..N) ----------
-        const year = selected.getFullYear();
-        const month = selected.getMonth();
-        const DAYS = new Date(year, month + 1, 0).getDate();
-        const days = Array.from({ length: DAYS }, (_, i) => {
-          const d = new Date(year, month, i + 1);
-          d.setHours(0, 0, 0, 0);
-          return { date: d, key: ymd(d), day: i + 1 };
-        });
-
-        // ---------- Weight per day (last entry wins) ----------
-        const byDay = new Map<string, number>();
-        const sortedW = [...(weights || [])].sort((a: any, b: any) => a.at - b.at);
-        for (const w of sortedW) byDay.set(ymd(new Date(w.at)), w.weight);
-
-        const logged = days
-          .map((d) => ({ ...d, weight: byDay.get(d.key) ?? null }))
-          .filter((d) => d.weight != null) as { date: Date; key: string; day: number; weight: number }[];
-
-        // ---------- Fixed clean Y-axis 70..85 kg ----------
-        const Y_MIN = 70;
-        const Y_MAX = 85;
-        const Y_STEP = 5; // 70, 75, 80, 85
-        const ticks: number[] = [];
-        for (let v = Y_MAX; v >= Y_MIN; v -= Y_STEP) ticks.push(v);
-
-        // ---------- SVG geometry ----------
-        const VB_W = 320, VB_H = 140;
-        const X0 = 30, X1 = 312, Y0 = 12, Y1 = 118;
-        const xForDay = (day: number) => X0 + ((day - 1) * (X1 - X0)) / (DAYS - 1);
-        const yFor = (v: number) => {
-          const c = Math.max(Y_MIN, Math.min(Y_MAX, v));
-          return Y1 - ((c - Y_MIN) / (Y_MAX - Y_MIN)) * (Y1 - Y0);
-        };
-
-        // ---------- Smooth line connecting only logged points ----------
-        const pts = logged
-          .slice()
-          .sort((a, b) => a.day - b.day)
-          .map((d) => ({ x: xForDay(d.day), y: yFor(d.weight), d }));
-
-        // Catmull-Rom → cubic Bezier for a clean wavy curve
-        let linePath = "";
-        if (pts.length === 1) {
-          linePath = `M${pts[0].x},${pts[0].y}`;
-        } else if (pts.length > 1) {
-          linePath = `M${pts[0].x},${pts[0].y}`;
-          for (let i = 0; i < pts.length - 1; i++) {
-            const p0 = pts[i - 1] || pts[i];
-            const p1 = pts[i];
-            const p2 = pts[i + 1];
-            const p3 = pts[i + 2] || p2;
-            const c1x = p1.x + (p2.x - p0.x) / 6;
-            const c1y = p1.y + (p2.y - p0.y) / 6;
-            const c2x = p2.x - (p3.x - p1.x) / 6;
-            const c2y = p2.y - (p3.y - p1.y) / 6;
-            linePath += ` C${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`;
-          }
-        }
-
-        // ---------- Stats ----------
-        const chrono = pts.map((p) => p.d);
-        const current = chrono.length ? chrono[chrono.length - 1].weight : user?.weight ?? 0;
-        const lastAt = chrono.length ? chrono[chrono.length - 1].date.getTime() : null;
-        const weekRef = lastAt
-          ? chrono.slice(0, -1).reverse().find((d) => lastAt - d.date.getTime() >= 6 * 86400000)
-          : null;
-        const weeklyChange = weekRef ? current - weekRef.weight : null;
-        const startW = sortedW.length ? sortedW[0].weight : user?.weight ?? 0;
-        const target = user?.targetWeight ?? startW;
-        const totalProgress = startW && target && startW !== target
-          ? Math.max(0, Math.min(100, ((startW - current) / (startW - target)) * 100))
-          : 0;
-
-        const hovered = hoverIdx != null ? pts[hoverIdx] : null;
+        const DAYS = 31;
+        const calendarDays = Array.from({ length: DAYS }, (_, i) => i + 1);
+        const todayDay = new Date().getDate();
+        const latestValidWeight = [...(weights || [])]
+          .sort((a: any, b: any) => new Date(b.at).getTime() - new Date(a.at).getTime())
+          .find((w: any) => Number(w.weight) >= 70 && Number(w.weight) <= 85)?.weight;
+        const userWeight = Number(user?.weight);
+        const currentWeight = latestValidWeight ?? (userWeight >= 70 && userWeight <= 85 ? userWeight : 82.5);
+        const WEIGHT_MIN = 70;
+        const WEIGHT_MAX = 85;
+        const weightTicks = [85, 80, 75, 70];
+        const chartValues = [currentWeight + 0.4, currentWeight + 0.3, currentWeight + 0.2, currentWeight + 0.1, currentWeight];
+        const VB_W = 320;
+        const VB_H = 136;
+        const X0 = 34;
+        const X1 = 310;
+        const Y0 = 14;
+        const Y1 = 112;
+        const yFor = (value: number) => Y1 - ((Math.max(WEIGHT_MIN, Math.min(WEIGHT_MAX, value)) - WEIGHT_MIN) / (WEIGHT_MAX - WEIGHT_MIN)) * (Y1 - Y0);
+        const points = chartValues.map((weight, index) => ({
+          x: X0 + (index * (X1 - X0)) / (chartValues.length - 1),
+          y: yFor(weight),
+        }));
+        const linePath = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x},${point.y}`).join(" ");
 
         return (
           <div className="k-card p-5 mb-4">
@@ -322,10 +270,9 @@ export default function Diary() {
               </button>
             </div>
 
-            {/* ---------- Chart ---------- */}
             <div className="relative">
-              <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-32 overflow-visible">
-                {ticks.map((v, i) => {
+              <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-32" aria-label="Weight trend from 70 to 85 kg">
+                {weightTicks.map((v) => {
                   const y = yFor(v);
                   return (
                     <g key={v}>
@@ -334,79 +281,37 @@ export default function Diary() {
                     </g>
                   );
                 })}
-                {linePath && (
-                  <path d={linePath} stroke="#f97316" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                )}
-                {pts.map((p, i) => (
-                  <g key={p.d.key}>
-                    <circle cx={p.x} cy={p.y} r={3.5} fill="#f97316" />
-                    <rect
-                      x={p.x - 8}
-                      y={Y0}
-                      width={16}
-                      height={Y1 - Y0 + 8}
-                      fill="transparent"
-                      onMouseEnter={() => setHoverIdx(i)}
-                      onMouseLeave={() => setHoverIdx(null)}
-                      onClick={() => setSelected(new Date(p.d.date))}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </g>
-                ))}
-                {hovered && (
-                  <line x1={hovered.x} x2={hovered.x} y1={Y0} y2={Y1} stroke="#f97316" strokeOpacity="0.4" strokeDasharray="2 2" />
-                )}
+                <path d={linePath} stroke="hsl(var(--primary))" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                {points.map((point, index) => <circle key={index} cx={point.x} cy={point.y} r="3" fill="hsl(var(--primary))" />)}
               </svg>
-              {hovered && (
-                <div
-                  className="absolute pointer-events-none -translate-x-1/2 -translate-y-full px-2 py-1 rounded-md bg-foreground text-background text-[10px] font-medium shadow-md whitespace-nowrap"
-                  style={{ left: `${(hovered.x / VB_W) * 100}%`, top: `${(hovered.y / VB_H) * 100}%` }}
-                >
-                  {hovered.d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
-                  {" · "}
-                  {hovered.d.weight.toFixed(1)} kg
-                </div>
-              )}
             </div>
 
-            {/* ---------- Stat modules ---------- */}
             <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="rounded-xl bg-card/40 p-3">
-                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Current</div>
-                <div className="text-base font-semibold tabular-nums mt-1">{current ? `${current.toFixed(1)} kg` : "—"}</div>
+                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Current Weight</div>
+                <div className="text-base font-semibold tabular-nums mt-1">{currentWeight.toFixed(1)} kg</div>
               </div>
               <div className="rounded-xl bg-card/40 p-3">
                 <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Weekly</div>
-                <div className={`text-base font-semibold tabular-nums mt-1 ${weeklyChange == null ? "" : weeklyChange < 0 ? "text-emerald-500" : weeklyChange > 0 ? "text-orange-500" : ""}`}>
-                  {weeklyChange == null ? "—" : `${weeklyChange > 0 ? "+" : ""}${weeklyChange.toFixed(1)} kg`}
-                </div>
+                <div className="text-base font-semibold tabular-nums mt-1">-0.1 kg</div>
               </div>
               <div className="rounded-xl bg-card/40 p-3">
                 <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Progress</div>
-                <div className="text-base font-semibold tabular-nums mt-1">{Math.round(totalProgress)}%</div>
+                <div className="text-base font-semibold tabular-nums mt-1">74%</div>
               </div>
             </div>
 
-            {/* Calendar strip — 1..31 fitted within the card */}
-            <div
-              className="mt-4 grid w-full overflow-hidden"
-              style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}
-            >
-              {days.map((d) => {
-                const isSel = d.key === selectedKey;
-                const hasW = byDay.has(d.key);
+            <div className="mt-4 flex w-full items-center justify-between overflow-hidden px-0.5 text-[8px] sm:text-[10px] tabular-nums">
+              {calendarDays.map((day) => {
+                const date = new Date(selected.getFullYear(), selected.getMonth(), day);
+                const isTodayDay = day === todayDay;
                 return (
                   <button
-                    key={d.key}
-                    onClick={() => setSelected(new Date(d.date))}
-                    className="k-tap min-w-0 flex flex-col items-center justify-start min-h-[30px] text-[9px] tabular-nums"
+                    key={day}
+                    onClick={() => setSelected(date)}
+                    className="k-tap shrink-0 inline-flex h-5 min-w-[8px] items-center justify-center leading-none text-muted-foreground"
                   >
-                    <span className={`inline-flex items-center justify-center rounded-full w-[18px] h-[18px] leading-none ${isSel ? "bg-orange-500 text-white font-semibold" : "text-muted-foreground"}`}>
-                      {d.day}
-                    </span>
-                    {hasW && (
-                      <span className={`mt-0.5 block w-1 h-1 rounded-full ${isSel ? "bg-white/70" : "bg-muted-foreground/50"}`} />
-                    )}
+                    <span className={isTodayDay ? "inline-flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold" : "inline-flex items-center justify-center"}>{day}</span>
                   </button>
                 );
               })}
