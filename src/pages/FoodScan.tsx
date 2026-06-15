@@ -274,7 +274,6 @@ export default function FoodScan() {
   const t = useT();
   const { user: profile } = useAuth();
   const { user, meals, addMeal, streak, calorieAccuracy } = useKStore();
-  const [celebrate, setCelebrate] = useState<{ count: number } | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   // Total weight (grams) auto-detected from AI scan. No longer user-editable on result screen.
@@ -661,8 +660,6 @@ export default function FoodScan() {
     if (!result) return;
     const s = scaleNutrition(result, consumedGrams, calorieAccuracy);
     const finalCalories = caloriesOverride ?? s.calories;
-    const prevStreak = streak;
-    const prevDate = useKStore.getState().lastActiveDate;
     addMeal({
       id: crypto.randomUUID(),
       name: result.name,
@@ -679,19 +676,8 @@ export default function FoodScan() {
       category,
       at: Date.now(),
     });
-    const newStreak = useKStore.getState().streak;
-    const grew = newStreak > prevStreak || prevDate !== useKStore.getState().lastActiveDate;
-    if (grew) {
-      setCelebrate({ count: newStreak });
-      setTimeout(() => {
-        setCelebrate(null);
-        toast.success(t("scan.meal_added"), { description: `${finalCalories} ${t("scan.kcal_logged")}` });
-        nav("/diary");
-      }, 1800);
-    } else {
-      toast.success(t("scan.meal_added"), { description: `${finalCalories} ${t("scan.kcal_logged")}` });
-      nav("/diary");
-    }
+    toast.success(t("scan.meal_added"), { description: `${finalCalories} ${t("scan.kcal_logged")}` });
+    nav("/diary");
   };
 
   const scaledBase: Scaled | null = result ? scaleNutrition(result, consumedGrams, calorieAccuracy) : null;
@@ -736,22 +722,6 @@ export default function FoodScan() {
 
   return (
     <div className="k-page">
-      {celebrate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in">
-          <div className="text-center px-8 animate-scale-in">
-            <div className="relative mx-auto w-40 h-40 mb-6">
-              <div className="absolute inset-0 rounded-full bg-gradient-primary opacity-30 blur-3xl animate-ping" />
-              <div className="absolute inset-0 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
-                <Flame className="w-20 h-20 text-white drop-shadow-lg" />
-              </div>
-            </div>
-            <div className="text-7xl font-bold k-gradient-text mb-2">{celebrate.count}</div>
-            <div className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-3">{t("common.day_streak")}</div>
-            <p className="text-lg font-semibold">{t("scan.keep_fire")}</p>
-            <p className="text-sm text-muted-foreground mt-1">{t("scan.streak_sub")}</p>
-          </div>
-        </div>
-      )}
 
       <header className="flex items-center gap-3 mb-6">
         <button onClick={() => nav(-1)} className="k-tap w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center">
