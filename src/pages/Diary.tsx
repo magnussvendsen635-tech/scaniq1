@@ -387,8 +387,11 @@ export default function Diary() {
               </div>
             </div>
 
-            {/* Calendar strip — 1..31 with selected + weight indicators */}
-            <div className="mt-4 flex justify-between items-center">
+            {/* Calendar strip — 1..31 fitted within the card */}
+            <div
+              className="mt-4 grid w-full overflow-hidden"
+              style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}
+            >
               {days.map((d) => {
                 const isSel = d.key === selectedKey;
                 const hasW = byDay.has(d.key);
@@ -396,9 +399,9 @@ export default function Diary() {
                   <button
                     key={d.key}
                     onClick={() => setSelected(new Date(d.date))}
-                    className="k-tap flex flex-col items-center justify-center min-h-[36px] text-[10px] tabular-nums"
+                    className="k-tap min-w-0 flex flex-col items-center justify-start min-h-[30px] text-[9px] tabular-nums"
                   >
-                    <span className={`inline-flex items-center justify-center rounded-full w-6 h-6 ${isSel ? "bg-orange-500 text-white font-semibold" : "text-muted-foreground"}`}>
+                    <span className={`inline-flex items-center justify-center rounded-full w-[18px] h-[18px] leading-none ${isSel ? "bg-orange-500 text-white font-semibold" : "text-muted-foreground"}`}>
                       {d.day}
                     </span>
                     {hasW && (
