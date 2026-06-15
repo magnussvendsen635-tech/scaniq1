@@ -387,17 +387,26 @@ export default function Diary() {
               </div>
             </div>
 
-            {/* Calendar strip — clean 1..31 only */}
+            {/* Calendar strip — 1..31 with selected + weight indicators */}
             <div className="mt-4" style={{ display: "grid", gridTemplateColumns: `repeat(${DAYS}, minmax(0, 1fr))` }}>
-              {days.map((d) => (
-                <button
-                  key={d.key}
-                  onClick={() => setSelected(new Date(d.date))}
-                  className="k-tap flex items-center justify-center min-h-[36px] text-[10px] tabular-nums text-muted-foreground hover:text-foreground"
-                >
-                  {d.day}
-                </button>
-              ))}
+              {days.map((d) => {
+                const isSel = d.key === selectedKey;
+                const hasW = byDay.has(d.key);
+                return (
+                  <button
+                    key={d.key}
+                    onClick={() => setSelected(new Date(d.date))}
+                    className="k-tap flex flex-col items-center justify-center min-h-[36px] text-[10px] tabular-nums"
+                  >
+                    <span className={`inline-flex items-center justify-center rounded-full w-6 h-6 ${isSel ? "bg-orange-500 text-white font-semibold" : "text-muted-foreground"}`}>
+                      {d.day}
+                    </span>
+                    {hasW && (
+                      <span className={`mt-0.5 block w-1 h-1 rounded-full ${isSel ? "bg-white/70" : "bg-muted-foreground/50"}`} />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         );
