@@ -261,7 +261,7 @@ export default function Diary() {
               <div className="text-xs text-muted-foreground tracking-widest uppercase">Weight trend</div>
               <button
                 onClick={() => {
-                  setWeightInput(String(byDay.get(selectedKey) ?? current ?? ""));
+                  setWeightInput(String(currentWeight));
                   setWeightDialogOpen(true);
                 }}
                 className="k-tap text-[11px] font-medium px-3 py-1.5 rounded-full bg-gradient-primary text-primary-foreground"
