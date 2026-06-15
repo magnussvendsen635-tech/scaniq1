@@ -247,51 +247,50 @@ export default function Diary() {
         for (const w of sortedW) byDay.set(ymd(new Date(w.at)), w.weight);
         days.forEach((d) => { if (byDay.has(d.key)) d.weight = byDay.get(d.key)!; });
 
-        // forward-fill for line continuity; first known weight (or user.weight) seeds
-        let last: number | null = null;
-        // seed with earliest known weight before window, else user.weight
-        const earliestBefore = sortedW.find((w: any) => ymd(new Date(w.at)) < days[0].key);
-        if (earliestBefore) last = earliestBefore.weight;
-        else if (sortedW.length) last = sortedW[0].weight;
-        else if (user?.weight) last = user.weight;
-        const filled = days.map((d) => {
-          if (d.weight != null) last = d.weight;
-          return { ...d, plotted: last };
-        });
+        // Only plot days that have actual logged weight — no forward-fill
+        const loggedDays = days.filter((d) => d.weight != null) as { date: Date; key: string; weight: number }[];
 
-        const hasAny = filled.some((d) => d.plotted != null);
-        const vals = filled.filter((d) => d.plotted != null).map((d) => d.plotted!) as number[];
-        const min = hasAny ? Math.min(...vals) : 60;
-        const max = hasAny ? Math.max(...vals) : 80;
-        const pad = Math.max(2, (max - min) * 0.2 || 5);
+        const hasAny = loggedDays.length > 0;
+        const vals = loggedDays.map((d) => d.weight);
+        // Realistic default scale around user weight when there's no data
+        const baseW = user?.weight ?? 75;
+        const min = hasAny ? Math.min(...vals) : baseW - 5;
+        const max = hasAny ? Math.max(...vals) : baseW + 5;
+        const pad = Math.max(2, (max - min) * 0.25 || 5);
         const yMin = Math.floor(min - pad);
         const yMax = Math.ceil(max + pad);
         const yRange = Math.max(1, yMax - yMin);
 
         const X0 = 32, X1 = 316, Y0 = 10, Y1 = 120;
-        const xFor = (i: number) => X0 + (i * (X1 - X0)) / (DAYS - 1);
+        const xForDay = (day: number) => X0 + ((day - 1) * (X1 - X0)) / (DAYS - 1);
         const yFor = (v: number) => Y1 - ((v - yMin) / yRange) * (Y1 - Y0);
 
-        const pts = filled.map((d, i) => ({ x: xFor(i), y: d.plotted != null ? yFor(d.plotted) : null, d }));
-        const linePath = pts
-          .filter((p) => p.y != null)
-          .map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`)
-          .join(" ");
+        // Line connects only actual logged points (chronological)
+        const loggedPts = loggedDays
+          .slice()
+          .sort((a, b) => a.date.getTime() - b.date.getTime())
+          .map((d) => ({ x: xForDay(d.date.getDate()), y: yFor(d.weight), d }));
+        const linePath = loggedPts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
 
         const yTicks = 4;
-        const ticks = Array.from({ length: yTicks + 1 }, (_, i) => Math.round(yMin + (i * yRange) / yTicks));
+        // Render top→bottom: top label = yMax, bottom = yMin (real "up = heavier")
+        const ticks = Array.from({ length: yTicks + 1 }, (_, i) => Math.round(yMax - (i * yRange) / yTicks));
 
-        // Stats
-        const current = vals.length ? vals[vals.length - 1] : user?.weight ?? 0;
-        const sevenAgo = filled[filled.length - 8]?.plotted ?? null;
-        const weeklyChange = sevenAgo != null && vals.length ? current - sevenAgo : null;
+        // Stats (based only on real logged entries)
+        const chrono = loggedDays.slice().sort((a, b) => a.date.getTime() - b.date.getTime());
+        const current = chrono.length ? chrono[chrono.length - 1].weight : user?.weight ?? 0;
+        const lastAt = chrono.length ? chrono[chrono.length - 1].date.getTime() : null;
+        const weekRef = lastAt
+          ? chrono.slice(0, -1).reverse().find((d) => lastAt - d.date.getTime() >= 6 * 86400000)
+          : null;
+        const weeklyChange = weekRef ? current - weekRef.weight : null;
         const start = sortedW.length ? sortedW[0].weight : user?.weight ?? 0;
         const target = user?.targetWeight ?? start;
         const totalProgress = start && target && start !== target
           ? Math.max(0, Math.min(100, ((start - current) / (start - target)) * 100))
           : 0;
 
-        const hovered = hoverIdx != null ? pts[hoverIdx] : null;
+        const hovered = hoverIdx != null ? loggedPts[hoverIdx] : null;
 
         return (
           <div className="k-card p-5 mb-4">
@@ -322,55 +321,35 @@ export default function Diary() {
                 {linePath && (
                   <path d={linePath} stroke="#f97316" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 )}
-                {filled.map((d, i) => {
-                  const x = xFor(i);
-                  const isLogged = d.weight != null;
-                  const y = d.plotted != null ? yFor(d.plotted) : null;
-                  const day = d.date.getDate();
-                  const showLbl = i === 0 || i === DAYS - 1 || day % 3 === 1;
-                  return (
-                    <g key={d.key}>
-                      <line x1={x} y1="120" x2={x} y2="124" stroke="hsl(var(--muted-foreground))" strokeOpacity="0.5" />
-                      {showLbl && (
-                        <text x={x} y="134" fontSize="8" textAnchor="middle" fill="hsl(var(--muted-foreground))">{day}</text>
-                      )}
-                      {y != null && (
-                        <circle
-                          cx={x}
-                          cy={y}
-                          r={isLogged ? 3.5 : 2}
-                          fill={isLogged ? "#f97316" : "transparent"}
-                          stroke="#f97316"
-                          strokeWidth={isLogged ? 0 : 1}
-                        />
-                      )}
-                      <rect
-                        x={x - 7}
-                        y={Y0}
-                        width={14}
-                        height={Y1 - Y0 + 8}
-                        fill="transparent"
-                        onMouseEnter={() => setHoverIdx(i)}
-                        onMouseLeave={() => setHoverIdx(null)}
-                        onClick={() => setSelected(new Date(d.date))}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </g>
-                  );
-                })}
-                {hovered && hovered.y != null && (
+                {/* Dots only for actually logged days */}
+                {loggedPts.map((p, i) => (
+                  <g key={p.d.key}>
+                    <circle cx={p.x} cy={p.y} r={3.5} fill="#f97316" />
+                    <rect
+                      x={p.x - 8}
+                      y={Y0}
+                      width={16}
+                      height={Y1 - Y0 + 8}
+                      fill="transparent"
+                      onMouseEnter={() => setHoverIdx(i)}
+                      onMouseLeave={() => setHoverIdx(null)}
+                      onClick={() => setSelected(new Date(p.d.date))}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </g>
+                ))}
+                {hovered && (
                   <line x1={hovered.x} x2={hovered.x} y1={Y0} y2={Y1} stroke="#f97316" strokeOpacity="0.4" strokeDasharray="2 2" />
                 )}
               </svg>
-              {hovered && hovered.y != null && (
+              {hovered && (
                 <div
                   className="absolute pointer-events-none -translate-x-1/2 -translate-y-full px-2 py-1 rounded-md bg-foreground text-background text-[10px] font-medium shadow-md whitespace-nowrap"
                   style={{ left: `${(hovered.x / 320) * 100}%`, top: `${(hovered.y / 140) * 100}%` }}
                 >
                   {hovered.d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
                   {" · "}
-                  {hovered.d.plotted!.toFixed(1)} kg
-                  {hovered.d.weight == null && " *"}
+                  {hovered.d.weight.toFixed(1)} kg
                 </div>
               )}
             </div>
@@ -393,46 +372,44 @@ export default function Diary() {
               </div>
             </div>
 
-            {/* Horizontal month calendar strip — aligned with chart x-axis */}
+            {/* Clean horizontal month timeline — aligned with chart x-axis */}
             <div
-              className="mt-3 flex gap-[2px]"
+              className="mt-3 relative h-7"
               style={{
                 paddingLeft: `${(X0 / 320) * 100}%`,
                 paddingRight: `${((320 - X1) / 320) * 100}%`,
               }}
             >
-              {filled.map((d) => {
-                const key = d.key;
-                const isSel = key === selectedKey;
-                const day = d.date.getDate();
-                const hasWeight = byDay.has(key);
-                const dayCals = meals
-                  .filter((m: any) => ymd(new Date(m.at)) === key)
-                  .reduce((a: number, b: any) => a + b.calories, 0);
-                const hasMeals = dayCals > 0;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setSelected(new Date(d.date))}
-                    title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
-                    className={`k-tap relative flex-1 min-w-0 flex flex-col items-center justify-center py-1.5 rounded-md transition-all ${
-                      isSel ? "bg-gradient-primary text-primary-foreground" : "bg-card/40 hover:bg-muted"
-                    }`}
-                  >
-                    <span className="text-[9px] font-semibold tabular-nums leading-none">{day}</span>
-                    {(hasWeight || hasMeals) && (
-                      <span className="flex gap-[2px] mt-1 h-1 items-center">
-                        {hasWeight && (
-                          <span className={`w-1 h-1 rounded-full ${isSel ? "bg-primary-foreground" : "bg-orange-500"}`} />
-                        )}
-                        {hasMeals && (
-                          <span className={`w-1 h-1 rounded-full ${isSel ? "bg-primary-foreground/70" : "bg-emerald-500"}`} />
-                        )}
+              <div className="relative w-full h-full">
+                {days.map((d, i) => {
+                  const key = d.key;
+                  const isSel = key === selectedKey;
+                  const hasWeight = byDay.has(key);
+                  const leftPct = DAYS === 1 ? 50 : (i * 100) / (DAYS - 1);
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setSelected(new Date(d.date))}
+                      title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
+                      className="absolute top-0 -translate-x-1/2 k-tap flex flex-col items-center"
+                      style={{ left: `${leftPct}%` }}
+                    >
+                      <span
+                        className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-semibold tabular-nums leading-none transition-all ${
+                          isSel
+                            ? "bg-gradient-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {d.date.getDate()}
                       </span>
-                    )}
-                  </button>
-                );
-              })}
+                      {hasWeight && !isSel && (
+                        <span className="w-1 h-1 rounded-full bg-orange-500 mt-0.5" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         );
