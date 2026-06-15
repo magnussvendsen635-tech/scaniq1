@@ -321,55 +321,35 @@ export default function Diary() {
                 {linePath && (
                   <path d={linePath} stroke="#f97316" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 )}
-                {filled.map((d, i) => {
-                  const x = xFor(i);
-                  const isLogged = d.weight != null;
-                  const y = d.plotted != null ? yFor(d.plotted) : null;
-                  const day = d.date.getDate();
-                  const showLbl = i === 0 || i === DAYS - 1 || day % 3 === 1;
-                  return (
-                    <g key={d.key}>
-                      <line x1={x} y1="120" x2={x} y2="124" stroke="hsl(var(--muted-foreground))" strokeOpacity="0.5" />
-                      {showLbl && (
-                        <text x={x} y="134" fontSize="8" textAnchor="middle" fill="hsl(var(--muted-foreground))">{day}</text>
-                      )}
-                      {y != null && (
-                        <circle
-                          cx={x}
-                          cy={y}
-                          r={isLogged ? 3.5 : 2}
-                          fill={isLogged ? "#f97316" : "transparent"}
-                          stroke="#f97316"
-                          strokeWidth={isLogged ? 0 : 1}
-                        />
-                      )}
-                      <rect
-                        x={x - 7}
-                        y={Y0}
-                        width={14}
-                        height={Y1 - Y0 + 8}
-                        fill="transparent"
-                        onMouseEnter={() => setHoverIdx(i)}
-                        onMouseLeave={() => setHoverIdx(null)}
-                        onClick={() => setSelected(new Date(d.date))}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </g>
-                  );
-                })}
-                {hovered && hovered.y != null && (
+                {/* Dots only for actually logged days */}
+                {loggedPts.map((p, i) => (
+                  <g key={p.d.key}>
+                    <circle cx={p.x} cy={p.y} r={3.5} fill="#f97316" />
+                    <rect
+                      x={p.x - 8}
+                      y={Y0}
+                      width={16}
+                      height={Y1 - Y0 + 8}
+                      fill="transparent"
+                      onMouseEnter={() => setHoverIdx(i)}
+                      onMouseLeave={() => setHoverIdx(null)}
+                      onClick={() => setSelected(new Date(p.d.date))}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </g>
+                ))}
+                {hovered && (
                   <line x1={hovered.x} x2={hovered.x} y1={Y0} y2={Y1} stroke="#f97316" strokeOpacity="0.4" strokeDasharray="2 2" />
                 )}
               </svg>
-              {hovered && hovered.y != null && (
+              {hovered && (
                 <div
                   className="absolute pointer-events-none -translate-x-1/2 -translate-y-full px-2 py-1 rounded-md bg-foreground text-background text-[10px] font-medium shadow-md whitespace-nowrap"
                   style={{ left: `${(hovered.x / 320) * 100}%`, top: `${(hovered.y / 140) * 100}%` }}
                 >
                   {hovered.d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
                   {" · "}
-                  {hovered.d.plotted!.toFixed(1)} kg
-                  {hovered.d.weight == null && " *"}
+                  {hovered.d.weight.toFixed(1)} kg
                 </div>
               )}
             </div>
