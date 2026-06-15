@@ -372,30 +372,21 @@ export default function Diary() {
               </div>
             </div>
 
-            {/* Clean horizontal month timeline — aligned with chart x-axis */}
-            <div
-              className="mt-3 relative h-7"
-              style={{
-                paddingLeft: `${(X0 / 320) * 100}%`,
-                paddingRight: `${((320 - X1) / 320) * 100}%`,
-              }}
-            >
-              <div className="relative w-full h-full">
+            {/* Clean horizontal month timeline — scrollable, evenly spaced */}
+            <div className="mt-3 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center" style={{ minWidth: `${DAYS * 32}px` }}>
                 {days.map((d, i) => {
                   const key = d.key;
                   const isSel = key === selectedKey;
                   const hasWeight = byDay.has(key);
-                  const leftPct = DAYS === 1 ? 50 : (i * 100) / (DAYS - 1);
                   return (
                     <button
                       key={key}
                       onClick={() => setSelected(new Date(d.date))}
-                      title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
-                      className="absolute top-0 -translate-x-1/2 k-tap flex flex-col items-center"
-                      style={{ left: `${leftPct}%` }}
+                      title={d className="flex flex-col items-center justify-center k-tap shrink-0" style={{ width: `${(X1 - X0 + 16) / DAYS}px` }}
                     >
                       <span
-                        className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-semibold tabular-nums leading-none transition-all ${
+                        className={`flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-semibold tabular-nums leading-none transition-all ${
                           isSel
                             ? "bg-gradient-primary text-primary-foreground shadow-sm"
                             : "text-muted-foreground hover:text-foreground"
@@ -404,7 +395,7 @@ export default function Diary() {
                         {d.date.getDate()}
                       </span>
                       {hasWeight && !isSel && (
-                        <span className="w-1 h-1 rounded-full bg-orange-500 mt-0.5" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1" />
                       )}
                     </button>
                   );
