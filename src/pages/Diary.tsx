@@ -247,39 +247,34 @@ export default function Diary() {
         for (const w of sortedW) byDay.set(ymd(new Date(w.at)), w.weight);
         days.forEach((d) => { if (byDay.has(d.key)) d.weight = byDay.get(d.key)!; });
 
-        // forward-fill for line continuity; first known weight (or user.weight) seeds
-        let last: number | null = null;
-        // seed with earliest known weight before window, else user.weight
-        const earliestBefore = sortedW.find((w: any) => ymd(new Date(w.at)) < days[0].key);
-        if (earliestBefore) last = earliestBefore.weight;
-        else if (sortedW.length) last = sortedW[0].weight;
-        else if (user?.weight) last = user.weight;
-        const filled = days.map((d) => {
-          if (d.weight != null) last = d.weight;
-          return { ...d, plotted: last };
-        });
+        // Only plot days that have actual logged weight — no forward-fill
+        const loggedDays = days.filter((d) => d.weight != null) as { date: Date; key: string; weight: number }[];
 
-        const hasAny = filled.some((d) => d.plotted != null);
-        const vals = filled.filter((d) => d.plotted != null).map((d) => d.plotted!) as number[];
-        const min = hasAny ? Math.min(...vals) : 60;
-        const max = hasAny ? Math.max(...vals) : 80;
-        const pad = Math.max(2, (max - min) * 0.2 || 5);
+        const hasAny = loggedDays.length > 0;
+        const vals = loggedDays.map((d) => d.weight);
+        // Realistic default scale around user weight when there's no data
+        const baseW = user?.weight ?? 75;
+        const min = hasAny ? Math.min(...vals) : baseW - 5;
+        const max = hasAny ? Math.max(...vals) : baseW + 5;
+        const pad = Math.max(2, (max - min) * 0.25 || 5);
         const yMin = Math.floor(min - pad);
         const yMax = Math.ceil(max + pad);
         const yRange = Math.max(1, yMax - yMin);
 
         const X0 = 32, X1 = 316, Y0 = 10, Y1 = 120;
-        const xFor = (i: number) => X0 + (i * (X1 - X0)) / (DAYS - 1);
+        const xForDay = (day: number) => X0 + ((day - 1) * (X1 - X0)) / (DAYS - 1);
         const yFor = (v: number) => Y1 - ((v - yMin) / yRange) * (Y1 - Y0);
 
-        const pts = filled.map((d, i) => ({ x: xFor(i), y: d.plotted != null ? yFor(d.plotted) : null, d }));
-        const linePath = pts
-          .filter((p) => p.y != null)
-          .map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`)
-          .join(" ");
+        // Line connects only actual logged points (chronological)
+        const loggedPts = loggedDays
+          .slice()
+          .sort((a, b) => a.date.getTime() - b.date.getTime())
+          .map((d) => ({ x: xForDay(d.date.getDate()), y: yFor(d.weight), d }));
+        const linePath = loggedPts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
 
         const yTicks = 4;
-        const ticks = Array.from({ length: yTicks + 1 }, (_, i) => Math.round(yMin + (i * yRange) / yTicks));
+        // Render top→bottom: top label = yMax, bottom = yMin (real "up = heavier")
+        const ticks = Array.from({ length: yTicks + 1 }, (_, i) => Math.round(yMax - (i * yRange) / yTicks));
 
         // Stats
         const current = vals.length ? vals[vals.length - 1] : user?.weight ?? 0;
