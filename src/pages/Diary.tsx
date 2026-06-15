@@ -388,12 +388,12 @@ export default function Diary() {
             </div>
 
             {/* Calendar strip — clean 1..31 only */}
-            <div className="mt-4 flex justify-between items-baseline">
+            <div className="mt-4" style={{ display: "grid", gridTemplateColumns: `repeat(${DAYS}, minmax(0, 1fr))` }}>
               {days.map((d) => (
                 <button
                   key={d.key}
                   onClick={() => setSelected(new Date(d.date))}
-                  className="k-tap text-[10px] tabular-nums text-muted-foreground hover:text-foreground"
+                  className="k-tap flex items-center justify-center min-h-[36px] text-[10px] tabular-nums text-muted-foreground hover:text-foreground"
                 >
                   {d.day}
                 </button>
