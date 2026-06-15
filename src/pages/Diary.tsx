@@ -372,46 +372,44 @@ export default function Diary() {
               </div>
             </div>
 
-            {/* Horizontal month calendar strip — aligned with chart x-axis */}
+            {/* Clean horizontal month timeline — aligned with chart x-axis */}
             <div
-              className="mt-3 flex gap-[2px]"
+              className="mt-3 relative h-7"
               style={{
                 paddingLeft: `${(X0 / 320) * 100}%`,
                 paddingRight: `${((320 - X1) / 320) * 100}%`,
               }}
             >
-              {filled.map((d) => {
-                const key = d.key;
-                const isSel = key === selectedKey;
-                const day = d.date.getDate();
-                const hasWeight = byDay.has(key);
-                const dayCals = meals
-                  .filter((m: any) => ymd(new Date(m.at)) === key)
-                  .reduce((a: number, b: any) => a + b.calories, 0);
-                const hasMeals = dayCals > 0;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setSelected(new Date(d.date))}
-                    title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
-                    className={`k-tap relative flex-1 min-w-0 flex flex-col items-center justify-center py-1.5 rounded-md transition-all ${
-                      isSel ? "bg-gradient-primary text-primary-foreground" : "bg-card/40 hover:bg-muted"
-                    }`}
-                  >
-                    <span className="text-[9px] font-semibold tabular-nums leading-none">{day}</span>
-                    {(hasWeight || hasMeals) && (
-                      <span className="flex gap-[2px] mt-1 h-1 items-center">
-                        {hasWeight && (
-                          <span className={`w-1 h-1 rounded-full ${isSel ? "bg-primary-foreground" : "bg-orange-500"}`} />
-                        )}
-                        {hasMeals && (
-                          <span className={`w-1 h-1 rounded-full ${isSel ? "bg-primary-foreground/70" : "bg-emerald-500"}`} />
-                        )}
+              <div className="relative w-full h-full">
+                {days.map((d, i) => {
+                  const key = d.key;
+                  const isSel = key === selectedKey;
+                  const hasWeight = byDay.has(key);
+                  const leftPct = DAYS === 1 ? 50 : (i * 100) / (DAYS - 1);
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setSelected(new Date(d.date))}
+                      title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
+                      className="absolute top-0 -translate-x-1/2 k-tap flex flex-col items-center"
+                      style={{ left: `${leftPct}%` }}
+                    >
+                      <span
+                        className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-semibold tabular-nums leading-none transition-all ${
+                          isSel
+                            ? "bg-gradient-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {d.date.getDate()}
                       </span>
-                    )}
-                  </button>
-                );
-              })}
+                      {hasWeight && !isSel && (
+                        <span className="w-1 h-1 rounded-full bg-orange-500 mt-0.5" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         );
