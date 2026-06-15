@@ -383,7 +383,9 @@ export default function Diary() {
                     <button
                       key={key}
                       onClick={() => setSelected(new Date(d.date))}
-                      title={d className="flex flex-col items-center justify-center k-tap shrink-0" style={{ width: `${(X1 - X0 + 16) / DAYS}px` }}
+                      title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
+                      className="flex flex-col items-center justify-center k-tap shrink-0"
+                      style={{ width: `${(X1 - X0 + 16) / DAYS}px` }}
                     >
                       <span
                         className={`flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-semibold tabular-nums leading-none transition-all ${
