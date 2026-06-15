@@ -387,39 +387,17 @@ export default function Diary() {
               </div>
             </div>
 
-            {/* ---------- Calendar strip — rebuilt: one box per day, equal width ---------- */}
-            <div className="mt-4 grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${DAYS}, minmax(0, 1fr))` }}>
-              {days.map((d) => {
-                const isSel = d.key === selectedKey;
-                const hasWeight = byDay.has(d.key);
-                return (
-                  <button
-                    key={d.key}
-                    onClick={() => setSelected(new Date(d.date))}
-                    title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
-                    className="k-tap flex flex-col items-center justify-center py-1 rounded-md"
-                  >
-                    <span
-                      className={`text-[9px] leading-none tabular-nums transition-colors ${
-                        isSel
-                          ? "text-orange-500 font-bold"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {d.day}
-                    </span>
-                    <span
-                      className={`mt-1 rounded-full ${
-                        isSel
-                          ? "w-1.5 h-1.5 bg-orange-500"
-                          : hasWeight
-                            ? "w-1 h-1 bg-muted-foreground/60"
-                            : "w-1 h-1 bg-transparent"
-                      }`}
-                    />
-                  </button>
-                );
-              })}
+            {/* Calendar strip — clean 1..31 only */}
+            <div className="mt-4 flex justify-between items-baseline">
+              {days.map((d) => (
+                <button
+                  key={d.key}
+                  onClick={() => setSelected(new Date(d.date))}
+                  className="k-tap text-[10px] tabular-nums text-muted-foreground hover:text-foreground"
+                >
+                  {d.day}
+                </button>
+              ))}
             </div>
           </div>
         );
