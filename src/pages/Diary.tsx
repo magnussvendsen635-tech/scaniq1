@@ -231,14 +231,14 @@ export default function Diary() {
 
       {/* Weight trend chart + horizontal calendar strip */}
       {(() => {
-        // Build per-day weight series for last 22 days ending at selected date
-        const endDate = new Date(selected);
-        endDate.setHours(0, 0, 0, 0);
-        const DAYS = 22;
+        // Build per-day weight series for every day of the selected month
+        const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
+        const DAYS = new Date(selected.getFullYear(), selected.getMonth() + 1, 0).getDate();
         const days: { date: Date; key: string; weight: number | null }[] = [];
-        for (let i = DAYS - 1; i >= 0; i--) {
-          const d = new Date(endDate);
-          d.setDate(endDate.getDate() - i);
+        for (let i = 0; i < DAYS; i++) {
+          const d = new Date(monthStart);
+          d.setDate(1 + i);
+          d.setHours(0, 0, 0, 0);
           days.push({ date: d, key: ymd(d), weight: null });
         }
         // map weights to days (last entry of the day wins)
