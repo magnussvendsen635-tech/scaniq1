@@ -276,17 +276,21 @@ export default function Diary() {
         // Render top→bottom: top label = yMax, bottom = yMin (real "up = heavier")
         const ticks = Array.from({ length: yTicks + 1 }, (_, i) => Math.round(yMax - (i * yRange) / yTicks));
 
-        // Stats
-        const current = vals.length ? vals[vals.length - 1] : user?.weight ?? 0;
-        const sevenAgo = filled[filled.length - 8]?.plotted ?? null;
-        const weeklyChange = sevenAgo != null && vals.length ? current - sevenAgo : null;
+        // Stats (based only on real logged entries)
+        const chrono = loggedDays.slice().sort((a, b) => a.date.getTime() - b.date.getTime());
+        const current = chrono.length ? chrono[chrono.length - 1].weight : user?.weight ?? 0;
+        const lastAt = chrono.length ? chrono[chrono.length - 1].date.getTime() : null;
+        const weekRef = lastAt
+          ? chrono.slice(0, -1).reverse().find((d) => lastAt - d.date.getTime() >= 6 * 86400000)
+          : null;
+        const weeklyChange = weekRef ? current - weekRef.weight : null;
         const start = sortedW.length ? sortedW[0].weight : user?.weight ?? 0;
         const target = user?.targetWeight ?? start;
         const totalProgress = start && target && start !== target
           ? Math.max(0, Math.min(100, ((start - current) / (start - target)) * 100))
           : 0;
 
-        const hovered = hoverIdx != null ? pts[hoverIdx] : null;
+        const hovered = hoverIdx != null ? loggedPts[hoverIdx] : null;
 
         return (
           <div className="k-card p-5 mb-4">
