@@ -31,11 +31,14 @@ const startOfWeek = (d: Date) => {
 
 export default function Diary() {
   const t = useT();
-  const { meals, user, removeMeal, language } = useKStore() as any;
+  const { meals, user, removeMeal, language, weights, logWeight } = useKStore() as any;
   const [selected, setSelected] = useState<Date>(new Date());
   const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date()));
   const [summary, setSummary] = useState<string>("");
   const [loadingSummary, setLoadingSummary] = useState(false);
+  const [weightDialogOpen, setWeightDialogOpen] = useState(false);
+  const [weightInput, setWeightInput] = useState<string>("");
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   // Keep calendar in sync with the real current date (rolls over at midnight,
   // and when the user returns to the tab on a new day).
@@ -227,82 +230,279 @@ export default function Diary() {
       </div>
 
       {/* Weight trend chart + horizontal calendar strip */}
-      <div className="k-card p-5 mb-4">
-        <div className="flex items-baseline justify-between mb-3">
-          <div className="text-xs text-muted-foreground tracking-widest uppercase">Weight trend</div>
-          <div className="text-[10px] text-muted-foreground">60 – 560</div>
-        </div>
-        <svg viewBox="0 0 320 140" className="w-full h-32">
-          {/* y-axis ticks: 60, 185, 310, 435, 560 */}
-          {[60, 185, 310, 435, 560].map((v, i) => {
-            const y = 10 + (i * 110) / 4;
-            return (
-              <g key={v}>
-                <line x1="28" y1={y} x2="316" y2={y} stroke="hsl(var(--border))" strokeOpacity="0.4" strokeDasharray="2 4" />
-                <text x="0" y={y + 3} fontSize="8" fill="hsl(var(--muted-foreground))">{v}</text>
-              </g>
-            );
-          })}
-          {/* orange wavy weight line */}
-          <path
-            d="M32,90 C60,60 80,110 110,80 C140,55 165,95 195,70 C225,50 250,85 280,55 C295,40 305,50 316,42"
-            stroke="#f97316"
-            strokeWidth="2.5"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* x-axis date markers 10..31 */}
-          {Array.from({ length: 22 }, (_, i) => 10 + i).map((d, i) => {
-            const x = 32 + (i * (316 - 32)) / 21;
-            const show = d % 3 === 1 || d === 31;
-            return (
-              <g key={d}>
-                <line x1={x} y1="120" x2={x} y2="124" stroke="hsl(var(--muted-foreground))" strokeOpacity="0.5" />
-                {show && (
-                  <text x={x} y="134" fontSize="8" textAnchor="middle" fill="hsl(var(--muted-foreground))">{d}</text>
-                )}
-              </g>
-            );
-          })}
-        </svg>
+      {(() => {
+        // Build per-day weight series for last 22 days ending at selected date
+        const endDate = new Date(selected);
+        endDate.setHours(0, 0, 0, 0);
+        const DAYS = 22;
+        const days: { date: Date; key: string; weight: number | null }[] = [];
+        for (let i = DAYS - 1; i >= 0; i--) {
+          const d = new Date(endDate);
+          d.setDate(endDate.getDate() - i);
+          days.push({ date: d, key: ymd(d), weight: null });
+        }
+        // map weights to days (last entry of the day wins)
+        const byDay = new Map<string, number>();
+        const sortedW = [...(weights || [])].sort((a: any, b: any) => a.at - b.at);
+        for (const w of sortedW) byDay.set(ymd(new Date(w.at)), w.weight);
+        days.forEach((d) => { if (byDay.has(d.key)) d.weight = byDay.get(d.key)!; });
 
-        {/* Horizontal calendar strip June 15 – June 21 */}
-        <div className="mt-4">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Jun 15 – Jun 21</div>
-          <div className="grid grid-cols-7 gap-1">
-            {Array.from({ length: 7 }, (_, i) => {
-              const day = 15 + i;
-              const date = new Date(2026, 5, day);
-              const key = ymd(date);
-              const isSel = key === selectedKey;
-              const dayCals = meals
-                .filter((m: any) => ymd(new Date(m.at)) === key)
-                .reduce((a: number, b: any) => a + b.calories, 0);
-              const weekday = date.toLocaleDateString(language || undefined, { weekday: "narrow" });
-              return (
-                <button
-                  key={key}
-                  onClick={() => setSelected(date)}
-                  className={`k-tap flex flex-col items-center py-2 rounded-xl transition-all ${
-                    isSel ? "bg-gradient-primary text-primary-foreground" : "bg-card/40 hover:bg-muted"
-                  }`}
+        // forward-fill for line continuity; first known weight (or user.weight) seeds
+        let last: number | null = null;
+        // seed with earliest known weight before window, else user.weight
+        const earliestBefore = sortedW.find((w: any) => ymd(new Date(w.at)) < days[0].key);
+        if (earliestBefore) last = earliestBefore.weight;
+        else if (sortedW.length) last = sortedW[0].weight;
+        else if (user?.weight) last = user.weight;
+        const filled = days.map((d) => {
+          if (d.weight != null) last = d.weight;
+          return { ...d, plotted: last };
+        });
+
+        const hasAny = filled.some((d) => d.plotted != null);
+        const vals = filled.filter((d) => d.plotted != null).map((d) => d.plotted!) as number[];
+        const min = hasAny ? Math.min(...vals) : 60;
+        const max = hasAny ? Math.max(...vals) : 80;
+        const pad = Math.max(2, (max - min) * 0.2 || 5);
+        const yMin = Math.floor(min - pad);
+        const yMax = Math.ceil(max + pad);
+        const yRange = Math.max(1, yMax - yMin);
+
+        const X0 = 32, X1 = 316, Y0 = 10, Y1 = 120;
+        const xFor = (i: number) => X0 + (i * (X1 - X0)) / (DAYS - 1);
+        const yFor = (v: number) => Y1 - ((v - yMin) / yRange) * (Y1 - Y0);
+
+        const pts = filled.map((d, i) => ({ x: xFor(i), y: d.plotted != null ? yFor(d.plotted) : null, d }));
+        const linePath = pts
+          .filter((p) => p.y != null)
+          .map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`)
+          .join(" ");
+
+        const yTicks = 4;
+        const ticks = Array.from({ length: yTicks + 1 }, (_, i) => Math.round(yMin + (i * yRange) / yTicks));
+
+        // Stats
+        const current = vals.length ? vals[vals.length - 1] : user?.weight ?? 0;
+        const sevenAgo = filled[filled.length - 8]?.plotted ?? null;
+        const weeklyChange = sevenAgo != null && vals.length ? current - sevenAgo : null;
+        const start = sortedW.length ? sortedW[0].weight : user?.weight ?? 0;
+        const target = user?.targetWeight ?? start;
+        const totalProgress = start && target && start !== target
+          ? Math.max(0, Math.min(100, ((start - current) / (start - target)) * 100))
+          : 0;
+
+        const hovered = hoverIdx != null ? pts[hoverIdx] : null;
+
+        return (
+          <div className="k-card p-5 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-xs text-muted-foreground tracking-widest uppercase">Weight trend</div>
+              <button
+                onClick={() => {
+                  setWeightInput(String(byDay.get(selectedKey) ?? current ?? ""));
+                  setWeightDialogOpen(true);
+                }}
+                className="k-tap text-[11px] font-medium px-3 py-1.5 rounded-full bg-gradient-primary text-primary-foreground"
+              >
+                Update Weight
+              </button>
+            </div>
+
+            <div className="relative">
+              <svg viewBox="0 0 320 140" className="w-full h-32 overflow-visible">
+                {ticks.map((v, i) => {
+                  const y = Y0 + (i * (Y1 - Y0)) / yTicks;
+                  return (
+                    <g key={i}>
+                      <line x1={X0} y1={y} x2={X1} y2={y} stroke="hsl(var(--border))" strokeOpacity="0.4" strokeDasharray="2 4" />
+                      <text x="0" y={y + 3} fontSize="8" fill="hsl(var(--muted-foreground))">{v}</text>
+                    </g>
+                  );
+                })}
+                {linePath && (
+                  <path d={linePath} stroke="#f97316" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                )}
+                {filled.map((d, i) => {
+                  const x = xFor(i);
+                  const isLogged = d.weight != null;
+                  const y = d.plotted != null ? yFor(d.plotted) : null;
+                  const day = d.date.getDate();
+                  const showLbl = i === 0 || i === DAYS - 1 || day % 3 === 1;
+                  return (
+                    <g key={d.key}>
+                      <line x1={x} y1="120" x2={x} y2="124" stroke="hsl(var(--muted-foreground))" strokeOpacity="0.5" />
+                      {showLbl && (
+                        <text x={x} y="134" fontSize="8" textAnchor="middle" fill="hsl(var(--muted-foreground))">{day}</text>
+                      )}
+                      {y != null && (
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r={isLogged ? 3.5 : 2}
+                          fill={isLogged ? "#f97316" : "transparent"}
+                          stroke="#f97316"
+                          strokeWidth={isLogged ? 0 : 1}
+                        />
+                      )}
+                      <rect
+                        x={x - 7}
+                        y={Y0}
+                        width={14}
+                        height={Y1 - Y0 + 8}
+                        fill="transparent"
+                        onMouseEnter={() => setHoverIdx(i)}
+                        onMouseLeave={() => setHoverIdx(null)}
+                        onClick={() => setSelected(new Date(d.date))}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </g>
+                  );
+                })}
+                {hovered && hovered.y != null && (
+                  <line x1={hovered.x} x2={hovered.x} y1={Y0} y2={Y1} stroke="#f97316" strokeOpacity="0.4" strokeDasharray="2 2" />
+                )}
+              </svg>
+              {hovered && hovered.y != null && (
+                <div
+                  className="absolute pointer-events-none -translate-x-1/2 -translate-y-full px-2 py-1 rounded-md bg-foreground text-background text-[10px] font-medium shadow-md whitespace-nowrap"
+                  style={{ left: `${(hovered.x / 320) * 100}%`, top: `${(hovered.y / 140) * 100}%` }}
                 >
-                  <span className={`text-[10px] uppercase tracking-widest ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
-                    {weekday}
-                  </span>
-                  <span className="text-base font-semibold mt-0.5">{day}</span>
-                  {dayCals > 0 && (
-                    <span className={`text-[9px] mt-0.5 ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
-                      {dayCals}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                  {hovered.d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
+                  {" · "}
+                  {hovered.d.plotted!.toFixed(1)} kg
+                  {hovered.d.weight == null && " *"}
+                </div>
+              )}
+            </div>
+
+            {/* Stat modules */}
+            <div className="grid grid-cols-3 gap-3 mt-4">
+              <div className="rounded-xl bg-card/40 p-3">
+                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Current</div>
+                <div className="text-base font-semibold tabular-nums mt-1">{current ? `${current.toFixed(1)} kg` : "—"}</div>
+              </div>
+              <div className="rounded-xl bg-card/40 p-3">
+                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Weekly</div>
+                <div className={`text-base font-semibold tabular-nums mt-1 ${weeklyChange == null ? "" : weeklyChange < 0 ? "text-emerald-500" : weeklyChange > 0 ? "text-orange-500" : ""}`}>
+                  {weeklyChange == null ? "—" : `${weeklyChange > 0 ? "+" : ""}${weeklyChange.toFixed(1)} kg`}
+                </div>
+              </div>
+              <div className="rounded-xl bg-card/40 p-3">
+                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Progress</div>
+                <div className="text-base font-semibold tabular-nums mt-1">{Math.round(totalProgress)}%</div>
+              </div>
+            </div>
+
+            {/* Horizontal calendar strip June 15 – June 21 */}
+            <div className="mt-4">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Jun 15 – Jun 21</div>
+              <div className="grid grid-cols-7 gap-1">
+                {Array.from({ length: 7 }, (_, i) => {
+                  const day = 15 + i;
+                  const date = new Date(2026, 5, day);
+                  const key = ymd(date);
+                  const isSel = key === selectedKey;
+                  const dayCals = meals
+                    .filter((m: any) => ymd(new Date(m.at)) === key)
+                    .reduce((a: number, b: any) => a + b.calories, 0);
+                  const hasWeight = byDay.has(key);
+                  const weekday = date.toLocaleDateString(language || undefined, { weekday: "narrow" });
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setSelected(date)}
+                      className={`k-tap relative flex flex-col items-center py-2 rounded-xl transition-all ${
+                        isSel ? "bg-gradient-primary text-primary-foreground" : "bg-card/40 hover:bg-muted"
+                      }`}
+                    >
+                      <span className={`text-[10px] uppercase tracking-widest ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
+                        {weekday}
+                      </span>
+                      <span className="text-base font-semibold mt-0.5">{day}</span>
+                      {dayCals > 0 && (
+                        <span className={`text-[9px] mt-0.5 ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
+                          {dayCals}
+                        </span>
+                      )}
+                      {hasWeight && (
+                        <span
+                          className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${isSel ? "bg-primary-foreground" : "bg-orange-500"}`}
+                          aria-label="Weight logged"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Update Weight dialog */}
+      {weightDialogOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setWeightDialogOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm k-card p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Log weight</div>
+            <div className="text-sm font-medium mb-4">
+              {selected.toLocaleDateString(language || undefined, { weekday: "long", day: "numeric", month: "long" })}
+            </div>
+            <div className="flex items-center gap-2 mb-4">
+              <input
+                type="number"
+                inputMode="decimal"
+                step="0.1"
+                autoFocus
+                value={weightInput}
+                onChange={(e) => setWeightInput(e.target.value)}
+                placeholder="kg"
+                className="flex-1 bg-card/40 rounded-xl px-4 py-3 text-base font-semibold outline-none border border-border focus:border-primary"
+              />
+              <span className="text-sm text-muted-foreground">kg</span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setWeightDialogOpen(false)}
+                className="k-tap flex-1 py-2.5 rounded-xl bg-card/40 text-sm font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const v = parseFloat(weightInput.replace(",", "."));
+                  if (!isFinite(v) || v <= 0) { toast.error("Enter a valid weight"); return; }
+                  // store entry timestamped on the selected day (noon, to be stable)
+                  const at = new Date(selected);
+                  at.setHours(12, 0, 0, 0);
+                  // Remove any prior entry for that day, then log
+                  const prior = (weights || []).filter((w: any) => ymd(new Date(w.at)) === selectedKey);
+                  prior.forEach((p: any) => (useKStore.getState() as any).removeWeight(p.at));
+                  // override timestamp by patching after logWeight
+                  logWeight(v);
+                  const state = useKStore.getState() as any;
+                  const last = state.weights[0];
+                  if (last) {
+                    state.removeWeight(last.at);
+                    useKStore.setState({ weights: [{ weight: v, at: at.getTime() }, ...state.weights.filter((w: any) => w.at !== last.at)], user: { ...state.user, weight: v } });
+                  }
+                  setWeightDialogOpen(false);
+                  toast.success("Weight saved");
+                }}
+                className="k-tap flex-1 py-2.5 rounded-xl bg-gradient-primary text-primary-foreground text-sm font-semibold"
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
 
 
       {lastMealAt && (
