@@ -372,10 +372,10 @@ export default function Diary() {
               </div>
             </div>
 
-            {/* Clean horizontal month timeline — scrollable, evenly spaced */}
-            <div className="mt-3 overflow-x-auto scrollbar-hide">
-              <div className="flex items-center" style={{ minWidth: `${DAYS * 32}px` }}>
-                {days.map((d, i) => {
+            {/* Clean horizontal month timeline — all days visible, no scroll */}
+            <div className="mt-3">
+              <div className="flex items-end justify-between">
+                {days.map((d) => {
                   const key = d.key;
                   const isSel = key === selectedKey;
                   const hasWeight = byDay.has(key);
@@ -384,21 +384,26 @@ export default function Diary() {
                       key={key}
                       onClick={() => setSelected(new Date(d.date))}
                       title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
-                      className="flex flex-col items-center justify-center k-tap shrink-0"
-                      style={{ width: `${(X1 - X0 + 16) / DAYS}px` }}
+                      className="flex flex-col items-center justify-end k-tap"
+                      style={{ width: `${100 / DAYS}%` }}
                     >
                       <span
-                        className={`flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-semibold tabular-nums leading-none transition-all ${
-                          isSel
-                            ? "bg-gradient-primary text-primary-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
+                        className={`text-[9px] font-medium tabular-nums leading-none transition-colors ${
+                          isSel ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"
                         }`}
                       >
                         {d.date.getDate()}
                       </span>
-                      {hasWeight && !isSel && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1" />
-                      )}
+                      {/* Active indicator: small dot or ring, never overlapping */}
+                      <span
+                        className={`mt-1 rounded-full transition-all ${
+                          isSel
+                            ? "w-1.5 h-1.5 bg-orange-500"
+                            : hasWeight
+                              ? "w-1 h-1 bg-muted-foreground/50"
+                              : "w-1 h-1 bg-transparent"
+                        }`}
+                      />
                     </button>
                   );
                 })}
