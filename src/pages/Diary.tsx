@@ -31,11 +31,14 @@ const startOfWeek = (d: Date) => {
 
 export default function Diary() {
   const t = useT();
-  const { meals, user, removeMeal, language } = useKStore() as any;
+  const { meals, user, removeMeal, language, weights, logWeight } = useKStore() as any;
   const [selected, setSelected] = useState<Date>(new Date());
   const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date()));
   const [summary, setSummary] = useState<string>("");
   const [loadingSummary, setLoadingSummary] = useState(false);
+  const [weightDialogOpen, setWeightDialogOpen] = useState(false);
+  const [weightInput, setWeightInput] = useState<string>("");
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   // Keep calendar in sync with the real current date (rolls over at midnight,
   // and when the user returns to the tab on a new day).
