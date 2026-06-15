@@ -388,7 +388,7 @@ export default function Diary() {
             </div>
 
             {/* Calendar strip — 1..31 with selected + weight indicators */}
-            <div className="mt-4" style={{ display: "grid", gridTemplateColumns: `repeat(${DAYS}, minmax(0, 1fr))` }}>
+            <div className="mt-4 flex justify-between items-center">
               {days.map((d) => {
                 const isSel = d.key === selectedKey;
                 const hasW = byDay.has(d.key);
