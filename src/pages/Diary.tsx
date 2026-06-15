@@ -226,6 +226,85 @@ export default function Diary() {
         </div>
       </div>
 
+      {/* Weight trend chart + horizontal calendar strip */}
+      <div className="k-card p-5 mb-4">
+        <div className="flex items-baseline justify-between mb-3">
+          <div className="text-xs text-muted-foreground tracking-widest uppercase">Weight trend</div>
+          <div className="text-[10px] text-muted-foreground">60 – 560</div>
+        </div>
+        <svg viewBox="0 0 320 140" className="w-full h-32">
+          {/* y-axis ticks: 60, 185, 310, 435, 560 */}
+          {[60, 185, 310, 435, 560].map((v, i) => {
+            const y = 10 + (i * 110) / 4;
+            return (
+              <g key={v}>
+                <line x1="28" y1={y} x2="316" y2={y} stroke="hsl(var(--border))" strokeOpacity="0.4" strokeDasharray="2 4" />
+                <text x="0" y={y + 3} fontSize="8" fill="hsl(var(--muted-foreground))">{v}</text>
+              </g>
+            );
+          })}
+          {/* orange wavy weight line */}
+          <path
+            d="M32,90 C60,60 80,110 110,80 C140,55 165,95 195,70 C225,50 250,85 280,55 C295,40 305,50 316,42"
+            stroke="#f97316"
+            strokeWidth="2.5"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* x-axis date markers 10..31 */}
+          {Array.from({ length: 22 }, (_, i) => 10 + i).map((d, i) => {
+            const x = 32 + (i * (316 - 32)) / 21;
+            const show = d % 3 === 1 || d === 31;
+            return (
+              <g key={d}>
+                <line x1={x} y1="120" x2={x} y2="124" stroke="hsl(var(--muted-foreground))" strokeOpacity="0.5" />
+                {show && (
+                  <text x={x} y="134" fontSize="8" textAnchor="middle" fill="hsl(var(--muted-foreground))">{d}</text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Horizontal calendar strip June 15 – June 21 */}
+        <div className="mt-4">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Jun 15 – Jun 21</div>
+          <div className="grid grid-cols-7 gap-1">
+            {Array.from({ length: 7 }, (_, i) => {
+              const day = 15 + i;
+              const date = new Date(2026, 5, day);
+              const key = ymd(date);
+              const isSel = key === selectedKey;
+              const dayCals = meals
+                .filter((m: any) => ymd(new Date(m.at)) === key)
+                .reduce((a: number, b: any) => a + b.calories, 0);
+              const weekday = date.toLocaleDateString(language || undefined, { weekday: "narrow" });
+              return (
+                <button
+                  key={key}
+                  onClick={() => setSelected(date)}
+                  className={`k-tap flex flex-col items-center py-2 rounded-xl transition-all ${
+                    isSel ? "bg-gradient-primary text-primary-foreground" : "bg-card/40 hover:bg-muted"
+                  }`}
+                >
+                  <span className={`text-[10px] uppercase tracking-widest ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
+                    {weekday}
+                  </span>
+                  <span className="text-base font-semibold mt-0.5">{day}</span>
+                  {dayCals > 0 && (
+                    <span className={`text-[9px] mt-0.5 ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
+                      {dayCals}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+
       {lastMealAt && (
         <div className="k-card p-3 mb-4 flex items-center justify-between">
           <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("diary.last_log_time")}</span>
@@ -287,7 +366,7 @@ export default function Diary() {
           <div className="w-14 h-14 rounded-2xl bg-gradient-soft flex items-center justify-center">
             <Camera className="w-6 h-6 text-primary-glow" />
           </div>
-          <div className="font-semibold">{t("diary.no_meals")}</div>
+          
           <div className="text-sm text-muted-foreground">{t("diary.no_meals_sub")}</div>
         </Link>
       ) : (
