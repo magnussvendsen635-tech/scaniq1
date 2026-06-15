@@ -393,47 +393,46 @@ export default function Diary() {
               </div>
             </div>
 
-            {/* Horizontal calendar strip June 15 – June 21 */}
-            <div className="mt-4">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Jun 15 – Jun 21</div>
-              <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: 7 }, (_, i) => {
-                  const day = 15 + i;
-                  const date = new Date(2026, 5, day);
-                  const key = ymd(date);
-                  const isSel = key === selectedKey;
-                  const dayCals = meals
-                    .filter((m: any) => ymd(new Date(m.at)) === key)
-                    .reduce((a: number, b: any) => a + b.calories, 0);
-                  const hasWeight = byDay.has(key);
-                  const weekday = date.toLocaleDateString(language || undefined, { weekday: "narrow" });
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => setSelected(date)}
-                      className={`k-tap relative flex flex-col items-center py-2 rounded-xl transition-all ${
-                        isSel ? "bg-gradient-primary text-primary-foreground" : "bg-card/40 hover:bg-muted"
-                      }`}
-                    >
-                      <span className={`text-[10px] uppercase tracking-widest ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
-                        {weekday}
+            {/* Horizontal month calendar strip — aligned with chart x-axis */}
+            <div
+              className="mt-3 flex gap-[2px]"
+              style={{
+                paddingLeft: `${(X0 / 320) * 100}%`,
+                paddingRight: `${((320 - X1) / 320) * 100}%`,
+              }}
+            >
+              {filled.map((d) => {
+                const key = d.key;
+                const isSel = key === selectedKey;
+                const day = d.date.getDate();
+                const hasWeight = byDay.has(key);
+                const dayCals = meals
+                  .filter((m: any) => ymd(new Date(m.at)) === key)
+                  .reduce((a: number, b: any) => a + b.calories, 0);
+                const hasMeals = dayCals > 0;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setSelected(new Date(d.date))}
+                    title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
+                    className={`k-tap relative flex-1 min-w-0 flex flex-col items-center justify-center py-1.5 rounded-md transition-all ${
+                      isSel ? "bg-gradient-primary text-primary-foreground" : "bg-card/40 hover:bg-muted"
+                    }`}
+                  >
+                    <span className="text-[9px] font-semibold tabular-nums leading-none">{day}</span>
+                    {(hasWeight || hasMeals) && (
+                      <span className="flex gap-[2px] mt-1 h-1 items-center">
+                        {hasWeight && (
+                          <span className={`w-1 h-1 rounded-full ${isSel ? "bg-primary-foreground" : "bg-orange-500"}`} />
+                        )}
+                        {hasMeals && (
+                          <span className={`w-1 h-1 rounded-full ${isSel ? "bg-primary-foreground/70" : "bg-emerald-500"}`} />
+                        )}
                       </span>
-                      <span className="text-base font-semibold mt-0.5">{day}</span>
-                      {dayCals > 0 && (
-                        <span className={`text-[9px] mt-0.5 ${isSel ? "opacity-90" : "text-muted-foreground"}`}>
-                          {dayCals}
-                        </span>
-                      )}
-                      {hasWeight && (
-                        <span
-                          className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${isSel ? "bg-primary-foreground" : "bg-orange-500"}`}
-                          aria-label="Weight logged"
-                        />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         );
