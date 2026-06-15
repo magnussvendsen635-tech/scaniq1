@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useKStore, caloriesToday, categoryForNow, type MealCategory } from "@/store/useKStore";
-import { Camera, Sparkles, ArrowLeft, Heart, Check, Flame, Crown, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus } from "lucide-react";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Crown, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -273,7 +273,7 @@ export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, streak, calorieAccuracy } = useKStore();
+  const { user, meals, addMeal, calorieAccuracy } = useKStore();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   // Total weight (grams) auto-detected from AI scan. No longer user-editable on result screen.
