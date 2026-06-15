@@ -287,7 +287,7 @@ export default function Diary() {
           <div className="w-14 h-14 rounded-2xl bg-gradient-soft flex items-center justify-center">
             <Camera className="w-6 h-6 text-primary-glow" />
           </div>
-          <div className="font-semibold">{t("diary.no_meals")}</div>
+          
           <div className="text-sm text-muted-foreground">{t("diary.no_meals_sub")}</div>
         </Link>
       ) : (
