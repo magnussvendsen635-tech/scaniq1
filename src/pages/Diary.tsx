@@ -229,68 +229,83 @@ export default function Diary() {
         </div>
       </div>
 
-      {/* Weight trend chart + horizontal calendar strip */}
+      {/* Weight trend chart + horizontal calendar strip — rebuilt from scratch */}
       {(() => {
-        // Build per-day weight series for every day of the selected month
-        const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
-        const DAYS = new Date(selected.getFullYear(), selected.getMonth() + 1, 0).getDate();
-        const days: { date: Date; key: string; weight: number | null }[] = [];
-        for (let i = 0; i < DAYS; i++) {
-          const d = new Date(monthStart);
-          d.setDate(1 + i);
+        // ---------- Month days (1..N) ----------
+        const year = selected.getFullYear();
+        const month = selected.getMonth();
+        const DAYS = new Date(year, month + 1, 0).getDate();
+        const days = Array.from({ length: DAYS }, (_, i) => {
+          const d = new Date(year, month, i + 1);
           d.setHours(0, 0, 0, 0);
-          days.push({ date: d, key: ymd(d), weight: null });
-        }
-        // map weights to days (last entry of the day wins)
+          return { date: d, key: ymd(d), day: i + 1 };
+        });
+
+        // ---------- Weight per day (last entry wins) ----------
         const byDay = new Map<string, number>();
         const sortedW = [...(weights || [])].sort((a: any, b: any) => a.at - b.at);
         for (const w of sortedW) byDay.set(ymd(new Date(w.at)), w.weight);
-        days.forEach((d) => { if (byDay.has(d.key)) d.weight = byDay.get(d.key)!; });
 
-        // Only plot days that have actual logged weight — no forward-fill
-        const loggedDays = days.filter((d) => d.weight != null) as { date: Date; key: string; weight: number }[];
+        const logged = days
+          .map((d) => ({ ...d, weight: byDay.get(d.key) ?? null }))
+          .filter((d) => d.weight != null) as { date: Date; key: string; day: number; weight: number }[];
 
-        const hasAny = loggedDays.length > 0;
-        const vals = loggedDays.map((d) => d.weight);
-        // Realistic default scale around user weight when there's no data
-        const baseW = user?.weight ?? 75;
-        const min = hasAny ? Math.min(...vals) : baseW - 5;
-        const max = hasAny ? Math.max(...vals) : baseW + 5;
-        const pad = Math.max(2, (max - min) * 0.25 || 5);
-        const yMin = Math.floor(min - pad);
-        const yMax = Math.ceil(max + pad);
-        const yRange = Math.max(1, yMax - yMin);
+        // ---------- Fixed clean Y-axis 70..85 kg ----------
+        const Y_MIN = 70;
+        const Y_MAX = 85;
+        const Y_STEP = 5; // 70, 75, 80, 85
+        const ticks: number[] = [];
+        for (let v = Y_MAX; v >= Y_MIN; v -= Y_STEP) ticks.push(v);
 
-        const X0 = 32, X1 = 316, Y0 = 10, Y1 = 120;
+        // ---------- SVG geometry ----------
+        const VB_W = 320, VB_H = 140;
+        const X0 = 30, X1 = 312, Y0 = 12, Y1 = 118;
         const xForDay = (day: number) => X0 + ((day - 1) * (X1 - X0)) / (DAYS - 1);
-        const yFor = (v: number) => Y1 - ((v - yMin) / yRange) * (Y1 - Y0);
+        const yFor = (v: number) => {
+          const c = Math.max(Y_MIN, Math.min(Y_MAX, v));
+          return Y1 - ((c - Y_MIN) / (Y_MAX - Y_MIN)) * (Y1 - Y0);
+        };
 
-        // Line connects only actual logged points (chronological)
-        const loggedPts = loggedDays
+        // ---------- Smooth line connecting only logged points ----------
+        const pts = logged
           .slice()
-          .sort((a, b) => a.date.getTime() - b.date.getTime())
-          .map((d) => ({ x: xForDay(d.date.getDate()), y: yFor(d.weight), d }));
-        const linePath = loggedPts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+          .sort((a, b) => a.day - b.day)
+          .map((d) => ({ x: xForDay(d.day), y: yFor(d.weight), d }));
 
-        const yTicks = 4;
-        // Render top→bottom: top label = yMax, bottom = yMin (real "up = heavier")
-        const ticks = Array.from({ length: yTicks + 1 }, (_, i) => Math.round(yMax - (i * yRange) / yTicks));
+        // Catmull-Rom → cubic Bezier for a clean wavy curve
+        let linePath = "";
+        if (pts.length === 1) {
+          linePath = `M${pts[0].x},${pts[0].y}`;
+        } else if (pts.length > 1) {
+          linePath = `M${pts[0].x},${pts[0].y}`;
+          for (let i = 0; i < pts.length - 1; i++) {
+            const p0 = pts[i - 1] || pts[i];
+            const p1 = pts[i];
+            const p2 = pts[i + 1];
+            const p3 = pts[i + 2] || p2;
+            const c1x = p1.x + (p2.x - p0.x) / 6;
+            const c1y = p1.y + (p2.y - p0.y) / 6;
+            const c2x = p2.x - (p3.x - p1.x) / 6;
+            const c2y = p2.y - (p3.y - p1.y) / 6;
+            linePath += ` C${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`;
+          }
+        }
 
-        // Stats (based only on real logged entries)
-        const chrono = loggedDays.slice().sort((a, b) => a.date.getTime() - b.date.getTime());
+        // ---------- Stats ----------
+        const chrono = pts.map((p) => p.d);
         const current = chrono.length ? chrono[chrono.length - 1].weight : user?.weight ?? 0;
         const lastAt = chrono.length ? chrono[chrono.length - 1].date.getTime() : null;
         const weekRef = lastAt
           ? chrono.slice(0, -1).reverse().find((d) => lastAt - d.date.getTime() >= 6 * 86400000)
           : null;
         const weeklyChange = weekRef ? current - weekRef.weight : null;
-        const start = sortedW.length ? sortedW[0].weight : user?.weight ?? 0;
-        const target = user?.targetWeight ?? start;
-        const totalProgress = start && target && start !== target
-          ? Math.max(0, Math.min(100, ((start - current) / (start - target)) * 100))
+        const startW = sortedW.length ? sortedW[0].weight : user?.weight ?? 0;
+        const target = user?.targetWeight ?? startW;
+        const totalProgress = startW && target && startW !== target
+          ? Math.max(0, Math.min(100, ((startW - current) / (startW - target)) * 100))
           : 0;
 
-        const hovered = hoverIdx != null ? loggedPts[hoverIdx] : null;
+        const hovered = hoverIdx != null ? pts[hoverIdx] : null;
 
         return (
           <div className="k-card p-5 mb-4">
@@ -307,12 +322,13 @@ export default function Diary() {
               </button>
             </div>
 
+            {/* ---------- Chart ---------- */}
             <div className="relative">
-              <svg viewBox="0 0 320 140" className="w-full h-32 overflow-visible">
+              <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-32 overflow-visible">
                 {ticks.map((v, i) => {
-                  const y = Y0 + (i * (Y1 - Y0)) / yTicks;
+                  const y = yFor(v);
                   return (
-                    <g key={i}>
+                    <g key={v}>
                       <line x1={X0} y1={y} x2={X1} y2={y} stroke="hsl(var(--border))" strokeOpacity="0.4" strokeDasharray="2 4" />
                       <text x="0" y={y + 3} fontSize="8" fill="hsl(var(--muted-foreground))">{v}</text>
                     </g>
@@ -321,8 +337,7 @@ export default function Diary() {
                 {linePath && (
                   <path d={linePath} stroke="#f97316" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 )}
-                {/* Dots only for actually logged days */}
-                {loggedPts.map((p, i) => (
+                {pts.map((p, i) => (
                   <g key={p.d.key}>
                     <circle cx={p.x} cy={p.y} r={3.5} fill="#f97316" />
                     <rect
@@ -345,7 +360,7 @@ export default function Diary() {
               {hovered && (
                 <div
                   className="absolute pointer-events-none -translate-x-1/2 -translate-y-full px-2 py-1 rounded-md bg-foreground text-background text-[10px] font-medium shadow-md whitespace-nowrap"
-                  style={{ left: `${(hovered.x / 320) * 100}%`, top: `${(hovered.y / 140) * 100}%` }}
+                  style={{ left: `${(hovered.x / VB_W) * 100}%`, top: `${(hovered.y / VB_H) * 100}%` }}
                 >
                   {hovered.d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
                   {" · "}
@@ -354,7 +369,7 @@ export default function Diary() {
               )}
             </div>
 
-            {/* Stat modules */}
+            {/* ---------- Stat modules ---------- */}
             <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="rounded-xl bg-card/40 p-3">
                 <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Current</div>
@@ -372,42 +387,39 @@ export default function Diary() {
               </div>
             </div>
 
-            {/* Clean horizontal month timeline — all days visible, no scroll */}
-            <div className="mt-3">
-              <div className="flex items-end justify-between">
-                {days.map((d) => {
-                  const key = d.key;
-                  const isSel = key === selectedKey;
-                  const hasWeight = byDay.has(key);
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => setSelected(new Date(d.date))}
-                      title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
-                      className="flex flex-col items-center justify-end k-tap"
-                      style={{ width: `${100 / DAYS}%` }}
+            {/* ---------- Calendar strip — rebuilt: one box per day, equal width ---------- */}
+            <div className="mt-4 grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${DAYS}, minmax(0, 1fr))` }}>
+              {days.map((d) => {
+                const isSel = d.key === selectedKey;
+                const hasWeight = byDay.has(d.key);
+                return (
+                  <button
+                    key={d.key}
+                    onClick={() => setSelected(new Date(d.date))}
+                    title={d.date.toLocaleDateString(language || undefined, { day: "numeric", month: "short" })}
+                    className="k-tap flex flex-col items-center justify-center py-1 rounded-md"
+                  >
+                    <span
+                      className={`text-[9px] leading-none tabular-nums transition-colors ${
+                        isSel
+                          ? "text-orange-500 font-bold"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
                     >
-                      <span
-                        className={`text-[9px] font-medium tabular-nums leading-none transition-colors ${
-                          isSel ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {d.date.getDate()}
-                      </span>
-                      {/* Active indicator: small dot or ring, never overlapping */}
-                      <span
-                        className={`mt-1 rounded-full transition-all ${
-                          isSel
-                            ? "w-1.5 h-1.5 bg-orange-500"
-                            : hasWeight
-                              ? "w-1 h-1 bg-muted-foreground/50"
-                              : "w-1 h-1 bg-transparent"
-                        }`}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
+                      {d.day}
+                    </span>
+                    <span
+                      className={`mt-1 rounded-full ${
+                        isSel
+                          ? "w-1.5 h-1.5 bg-orange-500"
+                          : hasWeight
+                            ? "w-1 h-1 bg-muted-foreground/60"
+                            : "w-1 h-1 bg-transparent"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
             </div>
           </div>
         );
