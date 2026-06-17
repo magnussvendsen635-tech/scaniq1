@@ -901,7 +901,7 @@ export default function FoodScan() {
                           <button
                             onClick={() => removePhoto(i)}
                             className="absolute top-1 right-1 w-6 h-6 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
-                            aria-label="Remove photo"
+                            aria-label={t("scan.remove_photo")}
                           >
                             <X className="w-3.5 h-3.5" />
                           </button>
