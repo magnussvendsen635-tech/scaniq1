@@ -1067,6 +1067,13 @@ export default function FoodScan() {
                   3: "bg-yellow-400 text-yellow-950",
                   4: "bg-red-400 text-red-950",
                 };
+                const criticalByNova: Record<1 | 2 | 3 | 4, TKey[]> = {
+                  1: [],
+                  2: ["scan.crit_refined_oils", "scan.crit_salt"],
+                  3: ["scan.crit_added_sugar", "scan.crit_salt", "scan.crit_preservatives"],
+                  4: ["scan.crit_added_sugar", "scan.crit_emulsifiers", "scan.crit_preservatives", "scan.crit_artificial_flavors"],
+                };
+                const critical = criticalByNova[nova];
                 return (
                   <div
                     key={`nova-${nova}-${result.name}`}
@@ -1080,6 +1087,25 @@ export default function FoodScan() {
                       </span>
                     </div>
                     <div className="text-sm leading-snug font-semibold">{t(subKey)}</div>
+                    <div className="mt-3 pt-3 border-t border-black/20">
+                      <div className={`text-[10px] tracking-widest uppercase font-bold mb-1.5 ${labelStyles[nova]}`}>
+                        {t("scan.critical_ingredients")}
+                      </div>
+                      {critical.length === 0 ? (
+                        <div className="text-xs font-medium opacity-80">— {t("scan.no_critical_ingredients")}</div>
+                      ) : (
+                        <ul className="flex flex-wrap gap-1.5">
+                          {critical.map((k) => (
+                            <li
+                              key={k}
+                              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border border-black/60 ${badgeStyles[nova]}`}
+                            >
+                              {t(k)}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 );
               })()}
