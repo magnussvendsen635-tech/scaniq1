@@ -939,7 +939,7 @@ export default function FoodScan() {
                   className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
                 >
                   <Sparkles className="w-5 h-5 mr-1" />
-                  Analyze {previews.length} photos
+                  {t("scan.analyze_photos")} ({previews.length})
                 </Button>
               ) : (
                 <Button
@@ -948,8 +948,8 @@ export default function FoodScan() {
                 >
                   <Camera className="w-5 h-5 mr-1" />
                   {previews.length === 0
-                    ? `Take first photo (0/${REQUIRED_PHOTOS})`
-                    : `Take next photo (${previews.length}/${REQUIRED_PHOTOS})`}
+                    ? `${t("scan.take_first_photo")} (0/${REQUIRED_PHOTOS})`
+                    : `${t("scan.take_next_photo")} (${previews.length}/${REQUIRED_PHOTOS})`}
                 </Button>
               )}
 
@@ -958,7 +958,7 @@ export default function FoodScan() {
                 className="k-tap w-full mt-3 h-12 rounded-2xl border-2 border-border bg-card text-sm font-semibold flex items-center justify-center gap-2 hover:border-primary transition-colors"
               >
                 <Search className="w-4 h-4" />
-                Search manually instead
+                {t("scan.search_manually_instead")}
               </button>
             </div>
           )}
