@@ -826,10 +826,10 @@ export default function FoodScan() {
                 <p className="text-sm text-muted-foreground mb-4">{t("scan.meal_type_sub")}</p>
                 <div className="grid grid-cols-4 gap-2">
                   {([
-                    ["breakfast", Sun, "Breakfast"],
-                    ["lunch", UtensilsCrossed, "Lunch"],
-                    ["dinner", Moon, "Dinner"],
-                    ["snack", Cookie, "Snack"],
+                    ["breakfast", Sun, t("diary.cat_breakfast")],
+                    ["lunch", UtensilsCrossed, t("diary.cat_lunch")],
+                    ["dinner", Moon, t("diary.cat_dinner")],
+                    ["snack", Cookie, t("diary.cat_snack")],
                   ] as [MealCategory, any, string][]).map(([c, Icon, label]) => (
                     <button
                       key={c}
