@@ -228,80 +228,14 @@ export default function Diary() {
         </div>
       </div>
 
-      {/* Weight trend chart + horizontal calendar strip */}
+      {/* Horizontal calendar strip */}
       {(() => {
         const DAYS = 31;
         const calendarDays = Array.from({ length: DAYS }, (_, i) => i + 1);
         const todayDay = new Date().getDate();
-        const latestValidWeight = [...(weights || [])]
-          .sort((a: any, b: any) => new Date(b.at).getTime() - new Date(a.at).getTime())
-          .find((w: any) => Number(w.weight) >= 70 && Number(w.weight) <= 85)?.weight;
-        const userWeight = Number(user?.weight);
-        const currentWeight = latestValidWeight ?? (userWeight >= 70 && userWeight <= 85 ? userWeight : 82.5);
-        const WEIGHT_MIN = 70;
-        const WEIGHT_MAX = 85;
-        const weightTicks = [85, 80, 75, 70];
-        const chartValues = [currentWeight + 0.4, currentWeight + 0.3, currentWeight + 0.2, currentWeight + 0.1, currentWeight];
-        const VB_W = 320;
-        const VB_H = 136;
-        const X0 = 34;
-        const X1 = 310;
-        const Y0 = 14;
-        const Y1 = 112;
-        const yFor = (value: number) => Y1 - ((Math.max(WEIGHT_MIN, Math.min(WEIGHT_MAX, value)) - WEIGHT_MIN) / (WEIGHT_MAX - WEIGHT_MIN)) * (Y1 - Y0);
-        const points = chartValues.map((weight, index) => ({
-          x: X0 + (index * (X1 - X0)) / (chartValues.length - 1),
-          y: yFor(weight),
-        }));
-        const linePath = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x},${point.y}`).join(" ");
-
         return (
-          <div className="k-card p-5 mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-xs text-muted-foreground tracking-widest uppercase">Weight trend</div>
-              <button
-                onClick={() => {
-                  setWeightInput(String(currentWeight));
-                  setWeightDialogOpen(true);
-                }}
-                className="k-tap text-[11px] font-medium px-3 py-1.5 rounded-full bg-gradient-primary text-primary-foreground"
-              >
-                Update Weight
-              </button>
-            </div>
-
-            <div className="relative">
-              <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-32" aria-label="Weight trend from 70 to 85 kg">
-                {weightTicks.map((v) => {
-                  const y = yFor(v);
-                  return (
-                    <g key={v}>
-                      <line x1={X0} y1={y} x2={X1} y2={y} stroke="hsl(var(--border))" strokeOpacity="0.4" strokeDasharray="2 4" />
-                      <text x="0" y={y + 3} fontSize="8" fill="hsl(var(--muted-foreground))">{v}</text>
-                    </g>
-                  );
-                })}
-                <path d={linePath} stroke="hsl(var(--primary))" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                {points.map((point, index) => <circle key={index} cx={point.x} cy={point.y} r="3" fill="hsl(var(--primary))" />)}
-              </svg>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3 mt-4">
-              <div className="rounded-xl bg-card/40 p-3">
-                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Current Weight</div>
-                <div className="text-base font-semibold tabular-nums mt-1">{currentWeight.toFixed(1)} kg</div>
-              </div>
-              <div className="rounded-xl bg-card/40 p-3">
-                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Weekly</div>
-                <div className="text-base font-semibold tabular-nums mt-1">-0.1 kg</div>
-              </div>
-              <div className="rounded-xl bg-card/40 p-3">
-                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Progress</div>
-                <div className="text-base font-semibold tabular-nums mt-1">74%</div>
-              </div>
-            </div>
-
-            <div className="mt-4 flex w-full items-center justify-between overflow-hidden px-0.5 text-[8px] sm:text-[10px] tabular-nums">
+          <div className="k-card p-4 mb-4">
+            <div className="flex w-full items-center justify-between overflow-hidden px-0.5 text-[8px] sm:text-[10px] tabular-nums">
               {calendarDays.map((day) => {
                 const date = new Date(selected.getFullYear(), selected.getMonth(), day);
                 const isTodayDay = day === todayDay;
@@ -309,9 +243,9 @@ export default function Diary() {
                   <button
                     key={day}
                     onClick={() => setSelected(date)}
-                    className="k-tap shrink-0 inline-flex h-5 min-w-[8px] items-center justify-center leading-none text-muted-foreground"
+                    className="k-tap shrink-0 inline-flex h-6 min-w-[8px] items-center justify-center leading-none text-muted-foreground"
                   >
-                    <span className={isTodayDay ? "inline-flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold" : "inline-flex items-center justify-center"}>{day}</span>
+                    <span className={isTodayDay ? "inline-flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold" : "inline-flex items-center justify-center"}>{day}</span>
                   </button>
                 );
               })}
