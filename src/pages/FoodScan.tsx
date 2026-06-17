@@ -808,14 +808,14 @@ export default function FoodScan() {
                     {previews.length === 0
                       ? t("scan.point")
                       : previews.length >= REQUIRED_PHOTOS
-                        ? `${previews.length}/${REQUIRED_PHOTOS} photos ready`
-                        : `${previews.length}/${REQUIRED_PHOTOS} photos taken`}
+                        ? `${previews.length}/${REQUIRED_PHOTOS} ${t("scan.photos_ready")}`
+                        : `${previews.length}/${REQUIRED_PHOTOS} ${t("scan.photos_taken")}`}
                   </p>
                   <label
                     onClick={(e) => e.stopPropagation()}
                     className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-xs font-medium cursor-pointer hover:border-primary"
                   >
-                    Upload from device
+                    {t("scan.upload_from_device")}
                     <input type="file" accept="image/*" className="hidden" onChange={onPick} />
                   </label>
                 </div>
@@ -826,10 +826,10 @@ export default function FoodScan() {
                 <p className="text-sm text-muted-foreground mb-4">{t("scan.meal_type_sub")}</p>
                 <div className="grid grid-cols-4 gap-2">
                   {([
-                    ["breakfast", Sun, "Breakfast"],
-                    ["lunch", UtensilsCrossed, "Lunch"],
-                    ["dinner", Moon, "Dinner"],
-                    ["snack", Cookie, "Snack"],
+                    ["breakfast", Sun, t("diary.cat_breakfast")],
+                    ["lunch", UtensilsCrossed, t("diary.cat_lunch")],
+                    ["dinner", Moon, t("diary.cat_dinner")],
+                    ["snack", Cookie, t("diary.cat_snack")],
                   ] as [MealCategory, any, string][]).map(([c, Icon, label]) => (
                     <button
                       key={c}
@@ -876,15 +876,15 @@ export default function FoodScan() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="text-xs tracking-widest uppercase">
                     {previews.length >= REQUIRED_PHOTOS ? (
-                      <span className="text-primary font-semibold">{previews.length}/{REQUIRED_PHOTOS} PHOTOS READY</span>
+                      <span className="text-primary font-semibold">{previews.length}/{REQUIRED_PHOTOS} {t("scan.photos_ready").toUpperCase()}</span>
                     ) : (
-                      <span className="text-muted-foreground">{previews.length}/{REQUIRED_PHOTOS} PHOTOS TAKEN</span>
+                      <span className="text-muted-foreground">{previews.length}/{REQUIRED_PHOTOS} {t("scan.photos_taken").toUpperCase()}</span>
                     )}
                   </div>
                   {previews.length >= REQUIRED_PHOTOS && (
                     <div className="flex items-center gap-1 text-xs text-primary font-semibold">
                       <Check className="w-3.5 h-3.5" />
-                      Ready
+                      {t("scan.ready")}
                     </div>
                   )}
                 </div>
@@ -927,7 +927,7 @@ export default function FoodScan() {
                 </div>
                 {previews.length < REQUIRED_PHOTOS && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    📸 Take {REQUIRED_PHOTOS - previews.length} more photo{REQUIRED_PHOTOS - previews.length === 1 ? "" : "s"} from a different angle (top + side) for accurate analysis.
+                    📸 {t("scan.take_more_hint")}
                   </p>
                 )}
               </div>
