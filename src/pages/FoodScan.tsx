@@ -808,14 +808,14 @@ export default function FoodScan() {
                     {previews.length === 0
                       ? t("scan.point")
                       : previews.length >= REQUIRED_PHOTOS
-                        ? `${previews.length}/${REQUIRED_PHOTOS} photos ready`
-                        : `${previews.length}/${REQUIRED_PHOTOS} photos taken`}
+                        ? `${previews.length}/${REQUIRED_PHOTOS} ${t("scan.photos_ready")}`
+                        : `${previews.length}/${REQUIRED_PHOTOS} ${t("scan.photos_taken")}`}
                   </p>
                   <label
                     onClick={(e) => e.stopPropagation()}
                     className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-xs font-medium cursor-pointer hover:border-primary"
                   >
-                    Upload from device
+                    {t("scan.upload_from_device")}
                     <input type="file" accept="image/*" className="hidden" onChange={onPick} />
                   </label>
                 </div>
