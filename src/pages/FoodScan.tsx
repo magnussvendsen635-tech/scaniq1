@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
+import type { TKey } from "@/i18n/translations";
 import { PremiumLock } from "@/components/PremiumLock";
 import { PremiumWrapper } from "@/components/PremiumWrapper";
 import { supabase } from "@/integrations/supabase/client";
