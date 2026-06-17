@@ -200,6 +200,13 @@ export type TKey =
   | "scan.search_manually" | "scan.search_help"
   | "scan.search_placeholder" | "scan.search_grams_optional"
   | "scan.looking_up" | "scan.search_btn" | "scan.search_count" | "scan.close"
+  | "scan.photos_taken" | "scan.photos_ready" | "scan.upload_from_device"
+  | "scan.take_first_photo" | "scan.take_next_photo" | "scan.analyze_photos"
+  | "scan.ready" | "scan.take_more_hint" | "scan.search_manually_instead"
+  | "scan.analyzing" | "scan.remove_photo"
+  | "scan.critical_ingredients" | "scan.no_critical_ingredients"
+  | "scan.crit_added_sugar" | "scan.crit_emulsifiers" | "scan.crit_preservatives"
+  | "scan.crit_artificial_flavors" | "scan.crit_refined_oils" | "scan.crit_salt"
   // Streak repair
   | "streak.repair_title" | "streak.repair_sub" | "streak.repair_cta"
   | "streak.repair_cancel" | "streak.repair_buy"
