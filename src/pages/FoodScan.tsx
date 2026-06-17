@@ -991,7 +991,7 @@ export default function FoodScan() {
                     <div className="absolute w-36 h-36 rounded-full border-2 border-primary/70 shadow-[0_0_50px_hsl(var(--primary))] animate-pulse" />
                     <div className="relative w-32 h-32 rounded-full bg-black/75 backdrop-blur-sm border border-primary/60 flex flex-col items-center justify-center">
                       <span className="text-white text-base font-semibold tracking-wide">ScanIQ…</span>
-                      <span className="text-white/80 text-[11px] mt-1">Analyserer {scanProgress}%</span>
+                      <span className="text-white/80 text-[11px] mt-1">{t("scan.analyzing")} {scanProgress}%</span>
                     </div>
                   </div>
                 ) : result ? (
