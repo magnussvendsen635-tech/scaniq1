@@ -876,15 +876,15 @@ export default function FoodScan() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="text-xs tracking-widest uppercase">
                     {previews.length >= REQUIRED_PHOTOS ? (
-                      <span className="text-primary font-semibold">{previews.length}/{REQUIRED_PHOTOS} PHOTOS READY</span>
+                      <span className="text-primary font-semibold">{previews.length}/{REQUIRED_PHOTOS} {t("scan.photos_ready").toUpperCase()}</span>
                     ) : (
-                      <span className="text-muted-foreground">{previews.length}/{REQUIRED_PHOTOS} PHOTOS TAKEN</span>
+                      <span className="text-muted-foreground">{previews.length}/{REQUIRED_PHOTOS} {t("scan.photos_taken").toUpperCase()}</span>
                     )}
                   </div>
                   {previews.length >= REQUIRED_PHOTOS && (
                     <div className="flex items-center gap-1 text-xs text-primary font-semibold">
                       <Check className="w-3.5 h-3.5" />
-                      Ready
+                      {t("scan.ready")}
                     </div>
                   )}
                 </div>
