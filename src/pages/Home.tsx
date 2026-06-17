@@ -59,7 +59,7 @@ export default function Home() {
             <div className="flex-1 min-w-0">
               <div className="text-[10px] uppercase tracking-widest text-foreground/80 font-bold mb-0.5">{t("home.food_scan_label")}</div>
               <div className="font-bold text-foreground text-xl leading-tight">
-                {lastMeal ? t("home.tap_to_scan") : t("home.scan_first_meal")}
+                {t("home.tap_to_scan")}
               </div>
               {lastMeal && (
                 <div className="text-xs text-foreground/85 mt-1 font-medium truncate">

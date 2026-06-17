@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
+import type { TKey } from "@/i18n/translations";
 import { PremiumLock } from "@/components/PremiumLock";
 import { PremiumWrapper } from "@/components/PremiumWrapper";
 import { supabase } from "@/integrations/supabase/client";
@@ -901,7 +902,7 @@ export default function FoodScan() {
                           <button
                             onClick={() => removePhoto(i)}
                             className="absolute top-1 right-1 w-6 h-6 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
-                            aria-label="Remove photo"
+                            aria-label={t("scan.remove_photo")}
                           >
                             <X className="w-3.5 h-3.5" />
                           </button>
@@ -939,7 +940,7 @@ export default function FoodScan() {
                   className="w-full h-14 rounded-2xl bg-gradient-primary text-base font-semibold shadow-glow hover:opacity-90"
                 >
                   <Sparkles className="w-5 h-5 mr-1" />
-                  Analyze {previews.length} photos
+                  {t("scan.analyze_photos")} ({previews.length})
                 </Button>
               ) : (
                 <Button
@@ -948,8 +949,8 @@ export default function FoodScan() {
                 >
                   <Camera className="w-5 h-5 mr-1" />
                   {previews.length === 0
-                    ? `Take first photo (0/${REQUIRED_PHOTOS})`
-                    : `Take next photo (${previews.length}/${REQUIRED_PHOTOS})`}
+                    ? `${t("scan.take_first_photo")} (0/${REQUIRED_PHOTOS})`
+                    : `${t("scan.take_next_photo")} (${previews.length}/${REQUIRED_PHOTOS})`}
                 </Button>
               )}
 
@@ -958,7 +959,7 @@ export default function FoodScan() {
                 className="k-tap w-full mt-3 h-12 rounded-2xl border-2 border-border bg-card text-sm font-semibold flex items-center justify-center gap-2 hover:border-primary transition-colors"
               >
                 <Search className="w-4 h-4" />
-                Search manually instead
+                {t("scan.search_manually_instead")}
               </button>
             </div>
           )}
@@ -991,7 +992,7 @@ export default function FoodScan() {
                     <div className="absolute w-36 h-36 rounded-full border-2 border-primary/70 shadow-[0_0_50px_hsl(var(--primary))] animate-pulse" />
                     <div className="relative w-32 h-32 rounded-full bg-black/75 backdrop-blur-sm border border-primary/60 flex flex-col items-center justify-center">
                       <span className="text-white text-base font-semibold tracking-wide">ScanIQ…</span>
-                      <span className="text-white/80 text-[11px] mt-1">Analyserer {scanProgress}%</span>
+                      <span className="text-white/80 text-[11px] mt-1">{t("scan.analyzing")} {scanProgress}%</span>
                     </div>
                   </div>
                 ) : result ? (
@@ -1067,6 +1068,13 @@ export default function FoodScan() {
                   3: "bg-yellow-400 text-yellow-950",
                   4: "bg-red-400 text-red-950",
                 };
+                const criticalByNova: Record<1 | 2 | 3 | 4, TKey[]> = {
+                  1: [],
+                  2: ["scan.crit_refined_oils", "scan.crit_salt"],
+                  3: ["scan.crit_added_sugar", "scan.crit_salt", "scan.crit_preservatives"],
+                  4: ["scan.crit_added_sugar", "scan.crit_emulsifiers", "scan.crit_preservatives", "scan.crit_artificial_flavors"],
+                };
+                const critical = criticalByNova[nova];
                 return (
                   <div
                     key={`nova-${nova}-${result.name}`}
@@ -1080,6 +1088,25 @@ export default function FoodScan() {
                       </span>
                     </div>
                     <div className="text-sm leading-snug font-semibold">{t(subKey)}</div>
+                    <div className="mt-3 pt-3 border-t border-black/20">
+                      <div className={`text-[10px] tracking-widest uppercase font-bold mb-1.5 ${labelStyles[nova]}`}>
+                        {t("scan.critical_ingredients")}
+                      </div>
+                      {critical.length === 0 ? (
+                        <div className="text-xs font-medium opacity-80">— {t("scan.no_critical_ingredients")}</div>
+                      ) : (
+                        <ul className="flex flex-wrap gap-1.5">
+                          {critical.map((k) => (
+                            <li
+                              key={k}
+                              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border border-black/60 ${badgeStyles[nova]}`}
+                            >
+                              {t(k)}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 );
               })()}
