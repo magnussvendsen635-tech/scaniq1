@@ -927,7 +927,7 @@ export default function FoodScan() {
                 </div>
                 {previews.length < REQUIRED_PHOTOS && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    📸 Take {REQUIRED_PHOTOS - previews.length} more photo{REQUIRED_PHOTOS - previews.length === 1 ? "" : "s"} from a different angle (top + side) for accurate analysis.
+                    📸 {t("scan.take_more_hint")}
                   </p>
                 )}
               </div>
