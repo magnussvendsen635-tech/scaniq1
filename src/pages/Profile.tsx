@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
 import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift, Tag } from "lucide-react";
-import leafLogo from "@/assets/scaniq-leaf-logo.png";
+import leafLogo from "@/assets/scaniq-logo-new.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";

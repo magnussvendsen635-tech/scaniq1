@@ -1,4 +1,4 @@
-import logo from "@/assets/scaniq-leaf-logo.png";
+import logo from "@/assets/scaniq-logo-new.png";
 
 export const Logo = ({ size = 40, withText = false }: { size?: number; withText?: boolean }) => (
   <div className="flex items-center gap-3">
