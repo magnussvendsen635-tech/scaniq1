@@ -319,7 +319,16 @@ export const useKStore = create<KState>()(
         return { ok: true, remaining: left - 1 };
       },
     }),
-    { name: "kcally-store-v1" }
+    {
+      name: "kcally-store-v1",
+      version: 2,
+      migrate: (persisted: any, version) => {
+        if (persisted && version < 2 && persisted.calorieAccuracy === 1.15) {
+          persisted.calorieAccuracy = 1.05;
+        }
+        return persisted;
+      },
+    }
   )
 );
 
