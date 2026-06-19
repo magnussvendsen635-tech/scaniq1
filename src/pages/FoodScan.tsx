@@ -274,6 +274,7 @@ const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: str
 export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
+  const tt = useTText();
   const { user: profile } = useAuth();
   const { user, meals, addMeal, calorieAccuracy } = useKStore();
   const [scanning, setScanning] = useState(false);
