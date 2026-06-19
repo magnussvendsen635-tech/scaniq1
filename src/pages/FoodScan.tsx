@@ -732,13 +732,13 @@ export default function FoodScan() {
         </button>
         <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("scan.title")}</h1>
         <span className="text-xs px-2.5 py-1 rounded-full bg-card border border-border/60 text-muted-foreground">
-          {dailyUsed}/{DAILY_LIMIT} today
+          {dailyUsed}/{DAILY_LIMIT} {tt("today")}
         </span>
       </header>
 
       <PremiumWrapper
-        title="Scan er en Premium-funktion"
-        description="Opgradér til ScanIQ Pro for at scanne mad og se detaljerede resultater."
+        title={tt("Scan is a Premium feature")}
+        description={tt("Upgrade to ScanIQ Pro to scan food and see detailed results.")}
       >
 
 
