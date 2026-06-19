@@ -1027,9 +1027,13 @@ export default function FoodScan() {
                         const v = parseInt(raw, 10);
                         if (Number.isFinite(v)) setCaloriesOverride(Math.min(20000, Math.max(0, v)));
                       }}
-                      className="bg-transparent border-0 outline-none p-0 m-0 text-5xl font-semibold k-gradient-text w-[5ch] focus:outline-none focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      aria-label="Edit total calories"
+                      className="bg-transparent border-0 outline-none p-0 m-0 text-5xl font-semibold k-gradient-text w-[5ch] focus:outline-none focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text underline decoration-dotted decoration-muted-foreground/40 underline-offset-[6px]"
+                      aria-label={tt("Edit total calories")}
+                      title={tt("Tap to edit — this is an estimate")}
                     />
+                    <div className="text-[11px] text-muted-foreground mt-1 italic">
+                      {tt("Estimate — tap the number to adjust")}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
@@ -1043,7 +1047,7 @@ export default function FoodScan() {
                 </p>
                 {typeof result.confidence === "number" && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    {result.confidence >= 0.75 ? "AI confidence" : "Estimated"}: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span>
+                    {result.confidence >= 0.75 ? tt("AI confidence") : tt("Estimated")}: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span> · <span className="opacity-80">{tt("all values are estimates")}</span>
                   </p>
                 )}
               </div>
