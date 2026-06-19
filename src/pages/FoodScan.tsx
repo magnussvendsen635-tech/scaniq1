@@ -675,18 +675,21 @@ export default function FoodScan() {
     if (!result) return;
     const s = scaleNutrition(result, consumedGrams, calorieAccuracy);
     const finalCalories = caloriesOverride ?? s.calories;
+    // Proportional macro scaling on save — mirror the live preview so what the
+    // user sees is exactly what gets logged.
+    const r = s.calories > 0 ? finalCalories / s.calories : 1;
     addMeal({
       id: crypto.randomUUID(),
       name: result.name,
       calories: finalCalories,
-      protein: s.protein,
-      carbs: s.carbs,
-      fat: s.fat,
-      fiber: s.fiber,
-      sugar: s.sugar,
-      sodium: s.sodium,
-      saturatedFat: s.saturatedFat,
-      cholesterol: s.cholesterol,
+      protein: Math.round(s.protein * r * 10) / 10,
+      carbs: Math.round(s.carbs * r * 10) / 10,
+      fat: Math.round(s.fat * r * 10) / 10,
+      fiber: s.fiber !== undefined ? Math.round(s.fiber * r * 10) / 10 : s.fiber,
+      sugar: s.sugar !== undefined ? Math.round(s.sugar * r * 10) / 10 : s.sugar,
+      sodium: s.sodium !== undefined ? Math.round(s.sodium * r) : s.sodium,
+      saturatedFat: s.saturatedFat !== undefined ? Math.round(s.saturatedFat * r * 10) / 10 : s.saturatedFat,
+      cholesterol: s.cholesterol !== undefined ? Math.round(s.cholesterol * r) : s.cholesterol,
       healthScore: result.healthScore,
       category,
       at: Date.now(),
