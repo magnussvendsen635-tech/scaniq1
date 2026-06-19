@@ -276,7 +276,7 @@ export default function FoodScan() {
   const t = useT();
   const tt = useTText();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, calorieAccuracy } = useKStore();
+  const { user, meals, addMeal, calorieAccuracy, favorites } = useKStore();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   // Total weight (grams) auto-detected from AI scan. No longer user-editable on result screen.
