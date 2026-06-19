@@ -724,12 +724,31 @@ export default function FoodScan() {
     ? (scaledItems && scaledItems.length > 0 ? itemsSumBase : scaledBase.calories) + hiddenKcal
     : 0;
   const displayedCalories = caloriesOverride ?? computedCalories;
+  // Proportional macro scaling: when the user manually overrides the calorie
+  // total, scale protein/carbs/fat/fiber/sugar/sodium/satFat/cholesterol AND
+  // every per-item kcal by the same ratio so the whole nutrition profile stays
+  // mathematically consistent.
+  const overrideRatio = caloriesOverride !== null && computedCalories > 0
+    ? caloriesOverride / computedCalories
+    : 1;
   const scaled: Scaled | null = scaledBase
     ? {
         ...scaledBase,
         calories: displayedCalories,
+        protein: Math.round(scaledBase.protein * overrideRatio * 10) / 10,
+        carbs: Math.round(scaledBase.carbs * overrideRatio * 10) / 10,
+        fat: Math.round(scaledBase.fat * overrideRatio * 10) / 10,
+        fiber: scaledBase.fiber !== undefined ? Math.round(scaledBase.fiber * overrideRatio * 10) / 10 : scaledBase.fiber,
+        sugar: scaledBase.sugar !== undefined ? Math.round(scaledBase.sugar * overrideRatio * 10) / 10 : scaledBase.sugar,
+        sodium: scaledBase.sodium !== undefined ? Math.round(scaledBase.sodium * overrideRatio) : scaledBase.sodium,
+        saturatedFat: scaledBase.saturatedFat !== undefined ? Math.round(scaledBase.saturatedFat * overrideRatio * 10) / 10 : scaledBase.saturatedFat,
+        cholesterol: scaledBase.cholesterol !== undefined ? Math.round(scaledBase.cholesterol * overrideRatio) : scaledBase.cholesterol,
       }
     : null;
+  const displayedItems = scaledItems?.map((it) => ({
+    name: it.name,
+    calories: Math.round(it.calories * overrideRatio),
+  }));
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
   
 
