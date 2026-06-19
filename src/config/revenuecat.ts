@@ -10,7 +10,7 @@
 
 export const RC_CONFIG = {
   /** iOS public SDK key (starts with "appl_..."). Empty = IAP disabled. */
-  iosApiKey: "",
+  iosApiKey: "test_CQxDIbm0cEBSnzfKrRjbHHYnFlo",
   /** Entitlement identifier configured in RevenueCat (e.g. "pro"). */
   entitlementId: "pro",
 } as const;
