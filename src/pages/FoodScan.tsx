@@ -276,7 +276,7 @@ export default function FoodScan() {
   const t = useT();
   const tt = useTText();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, calorieAccuracy } = useKStore();
+  const { user, meals, addMeal, calorieAccuracy, favorites } = useKStore();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   // Total weight (grams) auto-detected from AI scan. No longer user-editable on result screen.
@@ -560,8 +560,20 @@ export default function FoodScan() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 45000);
     try {
+      // For "homemade" we send up to 20 of the user's saved favorites so the AI
+      // can recipe-match against the user's own database instead of guessing
+      // from a generic restaurant image.
+      const homemadeRecipes = foodSource === "homemade"
+        ? favorites.slice(0, 20).map((f) => ({
+            name: f.name,
+            calories: f.calories,
+            protein: f.protein,
+            carbs: f.carbs,
+            fat: f.fat,
+          }))
+        : undefined;
       const invokePromise = supabase.functions.invoke("scan-food", {
-        body: { images: imgs, portion, source: foodSource, strategy, addOil, addDressing },
+        body: { images: imgs, portion, source: foodSource, strategy, addOil, addDressing, homemadeRecipes },
       });
       const { data, error } = await Promise.race([
         invokePromise,
@@ -1027,9 +1039,13 @@ export default function FoodScan() {
                         const v = parseInt(raw, 10);
                         if (Number.isFinite(v)) setCaloriesOverride(Math.min(20000, Math.max(0, v)));
                       }}
-                      className="bg-transparent border-0 outline-none p-0 m-0 text-5xl font-semibold k-gradient-text w-[5ch] focus:outline-none focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      aria-label="Edit total calories"
+                      className="bg-transparent border-0 outline-none p-0 m-0 text-5xl font-semibold k-gradient-text w-[5ch] focus:outline-none focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text underline decoration-dotted decoration-muted-foreground/40 underline-offset-[6px]"
+                      aria-label={tt("Edit total calories")}
+                      title={tt("Tap to edit — this is an estimate")}
                     />
+                    <div className="text-[11px] text-muted-foreground mt-1 italic">
+                      {tt("Estimate — tap the number to adjust")}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card">
@@ -1043,7 +1059,7 @@ export default function FoodScan() {
                 </p>
                 {typeof result.confidence === "number" && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    {result.confidence >= 0.75 ? "AI confidence" : "Estimated"}: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span>
+                    {result.confidence >= 0.75 ? tt("AI confidence") : tt("Estimated")}: <span className="text-foreground font-medium">{Math.round(result.confidence * 100)}%</span> · <span className="opacity-80">{tt("all values are estimates")}</span>
                   </p>
                 )}
               </div>

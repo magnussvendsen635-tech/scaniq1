@@ -182,6 +182,10 @@ Deno.serve(async (req) => {
     const { portion, strategy } = body;
     const addOil = body.addOil === true;
     const addDressing = body.addDressing === true;
+    const source: "homemade" | "store" | "restaurant" =
+      body.source === "store" || body.source === "restaurant" ? body.source : "homemade";
+    const homemadeRecipes: Array<{ name: string; calories: number; protein?: number; carbs?: number; fat?: number }> =
+      Array.isArray(body.homemadeRecipes) ? body.homemadeRecipes.slice(0, 20) : [];
     let images: string[] = [];
     if (Array.isArray(body.images)) {
       images = body.images.filter((x: unknown) => typeof x === "string" && x.length > 0);
@@ -209,6 +213,24 @@ Deno.serve(async (req) => {
     const extraHint = useFallback
       ? " RETRY MODE: previous attempt failed or was low-confidence. Look EXTRA carefully — read any text/labels/brands on packaging (OCR), zoom mentally on the product, and make your best guess even if partial. NEVER refuse."
       : "";
+
+    // Build a homemade-priority addendum + recipe-matching block.
+    const homemadeBlock = source === "homemade"
+      ? (
+        "HOMEMADE MODE — The user has explicitly marked this meal as HOMEMADE. Prefer homemade defaults over restaurant/industrial defaults: " +
+        "  • Smaller average portion size than a restaurant plate. " +
+        "  • Less added oil/butter/salt unless visibly present. " +
+        "  • Use NOVA 1-3 unless an industrial branded item is clearly visible (NOVA 4 only for visible industrial packaging). " +
+        "  • Use kitchen recipe standards (USDA home-cooked entries) not chain-restaurant entries. " +
+        (homemadeRecipes.length > 0
+          ? "RECIPE MATCHING — Below is the user's personal recipe database (their saved 'Favorites'/homemade meals). FIRST, try to visually match the dish in the photo to one of these recipes by name and visible components. If a confident match (>=0.7) exists, USE THAT RECIPE'S calorie + macro values as your baseline (scaled to the visible portion via totalGrams), and set the result `name` to the matched recipe name. If no good match, fall back to general homemade analysis. User's recipes (JSON): " +
+            JSON.stringify(homemadeRecipes) + ". "
+          : "")
+      )
+      : (source === "restaurant"
+        ? "RESTAURANT MODE — Assume restaurant-typical portion, cooking fat and salt levels. "
+        : "STORE MODE — Assume packaged/industrial product values when in doubt. ");
+
 
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -287,7 +309,7 @@ Deno.serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size. Do NOT count items twice.` : ""} ${portionHint}${extraHint} Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Ignore any source/origin/mode metadata completely; nutrition must be based only on the food item visible in the image. Be realistic and decisive. NO health advice — only data.`,
+                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size. Do NOT count items twice.` : ""} ${portionHint}${extraHint} ${homemadeBlock}Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive. NO health advice — only data.`,
               },
               ...images.map((url) => ({ type: "image_url", image_url: { url } })),
             ],
