@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Input } from "@/components/ui/input";
-import logo from "@/assets/scaniq-leaf-logo.png";
+import logo from "@/assets/scaniq-logo-new.png";
 
 const featureKeys: TKey[] = [
   "premium.feat_scans",

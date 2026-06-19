@@ -9,7 +9,7 @@ import { useKStore } from "@/store/useKStore";
 import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n/useT";
-import logo from "@/assets/scaniq-leaf-logo.png";
+import logo from "@/assets/scaniq-logo-new.png";
 import slideScan from "@/assets/slide-scan.jpg";
 import slideMacros from "@/assets/slide-macros.jpg";
 import slideInsights from "@/assets/slide-insights.jpg";

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useT } from "@/i18n/useT";
-import logo from "@/assets/scaniq-leaf-logo.png";
+import logo from "@/assets/scaniq-logo-new.png";
 
 interface PremiumWrapperProps {
   children: ReactNode;

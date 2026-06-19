@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/scaniq-leaf-logo.png";
+import logo from "@/assets/scaniq-logo-new.png";
 
 // Splash is fully removed from the DOM after this. JS timer is a back-up;
 // the CSS animation below ALSO hides the overlay even if timers are throttled
