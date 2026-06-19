@@ -1167,14 +1167,14 @@ export default function FoodScan() {
                 </div>
               )}
 
-              {scaledItems && scaledItems.length > 0 && (
+              {displayedItems && displayedItems.length > 0 && (
                 <div className="k-card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.items")}</div>
-                    <div className="text-[10px] text-muted-foreground">{t("scan.items_sum")}: {itemsSum} kcal</div>
+                    <div className="text-[10px] text-muted-foreground">{t("scan.items_sum")}: {Math.round(itemsSum * overrideRatio)} kcal</div>
                   </div>
                   <ul className="divide-y divide-border">
-                    {scaledItems.map((it, i) => (
+                    {displayedItems.map((it, i) => (
                       <li key={i} className="flex justify-between py-2 text-sm">
                         <span className="text-foreground capitalize">{it.name}</span>
                         <span className="text-muted-foreground">{it.calories} kcal</span>
