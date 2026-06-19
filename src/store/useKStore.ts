@@ -198,7 +198,7 @@ export const useKStore = create<KState>()(
       autoAdjustGoal: true,
       frozenDays: {},
       lastResetStreak: 0,
-      calorieAccuracy: 1.15,
+      calorieAccuracy: 1.05,
       setCalorieAccuracy: (v) => set({ calorieAccuracy: Math.max(0.5, Math.min(2, Number(v) || 1)) }),
 
       setOnboarded: (v) => set({ onboarded: v }),
@@ -319,7 +319,16 @@ export const useKStore = create<KState>()(
         return { ok: true, remaining: left - 1 };
       },
     }),
-    { name: "kcally-store-v1" }
+    {
+      name: "kcally-store-v1",
+      version: 2,
+      migrate: (persisted: any, version) => {
+        if (persisted && version < 2 && persisted.calorieAccuracy === 1.15) {
+          persisted.calorieAccuracy = 1.05;
+        }
+        return persisted;
+      },
+    }
   )
 );
 

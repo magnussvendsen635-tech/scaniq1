@@ -143,7 +143,7 @@ export default function Settings() {
             <div className="flex justify-between text-[10px] text-muted-foreground">
               <span>80%</span>
               <span>100%</span>
-              <span>115% ({t("settings.recommended")})</span>
+              <span>105% ({t("settings.recommended")})</span>
               <span>150%</span>
             </div>
           </div>
