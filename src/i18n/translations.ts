@@ -59326,5 +59326,19 @@ export function translate(lang: string, key: TKey): string {
   const base = lang.split("-")[0];
   const baseDict = dictionaries[base];
   if (baseDict && baseDict[key]) return baseDict[key]!;
-  return en[key];
+  return en[key] ?? key;
+}
+
+// Returns true when the user's language has a native translation for this key.
+// When false, callers can request a runtime translation fallback.
+export function hasNativeTranslation(lang: string, key: TKey): boolean {
+  const exact = dictionaries[lang];
+  if (exact && exact[key]) return true;
+  const base = lang.split("-")[0];
+  const baseDict = dictionaries[base];
+  return !!(baseDict && baseDict[key]);
+}
+
+export function englishSource(key: TKey): string {
+  return en[key] ?? key;
 }

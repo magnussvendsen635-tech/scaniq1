@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { useT } from "@/i18n/useT";
+import { useT, useTText } from "@/i18n/useT";
+import { tText } from "@/i18n/tText";
 import type { TKey } from "@/i18n/translations";
 import { PremiumLock } from "@/components/PremiumLock";
 import { PremiumWrapper } from "@/components/PremiumWrapper";
@@ -273,6 +274,7 @@ const NOVA_META: Record<1 | 2 | 3 | 4, { title: string; desc: string; emoji: str
 export default function FoodScan() {
   const nav = useNavigate();
   const t = useT();
+  const tt = useTText();
   const { user: profile } = useAuth();
   const { user, meals, addMeal, calorieAccuracy } = useKStore();
   const [scanning, setScanning] = useState(false);
@@ -402,14 +404,14 @@ export default function FoodScan() {
     try {
       const quota = await refreshQuota();
       if (!quota.premium) {
-        toast.error("Premium required", { description: "Scanning is a Premium feature." });
+        toast.error(tText("Premium required"), { description: tText("Scanning is a Premium feature.") });
         nav("/premium");
         return;
       }
       if (quota.daily >= DAILY_LIMIT) {
         setLimitReached(true);
         setStep("portion");
-        toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today. Try again tomorrow.` });
+        toast.error(tText("Daily limit reached"), { description: `${tText("You've used all")} ${DAILY_LIMIT} ${tText("scans for today. Try again tomorrow.")}` });
         return;
       }
 
@@ -511,20 +513,20 @@ export default function FoodScan() {
     const q = searchQuery.trim();
     const grams = searchGrams.trim();
     if (q.length < 2) {
-      toast.error("Type at least 2 characters");
+      toast.error(tText("Type at least 2 characters"));
       return;
     }
     const fullQuery = grams ? `${grams}g ${q}` : q;
     const quota = await refreshQuota();
     if (!quota.premium) {
-      toast.error("Premium required");
+      toast.error(tText("Premium required"));
       nav("/premium");
       return;
     }
     if (quota.daily >= DAILY_LIMIT) {
       setLimitReached(true);
       setSearchOpen(false);
-      toast.error("Daily limit reached");
+      toast.error(tText("Daily limit reached"));
       return;
     }
     setSearching(true);
@@ -532,14 +534,14 @@ export default function FoodScan() {
       const { data, error } = await supabase.functions.invoke("food-search", { body: { query: fullQuery } });
       if (error || !data) {
         const s = (error as any)?.context?.status;
-        if (s === 403) { toast.error("Premium required"); nav("/premium"); }
+        if (s === 403) { toast.error(tText("Premium required")); nav("/premium"); }
         else if (s === 429) {
           let payload: any = null;
           try { payload = await (error as any)?.context?.json?.(); } catch {}
-          if (payload?.error === "rate_limited") toast.error("Slow down", { description: payload?.message });
-          else { await refreshQuota(); toast.error("Daily limit reached"); }
+          if (payload?.error === "rate_limited") toast.error(tText("Slow down"), { description: payload?.message });
+          else { await refreshQuota(); toast.error(tText("Daily limit reached")); }
         }
-        else toast.error("Search failed", { description: (error as any)?.message ?? "Unknown error" });
+        else toast.error(tText("Search failed"), { description: (error as any)?.message ?? tText("Unknown error") });
         return;
       }
       applyResult(data);
@@ -548,7 +550,7 @@ export default function FoodScan() {
       setSearchGrams("");
       setStep("result");
     } catch (err: any) {
-      toast.error("Search failed", { description: err?.message ?? "Unknown error" });
+      toast.error(tText("Search failed"), { description: err?.message ?? tText("Unknown error") });
     } finally {
       setSearching(false);
     }
@@ -575,7 +577,7 @@ export default function FoodScan() {
 
   const scan = async () => {
     if (previews.length < REQUIRED_PHOTOS) {
-      toast.error(`Need ${REQUIRED_PHOTOS} photos`, { description: "Take photos from different angles for accurate analysis." });
+      toast.error(`${tText("Need")} ${REQUIRED_PHOTOS} ${tText("photos")}`, { description: tText("Take photos from different angles for accurate analysis.") });
       return;
     }
     const quota = await refreshQuota();
@@ -585,13 +587,13 @@ export default function FoodScan() {
       setPreviews([]);
       setResult(null);
       setScanStatus("");
-      toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today. Try again tomorrow.` });
+      toast.error(tText("Daily limit reached"), { description: `${tText("You've used all")} ${DAILY_LIMIT} ${tText("scans for today. Try again tomorrow.")}` });
       return;
     }
     setScanning(true);
     setResult(null);
     setStep("capture");
-    setScanStatus("🔍 Analyzing your food…");
+    setScanStatus(`🔍 ${tText("Analyzing your food…")}`);
     try {
       let { data, error } = await callScan(previews, "primary");
 
@@ -601,7 +603,7 @@ export default function FoodScan() {
       const shouldRetry = (error && status !== 403 && status !== 402 && status !== 429) || lowConfidence;
 
       if (shouldRetry) {
-        setScanStatus("🤔 First try wasn't confident — retrying with smarter model…");
+        setScanStatus(`🤔 ${tText("First try wasn't confident — retrying with smarter model…")}`);
         // Wait out the server-side scan cooldown (5s) before retrying
         await new Promise((r) => setTimeout(r, 5500));
         const retry = await callScan(previews, "fallback");
@@ -616,7 +618,7 @@ export default function FoodScan() {
       if (error || !data) {
         const s = (error as any)?.context?.status;
         if (s === 403) {
-          toast.error("Premium required", { description: "Scanning is a Premium feature." });
+          toast.error(tText("Premium required"), { description: tText("Scanning is a Premium feature.") });
           setStep("portion");
           setPreviews([]);
           setResult(null);
@@ -634,24 +636,24 @@ export default function FoodScan() {
               setStep("portion");
               setPreviews([]);
               setResult(null);
-              toast.error("Daily limit reached", { description: `You've used all ${DAILY_LIMIT} scans for today.` });
+              toast.error(tText("Daily limit reached"), { description: `${tText("You've used all")} ${DAILY_LIMIT} ${tText("scans for today.")}` });
             } else {
-              toast.error("Rate limit", { description: "Try again in a moment." });
+              toast.error(tText("Rate limit"), { description: tText("Try again in a moment.") });
             }
           }
         } else if (s === 402) {
-          toast.error("Out of AI credits", { description: "Add funds to continue." });
+          toast.error(tText("Out of AI credits"), { description: tText("Add funds to continue.") });
         } else {
-          toast.error("Scan failed", { description: (error as any)?.message ?? "Unknown error" });
+          toast.error(tText("Scan failed"), { description: (error as any)?.message ?? tText("Unknown error") });
         }
         return;
       }
 
-      setScanStatus("✅ Done");
+      setScanStatus(`✅ ${tText("Done")}`);
       applyResult(data);
       setStep("result");
     } catch (err: any) {
-      toast.error("Scan failed", { description: err?.message ?? "Unknown error" });
+      toast.error(tText("Scan failed"), { description: err?.message ?? tText("Unknown error") });
     } finally {
       setScanning(false);
     }
@@ -730,13 +732,13 @@ export default function FoodScan() {
         </button>
         <h1 className="text-2xl font-semibold tracking-tight flex-1">{t("scan.title")}</h1>
         <span className="text-xs px-2.5 py-1 rounded-full bg-card border border-border/60 text-muted-foreground">
-          {dailyUsed}/{DAILY_LIMIT} today
+          {dailyUsed}/{DAILY_LIMIT} {tt("today")}
         </span>
       </header>
 
       <PremiumWrapper
-        title="Scan er en Premium-funktion"
-        description="Opgradér til ScanIQ Pro for at scanne mad og se detaljerede resultater."
+        title={tt("Scan is a Premium feature")}
+        description={tt("Upgrade to ScanIQ Pro to scan food and see detailed results.")}
       >
 
 
