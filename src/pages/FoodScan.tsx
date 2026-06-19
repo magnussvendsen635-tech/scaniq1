@@ -675,18 +675,21 @@ export default function FoodScan() {
     if (!result) return;
     const s = scaleNutrition(result, consumedGrams, calorieAccuracy);
     const finalCalories = caloriesOverride ?? s.calories;
+    // Proportional macro scaling on save — mirror the live preview so what the
+    // user sees is exactly what gets logged.
+    const r = s.calories > 0 ? finalCalories / s.calories : 1;
     addMeal({
       id: crypto.randomUUID(),
       name: result.name,
       calories: finalCalories,
-      protein: s.protein,
-      carbs: s.carbs,
-      fat: s.fat,
-      fiber: s.fiber,
-      sugar: s.sugar,
-      sodium: s.sodium,
-      saturatedFat: s.saturatedFat,
-      cholesterol: s.cholesterol,
+      protein: Math.round(s.protein * r * 10) / 10,
+      carbs: Math.round(s.carbs * r * 10) / 10,
+      fat: Math.round(s.fat * r * 10) / 10,
+      fiber: s.fiber !== undefined ? Math.round(s.fiber * r * 10) / 10 : s.fiber,
+      sugar: s.sugar !== undefined ? Math.round(s.sugar * r * 10) / 10 : s.sugar,
+      sodium: s.sodium !== undefined ? Math.round(s.sodium * r) : s.sodium,
+      saturatedFat: s.saturatedFat !== undefined ? Math.round(s.saturatedFat * r * 10) / 10 : s.saturatedFat,
+      cholesterol: s.cholesterol !== undefined ? Math.round(s.cholesterol * r) : s.cholesterol,
       healthScore: result.healthScore,
       category,
       at: Date.now(),
@@ -724,12 +727,31 @@ export default function FoodScan() {
     ? (scaledItems && scaledItems.length > 0 ? itemsSumBase : scaledBase.calories) + hiddenKcal
     : 0;
   const displayedCalories = caloriesOverride ?? computedCalories;
+  // Proportional macro scaling: when the user manually overrides the calorie
+  // total, scale protein/carbs/fat/fiber/sugar/sodium/satFat/cholesterol AND
+  // every per-item kcal by the same ratio so the whole nutrition profile stays
+  // mathematically consistent.
+  const overrideRatio = caloriesOverride !== null && computedCalories > 0
+    ? caloriesOverride / computedCalories
+    : 1;
   const scaled: Scaled | null = scaledBase
     ? {
         ...scaledBase,
         calories: displayedCalories,
+        protein: Math.round(scaledBase.protein * overrideRatio * 10) / 10,
+        carbs: Math.round(scaledBase.carbs * overrideRatio * 10) / 10,
+        fat: Math.round(scaledBase.fat * overrideRatio * 10) / 10,
+        fiber: scaledBase.fiber !== undefined ? Math.round(scaledBase.fiber * overrideRatio * 10) / 10 : scaledBase.fiber,
+        sugar: scaledBase.sugar !== undefined ? Math.round(scaledBase.sugar * overrideRatio * 10) / 10 : scaledBase.sugar,
+        sodium: scaledBase.sodium !== undefined ? Math.round(scaledBase.sodium * overrideRatio) : scaledBase.sodium,
+        saturatedFat: scaledBase.saturatedFat !== undefined ? Math.round(scaledBase.saturatedFat * overrideRatio * 10) / 10 : scaledBase.saturatedFat,
+        cholesterol: scaledBase.cholesterol !== undefined ? Math.round(scaledBase.cholesterol * overrideRatio) : scaledBase.cholesterol,
       }
     : null;
+  const displayedItems = scaledItems?.map((it) => ({
+    name: it.name,
+    calories: Math.round(it.calories * overrideRatio),
+  }));
   const remaining = Math.max(0, user.calories - caloriesToday(meals) - (scaled?.calories ?? 0));
   
 
@@ -1145,14 +1167,14 @@ export default function FoodScan() {
                 </div>
               )}
 
-              {scaledItems && scaledItems.length > 0 && (
+              {displayedItems && displayedItems.length > 0 && (
                 <div className="k-card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-xs text-muted-foreground tracking-widest uppercase">{t("scan.items")}</div>
-                    <div className="text-[10px] text-muted-foreground">{t("scan.items_sum")}: {itemsSum} kcal</div>
+                    <div className="text-[10px] text-muted-foreground">{t("scan.items_sum")}: {Math.round(itemsSum * overrideRatio)} kcal</div>
                   </div>
                   <ul className="divide-y divide-border">
-                    {scaledItems.map((it, i) => (
+                    {displayedItems.map((it, i) => (
                       <li key={i} className="flex justify-between py-2 text-sm">
                         <span className="text-foreground capitalize">{it.name}</span>
                         <span className="text-muted-foreground">{it.calories} kcal</span>
