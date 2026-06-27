@@ -1057,6 +1057,7 @@ export default function FoodScan() {
                 ) : null}
               </div>
             </div>
+            </div>
           )}
 
           {result && (
