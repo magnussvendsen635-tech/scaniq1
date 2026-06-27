@@ -1015,7 +1015,10 @@ export default function FoodScan() {
 
           {/* Camera viewport during scan & result */}
           {step !== "portion" && (
-            <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card">
+            <div className={scanning ? "fixed inset-0 z-[55] bg-black flex items-center justify-center" : ""}>
+            <div className={scanning
+              ? "relative w-full h-full overflow-hidden bg-black"
+              : "relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card"}>
               <ScannerBackdrop />
               {preview && (
                 <img src={preview} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
