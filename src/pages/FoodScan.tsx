@@ -306,6 +306,19 @@ export default function FoodScan() {
     }, 180);
     return () => clearInterval(id);
   }, [scanning]);
+
+  // Full-screen + dark background + hide tabbar/FAB ONLY while actively scanning
+  useEffect(() => {
+    if (scanning) {
+      document.body.setAttribute("data-scanning", "true");
+      const prev = document.body.style.backgroundColor;
+      document.body.style.backgroundColor = "#000";
+      return () => {
+        document.body.removeAttribute("data-scanning");
+        document.body.style.backgroundColor = prev;
+      };
+    }
+  }, [scanning]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchGrams, setSearchGrams] = useState<string>("");
@@ -1002,7 +1015,10 @@ export default function FoodScan() {
 
           {/* Camera viewport during scan & result */}
           {step !== "portion" && (
-            <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card">
+            <div className={scanning ? "fixed inset-0 z-[55] bg-black flex items-center justify-center" : ""}>
+            <div className={scanning
+              ? "relative w-full h-full overflow-hidden bg-black"
+              : "relative aspect-[3/4] w-full rounded-3xl overflow-hidden border-[3px] border-foreground bg-card mb-5 shadow-card"}>
               <ScannerBackdrop />
               {preview && (
                 <img src={preview} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
@@ -1040,6 +1056,7 @@ export default function FoodScan() {
                   </div>
                 ) : null}
               </div>
+            </div>
             </div>
           )}
 

@@ -18,7 +18,7 @@ export const TabBar = () => {
   const right = items.slice(2);
 
   return (
-    <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[min(420px,92%)]">
+    <nav className="scan-hide-on-scan fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[min(420px,92%)]">
       {/* Glassmorphism container */}
       <div
         className="relative rounded-full px-2 py-2 flex items-center justify-between

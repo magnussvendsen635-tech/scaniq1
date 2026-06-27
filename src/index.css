@@ -398,3 +398,6 @@
 .anim-ball .arm-l { transform: rotate(50deg); transform-origin: 50px 38px; }
 .anim-ball .arm-r { transform: rotate(-50deg); transform-origin: 50px 38px; }
 
+
+/* Hide bottom tabbar + upgrade FAB while a full-screen scan is running */
+body[data-scanning="true"] .scan-hide-on-scan { display: none !important; }
