@@ -306,6 +306,19 @@ export default function FoodScan() {
     }, 180);
     return () => clearInterval(id);
   }, [scanning]);
+
+  // Full-screen + dark background + hide tabbar/FAB ONLY while actively scanning
+  useEffect(() => {
+    if (scanning) {
+      document.body.setAttribute("data-scanning", "true");
+      const prev = document.body.style.backgroundColor;
+      document.body.style.backgroundColor = "#000";
+      return () => {
+        document.body.removeAttribute("data-scanning");
+        document.body.style.backgroundColor = prev;
+      };
+    }
+  }, [scanning]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchGrams, setSearchGrams] = useState<string>("");
