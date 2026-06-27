@@ -1131,7 +1131,16 @@ export default function FoodScan() {
                   3: ["scan.crit_added_sugar", "scan.crit_salt", "scan.crit_preservatives"],
                   4: ["scan.crit_added_sugar", "scan.crit_emulsifiers", "scan.crit_preservatives", "scan.crit_artificial_flavors"],
                 };
-                const critical = criticalByNova[nova];
+                const sugarG = Number((result as any)?.micros?.sugar ?? (result as any)?.sugar ?? 0) || 0;
+                const sodiumMg = Number((result as any)?.micros?.sodium ?? (result as any)?.sodium ?? 0) || 0;
+                const nameLc = (result?.name || "").toLowerCase();
+                const isSugarFree = /\b(zero|sukkerfri|sugar[- ]?free|sans sucre|ohne zucker|senza zucchero|sin az[uú]car|diet|light|max)\b/.test(nameLc) || sugarG < 1;
+                const isLowSodium = sodiumMg < 120;
+                const critical = criticalByNova[nova].filter((k) => {
+                  if (k === "scan.crit_added_sugar" && isSugarFree) return false;
+                  if (k === "scan.crit_salt" && isLowSodium) return false;
+                  return true;
+                });
                 return (
                   <div
                     key={`nova-${nova}-${result.name}`}
