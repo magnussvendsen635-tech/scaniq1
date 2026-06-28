@@ -545,6 +545,48 @@ export type Database = {
         }
         Relationships: []
       }
+      scans: {
+        Row: {
+          calories: number
+          carbs: number | null
+          created_at: string
+          fat: number | null
+          id: string
+          image_url: string | null
+          product_name: string
+          protein: number | null
+          scanned_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calories?: number
+          carbs?: number | null
+          created_at?: string
+          fat?: number | null
+          id?: string
+          image_url?: string | null
+          product_name: string
+          protein?: number | null
+          scanned_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number | null
+          created_at?: string
+          fat?: number | null
+          id?: string
+          image_url?: string | null
+          product_name?: string
+          protein?: number | null
+          scanned_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           amount_paid_cents: number | null
