@@ -684,12 +684,10 @@ export default function FoodScan() {
     }
   };
 
-  const save = () => {
+  const save = async () => {
     if (!result) return;
     const s = scaleNutrition(result, consumedGrams, calorieAccuracy);
     const finalCalories = caloriesOverride ?? s.calories;
-    // Proportional macro scaling on save — mirror the live preview so what the
-    // user sees is exactly what gets logged.
     const r = s.calories > 0 ? finalCalories / s.calories : 1;
     const protein = Math.round(s.protein * r * 10) / 10;
     const carbs = Math.round(s.carbs * r * 10) / 10;
@@ -710,19 +708,38 @@ export default function FoodScan() {
       category,
       at: Date.now(),
     });
-    // Persist to cloud `scans` table (best-effort; ignore failure for offline).
+    // Persist to cloud `scans` table + upload first photo to storage (best-effort).
     if (profile?.id) {
-      void supabase.from("scans").insert({
+      let image_url: string | null = null;
+      try {
+        const firstPreview = previews[0];
+        if (firstPreview?.startsWith("data:")) {
+          const blob = await (await fetch(firstPreview)).blob();
+          const ext = (blob.type.split("/")[1] || "jpg").split(";")[0];
+          const path = `${profile.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("scan-images")
+            .upload(path, blob, { contentType: blob.type, upsert: false });
+          if (upErr) {
+            console.error("[scan-images upload]", upErr);
+          } else {
+            image_url = path;
+          }
+        }
+      } catch (e) {
+        console.error("[scan-images upload exception]", e);
+      }
+      const { error } = await supabase.from("scans").insert({
         user_id: profile.id,
         product_name: result.name,
         calories: finalCalories,
         protein,
         carbs,
         fat,
+        image_url,
         scanned_at: new Date().toISOString(),
-      }).then(({ error }) => {
-        if (error) console.error("[scans insert]", error);
       });
+      if (error) console.error("[scans insert]", error);
     }
     toast.success(t("scan.meal_added"), { description: `${finalCalories} ${t("scan.kcal_logged")}` });
     nav("/diary");
