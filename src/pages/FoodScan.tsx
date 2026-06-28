@@ -691,13 +691,16 @@ export default function FoodScan() {
     // Proportional macro scaling on save — mirror the live preview so what the
     // user sees is exactly what gets logged.
     const r = s.calories > 0 ? finalCalories / s.calories : 1;
+    const protein = Math.round(s.protein * r * 10) / 10;
+    const carbs = Math.round(s.carbs * r * 10) / 10;
+    const fat = Math.round(s.fat * r * 10) / 10;
     addMeal({
       id: crypto.randomUUID(),
       name: result.name,
       calories: finalCalories,
-      protein: Math.round(s.protein * r * 10) / 10,
-      carbs: Math.round(s.carbs * r * 10) / 10,
-      fat: Math.round(s.fat * r * 10) / 10,
+      protein,
+      carbs,
+      fat,
       fiber: s.fiber !== undefined ? Math.round(s.fiber * r * 10) / 10 : s.fiber,
       sugar: s.sugar !== undefined ? Math.round(s.sugar * r * 10) / 10 : s.sugar,
       sodium: s.sodium !== undefined ? Math.round(s.sodium * r) : s.sodium,
@@ -707,6 +710,20 @@ export default function FoodScan() {
       category,
       at: Date.now(),
     });
+    // Persist to cloud `scans` table (best-effort; ignore failure for offline).
+    if (profile?.id) {
+      void supabase.from("scans").insert({
+        user_id: profile.id,
+        product_name: result.name,
+        calories: finalCalories,
+        protein,
+        carbs,
+        fat,
+        scanned_at: new Date().toISOString(),
+      }).then(({ error }) => {
+        if (error) console.error("[scans insert]", error);
+      });
+    }
     toast.success(t("scan.meal_added"), { description: `${finalCalories} ${t("scan.kcal_logged")}` });
     nav("/diary");
   };
