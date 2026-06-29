@@ -118,7 +118,7 @@ export function useIAP() {
         return { success: false };
       }
       const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
-      await syncCustomerInfoToBackend(productId, customerInfo, opts?.discountCode);
+      await syncCustomerInfoToBackend(productId, customerInfo);
       return { success: !!customerInfo?.entitlements?.active?.[ENTITLEMENT_ID] };
     } catch (e: any) {
       if (e?.userCancelled) return { success: false };
