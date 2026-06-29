@@ -160,18 +160,6 @@ export default function Premium() {
         </div>
       </section>
 
-      <section className="mb-4">
-        <label className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5 block">
-          Discount code (optional)
-        </label>
-        <Input
-          value={discountCode}
-          onChange={(e) => setDiscountCode(e.target.value.toUpperCase().slice(0, 32))}
-          placeholder=""
-          className="h-12 rounded-xl bg-white"
-          maxLength={32}
-        />
-      </section>
 
       <Button
         onClick={upgrade}
