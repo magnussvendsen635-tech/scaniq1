@@ -86,10 +86,7 @@ export default function Admin() {
   const [sort, setSort] = useState<SortKey>("created_at");
   const [busy, setBusy] = useState(false);
   const [payDialog, setPayDialog] = useState<{ open: boolean; payout?: Payout; txn: string }>({ open: false, txn: "" });
-  const [newDiscount, setNewDiscount] = useState({
-    code: "", description: "", discount_type: "percentage", amount: "10",
-    max_uses: "", expires_at: "",
-  });
+
 
   useEffect(() => {
     if (!user) { setAllowed(false); return; }
