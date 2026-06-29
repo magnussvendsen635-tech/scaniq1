@@ -182,7 +182,7 @@ export default function Auth() {
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={t("auth.password")}
+                placeholder="Password"
                 className="w-full h-12 rounded-2xl bg-card border border-border/60 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/60"
               />
             </div>
