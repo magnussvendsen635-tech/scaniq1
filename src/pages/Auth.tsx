@@ -194,7 +194,7 @@ export default function Auth() {
                 onClick={() => setMode("forgot")}
                 className="text-xs text-muted-foreground hover:text-foreground transition"
               >
-                Glemt adgangskode?
+                Forgot password?
               </button>
             </div>
           )}
