@@ -31,7 +31,7 @@ function generateToken(): string {
 // any recipient using any registered template; end-user callers (anon-keyed JWT
 // with a real `sub`) may only send to their own email and only with templates
 // in CLIENT_ALLOWED_TEMPLATES.
-const CLIENT_ALLOWED_TEMPLATES = new Set<string>(['welcome-receipt']);
+const CLIENT_ALLOWED_TEMPLATES = new Set<string>(['welcome-receipt', 'welcome-receipt-monthly']);
 
 function parseJwtClaims(token: string): Record<string, unknown> | null {
   const parts = token.split('.');
