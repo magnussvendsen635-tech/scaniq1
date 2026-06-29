@@ -243,8 +243,8 @@ export default function Admin() {
       </div>
 
       {/* Tabs */}
-      <div className="k-card p-1 mb-4 grid grid-cols-6 gap-1">
-        {(["analytics", "financials", "users", "discounts", "payouts", "audit"] as const).map((t) => (
+      <div className="k-card p-1 mb-4 grid grid-cols-5 gap-1">
+        {(["analytics", "financials", "users", "payouts", "audit"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -252,7 +252,7 @@ export default function Admin() {
               tab === t ? "bg-gradient-primary text-primary-foreground" : "text-muted-foreground"
             }`}
           >
-            {t === "analytics" ? "Analytics" : t === "financials" ? "$" : t === "users" ? "Brugere" : t === "discounts" ? "Rabat" : t === "payouts" ? "Udbetal." : "Audit"}
+            {t === "analytics" ? "Analytics" : t === "financials" ? "$" : t === "users" ? "Brugere" : t === "payouts" ? "Udbetal." : "Audit"}
           </button>
         ))}
       </div>
