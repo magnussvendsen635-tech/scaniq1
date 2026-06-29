@@ -33,12 +33,12 @@ export default function Auth() {
           redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
-        toast.success("Tjek din indbakke", {
-          description: "Vi har sendt dig et link til at nulstille din adgangskode.",
+        toast.success("Check your inbox", {
+          description: "We've sent you a link to reset your password.",
         });
         setMode("signin");
       } catch (err: any) {
-        toast.error(err?.message ?? "Kunne ikke sende reset-email");
+        toast.error(err?.message ?? "Could not send reset email");
       } finally {
         setBusy(false);
       }
