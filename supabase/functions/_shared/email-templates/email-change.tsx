@@ -29,21 +29,21 @@ export const EmailChangeEmail = ({
   newEmail,
   confirmationUrl,
 }: EmailChangeEmailProps) => (
-  <Html lang="da" dir="ltr">
+  <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Bekræft din nye e-mail hos {siteName}</Preview>
+    <Preview>Confirm your new email for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={card}>
-          <Heading style={h1}>Bekræft ny e-mail</Heading>
+          <Heading style={h1}>Confirm new email</Heading>
           <Text style={text}>
-            Du har anmodet om at ændre din e-mail hos {siteName} fra{' '}
-            <Link href={`mailto:${oldEmail}`} style={link}>{oldEmail}</Link> til{' '}
+            You requested to change your email for {siteName} from{' '}
+            <Link href={`mailto:${oldEmail}`} style={link}>{oldEmail}</Link> to{' '}
             <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.
           </Text>
-          <Button style={button} href={confirmationUrl}>Bekræft ændring</Button>
+          <Button style={button} href={confirmationUrl}>Confirm change</Button>
           <Text style={footer}>
-            Hvis du ikke har anmodet om dette, så sikr din konto med det samme.
+            If you didn't request this, please secure your account immediately.
           </Text>
         </Section>
       </Container>

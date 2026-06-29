@@ -59,11 +59,11 @@ const copy = {
 }
 
 const WelcomeReceiptEmail = ({
-  language = 'da',
+  language = 'en',
   productName = 'ScanIQ Pro - Yearly',
   price = '$179 / year',
 }: Props) => {
-  const t = copy[language === 'en' ? 'en' : 'da']
+  const t = copy[language === 'da' ? 'da' : 'en']
   return (
     <Html lang={language} dir="ltr">
       <Head />
@@ -98,12 +98,12 @@ const WelcomeReceiptEmail = ({
 export const template = {
   component: WelcomeReceiptEmail,
   subject: (data: Record<string, any>) =>
-    data?.language === 'en'
-      ? 'Welcome to ScanIQ Pro! 🚀 (Your Receipt)'
-      : 'Velkommen til ScanIQ Pro! 🚀 (Din kvittering)',
+    data?.language === 'da'
+      ? 'Velkommen til ScanIQ Pro! 🚀 (Din kvittering)'
+      : 'Welcome to ScanIQ Pro! 🚀 (Your Receipt)',
   displayName: 'Welcome & Purchase Confirmation',
   previewData: {
-    language: 'da',
+    language: 'en',
     productName: 'ScanIQ Pro - Yearly',
     price: '$179 / year',
   },

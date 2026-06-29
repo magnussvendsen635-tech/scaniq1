@@ -22,21 +22,21 @@ interface InviteEmailProps {
 }
 
 export const InviteEmail = ({ siteName, siteUrl, confirmationUrl }: InviteEmailProps) => (
-  <Html lang="da" dir="ltr">
+  <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Du er inviteret til {siteName}</Preview>
+    <Preview>You're invited to {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={card}>
-          <Heading style={h1}>Du er inviteret</Heading>
+          <Heading style={h1}>You're invited</Heading>
           <Text style={text}>
-            Du er blevet inviteret til{' '}
+            You've been invited to{' '}
             <Link href={siteUrl} style={link}><strong>{siteName}</strong></Link>.
-            Tryk på knappen herunder for at acceptere invitationen og oprette din konto.
+            Tap the button below to accept the invitation and create your account.
           </Text>
-          <Button style={button} href={confirmationUrl}>Accepter invitation</Button>
+          <Button style={button} href={confirmationUrl}>Accept invitation</Button>
           <Text style={footer}>
-            Hvis du ikke forventede denne invitation, kan du roligt ignorere mailen.
+            If you weren't expecting this invitation, you can safely ignore the email.
           </Text>
         </Section>
       </Container>

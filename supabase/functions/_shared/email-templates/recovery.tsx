@@ -20,20 +20,20 @@ interface RecoveryEmailProps {
 }
 
 export const RecoveryEmail = ({ siteName, confirmationUrl }: RecoveryEmailProps) => (
-  <Html lang="da" dir="ltr">
+  <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Nulstil din adgangskode hos {siteName}</Preview>
+    <Preview>Reset your password for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={card}>
-          <Heading style={h1}>Nulstil din adgangskode</Heading>
+          <Heading style={h1}>Reset your password</Heading>
           <Text style={text}>
-            Vi modtog en anmodning om at nulstille din adgangskode hos {siteName}.
-            Tryk på knappen herunder for at vælge en ny.
+            We received a request to reset your password for {siteName}.
+            Tap the button below to choose a new one.
           </Text>
-          <Button style={button} href={confirmationUrl}>Nulstil adgangskode</Button>
+          <Button style={button} href={confirmationUrl}>Reset password</Button>
           <Text style={footer}>
-            Hvis du ikke har anmodet om dette, kan du ignorere mailen — din adgangskode forbliver uændret.
+            If you didn't request this, you can ignore this email — your password will stay the same.
           </Text>
         </Section>
       </Container>
