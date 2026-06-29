@@ -235,17 +235,17 @@ export default function Auth() {
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           className="w-full mt-5 text-sm text-muted-foreground hover:text-foreground transition"
         >
-          {mode === "forgot" ? "Tilbage til login" : mode === "signin" ? t("auth.no_account") : t("auth.have_account")}
+          {mode === "forgot" ? "Back to login" : mode === "signin" ? "Don't have an account? Sign up" : "Already have an account? Log in"}
         </button>
 
         <div className="mt-6 pt-4 border-t border-border/40 flex items-center justify-center gap-3 text-xs text-muted-foreground flex-wrap">
-          <a href="/pricing" className="hover:text-foreground underline-offset-4 hover:underline">Priser</a>
+          <a href="/pricing" className="hover:text-foreground underline-offset-4 hover:underline">Pricing</a>
           <span>·</span>
-          <a href="/terms" className="hover:text-foreground underline-offset-4 hover:underline">Servicevilkår</a>
+          <a href="/terms" className="hover:text-foreground underline-offset-4 hover:underline">Terms</a>
           <span>·</span>
-          <a href="/refund" className="hover:text-foreground underline-offset-4 hover:underline">Refundering</a>
+          <a href="/refund" className="hover:text-foreground underline-offset-4 hover:underline">Refund</a>
           <span>·</span>
-          <a href="/privacy" className="hover:text-foreground underline-offset-4 hover:underline">Privatliv</a>
+          <a href="/privacy" className="hover:text-foreground underline-offset-4 hover:underline">Privacy</a>
         </div>
       </div>
     </div>
