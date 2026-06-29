@@ -48,15 +48,9 @@ interface Payout {
   paypal_transaction_id: string | null; payout_date: string | null;
   approved_at: string | null; paid_at: string | null; notes: string | null; created_at: string;
 }
-interface DiscountCode {
-  id: string; code: string; description: string | null;
-  discount_type: string; amount: number; currency: string | null;
-  max_uses: number | null; times_used: number;
-  expires_at: string | null; active: boolean; created_at: string;
-}
 
 type SortKey = "created_at" | "signup_ip" | "device_id" | "email";
-type Tab = "analytics" | "financials" | "users" | "discounts" | "payouts" | "audit";
+type Tab = "analytics" | "financials" | "users" | "payouts" | "audit";
 
 interface Financials {
   revenue: {
