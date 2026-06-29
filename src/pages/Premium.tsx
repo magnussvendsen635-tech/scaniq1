@@ -9,7 +9,7 @@ import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
 import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
 import { useSubscription } from "@/hooks/useSubscription";
-import { Input } from "@/components/ui/input";
+
 import logo from "@/assets/scaniq-logo-new.png";
 
 const featureKeys: TKey[] = [
@@ -26,13 +26,11 @@ export default function Premium() {
   const { isActive, refetch } = useSubscription();
   const { purchase, restore: restoreIAP, loading, monthlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
-  const [discountCode, setDiscountCode] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
 
   const upgrade = async () => {
     if (!user) { toast.error(t("premium.must_sign_in")); return; }
-    const code = discountCode.trim().toUpperCase().slice(0, 32);
-    const { success } = await purchase(IAP_PRODUCTS.monthly, code ? { discountCode: code } : undefined);
+    const { success } = await purchase(IAP_PRODUCTS.monthly);
     if (success) {
       toast.success(t("premium.thanks"));
       fireConfetti();
@@ -162,18 +160,6 @@ export default function Premium() {
         </div>
       </section>
 
-      <section className="mb-4">
-        <label className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5 block">
-          Discount code (optional)
-        </label>
-        <Input
-          value={discountCode}
-          onChange={(e) => setDiscountCode(e.target.value.toUpperCase().slice(0, 32))}
-          placeholder=""
-          className="h-12 rounded-xl bg-white"
-          maxLength={32}
-        />
-      </section>
 
       <Button
         onClick={upgrade}

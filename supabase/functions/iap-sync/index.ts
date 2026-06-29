@@ -1,16 +1,17 @@
 // IAP sync — receives a verified purchase event and updates subscriptions + profiles.
 // Two callers:
 //  1) Native client after a successful RevenueCat purchase (POST with CustomerInfo).
-//     Caller is the authenticated app user (verify_jwt = true). We trust the
-//     RevenueCat customerInfo because the client SDK validates Apple receipts
-//     against RevenueCat's servers; for stronger validation, also configure
-//     the RevenueCat webhook below.
+//     Caller is the authenticated app user. We trust the RevenueCat customerInfo
+//     because the client SDK validates Apple receipts against RevenueCat's servers;
+//     for stronger validation, also configure the RevenueCat webhook below.
 //  2) RevenueCat webhook (POST with Authorization: Bearer <REVENUECAT_WEBHOOK_AUTH>).
 //     We require a shared-secret bearer token in the Authorization header.
 //
 // In both cases we upsert into public.subscriptions and flip profiles.is_premium.
 // On the first successful unlock we send a purchase-confirmation email
 // (idempotent via the subscription/transaction id).
+//
+// Apple promo codes are handled entirely by Apple/StoreKit — no app-side logic.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { z } from "https://esm.sh/zod@3.23.8";
@@ -36,7 +37,6 @@ const ClientPayload = z.object({
   expires_at: z.string().datetime().nullable().optional(),
   period_start: z.string().datetime().nullable().optional(),
   will_renew: z.boolean().optional(),
-  discount_code: z.string().trim().min(1).max(64).optional(),
 });
 
 const WebhookPayload = z.object({
@@ -77,7 +77,6 @@ Deno.serve(async (req) => {
     let periodStart: string | null;
     let willRenew: boolean;
     let env: "live" | "sandbox" = "live";
-    let discountCode: string | undefined;
 
     if ((body as any).source === "webhook") {
       const authz = req.headers.get("Authorization") ?? "";
@@ -116,34 +115,14 @@ Deno.serve(async (req) => {
       expiresAt = p.expires_at ?? null;
       periodStart = p.period_start ?? null;
       willRenew = p.will_renew ?? active;
-      discountCode = p.discount_code;
     }
 
     const tier: Tier = PRICE_TIERS[productId] ?? { amount_cents: 1900, currency: "USD", label: productId, cycle: "monthly" };
     const subId = `iap_${userId}_${productId}`;
     const status = active ? "active" : "canceled";
 
-    // Resolve optional discount code → row
-    let discountCodeId: string | null = null;
-    let amountSavedCents = 0;
-    if (discountCode && active) {
-      const { data: code } = await admin
-        .from("discount_codes")
-        .select("id, discount_type, amount, currency, active, expires_at, max_uses, times_used")
-        .eq("code", discountCode.toUpperCase())
-        .eq("active", true)
-        .maybeSingle();
-      if (code && (!code.expires_at || new Date(code.expires_at) > new Date()) &&
-          (code.max_uses == null || code.times_used < code.max_uses)) {
-        discountCodeId = code.id;
-        amountSavedCents = code.discount_type === "percentage"
-          ? Math.round((tier.amount_cents * Number(code.amount)) / 100)
-          : Math.round(Number(code.amount) * 100);
-      }
-    }
-
-    // Upsert subscription. Reuse the historical paddle_* column names which now
-    // store the IAP transaction id and user key.
+    // Upsert subscription. Historical paddle_* column names now store the
+    // IAP transaction id and user key.
     const { data: existing } = await admin
       .from("subscriptions")
       .select("id, status")
@@ -161,9 +140,8 @@ Deno.serve(async (req) => {
       current_period_end: expiresAt,
       cancel_at_period_end: !willRenew,
       environment: env,
-      amount_paid_cents: tier.amount_cents - amountSavedCents,
+      amount_paid_cents: tier.amount_cents,
       currency: tier.currency,
-      ...(discountCodeId ? { discount_code_id: discountCodeId } : {}),
       updated_at: new Date().toISOString(),
     };
 
@@ -176,31 +154,9 @@ Deno.serve(async (req) => {
 
     await admin.from("profiles").update({ is_premium: active }).eq("id", userId);
 
-    // First-time activation → record redemption + send confirmation email
+    // First-time activation → send confirmation email
     const firstTimeActivation = active && (!existing || existing.status !== "active");
     if (firstTimeActivation) {
-      if (discountCodeId && upserted?.id) {
-        await admin.from("discount_redemptions").insert({
-          code_id: discountCodeId,
-          user_id: userId,
-          subscription_id: upserted.id,
-          code_text: (discountCode ?? "").toUpperCase(),
-          amount_saved_cents: amountSavedCents,
-          currency: tier.currency,
-        });
-        // bump times_used best-effort
-        const { data: codeRow } = await admin
-          .from("discount_codes")
-          .select("times_used")
-          .eq("id", discountCodeId)
-          .single();
-        await admin
-          .from("discount_codes")
-          .update({ times_used: (codeRow?.times_used ?? 0) + 1 })
-          .eq("id", discountCodeId);
-      }
-
-      // Send confirmation email
       try {
         const { data: prof } = await admin.from("profiles").select("email, display_name").eq("id", userId).maybeSingle();
         const recipient = prof?.email;

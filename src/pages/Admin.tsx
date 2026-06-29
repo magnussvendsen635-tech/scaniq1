@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, Users, Utensils, Dumbbell, Scale, Crown, Ban, Trash2, ShieldOff,
+  ArrowLeft, Users, Utensils, Dumbbell, Crown, Ban, Trash2, ShieldOff,
   Search, ArrowUpDown, Wallet, Download, CheckCircle2, DollarSign, AlertTriangle,
-  BarChart3, Tag, Eye, Plus, Power, TrendingUp, Receipt,
+  BarChart3, Eye, TrendingUp, Receipt,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -48,15 +48,9 @@ interface Payout {
   paypal_transaction_id: string | null; payout_date: string | null;
   approved_at: string | null; paid_at: string | null; notes: string | null; created_at: string;
 }
-interface DiscountCode {
-  id: string; code: string; description: string | null;
-  discount_type: string; amount: number; currency: string | null;
-  max_uses: number | null; times_used: number;
-  expires_at: string | null; active: boolean; created_at: string;
-}
 
 type SortKey = "created_at" | "signup_ip" | "device_id" | "email";
-type Tab = "analytics" | "financials" | "users" | "discounts" | "payouts" | "audit";
+type Tab = "analytics" | "financials" | "users" | "payouts" | "audit";
 
 interface Financials {
   revenue: {
@@ -69,11 +63,7 @@ interface Financials {
   transactions: {
     id: string; email: string; tier: string; amount_cents: number;
     currency: string; status: string; environment: string;
-    discount_code_id: string | null; created_at: string;
-  }[];
-  redemptions: {
-    id: string; code_text: string; email: string;
-    amount_saved_cents: number; currency: string; created_at: string;
+    created_at: string;
   }[];
   signups_daily: { date: string; count: number }[];
 }
@@ -84,7 +74,7 @@ export default function Admin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [payouts, setPayouts] = useState<Payout[]>([]);
-  const [discounts, setDiscounts] = useState<DiscountCode[]>([]);
+  
   const [financials, setFinancials] = useState<Financials | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("analytics");
@@ -92,10 +82,7 @@ export default function Admin() {
   const [sort, setSort] = useState<SortKey>("created_at");
   const [busy, setBusy] = useState(false);
   const [payDialog, setPayDialog] = useState<{ open: boolean; payout?: Payout; txn: string }>({ open: false, txn: "" });
-  const [newDiscount, setNewDiscount] = useState({
-    code: "", description: "", discount_type: "percentage", amount: "10",
-    max_uses: "", expires_at: "",
-  });
+
 
   useEffect(() => {
     if (!user) { setAllowed(false); return; }
@@ -114,10 +101,6 @@ export default function Admin() {
     const { data, error } = await supabase.from("payouts").select("*").order("created_at", { ascending: false });
     if (error) setError(error.message); else setPayouts((data as Payout[]) ?? []);
   };
-  const loadDiscounts = async () => {
-    const { data, error } = await supabase.from("discount_codes" as any).select("*").order("created_at", { ascending: false });
-    if (error) setError(error.message); else setDiscounts((data as unknown as DiscountCode[]) ?? []);
-  };
   const loadFinancials = async () => {
     const { data, error } = await supabase.functions.invoke("admin-financials");
     if (error) setError(error.message);
@@ -126,7 +109,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (!allowed) return;
-    loadStats(); loadPayouts(); loadDiscounts(); loadFinancials();
+    loadStats(); loadPayouts(); loadFinancials();
   }, [allowed]);
 
   const userById = useMemo(() => {
@@ -194,34 +177,6 @@ export default function Admin() {
     if (error) toast.error(error.message); else { toast.success("Afvist"); loadPayouts(); }
   };
 
-  const createDiscount = async () => {
-    const code = newDiscount.code.trim().toUpperCase();
-    if (!code) { toast.error("Indtast en kode"); return; }
-    const amt = Number(newDiscount.amount);
-    if (!Number.isFinite(amt) || amt <= 0) { toast.error("Ugyldigt beløb"); return; }
-    const payload: any = {
-      code,
-      description: newDiscount.description.trim() || null,
-      discount_type: newDiscount.discount_type,
-      amount: amt,
-      max_uses: newDiscount.max_uses ? Number(newDiscount.max_uses) : null,
-      expires_at: newDiscount.expires_at ? new Date(newDiscount.expires_at).toISOString() : null,
-      created_by: user!.id,
-    };
-    const { error } = await supabase.from("discount_codes" as any).insert(payload);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Rabatkode oprettet");
-    setNewDiscount({ code: "", description: "", discount_type: "percentage", amount: "10", max_uses: "", expires_at: "" });
-    loadDiscounts();
-  };
-  const toggleDiscount = async (d: DiscountCode) => {
-    const { error } = await supabase.from("discount_codes" as any).update({ active: !d.active }).eq("id", d.id);
-    if (error) toast.error(error.message); else loadDiscounts();
-  };
-  const deleteDiscount = async (d: DiscountCode) => {
-    const { error } = await supabase.from("discount_codes" as any).delete().eq("id", d.id);
-    if (error) toast.error(error.message); else { toast.success("Slettet"); loadDiscounts(); }
-  };
 
   const exportPaidCsv = () => {
     const paid = payouts.filter((p) => p.status === "paid");
@@ -284,8 +239,8 @@ export default function Admin() {
       </div>
 
       {/* Tabs */}
-      <div className="k-card p-1 mb-4 grid grid-cols-6 gap-1">
-        {(["analytics", "financials", "users", "discounts", "payouts", "audit"] as const).map((t) => (
+      <div className="k-card p-1 mb-4 grid grid-cols-5 gap-1">
+        {(["analytics", "financials", "users", "payouts", "audit"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -293,7 +248,7 @@ export default function Admin() {
               tab === t ? "bg-gradient-primary text-primary-foreground" : "text-muted-foreground"
             }`}
           >
-            {t === "analytics" ? "Analytics" : t === "financials" ? "$" : t === "users" ? "Brugere" : t === "discounts" ? "Rabat" : t === "payouts" ? "Udbetal." : "Audit"}
+            {t === "analytics" ? "Analytics" : t === "financials" ? "$" : t === "users" ? "Brugere" : t === "payouts" ? "Udbetal." : "Audit"}
           </button>
         ))}
       </div>
@@ -333,26 +288,6 @@ export default function Admin() {
             <BarSeries data={financials?.signups_daily ?? []} color="hsl(var(--primary-glow))" />
           </div>
 
-          <div className="k-card overflow-hidden">
-            <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
-              <Tag className="w-4 h-4 text-primary-glow" />
-              <span className="text-sm font-semibold">Discount-kode brug</span>
-              <span className="text-xs text-muted-foreground ml-auto">{financials?.redemptions.length ?? 0}</span>
-            </div>
-            <div className="divide-y divide-border/60 max-h-[40vh] overflow-y-auto">
-              {(financials?.redemptions ?? []).map((r) => (
-                <div key={r.id} className="px-4 py-3 flex items-center gap-3 text-xs">
-                  <span className="font-mono font-semibold">{r.code_text}</span>
-                  <span className="text-muted-foreground truncate flex-1">{r.email}</span>
-                  <span>-${(r.amount_saved_cents / 100).toFixed(2)}</span>
-                  <span className="text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</span>
-                </div>
-              ))}
-              {(!financials || financials.redemptions.length === 0) && (
-                <div className="px-4 py-6 text-sm text-muted-foreground text-center">Ingen koder brugt endnu</div>
-              )}
-            </div>
-          </div>
 
           <div className="k-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
@@ -373,7 +308,6 @@ export default function Admin() {
                     <span>{tx.status}</span>
                     <span>·</span>
                     <span className={tx.environment === "live" ? "text-green-600" : "text-yellow-600"}>{tx.environment}</span>
-                    {tx.discount_code_id && <><span>·</span><Tag className="w-2.5 h-2.5 text-primary-glow" /></>}
                     <span className="ml-auto">{new Date(tx.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -522,77 +456,6 @@ export default function Admin() {
         </div>
       )}
 
-      {/* DISCOUNTS tab */}
-      {tab === "discounts" && (
-        <div className="space-y-3">
-          <div className="k-card p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Plus className="w-4 h-4 text-primary-glow" />
-              <span className="text-sm font-semibold">Opret rabatkode</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Input placeholder="KODE" value={newDiscount.code} onChange={(e) => setNewDiscount({ ...newDiscount, code: e.target.value })} />
-              <select className="h-10 rounded-xl bg-background border border-border/60 px-3 text-sm"
-                value={newDiscount.discount_type}
-                onChange={(e) => setNewDiscount({ ...newDiscount, discount_type: e.target.value })}>
-                <option value="percentage">Procent (%)</option>
-                <option value="flat">Fast beløb</option>
-              </select>
-              <Input type="number" placeholder="Beløb / %" value={newDiscount.amount} onChange={(e) => setNewDiscount({ ...newDiscount, amount: e.target.value })} />
-              <Input type="number" placeholder="Max brug (valgfri)" value={newDiscount.max_uses} onChange={(e) => setNewDiscount({ ...newDiscount, max_uses: e.target.value })} />
-              <Input placeholder="Beskrivelse" value={newDiscount.description} onChange={(e) => setNewDiscount({ ...newDiscount, description: e.target.value })} className="col-span-2" />
-              <Input type="datetime-local" placeholder="Udløber" value={newDiscount.expires_at} onChange={(e) => setNewDiscount({ ...newDiscount, expires_at: e.target.value })} className="col-span-2" />
-            </div>
-            <Button onClick={createDiscount} className="w-full mt-3">Opret rabatkode</Button>
-            <p className="text-[10px] text-muted-foreground mt-2">
-              Bemærk: Dette er en intern rabatkode-tracker. Selve indløsning skal håndteres separat (f.eks. App Store promo codes).
-            </p>
-          </div>
-
-          <div className="k-card overflow-hidden">
-            <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
-              <Tag className="w-4 h-4 text-primary-glow" />
-              <span className="text-sm font-semibold">Rabatkoder</span>
-              <span className="text-xs text-muted-foreground ml-auto">{discounts.length} i alt</span>
-            </div>
-            <div className="divide-y divide-border/60 max-h-[50vh] overflow-y-auto">
-              {discounts.map((d) => {
-                const expired = d.expires_at && new Date(d.expires_at) < new Date();
-                const used_up = d.max_uses != null && d.times_used >= d.max_uses;
-                return (
-                  <div key={d.id} className="px-4 py-3 flex items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-semibold">{d.code}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {d.discount_type === "percentage" ? `${d.amount}%` : `${d.amount} ${d.currency ?? ""}`}
-                        </span>
-                        {!d.active && <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-muted">inaktiv</span>}
-                        {expired && <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-red-500/20 text-red-700 dark:text-red-300">udløbet</span>}
-                        {used_up && <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-700 dark:text-yellow-300">opbrugt</span>}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
-                        {d.description && <span>{d.description} · </span>}
-                        Brugt: {d.times_used}{d.max_uses != null ? `/${d.max_uses}` : ""}
-                        {d.expires_at && ` · Udløber ${new Date(d.expires_at).toLocaleDateString()}`}
-                      </div>
-                    </div>
-                    <Button size="sm" variant="outline" onClick={() => toggleDiscount(d)}>
-                      <Power className="w-3 h-3 mr-1" /> {d.active ? "Deaktiver" : "Aktiver"}
-                    </Button>
-                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteDiscount(d)}>
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                );
-              })}
-              {discounts.length === 0 && (
-                <div className="px-4 py-6 text-sm text-muted-foreground text-center">Ingen rabatkoder endnu</div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* PAYOUTS tab */}
       {tab === "payouts" && (

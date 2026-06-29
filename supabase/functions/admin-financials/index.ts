@@ -1,6 +1,7 @@
 // Admin-only financials/analytics endpoint.
-// Returns revenue overview, tier counts, discount-code usage table,
-// transaction list, and daily signups for the last 30 days.
+// Returns revenue overview, tier counts, transaction list, and daily signups
+// for the last 30 days.
+
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -31,19 +32,14 @@ Deno.serve(async (req) => {
 
     const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const [subsRes, profilesRes, usersRes, redemptionsRes, signupsRes] = await Promise.all([
+    const [subsRes, profilesRes, usersRes, signupsRes] = await Promise.all([
       admin
         .from("subscriptions")
-        .select("id, user_id, product_id, status, amount_paid_cents, currency, current_period_end, created_at, environment, discount_code_id")
+        .select("id, user_id, product_id, status, amount_paid_cents, currency, current_period_end, created_at, environment")
         .order("created_at", { ascending: false })
         .limit(500),
       admin.from("profiles").select("id, email, is_premium"),
       admin.auth.admin.listUsers({ perPage: 1000 }),
-      admin
-        .from("discount_redemptions")
-        .select("id, code_text, code_id, user_id, subscription_id, amount_saved_cents, currency, created_at")
-        .order("created_at", { ascending: false })
-        .limit(500),
       admin.from("profiles").select("created_at").gte("created_at", since30.toISOString()),
     ]);
 
@@ -76,14 +72,9 @@ Deno.serve(async (req) => {
       currency: s.currency ?? "USD",
       status: s.status,
       environment: s.environment,
-      discount_code_id: s.discount_code_id ?? null,
       created_at: s.created_at,
     }));
 
-    const redemptions = (redemptionsRes.data ?? []).map((r: any) => ({
-      ...r,
-      email: emailById.get(r.user_id) ?? profileById.get(r.user_id)?.email ?? r.user_id,
-    }));
 
     // Daily signups
     const dayKey = (iso: string) => new Date(iso).toISOString().slice(0, 10);
@@ -104,7 +95,6 @@ Deno.serve(async (req) => {
         active_subscriptions: active.length,
       },
       transactions,
-      redemptions,
       signups_daily,
     });
   } catch (e) {

@@ -52,7 +52,7 @@ async function configureRC(appUserID: string | undefined) {
   }
 }
 
-async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any, discountCode?: string) {
+async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any) {
   const ent = ci?.entitlements?.active?.[ENTITLEMENT_ID];
   await supabase.functions.invoke("iap-sync", {
     body: {
@@ -64,7 +64,6 @@ async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any, disco
       expires_at: ent?.expirationDate ?? null,
       period_start: ent?.latestPurchaseDate ?? null,
       will_renew: ent?.willRenew ?? !!ent,
-      discount_code: discountCode,
     },
   });
 }
@@ -95,7 +94,7 @@ export function useIAP() {
     return () => { cancelled = true; };
   }, []);
 
-  const purchase = async (productId: IAPProductId, opts?: { discountCode?: string }): Promise<{ success: boolean }> => {
+  const purchase = async (productId: IAPProductId): Promise<{ success: boolean }> => {
     setLoading(true);
     try {
       if (!isNative()) {
@@ -119,7 +118,7 @@ export function useIAP() {
         return { success: false };
       }
       const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
-      await syncCustomerInfoToBackend(productId, customerInfo, opts?.discountCode);
+      await syncCustomerInfoToBackend(productId, customerInfo);
       return { success: !!customerInfo?.entitlements?.active?.[ENTITLEMENT_ID] };
     } catch (e: any) {
       if (e?.userCancelled) return { success: false };
