@@ -46,7 +46,7 @@ export default function Auth() {
     }
     if (!email || !password) return;
     if (mode === "signup" && !consent) {
-      toast.error("Du skal acceptere privatlivspolitikken for at oprette en konto.");
+      toast.error("You must accept the privacy policy to create an account.");
       return;
     }
     setBusy(true);
