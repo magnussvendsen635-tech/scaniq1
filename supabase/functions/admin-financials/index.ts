@@ -32,19 +32,14 @@ Deno.serve(async (req) => {
 
     const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const [subsRes, profilesRes, usersRes, redemptionsRes, signupsRes] = await Promise.all([
+    const [subsRes, profilesRes, usersRes, signupsRes] = await Promise.all([
       admin
         .from("subscriptions")
-        .select("id, user_id, product_id, status, amount_paid_cents, currency, current_period_end, created_at, environment, discount_code_id")
+        .select("id, user_id, product_id, status, amount_paid_cents, currency, current_period_end, created_at, environment")
         .order("created_at", { ascending: false })
         .limit(500),
       admin.from("profiles").select("id, email, is_premium"),
       admin.auth.admin.listUsers({ perPage: 1000 }),
-      admin
-        .from("discount_redemptions")
-        .select("id, code_text, code_id, user_id, subscription_id, amount_saved_cents, currency, created_at")
-        .order("created_at", { ascending: false })
-        .limit(500),
       admin.from("profiles").select("created_at").gte("created_at", since30.toISOString()),
     ]);
 
