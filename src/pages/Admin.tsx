@@ -181,34 +181,6 @@ export default function Admin() {
     if (error) toast.error(error.message); else { toast.success("Afvist"); loadPayouts(); }
   };
 
-  const createDiscount = async () => {
-    const code = newDiscount.code.trim().toUpperCase();
-    if (!code) { toast.error("Indtast en kode"); return; }
-    const amt = Number(newDiscount.amount);
-    if (!Number.isFinite(amt) || amt <= 0) { toast.error("Ugyldigt beløb"); return; }
-    const payload: any = {
-      code,
-      description: newDiscount.description.trim() || null,
-      discount_type: newDiscount.discount_type,
-      amount: amt,
-      max_uses: newDiscount.max_uses ? Number(newDiscount.max_uses) : null,
-      expires_at: newDiscount.expires_at ? new Date(newDiscount.expires_at).toISOString() : null,
-      created_by: user!.id,
-    };
-    const { error } = await supabase.from("discount_codes" as any).insert(payload);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Rabatkode oprettet");
-    setNewDiscount({ code: "", description: "", discount_type: "percentage", amount: "10", max_uses: "", expires_at: "" });
-    loadDiscounts();
-  };
-  const toggleDiscount = async (d: DiscountCode) => {
-    const { error } = await supabase.from("discount_codes" as any).update({ active: !d.active }).eq("id", d.id);
-    if (error) toast.error(error.message); else loadDiscounts();
-  };
-  const deleteDiscount = async (d: DiscountCode) => {
-    const { error } = await supabase.from("discount_codes" as any).delete().eq("id", d.id);
-    if (error) toast.error(error.message); else { toast.success("Slettet"); loadDiscounts(); }
-  };
 
   const exportPaidCsv = () => {
     const paid = payouts.filter((p) => p.status === "paid");
