@@ -72,14 +72,9 @@ Deno.serve(async (req) => {
       currency: s.currency ?? "USD",
       status: s.status,
       environment: s.environment,
-      discount_code_id: s.discount_code_id ?? null,
       created_at: s.created_at,
     }));
 
-    const redemptions = (redemptionsRes.data ?? []).map((r: any) => ({
-      ...r,
-      email: emailById.get(r.user_id) ?? profileById.get(r.user_id)?.email ?? r.user_id,
-    }));
 
     // Daily signups
     const dayKey = (iso: string) => new Date(iso).toISOString().slice(0, 10);
