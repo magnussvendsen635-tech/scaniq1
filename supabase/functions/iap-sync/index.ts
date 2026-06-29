@@ -21,8 +21,10 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const PRICE_TIERS: Record<string, { amount_cents: number; currency: string; label: string }> = {
-  "com.scaniq.pro.monthly": { amount_cents: 1900, currency: "USD", label: "ScanIQ Pro - Monthly" },
+type Tier = { amount_cents: number; currency: string; label: string; cycle: "monthly" | "yearly" };
+const PRICE_TIERS: Record<string, Tier> = {
+  "com.scaniq.pro.monthly": { amount_cents: 1900, currency: "USD", label: "ScanIQ Pro - Monthly", cycle: "monthly" },
+  "com.scaniq.pro.yearly":  { amount_cents: 11900, currency: "USD", label: "ScanIQ Pro - Yearly",  cycle: "yearly" },
 };
 
 const ClientPayload = z.object({
@@ -117,7 +119,7 @@ Deno.serve(async (req) => {
       discountCode = p.discount_code;
     }
 
-    const tier = PRICE_TIERS[productId] ?? { amount_cents: 1900, currency: "USD", label: productId };
+    const tier: Tier = PRICE_TIERS[productId] ?? { amount_cents: 1900, currency: "USD", label: productId, cycle: "monthly" };
     const subId = `iap_${userId}_${productId}`;
     const status = active ? "active" : "canceled";
 
@@ -203,7 +205,11 @@ Deno.serve(async (req) => {
         const { data: prof } = await admin.from("profiles").select("email, display_name").eq("id", userId).maybeSingle();
         const recipient = prof?.email;
         if (recipient) {
-          const priceLabel = `$${(tier.amount_cents / 100).toFixed(0)} / month`;
+          const isYearly = tier.cycle === "yearly";
+          const priceLabel = isYearly
+            ? `$${(tier.amount_cents / 100).toFixed(0)} / year`
+            : `$${(tier.amount_cents / 100).toFixed(0)} / month`;
+          const templateName = isYearly ? "welcome-receipt" : "welcome-receipt-monthly";
           await fetch(`${SUPABASE_URL}/functions/v1/send-transactional-email`, {
             method: "POST",
             headers: {
@@ -211,7 +217,7 @@ Deno.serve(async (req) => {
               "Authorization": `Bearer ${SERVICE_ROLE}`,
             },
             body: JSON.stringify({
-              templateName: "welcome-receipt",
+              templateName,
               recipientEmail: recipient,
               idempotencyKey: `iap-${txId}`,
               purpose: "transactional",
