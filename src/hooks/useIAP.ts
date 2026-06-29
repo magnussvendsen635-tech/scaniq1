@@ -94,7 +94,7 @@ export function useIAP() {
     return () => { cancelled = true; };
   }, []);
 
-  const purchase = async (productId: IAPProductId, opts?: { discountCode?: string }): Promise<{ success: boolean }> => {
+  const purchase = async (productId: IAPProductId): Promise<{ success: boolean }> => {
     setLoading(true);
     try {
       if (!isNative()) {
