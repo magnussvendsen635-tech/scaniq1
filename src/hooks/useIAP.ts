@@ -52,7 +52,7 @@ async function configureRC(appUserID: string | undefined) {
   }
 }
 
-async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any, discountCode?: string) {
+async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any) {
   const ent = ci?.entitlements?.active?.[ENTITLEMENT_ID];
   await supabase.functions.invoke("iap-sync", {
     body: {
@@ -64,7 +64,6 @@ async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any, disco
       expires_at: ent?.expirationDate ?? null,
       period_start: ent?.latestPurchaseDate ?? null,
       will_renew: ent?.willRenew ?? !!ent,
-      discount_code: discountCode,
     },
   });
 }
