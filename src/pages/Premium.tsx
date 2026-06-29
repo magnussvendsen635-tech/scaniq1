@@ -123,7 +123,7 @@ export default function Premium() {
             <span className="text-3xl font-bold tracking-tight">$119</span>
             <span className="text-xs text-muted-foreground">{t("premium.per_year")}</span>
           </div>
-          <div className="text-xs mt-1 text-muted-foreground">3 scans / day</div>
+          <div className="text-xs mt-1 text-muted-foreground">Save money — pay for a whole year at a time</div>
         </button>
         <button
           type="button"
