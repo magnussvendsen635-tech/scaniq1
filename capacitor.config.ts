@@ -1,12 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.051587a6d90b450abc149eadff6020b2',
+  appId: 'site.scaniq.app',
   appName: 'ScanIQ',
   webDir: 'dist',
-  server: {
-    url: 'https://051587a6-d90b-450a-bc14-9eadff6020b2.lovableproject.com?forceHideBadge=true',
-    cleartext: true,
+  ios: {
+    contentInset: 'always',
   },
   plugins: {
     HealthKit: {
