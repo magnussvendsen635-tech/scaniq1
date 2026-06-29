@@ -26,13 +26,11 @@ export default function Premium() {
   const { isActive, refetch } = useSubscription();
   const { purchase, restore: restoreIAP, loading, monthlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
-  const [discountCode, setDiscountCode] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
 
   const upgrade = async () => {
     if (!user) { toast.error(t("premium.must_sign_in")); return; }
-    const code = discountCode.trim().toUpperCase().slice(0, 32);
-    const { success } = await purchase(IAP_PRODUCTS.monthly, code ? { discountCode: code } : undefined);
+    const { success } = await purchase(IAP_PRODUCTS.monthly);
     if (success) {
       toast.success(t("premium.thanks"));
       fireConfetti();
