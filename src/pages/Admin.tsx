@@ -78,7 +78,7 @@ export default function Admin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [payouts, setPayouts] = useState<Payout[]>([]);
-  const [discounts, setDiscounts] = useState<DiscountCode[]>([]);
+  
   const [financials, setFinancials] = useState<Financials | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("analytics");
