@@ -63,11 +63,7 @@ interface Financials {
   transactions: {
     id: string; email: string; tier: string; amount_cents: number;
     currency: string; status: string; environment: string;
-    discount_code_id: string | null; created_at: string;
-  }[];
-  redemptions: {
-    id: string; code_text: string; email: string;
-    amount_saved_cents: number; currency: string; created_at: string;
+    created_at: string;
   }[];
   signups_daily: { date: string; count: number }[];
 }
