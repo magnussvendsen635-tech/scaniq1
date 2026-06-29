@@ -224,7 +224,7 @@ export default function Auth() {
               <Loader2 className="w-4 h-4 animate-spin text-white" />
             ) : (
               <span className="text-white">
-                {mode === "signin" ? t("auth.sign_in") : mode === "signup" ? t("auth.sign_up") : "Send reset-link"}
+                {mode === "signin" ? "Log in" : mode === "signup" ? "Sign up" : "Send reset link"}
               </span>
             )}
           </Button>
