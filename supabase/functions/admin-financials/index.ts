@@ -95,7 +95,6 @@ Deno.serve(async (req) => {
         active_subscriptions: active.length,
       },
       transactions,
-      redemptions,
       signups_daily,
     });
   } catch (e) {
