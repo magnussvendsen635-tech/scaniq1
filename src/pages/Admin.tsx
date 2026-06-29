@@ -292,26 +292,6 @@ export default function Admin() {
             <BarSeries data={financials?.signups_daily ?? []} color="hsl(var(--primary-glow))" />
           </div>
 
-          <div className="k-card overflow-hidden">
-            <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
-              <Tag className="w-4 h-4 text-primary-glow" />
-              <span className="text-sm font-semibold">Discount-kode brug</span>
-              <span className="text-xs text-muted-foreground ml-auto">{financials?.redemptions.length ?? 0}</span>
-            </div>
-            <div className="divide-y divide-border/60 max-h-[40vh] overflow-y-auto">
-              {(financials?.redemptions ?? []).map((r) => (
-                <div key={r.id} className="px-4 py-3 flex items-center gap-3 text-xs">
-                  <span className="font-mono font-semibold">{r.code_text}</span>
-                  <span className="text-muted-foreground truncate flex-1">{r.email}</span>
-                  <span>-${(r.amount_saved_cents / 100).toFixed(2)}</span>
-                  <span className="text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</span>
-                </div>
-              ))}
-              {(!financials || financials.redemptions.length === 0) && (
-                <div className="px-4 py-6 text-sm text-muted-foreground text-center">Ingen koder brugt endnu</div>
-              )}
-            </div>
-          </div>
 
           <div className="k-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
