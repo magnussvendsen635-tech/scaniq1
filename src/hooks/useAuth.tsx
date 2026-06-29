@@ -44,6 +44,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Fire welcome email once per user, for brand new signups only.
+  const maybeSendWelcome = async (user: User) => {
+    try {
+      const key = `welcome_sent_${user.id}`;
+      if (localStorage.getItem(key)) return;
+      // Only treat as new signup if account was created in the last 5 minutes.
+      const createdAt = user.created_at ? new Date(user.created_at).getTime() : 0;
+      if (!createdAt || Date.now() - createdAt > 5 * 60 * 1000) {
+        localStorage.setItem(key, "1");
+        return;
+      }
+      if (!user.email) return;
+      const name =
+        (user.user_metadata?.full_name as string | undefined) ||
+        (user.user_metadata?.name as string | undefined) ||
+        user.email.split("@")[0];
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "welcome",
+          recipientEmail: user.email,
+          idempotencyKey: `welcome-${user.id}`,
+          templateData: { name },
+        },
+      });
+      localStorage.setItem(key, "1");
+    } catch {
+      /* ignore — welcome email is best-effort */
+    }
+  };
+
   useEffect(() => {
     // Safety net: never let the app hang on the loading screen.
     const failsafe = setTimeout(() => setLoading((l) => (l ? false : l)), MAX_AUTH_LOADING_MS);
@@ -52,13 +82,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(s);
       setLoading(false);
       clearTimeout(failsafe);
-      if (s?.user) setTimeout(() => enforceBan(s), 0);
+      if (s?.user) {
+        setTimeout(() => enforceBan(s), 0);
+        setTimeout(() => maybeSendWelcome(s.user), 0);
+      }
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
       clearTimeout(failsafe);
-      if (data.session?.user) setTimeout(() => enforceBan(data.session), 0);
+      if (data.session?.user) {
+        setTimeout(() => enforceBan(data.session), 0);
+        setTimeout(() => maybeSendWelcome(data.session!.user), 0);
+      }
     }).catch(() => {
       setLoading(false);
       clearTimeout(failsafe);
