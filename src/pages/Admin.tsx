@@ -113,7 +113,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (!allowed) return;
-    loadStats(); loadPayouts(); loadDiscounts(); loadFinancials();
+    loadStats(); loadPayouts(); loadFinancials();
   }, [allowed]);
 
   const userById = useMemo(() => {
