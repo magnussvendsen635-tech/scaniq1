@@ -20,19 +20,19 @@ interface MagicLinkEmailProps {
 }
 
 export const MagicLinkEmail = ({ siteName, confirmationUrl }: MagicLinkEmailProps) => (
-  <Html lang="da" dir="ltr">
+  <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Dit login-link til {siteName}</Preview>
+    <Preview>Your login link for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={card}>
-          <Heading style={h1}>Dit login-link</Heading>
+          <Heading style={h1}>Your login link</Heading>
           <Text style={text}>
-            Tryk på knappen herunder for at logge ind på {siteName}. Linket udløber snart.
+            Tap the button below to sign in to {siteName}. This link expires soon.
           </Text>
-          <Button style={button} href={confirmationUrl}>Log ind</Button>
+          <Button style={button} href={confirmationUrl}>Log in</Button>
           <Text style={footer}>
-            Hvis du ikke har anmodet om dette, kan du roligt ignorere mailen.
+            If you didn't request this, you can safely ignore this email.
           </Text>
         </Section>
       </Container>
