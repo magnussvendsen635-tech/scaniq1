@@ -107,18 +107,18 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-10">
       <Seo
-        title="Log ind eller opret konto — ScanIQ"
-        description="Log ind på ScanIQ eller opret en gratis konto for at scanne mad, tracke kalorier og nå dine ernæringsmål."
+        title="Sign in or create account — ScanIQ"
+        description="Sign in to ScanIQ or create a free account to scan food, track calories and hit your nutrition goals."
         path="/auth"
       />
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <Logo size={180} />
           <h1 className="text-3xl font-semibold tracking-tight mt-4">
-            {mode === "signin" ? t("auth.welcome_back") : mode === "signup" ? t("auth.create_account") : "Glemt adgangskode"}
+            {mode === "signin" ? "Welcome back" : mode === "signup" ? "Create your account" : "Forgot password"}
           </h1>
           <p className="text-sm text-muted-foreground mt-2 text-center">
-            {mode === "signin" ? t("auth.sign_in_sub") : mode === "signup" ? t("auth.sign_up_sub") : "Indtast din email, så sender vi dig et link til at nulstille din adgangskode."}
+            {mode === "signin" ? "Sign in to continue your streak." : mode === "signup" ? "Start tracking your nutrition today." : "Enter your email and we'll send you a link to reset your password."}
           </p>
         </div>
 
