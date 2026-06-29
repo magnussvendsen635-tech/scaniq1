@@ -1,6 +1,7 @@
 // Admin-only financials/analytics endpoint.
-// Returns revenue overview, tier counts, discount-code usage table,
-// transaction list, and daily signups for the last 30 days.
+// Returns revenue overview, tier counts, transaction list, and daily signups
+// for the last 30 days.
+
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
