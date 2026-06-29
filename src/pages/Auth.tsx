@@ -207,11 +207,11 @@ export default function Auth() {
                 className="mt-0.5 accent-primary"
               />
               <span>
-                Jeg accepterer{" "}
+                I accept the{" "}
                 <a href="/privacy" target="_blank" rel="noopener" className="text-primary-glow underline">
-                  privatlivspolitikken
+                  privacy policy
                 </a>{" "}
-                og giver samtykke til behandling af mine data (GDPR).
+                and consent to the processing of my data (GDPR).
               </span>
             </label>
           )}
