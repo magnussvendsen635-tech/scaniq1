@@ -65,11 +65,11 @@ const copy = {
 }
 
 const WelcomeReceiptMonthlyEmail = ({
-  language = 'da',
+  language = 'en',
   productName = 'ScanIQ Pro - Monthly',
   price = '$19 / month',
 }: Props) => {
-  const t = copy[language === 'en' ? 'en' : 'da']
+  const t = copy[language === 'da' ? 'da' : 'en']
   return (
     <Html lang={language} dir="ltr">
       <Head />
