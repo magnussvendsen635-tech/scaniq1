@@ -106,12 +106,12 @@ const WelcomeReceiptMonthlyEmail = ({
 export const template = {
   component: WelcomeReceiptMonthlyEmail,
   subject: (data: Record<string, any>) =>
-    data?.language === 'en'
-      ? 'Welcome to ScanIQ Pro Monthly! 🚀 (Your Receipt)'
-      : 'Velkommen til ScanIQ Pro Månedlig! 🚀 (Din kvittering)',
+    data?.language === 'da'
+      ? 'Velkommen til ScanIQ Pro Månedlig! 🚀 (Din kvittering)'
+      : 'Welcome to ScanIQ Pro Monthly! 🚀 (Your Receipt)',
   displayName: 'Welcome & Purchase Confirmation (Monthly)',
   previewData: {
-    language: 'da',
+    language: 'en',
     productName: 'ScanIQ Pro - Monthly',
     price: '$19 / month',
   },
