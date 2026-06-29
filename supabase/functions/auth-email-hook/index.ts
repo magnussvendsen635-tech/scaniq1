@@ -37,9 +37,9 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 
 // Configuration
 const SITE_NAME = "ScanIQ"
-const SENDER_DOMAIN = "mail.scaniq.app"
-const ROOT_DOMAIN = "scaniq.app"
-const FROM_DOMAIN = "scaniq.app" // Domain shown in From address (may be root or sender subdomain)
+const SENDER_DOMAIN = "notify.scaniq.site"
+const ROOT_DOMAIN = "scaniq.site"
+const FROM_DOMAIN = "scaniq.site" // Domain shown in From address (may be root or sender subdomain)
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
