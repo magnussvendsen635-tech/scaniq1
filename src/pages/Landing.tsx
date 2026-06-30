@@ -195,9 +195,6 @@ export default function Landing() {
               Privacy Policy
             </Link>
           </nav>
-          <p className="mt-3 text-center text-[11px] text-muted-foreground">
-            © 2026 ScanIQ — a Kinetex Intelligence product. All rights reserved.
-          </p>
         </div>
       </footer>
     </div>
