@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Seo } from "@/components/Seo";
 import { useT } from "@/i18n/useT";
 import { useAutoTranslate } from "@/i18n/useAutoTranslate";
+
+const PRIVACY_POLICY_URL =
+  "https://app.notion.com/p/38fc7bed89f9806a8918c4bfca980b57?source=copy_link";
 
 const SOURCE = [
   "Last updated: June 8, 2026",
@@ -72,6 +75,20 @@ export default function Privacy() {
 
       <div className="k-card p-5 space-y-5 text-sm leading-relaxed text-foreground/90">
         <p className="text-xs text-muted-foreground">{T[0]} · ScanIQ · Kinetex Intelligens · scaniqapp1@gmail.com</p>
+
+
+        <a
+          href={PRIVACY_POLICY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-primary/40 bg-primary/10 p-4 text-sm hover:bg-primary/15 transition-colors"
+        >
+          <span className="leading-snug">
+            <b className="block text-primary-glow">Read the full Privacy Policy</b>
+            <span className="text-xs text-muted-foreground">Always-up-to-date version (opens in a new tab)</span>
+          </span>
+          <ExternalLink className="w-4 h-4 text-primary-glow shrink-0" />
+        </a>
 
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs leading-relaxed">
           <b className="block mb-1 text-amber-300">{T[1]}</b>
