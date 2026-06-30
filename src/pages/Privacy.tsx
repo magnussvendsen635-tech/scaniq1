@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Seo } from "@/components/Seo";
 import { useT } from "@/i18n/useT";
 import { useAutoTranslate } from "@/i18n/useAutoTranslate";
+
+const PRIVACY_POLICY_URL =
+  "https://app.notion.com/p/38fc7bed89f9806a8918c4bfca980b57?source=copy_link";
 
 const SOURCE = [
   "Last updated: June 8, 2026",
