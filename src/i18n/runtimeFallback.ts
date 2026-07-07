@@ -12,6 +12,9 @@ const inFlight = new Set<string>();
 const pendingByLang = new Map<string, Set<string>>(); // lang -> set of english sources
 const flushTimers = new Map<string, number>();
 const listeners = new Set<Listener>();
+let version = 0;
+export function getVersion() { return version; }
+
 
 const STORAGE_PREFIX = "rt-i18n:";
 
@@ -41,6 +44,8 @@ export function getCachedTranslation(lang: string, source: string): string | und
 }
 
 function notify() {
+  version++;
+
   listeners.forEach((l) => {
     try { l(); } catch { /* ignore */ }
   });
