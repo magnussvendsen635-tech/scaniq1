@@ -1262,6 +1262,39 @@ export default function FoodScan() {
                 <Macro label={t("home.fat")} value={scaled?.fat ?? 0} />
               </div>
 
+              {/* Per 100g vs Total portion comparison */}
+              {(result.per100g || consumedGrams > 0) && (
+                <div className="k-card p-4">
+                  <div className="flex items-baseline justify-between mb-3">
+                    <div className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Næringsindhold</div>
+                    <div className="text-[10px] text-muted-foreground">Est. {consumedGrams}g</div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider pb-2 border-b-2 border-foreground/10">
+                    <div>Næring</div>
+                    <div className="text-right">Pr. 100g</div>
+                    <div className="text-right">Total ({consumedGrams}g)</div>
+                  </div>
+                  {(() => {
+                    const p = result.per100g;
+                    const per100 = (v?: number, unit = "g") => (v === undefined ? "–" : `${v}${unit}`);
+                    const rows: { label: string; p100?: number; total?: number; unit: string; dec?: boolean }[] = [
+                      { label: "Kalorier", p100: p?.calories, total: scaled?.calories, unit: " kcal" },
+                      { label: "Protein", p100: p?.protein, total: scaled?.protein, unit: "g", dec: true },
+                      { label: "Kulhydrat", p100: p?.carbs, total: scaled?.carbs, unit: "g", dec: true },
+                      { label: "Fedt", p100: p?.fat, total: scaled?.fat, unit: "g", dec: true },
+                    ];
+                    return rows.map((r) => (
+                      <div key={r.label} className="grid grid-cols-3 gap-2 py-2 text-sm border-b border-foreground/5 last:border-0">
+                        <div className="font-semibold">{r.label}</div>
+                        <div className="text-right tabular-nums text-muted-foreground">{per100(r.p100, r.unit)}</div>
+                        <div className="text-right tabular-nums font-bold">{r.total === undefined ? "–" : `${r.total}${r.unit}`}</div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              )}
+
+
               {(scaled?.fiber !== undefined || scaled?.sugar !== undefined || scaled?.sodium !== undefined || scaled?.saturatedFat !== undefined || scaled?.cholesterol !== undefined) && (
                 <div className="k-card p-4">
                   <div className="text-xs text-muted-foreground tracking-widest uppercase mb-3">{t("micro.title")}</div>
