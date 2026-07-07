@@ -532,7 +532,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const parsed = enforceHiddenToggles(JSON.parse(toolCall.function.arguments), addOil, addDressing);
+    const parsed = enforceMacroSanity(
+      enforceHiddenToggles(JSON.parse(toolCall.function.arguments), addOil, addDressing),
+    );
 
     // ---- Increment counters after successful scan ----
     const newDaily = dailyUsed + 1;
