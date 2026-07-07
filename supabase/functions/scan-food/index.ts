@@ -53,6 +53,78 @@ function enforceHiddenToggles(
   return parsed;
 }
 
+// Server-side sanity check for per-100g macros and portion totals.
+// GUARANTEES:
+//   • protein + carbs + fat per 100g NEVER exceeds 100g (physically impossible otherwise).
+//   • Portion totals ALWAYS equal round(per100g / 100 * totalGrams) — no free-hand invention.
+//   • kcal per 100g is coherent with macros (protein*4 + carbs*4 + fat*9), tolerated ±20%.
+function enforceMacroSanity(parsed: Record<string, unknown>) {
+  const per = (parsed.per100g ?? {}) as Record<string, number>;
+  const grams = Math.max(0, Number(parsed.totalGrams) || 0);
+
+  let protein = Math.max(0, Number(per.protein) || 0);
+  let carbs = Math.max(0, Number(per.carbs) || 0);
+  let fat = Math.max(0, Number(per.fat) || 0);
+
+  // Hard clamp: no single macro over 100g / 100g.
+  protein = Math.min(protein, 100);
+  carbs = Math.min(carbs, 100);
+  fat = Math.min(fat, 100);
+
+  // If sum > 100g, proportionally scale down to fit (keeps ratio, fixes AI hallucination).
+  const macroSum = protein + carbs + fat;
+  if (macroSum > 100) {
+    const scale = 100 / macroSum;
+    protein = Math.round(protein * scale * 10) / 10;
+    carbs = Math.round(carbs * scale * 10) / 10;
+    fat = Math.round(fat * scale * 10) / 10;
+  }
+
+  // Recompute kcal per 100g from Atwater factors if AI value is way off.
+  const atwater = protein * 4 + carbs * 4 + fat * 9;
+  let kcal100 = Math.max(0, Number(per.calories) || 0);
+  if (atwater > 0 && (kcal100 <= 0 || Math.abs(kcal100 - atwater) / atwater > 0.2)) {
+    kcal100 = Math.round(atwater);
+  }
+
+  const fiber100 = Math.max(0, Number(per.fiber) || 0);
+  const sugar100 = Math.min(carbs, Math.max(0, Number(per.sugar) || 0));
+  const sodium100 = Math.max(0, Number(per.sodium) || 0);
+  const satFat100 = Math.min(fat, Math.max(0, Number(per.saturatedFat) || 0));
+  const chol100 = Math.max(0, Number(per.cholesterol) || 0);
+
+  parsed.per100g = {
+    calories: Math.round(kcal100),
+    protein,
+    carbs,
+    fat,
+    fiber: fiber100,
+    sugar: sugar100,
+    sodium: Math.round(sodium100),
+    saturatedFat: satFat100,
+    cholesterol: Math.round(chol100),
+  };
+
+  // ALWAYS recompute totals from per100g × grams — never trust AI-invented portion numbers.
+  const factor = grams / 100;
+  parsed.calories = Math.round(kcal100 * factor);
+  parsed.protein = Math.round(protein * factor * 10) / 10;
+  parsed.carbs = Math.round(carbs * factor * 10) / 10;
+  parsed.fat = Math.round(fat * factor * 10) / 10;
+  parsed.fiber = Math.round(fiber100 * factor * 10) / 10;
+  parsed.sugar = Math.round(sugar100 * factor * 10) / 10;
+  parsed.sodium = Math.round(sodium100 * factor);
+  parsed.saturatedFat = Math.round(satFat100 * factor * 10) / 10;
+  parsed.cholesterol = Math.round(chol100 * factor);
+
+  // Sync the single-item calorie sum with the recomputed total when there's exactly one item.
+  if (Array.isArray(parsed.items) && parsed.items.length === 1) {
+    (parsed.items[0] as Record<string, unknown>).calories = parsed.calories;
+  }
+
+  return parsed;
+}
+
 function todayUTC(): string {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 }
