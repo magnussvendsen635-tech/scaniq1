@@ -1275,37 +1275,37 @@ export default function FoodScan() {
                 return (
                   <div className="k-card p-4">
                     <div className="flex items-baseline justify-between mb-3">
-                      <div className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Næringsindhold</div>
+                      <div className="text-xs uppercase tracking-widest font-bold text-muted-foreground">{tt("Nutrition")}</div>
                       <div className="flex items-center gap-2">
                         {!hasLabelP100 ? (
                           <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border-2 border-foreground bg-[hsl(var(--pop-yellow))] text-foreground">
-                            Beregnet ⚙
+                            {tt("Calculated")} ⚙
                           </span>
                         ) : (
                           <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border-2 border-foreground bg-[hsl(var(--pop-green))] text-foreground">
-                            Fra label ✓
+                            {tt("From label")} ✓
                           </span>
                         )}
-                        <div className="text-[10px] text-muted-foreground">Est. {consumedGrams}g</div>
+                        <div className="text-[10px] text-muted-foreground">{tt("Est.")} {consumedGrams}g</div>
                       </div>
                     </div>
 
                     {needsVerify && (
                       <div className="mb-3 p-3 rounded-2xl border-[3px] border-foreground bg-[hsl(var(--pop-yellow))]/40 text-xs font-semibold">
-                        ⚠ Verify label values — {illogical
-                          ? "makro-summen pr. 100g overstiger 100g (matematisk umuligt)."
+                        ⚠ {tt("Verify label values")} — {illogical
+                          ? tt("The macro sum per 100g exceeds 100g (mathematically impossible).")
                           : !hasLabelP100
-                          ? "Pr. 100g er beregnet ud fra portionsvægten, ikke læst fra etiketten."
-                          : `AI-konfidens er kun ${Math.round((result.confidence ?? 0) * 100)}%. Bekræft venligst værdierne manuelt.`}
+                          ? tt("Per 100g is calculated from the portion weight, not read from the label.")
+                          : `${tt("AI confidence is only")} ${Math.round((result.confidence ?? 0) * 100)}%. ${tt("Please verify the values manually.")}`}
                       </div>
                     )}
 
                     <div className="grid grid-cols-3 gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider pb-2 border-b-2 border-foreground/10">
-                      <div>Næring</div>
+                      <div>{tt("Nutrient")}</div>
                       <div className="text-right">
-                        Pr. 100g {!hasLabelP100 && <span className="text-[9px] opacity-70">(⚙ beregnet)</span>}
+                        {tt("Per 100g")} {!hasLabelP100 && <span className="text-[9px] opacity-70">(⚙ {tt("calculated")})</span>}
                       </div>
-                      <div className="text-right">Total ({consumedGrams}g)</div>
+                      <div className="text-right">{tt("Total")} ({consumedGrams}g)</div>
                     </div>
                     {(() => {
                       const p = result.per100g;
@@ -1318,11 +1318,12 @@ export default function FoodScan() {
                         return `${n}${unit}`;
                       };
                       const rows: { label: string; p100?: number; total?: number; unit: string; dec?: boolean }[] = [
-                        { label: "Kalorier", p100: p?.calories ?? derive(scaled?.calories), total: scaled?.calories, unit: " kcal", dec: false },
-                        { label: "Protein", p100: p?.protein ?? derive(scaled?.protein), total: scaled?.protein, unit: "g", dec: true },
-                        { label: "Kulhydrat", p100: p?.carbs ?? derive(scaled?.carbs), total: scaled?.carbs, unit: "g", dec: true },
-                        { label: "Fedt", p100: p?.fat ?? derive(scaled?.fat), total: scaled?.fat, unit: "g", dec: true },
+                        { label: tt("Calories"), p100: p?.calories ?? derive(scaled?.calories), total: scaled?.calories, unit: " kcal", dec: false },
+                        { label: tt("Protein"), p100: p?.protein ?? derive(scaled?.protein), total: scaled?.protein, unit: "g", dec: true },
+                        { label: tt("Carbs"), p100: p?.carbs ?? derive(scaled?.carbs), total: scaled?.carbs, unit: "g", dec: true },
+                        { label: tt("Fat"), p100: p?.fat ?? derive(scaled?.fat), total: scaled?.fat, unit: "g", dec: true },
                       ];
+
                       return rows.map((r) => (
                         <div key={r.label} className="grid grid-cols-3 gap-2 py-2 text-sm border-b border-foreground/5 last:border-0">
                           <div className="font-semibold">{r.label}</div>
