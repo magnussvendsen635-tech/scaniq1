@@ -1,11 +1,13 @@
 import { useSyncExternalStore } from "react";
 import { useKStore } from "@/store/useKStore";
 import { translate, hasNativeTranslation, englishSource, type TKey } from "./translations";
-import { getCachedTranslation, requestTranslation, subscribe } from "./runtimeFallback";
+import { getCachedTranslation, requestTranslation, subscribe, getVersion } from "./runtimeFallback";
 
-// Empty snapshot so React only re-renders when the runtime cache notifies.
-const getSnapshot = () => 0;
+// Snapshot returns a version counter that bumps whenever a runtime translation
+// arrives, so React re-renders subscribed components.
+const getSnapshot = () => getVersion();
 const subscribeStore = (cb: () => void) => subscribe(cb);
+
 
 export function useT() {
   const language = useKStore((s) => s.language) || "en";
