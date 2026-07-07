@@ -20,7 +20,7 @@ export const LANGUAGES: Language[] = [
   { code: "da", name: "Danish", native: "Dansk", flag: "🇩🇰" },
   { code: "de", name: "German", native: "Deutsch", flag: "🇩🇪" },
   { code: "et", name: "Estonian", native: "Eesti", flag: "🇪🇪" },
-  { code: "en", name: "English", native: "English", flag: "🇬🇧" },
+  { code: "en", name: "English", native: "English", flag: "🇺🇸" },
   { code: "es", name: "Spanish", native: "Español", flag: "🇪🇸" },
   { code: "eo", name: "Esperanto", native: "Esperanto", flag: "🌍" },
   { code: "fil", name: "Filipino", native: "Filipino", flag: "🇵🇭" },
