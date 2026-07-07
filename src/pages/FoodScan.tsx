@@ -1262,8 +1262,8 @@ export default function FoodScan() {
                 <Macro label={t("home.fat")} value={scaled?.fat ?? 0} />
               </div>
 
-              {/* Per 100g vs Total portion comparison */}
-              {(result.per100g || consumedGrams > 0) && (
+              {/* Per 100g vs Total portion comparison — ALWAYS shows both columns */}
+              {(consumedGrams > 0 || result.per100g) && (
                 <div className="k-card p-4">
                   <div className="flex items-baseline justify-between mb-3">
                     <div className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Næringsindhold</div>
@@ -1276,18 +1276,26 @@ export default function FoodScan() {
                   </div>
                   {(() => {
                     const p = result.per100g;
-                    const per100 = (v?: number, unit = "g") => (v === undefined ? "–" : `${v}${unit}`);
+                    // Fallback: derive per-100g from the scaled portion when the AI didn't return it
+                    const g = consumedGrams > 0 ? consumedGrams : 100;
+                    const derive = (total?: number) =>
+                      total === undefined ? undefined : (total * 100) / g;
+                    const fmt = (v: number | undefined, unit: string, dec: boolean) => {
+                      if (v === undefined || !isFinite(v)) return "–";
+                      const n = dec ? Math.round(v * 10) / 10 : Math.round(v);
+                      return `${n}${unit}`;
+                    };
                     const rows: { label: string; p100?: number; total?: number; unit: string; dec?: boolean }[] = [
-                      { label: "Kalorier", p100: p?.calories, total: scaled?.calories, unit: " kcal" },
-                      { label: "Protein", p100: p?.protein, total: scaled?.protein, unit: "g", dec: true },
-                      { label: "Kulhydrat", p100: p?.carbs, total: scaled?.carbs, unit: "g", dec: true },
-                      { label: "Fedt", p100: p?.fat, total: scaled?.fat, unit: "g", dec: true },
+                      { label: "Kalorier", p100: p?.calories ?? derive(scaled?.calories), total: scaled?.calories, unit: " kcal", dec: false },
+                      { label: "Protein", p100: p?.protein ?? derive(scaled?.protein), total: scaled?.protein, unit: "g", dec: true },
+                      { label: "Kulhydrat", p100: p?.carbs ?? derive(scaled?.carbs), total: scaled?.carbs, unit: "g", dec: true },
+                      { label: "Fedt", p100: p?.fat ?? derive(scaled?.fat), total: scaled?.fat, unit: "g", dec: true },
                     ];
                     return rows.map((r) => (
                       <div key={r.label} className="grid grid-cols-3 gap-2 py-2 text-sm border-b border-foreground/5 last:border-0">
                         <div className="font-semibold">{r.label}</div>
-                        <div className="text-right tabular-nums text-muted-foreground">{per100(r.p100, r.unit)}</div>
-                        <div className="text-right tabular-nums font-bold">{r.total === undefined ? "–" : `${r.total}${r.unit}`}</div>
+                        <div className="text-right tabular-nums text-muted-foreground">{fmt(r.p100, r.unit, !!r.dec)}</div>
+                        <div className="text-right tabular-nums font-bold">{fmt(r.total, r.unit, !!r.dec)}</div>
                       </div>
                     ));
                   })()}
