@@ -44,6 +44,8 @@ export function getCachedTranslation(lang: string, source: string): string | und
 }
 
 function notify() {
+  version++;
+
   listeners.forEach((l) => {
     try { l(); } catch { /* ignore */ }
   });
