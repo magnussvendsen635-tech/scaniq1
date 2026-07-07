@@ -1263,44 +1263,79 @@ export default function FoodScan() {
               </div>
 
               {/* Per 100g vs Total portion comparison — ALWAYS shows both columns */}
-              {(consumedGrams > 0 || result.per100g) && (
-                <div className="k-card p-4">
-                  <div className="flex items-baseline justify-between mb-3">
-                    <div className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Næringsindhold</div>
-                    <div className="text-[10px] text-muted-foreground">Est. {consumedGrams}g</div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider pb-2 border-b-2 border-foreground/10">
-                    <div>Næring</div>
-                    <div className="text-right">Pr. 100g</div>
-                    <div className="text-right">Total ({consumedGrams}g)</div>
-                  </div>
-                  {(() => {
-                    const p = result.per100g;
-                    // Fallback: derive per-100g from the scaled portion when the AI didn't return it
-                    const g = consumedGrams > 0 ? consumedGrams : 100;
-                    const derive = (total?: number) =>
-                      total === undefined ? undefined : (total * 100) / g;
-                    const fmt = (v: number | undefined, unit: string, dec: boolean) => {
-                      if (v === undefined || !isFinite(v)) return "–";
-                      const n = dec ? Math.round(v * 10) / 10 : Math.round(v);
-                      return `${n}${unit}`;
-                    };
-                    const rows: { label: string; p100?: number; total?: number; unit: string; dec?: boolean }[] = [
-                      { label: "Kalorier", p100: p?.calories ?? derive(scaled?.calories), total: scaled?.calories, unit: " kcal", dec: false },
-                      { label: "Protein", p100: p?.protein ?? derive(scaled?.protein), total: scaled?.protein, unit: "g", dec: true },
-                      { label: "Kulhydrat", p100: p?.carbs ?? derive(scaled?.carbs), total: scaled?.carbs, unit: "g", dec: true },
-                      { label: "Fedt", p100: p?.fat ?? derive(scaled?.fat), total: scaled?.fat, unit: "g", dec: true },
-                    ];
-                    return rows.map((r) => (
-                      <div key={r.label} className="grid grid-cols-3 gap-2 py-2 text-sm border-b border-foreground/5 last:border-0">
-                        <div className="font-semibold">{r.label}</div>
-                        <div className="text-right tabular-nums text-muted-foreground">{fmt(r.p100, r.unit, !!r.dec)}</div>
-                        <div className="text-right tabular-nums font-bold">{fmt(r.total, r.unit, !!r.dec)}</div>
+              {(consumedGrams > 0 || result.per100g) && (() => {
+                const hasLabelP100 = !!result.per100g;
+                const lowConfidence = typeof result.confidence === "number" && result.confidence < 0.95;
+                const macroSum =
+                  (result.per100g?.protein ?? 0) +
+                  (result.per100g?.carbs ?? 0) +
+                  (result.per100g?.fat ?? 0);
+                const illogical = hasLabelP100 && macroSum > 100;
+                const needsVerify = !hasLabelP100 || lowConfidence || illogical;
+                return (
+                  <div className="k-card p-4">
+                    <div className="flex items-baseline justify-between mb-3">
+                      <div className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Næringsindhold</div>
+                      <div className="flex items-center gap-2">
+                        {!hasLabelP100 ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border-2 border-foreground bg-[hsl(var(--pop-yellow))] text-foreground">
+                            Beregnet ⚙
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border-2 border-foreground bg-[hsl(var(--pop-green))] text-foreground">
+                            Fra label ✓
+                          </span>
+                        )}
+                        <div className="text-[10px] text-muted-foreground">Est. {consumedGrams}g</div>
                       </div>
-                    ));
-                  })()}
-                </div>
-              )}
+                    </div>
+
+                    {needsVerify && (
+                      <div className="mb-3 p-3 rounded-2xl border-[3px] border-foreground bg-[hsl(var(--pop-yellow))]/40 text-xs font-semibold">
+                        ⚠ Verify label values — {illogical
+                          ? "makro-summen pr. 100g overstiger 100g (matematisk umuligt)."
+                          : !hasLabelP100
+                          ? "Pr. 100g er beregnet ud fra portionsvægten, ikke læst fra etiketten."
+                          : `AI-konfidens er kun ${Math.round((result.confidence ?? 0) * 100)}%. Bekræft venligst værdierne manuelt.`}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-3 gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider pb-2 border-b-2 border-foreground/10">
+                      <div>Næring</div>
+                      <div className="text-right">
+                        Pr. 100g {!hasLabelP100 && <span className="text-[9px] opacity-70">(⚙ beregnet)</span>}
+                      </div>
+                      <div className="text-right">Total ({consumedGrams}g)</div>
+                    </div>
+                    {(() => {
+                      const p = result.per100g;
+                      const g = consumedGrams > 0 ? consumedGrams : 100;
+                      const derive = (total?: number) =>
+                        total === undefined ? undefined : (total * 100) / g;
+                      const fmt = (v: number | undefined, unit: string, dec: boolean) => {
+                        if (v === undefined || !isFinite(v)) return "–";
+                        const n = dec ? Math.round(v * 10) / 10 : Math.round(v);
+                        return `${n}${unit}`;
+                      };
+                      const rows: { label: string; p100?: number; total?: number; unit: string; dec?: boolean }[] = [
+                        { label: "Kalorier", p100: p?.calories ?? derive(scaled?.calories), total: scaled?.calories, unit: " kcal", dec: false },
+                        { label: "Protein", p100: p?.protein ?? derive(scaled?.protein), total: scaled?.protein, unit: "g", dec: true },
+                        { label: "Kulhydrat", p100: p?.carbs ?? derive(scaled?.carbs), total: scaled?.carbs, unit: "g", dec: true },
+                        { label: "Fedt", p100: p?.fat ?? derive(scaled?.fat), total: scaled?.fat, unit: "g", dec: true },
+                      ];
+                      return rows.map((r) => (
+                        <div key={r.label} className="grid grid-cols-3 gap-2 py-2 text-sm border-b border-foreground/5 last:border-0">
+                          <div className="font-semibold">{r.label}</div>
+                          <div className={`text-right tabular-nums ${hasLabelP100 ? "text-muted-foreground" : "text-muted-foreground italic"}`}>
+                            {fmt(r.p100, r.unit, !!r.dec)}
+                          </div>
+                          <div className="text-right tabular-nums font-bold">{fmt(r.total, r.unit, !!r.dec)}</div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                );
+              })()}
 
 
               {(scaled?.fiber !== undefined || scaled?.sugar !== undefined || scaled?.sodium !== undefined || scaled?.saturatedFat !== undefined || scaled?.cholesterol !== undefined) && (
