@@ -1070,17 +1070,13 @@ export default function FoodScan() {
               ))}
               {scanning && (
                 <>
-                  {/* Animated scan-line sweeping across the camera viewport */}
+                  {/* Green scanning line sweeping up and down */}
                   <div className="scan-line" />
-                  <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
-                  <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
-                  <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
                 </>
               )}
-              {/* AR overlay — circle at (x,y) + thin leader line to a name box */}
+              {/* AR overlay — white circle at (x,y) + thin white leader line to a white label with name + kcal */}
               {!scanning && result?.items && result.items.some((i) => typeof i.x === "number" && typeof i.y === "number") && (
                 <div className="absolute inset-0 pointer-events-none">
-                  {/* SVG layer draws the circles + leader lines in image-percent coordinates */}
                   <svg
                     className="absolute inset-0 w-full h-full"
                     viewBox="0 0 100 100"
@@ -1088,11 +1084,10 @@ export default function FoodScan() {
                   >
                     {result.items.map((it, idx) => {
                       if (typeof it.x !== "number" || typeof it.y !== "number") return null;
-                      const cx = Math.max(2, Math.min(98, it.x));
-                      const cy = Math.max(2, Math.min(98, it.y));
-                      // Push label toward the nearest edge so the leader line stays visible
-                      const lx = cx < 50 ? Math.min(cx + 18, 92) : Math.max(cx - 18, 8);
-                      const ly = cy < 50 ? Math.min(cy + 14, 92) : Math.max(cy - 14, 8);
+                      const cx = Math.max(4, Math.min(96, it.x));
+                      const cy = Math.max(4, Math.min(96, it.y));
+                      const lx = cx < 50 ? Math.min(cx + 22, 92) : Math.max(cx - 22, 8);
+                      const ly = cy < 50 ? Math.min(cy + 12, 90) : Math.max(cy - 12, 10);
                       return (
                         <g key={idx}>
                           <line
@@ -1100,30 +1095,30 @@ export default function FoodScan() {
                             y1={cy}
                             x2={lx}
                             y2={ly}
-                            stroke="rgba(0,255,0,0.9)"
-                            strokeWidth={0.35}
+                            stroke="#ffffff"
+                            strokeWidth={1.25}
                             vectorEffect="non-scaling-stroke"
+                            opacity={0.95}
                           />
                           <circle
                             cx={cx}
                             cy={cy}
-                            r={1.4}
-                            fill="rgba(0,255,0,0.9)"
-                            stroke="#000"
-                            strokeWidth={0.3}
+                            r={1.3}
+                            fill="#ffffff"
+                            stroke="rgba(0,0,0,0.25)"
+                            strokeWidth={0.4}
                             vectorEffect="non-scaling-stroke"
                           />
                         </g>
                       );
                     })}
                   </svg>
-                  {/* HTML label boxes positioned at the same (lx, ly) as the SVG line ends */}
                   {result.items.map((it, idx) => {
                     if (typeof it.x !== "number" || typeof it.y !== "number") return null;
-                    const cx = Math.max(2, Math.min(98, it.x));
-                    const cy = Math.max(2, Math.min(98, it.y));
-                    const lx = cx < 50 ? Math.min(cx + 18, 92) : Math.max(cx - 18, 8);
-                    const ly = cy < 50 ? Math.min(cy + 14, 92) : Math.max(cy - 14, 8);
+                    const cx = Math.max(4, Math.min(96, it.x));
+                    const cy = Math.max(4, Math.min(96, it.y));
+                    const lx = cx < 50 ? Math.min(cx + 22, 92) : Math.max(cx - 22, 8);
+                    const ly = cy < 50 ? Math.min(cy + 12, 90) : Math.max(cy - 12, 10);
                     return (
                       <div
                         key={idx}
@@ -1135,29 +1130,33 @@ export default function FoodScan() {
                         }}
                       >
                         {it.name}
+                        {typeof it.calories === "number" && it.calories > 0 && (
+                          <span className="ar-kcal">{it.calories} kcal</span>
+                        )}
                       </div>
                     );
                   })}
                 </div>
               )}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                {scanning ? (
-                  <div className="relative flex items-center justify-center">
-                    <div className="absolute w-36 h-36 rounded-full border-2 border-primary/70 shadow-[0_0_50px_hsl(var(--primary))] animate-pulse" />
-                    <div className="relative w-32 h-32 rounded-full bg-black/75 backdrop-blur-sm border border-primary/60 flex flex-col items-center justify-center">
-                      <span className="text-white text-base font-semibold tracking-wide">ScanIQ…</span>
-                      <span className="text-white/80 text-[11px] mt-1">{t("scan.analyzing")} {scanProgress}%</span>
+              {/* Discrete scan-progress counter at the bottom */}
+              {scanning && (
+                <div className="absolute inset-x-0 bottom-8 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-white/90 text-xs font-medium tracking-wide tabular-nums">
+                    {t("scan.analyzing")} {scanProgress}%
+                  </span>
+                </div>
+              )}
+              {!scanning && result && (
+                <div className="absolute inset-x-0 bottom-6 flex justify-center px-6">
+                  <div className="animate-scale-in inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 shadow-lg">
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
                     </div>
+                    <p className="text-sm font-bold text-foreground">{result.name}</p>
                   </div>
-                ) : result ? (
-                  <div className="animate-scale-in">
-                    <div className="w-16 h-16 mx-auto rounded-2xl bg-primary border-[3px] border-foreground flex items-center justify-center mb-3">
-                      <Check className="w-8 h-8 text-foreground" strokeWidth={3} />
-                    </div>
-                    <p className="text-2xl font-bold text-foreground">{result.name}</p>
-                  </div>
-                ) : null}
-              </div>
+                </div>
+              )}
+
             </div>
             </div>
           )}

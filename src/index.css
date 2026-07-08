@@ -418,19 +418,25 @@ body[data-scanning="true"] .scan-hide-on-scan { display: none !important; }
   100% { top: 100%; }
 }
 
-/* AR overlay — small pill box connected by a thin line to the detected item */
+/* AR overlay — white rounded label with name + kcal, connected by a thin line */
 .ar-box {
   position: absolute;
-  background: rgba(0, 0, 0, 0.78);
-  color: #fff;
+  background: #ffffff;
+  color: #0a0a0a;
   font-weight: 700;
-  font-size: 11px;
-  line-height: 1;
-  padding: 5px 9px;
-  border-radius: 999px;
+  font-size: 13px;
+  line-height: 1.15;
+  padding: 7px 12px;
+  border-radius: 14px;
   white-space: nowrap;
   pointer-events: none;
-  border: 1.5px solid rgba(0, 255, 0, 0.85);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
   animation: k-pop 0.3s ease-out both;
+}
+.ar-box .ar-kcal {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-top: 2px;
 }
