@@ -258,6 +258,21 @@ Deno.serve(async (req) => {
       body.source === "store" || body.source === "restaurant" ? body.source : "homemade";
     const homemadeRecipes: Array<{ name: string; calories: number; protein?: number; carbs?: number; fat?: number }> =
       Array.isArray(body.homemadeRecipes) ? body.homemadeRecipes.slice(0, 20) : [];
+
+    // ---- User language (drives all human-readable output strings) ----
+    const LANG_NAMES: Record<string, string> = {
+      da: "Danish", en: "English", de: "German", fr: "French", es: "Spanish",
+      it: "Italian", nl: "Dutch", sv: "Swedish", no: "Norwegian", fi: "Finnish",
+      is: "Icelandic", pt: "Portuguese", pl: "Polish", cs: "Czech", sk: "Slovak",
+      hu: "Hungarian", ro: "Romanian", bg: "Bulgarian", el: "Greek", tr: "Turkish",
+      ru: "Russian", uk: "Ukrainian", ar: "Arabic", he: "Hebrew", fa: "Persian",
+      hi: "Hindi", bn: "Bengali", ur: "Urdu", th: "Thai", vi: "Vietnamese",
+      id: "Indonesian", ms: "Malay", ja: "Japanese", ko: "Korean", zh: "Mandarin Chinese",
+      yue: "Cantonese",
+    };
+    const langCode = typeof body.language === "string" && body.language.length > 0 ? body.language : "en";
+    const languageName = LANG_NAMES[langCode] ?? langCode;
+
     let images: string[] = [];
     if (Array.isArray(body.images)) {
       images = body.images.filter((x: unknown) => typeof x === "string" && x.length > 0);
@@ -424,7 +439,7 @@ Deno.serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size. Do NOT count items twice.` : ""} ${portionHint}${extraHint} ${homemadeBlock}Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive. NO health advice — only data.`,
+                text: `Analyze this food image. OUTPUT LANGUAGE — write EVERY human-readable string (result name, each item.name, energyEffect, detectiveReasoning, any notes) in ${languageName}. Do NOT mix languages. For every item you identify, ALSO return its approximate 2D position in the FIRST image as x (0-100, left→right) and y (0-100, top→bottom) of the item's visual center — this drives AR arrow labels drawn over the photo. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size, but x/y positions must reference the FIRST image only. Do NOT count items twice.` : ""} ${portionHint}${extraHint} ${homemadeBlock}Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive. NO health advice — only data.`,
               },
               ...images.map((url) => ({ type: "image_url", image_url: { url } })),
             ],
@@ -446,10 +461,12 @@ Deno.serve(async (req) => {
                     items: {
                       type: "object",
                       properties: {
-                        name: { type: "string", description: "Name of the food item" },
+                        name: { type: "string", description: `Name of the food item, written in ${languageName}.` },
                         calories: { type: "number", description: "kcal for this item" },
+                        x: { type: "number", description: "AR position: horizontal center of the item in the FIRST image, as a percentage 0-100 (left→right)." },
+                        y: { type: "number", description: "AR position: vertical center of the item in the FIRST image, as a percentage 0-100 (top→bottom)." },
                       },
-                      required: ["name", "calories"],
+                      required: ["name", "calories", "x", "y"],
                       additionalProperties: false,
                     },
                   },

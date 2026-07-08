@@ -18,6 +18,9 @@ import { Link } from "react-router-dom";
 interface FoodItem {
   name: string;
   calories: number;
+  /** Optional AR position — 0-100 percent of image (x = left→right, y = top→bottom) */
+  x?: number;
+  y?: number;
 }
 
 interface Per100g {
@@ -276,7 +279,7 @@ export default function FoodScan() {
   const t = useT();
   const tt = useTText();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, calorieAccuracy, favorites } = useKStore();
+  const { user, meals, addMeal, calorieAccuracy, favorites, language } = useKStore();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   // Total weight (grams) auto-detected from AI scan. No longer user-editable on result screen.
@@ -586,7 +589,7 @@ export default function FoodScan() {
           }))
         : undefined;
       const invokePromise = supabase.functions.invoke("scan-food", {
-        body: { images: imgs, portion, source: foodSource, strategy, addOil, addDressing, homemadeRecipes },
+        body: { images: imgs, portion, source: foodSource, strategy, addOil, addDressing, homemadeRecipes, language },
       });
       const { data, error } = await Promise.race([
         invokePromise,
@@ -1067,10 +1070,31 @@ export default function FoodScan() {
               ))}
               {scanning && (
                 <>
+                  {/* Animated scan-line sweeping across the camera viewport */}
+                  <div className="scan-line" />
                   <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
                   <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
                   <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
                 </>
+              )}
+              {/* AR labels — arrows pointing at each detected food item */}
+              {!scanning && result?.items && result.items.some((i) => typeof i.x === "number" && typeof i.y === "number") && (
+                <div className="absolute inset-0 pointer-events-none">
+                  {result.items.map((it, idx) =>
+                    typeof it.x === "number" && typeof it.y === "number" ? (
+                      <div
+                        key={idx}
+                        className="ar-label"
+                        style={{
+                          left: `${Math.max(2, Math.min(98, it.x))}%`,
+                          top: `${Math.max(6, Math.min(96, it.y))}%`,
+                        }}
+                      >
+                        {it.name}
+                      </div>
+                    ) : null,
+                  )}
+                </div>
               )}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
                 {scanning ? (
