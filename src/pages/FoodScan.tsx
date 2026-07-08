@@ -1070,10 +1070,31 @@ export default function FoodScan() {
               ))}
               {scanning && (
                 <>
+                  {/* Animated scan-line sweeping across the camera viewport */}
+                  <div className="scan-line" />
                   <div className="absolute left-6 right-6 h-0.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))] animate-scan-line" />
                   <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
                   <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
                 </>
+              )}
+              {/* AR labels — arrows pointing at each detected food item */}
+              {!scanning && result?.items && result.items.some((i) => typeof i.x === "number" && typeof i.y === "number") && (
+                <div className="absolute inset-0 pointer-events-none">
+                  {result.items.map((it, idx) =>
+                    typeof it.x === "number" && typeof it.y === "number" ? (
+                      <div
+                        key={idx}
+                        className="ar-label"
+                        style={{
+                          left: `${Math.max(2, Math.min(98, it.x))}%`,
+                          top: `${Math.max(6, Math.min(96, it.y))}%`,
+                        }}
+                      >
+                        {it.name}
+                      </div>
+                    ) : null,
+                  )}
+                </div>
               )}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
                 {scanning ? (
