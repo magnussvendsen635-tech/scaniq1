@@ -1077,23 +1077,67 @@ export default function FoodScan() {
                   <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 translate-x-[68px] w-[2px] bg-primary/80 shadow-[0_0_24px_hsl(var(--primary))]" />
                 </>
               )}
-              {/* AR labels — arrows pointing at each detected food item */}
+              {/* AR overlay — circle at (x,y) + thin leader line to a name box */}
               {!scanning && result?.items && result.items.some((i) => typeof i.x === "number" && typeof i.y === "number") && (
                 <div className="absolute inset-0 pointer-events-none">
-                  {result.items.map((it, idx) =>
-                    typeof it.x === "number" && typeof it.y === "number" ? (
+                  {/* SVG layer draws the circles + leader lines in image-percent coordinates */}
+                  <svg
+                    className="absolute inset-0 w-full h-full"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                  >
+                    {result.items.map((it, idx) => {
+                      if (typeof it.x !== "number" || typeof it.y !== "number") return null;
+                      const cx = Math.max(2, Math.min(98, it.x));
+                      const cy = Math.max(2, Math.min(98, it.y));
+                      // Push label toward the nearest edge so the leader line stays visible
+                      const lx = cx < 50 ? Math.min(cx + 18, 92) : Math.max(cx - 18, 8);
+                      const ly = cy < 50 ? Math.min(cy + 14, 92) : Math.max(cy - 14, 8);
+                      return (
+                        <g key={idx}>
+                          <line
+                            x1={cx}
+                            y1={cy}
+                            x2={lx}
+                            y2={ly}
+                            stroke="rgba(0,255,0,0.9)"
+                            strokeWidth={0.35}
+                            vectorEffect="non-scaling-stroke"
+                          />
+                          <circle
+                            cx={cx}
+                            cy={cy}
+                            r={1.4}
+                            fill="rgba(0,255,0,0.9)"
+                            stroke="#000"
+                            strokeWidth={0.3}
+                            vectorEffect="non-scaling-stroke"
+                          />
+                        </g>
+                      );
+                    })}
+                  </svg>
+                  {/* HTML label boxes positioned at the same (lx, ly) as the SVG line ends */}
+                  {result.items.map((it, idx) => {
+                    if (typeof it.x !== "number" || typeof it.y !== "number") return null;
+                    const cx = Math.max(2, Math.min(98, it.x));
+                    const cy = Math.max(2, Math.min(98, it.y));
+                    const lx = cx < 50 ? Math.min(cx + 18, 92) : Math.max(cx - 18, 8);
+                    const ly = cy < 50 ? Math.min(cy + 14, 92) : Math.max(cy - 14, 8);
+                    return (
                       <div
                         key={idx}
-                        className="ar-label"
+                        className="ar-box"
                         style={{
-                          left: `${Math.max(2, Math.min(98, it.x))}%`,
-                          top: `${Math.max(6, Math.min(96, it.y))}%`,
+                          left: `${lx}%`,
+                          top: `${ly}%`,
+                          transform: `translate(${cx < 50 ? "0" : "-100%"}, -50%)`,
                         }}
                       >
                         {it.name}
                       </div>
-                    ) : null,
-                  )}
+                    );
+                  })}
                 </div>
               )}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
