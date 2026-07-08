@@ -439,7 +439,7 @@ Deno.serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Analyze this food. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size. Do NOT count items twice.` : ""} ${portionHint}${extraHint} ${homemadeBlock}Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive. NO health advice — only data.`,
+                text: `Analyze this food image. OUTPUT LANGUAGE — write EVERY human-readable string (result name, each item.name, energyEffect, detectiveReasoning, any notes) in ${languageName}. Do NOT mix languages. For every item you identify, ALSO return its approximate 2D position in the FIRST image as x (0-100, left→right) and y (0-100, top→bottom) of the item's visual center — this drives AR arrow labels drawn over the photo. ${images.length > 1 ? `You are given ${images.length} photos of THE SAME meal from different angles — use ALL of them together to better identify items and estimate portion size, but x/y positions must reference the FIRST image only. Do NOT count items twice.` : ""} ${portionHint}${extraHint} ${homemadeBlock}Identify each component separately, estimate grams, then compute total calories + macros + micros + healthScore (1-10). Be realistic and decisive. NO health advice — only data.`,
               },
               ...images.map((url) => ({ type: "image_url", image_url: { url } })),
             ],
@@ -461,10 +461,12 @@ Deno.serve(async (req) => {
                     items: {
                       type: "object",
                       properties: {
-                        name: { type: "string", description: "Name of the food item" },
+                        name: { type: "string", description: `Name of the food item, written in ${languageName}.` },
                         calories: { type: "number", description: "kcal for this item" },
+                        x: { type: "number", description: "AR position: horizontal center of the item in the FIRST image, as a percentage 0-100 (left→right)." },
+                        y: { type: "number", description: "AR position: vertical center of the item in the FIRST image, as a percentage 0-100 (top→bottom)." },
                       },
-                      required: ["name", "calories"],
+                      required: ["name", "calories", "x", "y"],
                       additionalProperties: false,
                     },
                   },
