@@ -418,30 +418,19 @@ body[data-scanning="true"] .scan-hide-on-scan { display: none !important; }
   100% { top: 100%; }
 }
 
-/* AR label (arrow pointing at detected food item) */
-.ar-label {
+/* AR overlay — small pill box connected by a thin line to the detected item */
+.ar-box {
   position: absolute;
-  transform: translate(-50%, -100%);
   background: rgba(0, 0, 0, 0.78);
   color: #fff;
   font-weight: 700;
   font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 8px;
+  line-height: 1;
+  padding: 5px 9px;
+  border-radius: 999px;
   white-space: nowrap;
   pointer-events: none;
+  border: 1.5px solid rgba(0, 255, 0, 0.85);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.35);
   animation: k-pop 0.3s ease-out both;
-  border: 2px solid rgba(0, 255, 0, 0.7);
-}
-.ar-label::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 8px solid rgba(0, 255, 0, 0.85);
 }
