@@ -258,6 +258,21 @@ Deno.serve(async (req) => {
       body.source === "store" || body.source === "restaurant" ? body.source : "homemade";
     const homemadeRecipes: Array<{ name: string; calories: number; protein?: number; carbs?: number; fat?: number }> =
       Array.isArray(body.homemadeRecipes) ? body.homemadeRecipes.slice(0, 20) : [];
+
+    // ---- User language (drives all human-readable output strings) ----
+    const LANG_NAMES: Record<string, string> = {
+      da: "Danish", en: "English", de: "German", fr: "French", es: "Spanish",
+      it: "Italian", nl: "Dutch", sv: "Swedish", no: "Norwegian", fi: "Finnish",
+      is: "Icelandic", pt: "Portuguese", pl: "Polish", cs: "Czech", sk: "Slovak",
+      hu: "Hungarian", ro: "Romanian", bg: "Bulgarian", el: "Greek", tr: "Turkish",
+      ru: "Russian", uk: "Ukrainian", ar: "Arabic", he: "Hebrew", fa: "Persian",
+      hi: "Hindi", bn: "Bengali", ur: "Urdu", th: "Thai", vi: "Vietnamese",
+      id: "Indonesian", ms: "Malay", ja: "Japanese", ko: "Korean", zh: "Mandarin Chinese",
+      yue: "Cantonese",
+    };
+    const langCode = typeof body.language === "string" && body.language.length > 0 ? body.language : "en";
+    const languageName = LANG_NAMES[langCode] ?? langCode;
+
     let images: string[] = [];
     if (Array.isArray(body.images)) {
       images = body.images.filter((x: unknown) => typeof x === "string" && x.length > 0);
