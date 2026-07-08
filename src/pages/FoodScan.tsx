@@ -18,6 +18,9 @@ import { Link } from "react-router-dom";
 interface FoodItem {
   name: string;
   calories: number;
+  /** Optional AR position — 0-100 percent of image (x = left→right, y = top→bottom) */
+  x?: number;
+  y?: number;
 }
 
 interface Per100g {
@@ -276,7 +279,7 @@ export default function FoodScan() {
   const t = useT();
   const tt = useTText();
   const { user: profile } = useAuth();
-  const { user, meals, addMeal, calorieAccuracy, favorites } = useKStore();
+  const { user, meals, addMeal, calorieAccuracy, favorites, language } = useKStore();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   // Total weight (grams) auto-detected from AI scan. No longer user-editable on result screen.
@@ -586,7 +589,7 @@ export default function FoodScan() {
           }))
         : undefined;
       const invokePromise = supabase.functions.invoke("scan-food", {
-        body: { images: imgs, portion, source: foodSource, strategy, addOil, addDressing, homemadeRecipes },
+        body: { images: imgs, portion, source: foodSource, strategy, addOil, addDressing, homemadeRecipes, language },
       });
       const { data, error } = await Promise.race([
         invokePromise,
