@@ -22,6 +22,7 @@ serve(async (req) => {
     }
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -30,6 +31,18 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Not authenticated" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Daily AI quota (max 20/day/user)
+    const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const { data: quota } = await adminClient.rpc("check_and_increment_ai_quota", {
+      _user_id: userData.user.id, _endpoint: "recipe-generate", _limit: 20,
+    });
+    const q = Array.isArray(quota) ? quota[0] : quota;
+    if (q && q.allowed === false) {
+      return new Response(JSON.stringify({ error: "daily_limit_reached", message: "Daily AI limit reached (20/day). Try again tomorrow." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 

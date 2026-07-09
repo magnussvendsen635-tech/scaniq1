@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 // Shared with scan-food: combined daily cap + cooldown.
-const DAILY_SCAN_LIMIT = 30;
+const DAILY_SCAN_LIMIT = 20;
 const SCAN_COOLDOWN_SECONDS = 10;
 
 function todayUTC(): string {
