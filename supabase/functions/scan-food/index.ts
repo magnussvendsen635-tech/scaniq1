@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 // Daily scan cap for premium users (covers food + barcode combined).
-const DAILY_SCAN_LIMIT = 30;
+const DAILY_SCAN_LIMIT = 20;
 // Minimum seconds between scans (anti-bot rate limit, shared with barcode lookup).
 const SCAN_COOLDOWN_SECONDS = 5;
 // Admin status is checked via the is_admin() RPC against the user_roles table.
