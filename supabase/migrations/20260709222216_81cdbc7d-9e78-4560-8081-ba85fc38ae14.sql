@@ -1,0 +1,1 @@
+UPDATE public.profiles SET daily_scan_count = 0, last_scan_date = CURRENT_DATE WHERE id = 'e2a422ba-8399-4f77-97e9-334007dff5c3';
