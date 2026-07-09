@@ -1359,11 +1359,7 @@ export default function FoodScan() {
 
                     {needsVerify && (
                       <div className="mb-3 p-3 rounded-2xl border-[3px] border-foreground bg-[hsl(var(--pop-yellow))]/40 text-xs font-semibold">
-                        ⚠ {tt("Verify label values")} — {illogical
-                          ? tt("The macro sum per 100g exceeds 100g (mathematically impossible).")
-                          : !hasLabelP100
-                          ? tt("Per 100g is calculated from the portion weight, not read from the label.")
-                          : `${tt("AI confidence is only")} ${Math.round((result.confidence ?? 0) * 100)}%. ${tt("Please verify the values manually.")}`}
+                        {tt("The estimates are based on the visible food.")}
                       </div>
                     )}
 
