@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_daily: {
+        Row: {
+          count: number
+          day: string
+          endpoint: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          day?: string
+          endpoint: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          endpoint?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       blocked_users: {
         Row: {
           created_at: string
@@ -864,6 +888,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_and_increment_ai_quota: {
+        Args: { _endpoint: string; _limit: number; _user_id: string }
+        Returns: {
+          allowed: boolean
+          quota_limit: number
+          used: number
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
