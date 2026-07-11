@@ -64,15 +64,48 @@ export default function Auth() {
           },
         });
         if (error) throw error;
-        toast.success(t("auth.account_created"), { description: t("auth.welcome_in") });
-        nav("/");
+        toast.success("Check your email", {
+          description: "We've sent you a confirmation link. Click it to activate your account, then log in.",
+          duration: 8000,
+        });
+        setMode("signin");
+        setPassword("");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         nav("/");
       }
     } catch (err: any) {
-      toast.error(err?.message ?? "Auth failed");
+      const code = err?.code || err?.name;
+      const msg = err?.message ?? "Auth failed";
+      if (code === "email_not_confirmed" || /not confirmed/i.test(msg)) {
+        toast.error("Email not confirmed", {
+          description: "Check your inbox for the confirmation link.",
+          action: {
+            label: "Resend",
+            onClick: async () => {
+              try {
+                const { error } = await supabase.auth.resend({
+                  type: "signup",
+                  email,
+                  options: { emailRedirectTo: `${window.location.origin}/` },
+                });
+                if (error) throw error;
+                toast.success("Confirmation email sent");
+              } catch (e: any) {
+                toast.error(e?.message ?? "Could not resend");
+              }
+            },
+          },
+          duration: 10000,
+        });
+      } else if (code === "invalid_credentials" || /invalid login/i.test(msg)) {
+        toast.error("Wrong email or password", {
+          description: "Double-check your credentials or use 'Forgot password'.",
+        });
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setBusy(false);
     }
