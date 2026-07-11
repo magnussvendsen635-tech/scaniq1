@@ -4,6 +4,7 @@ import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
+import { useIAP } from "@/hooks/useIAP";
 import logo from "@/assets/scaniq-logo-new.png";
 
 const featureKeys: TKey[] = [
