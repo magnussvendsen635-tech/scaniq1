@@ -55,7 +55,7 @@ export default function Auth() {
         const { getDeviceId, getClientIp } = await import("@/lib/deviceId");
         const device_id = getDeviceId();
         const signup_ip = await getClientIp();
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -64,12 +64,24 @@ export default function Auth() {
           },
         });
         if (error) throw error;
-        toast.success("Check your email", {
-          description: "We've sent you a confirmation link. Click it to activate your account, then log in.",
-          duration: 8000,
-        });
-        setMode("signin");
-        setPassword("");
+        // Supabase returns a user with empty identities[] when the email is already registered
+        // (to prevent user enumeration). Detect that and guide the user to sign in / reset instead.
+        const alreadyRegistered =
+          !!data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0;
+        if (alreadyRegistered) {
+          toast.error("Email already registered", {
+            description: "This email already has an account. Try logging in, or use 'Forgot password' to reset it.",
+            duration: 10000,
+          });
+          setMode("signin");
+        } else {
+          toast.success("Check your email", {
+            description: "We've sent you a confirmation link. Click it to activate your account, then log in.",
+            duration: 8000,
+          });
+          setMode("signin");
+          setPassword("");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
