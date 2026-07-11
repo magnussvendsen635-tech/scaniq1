@@ -130,9 +130,13 @@
   }
   .k-tap {
     @apply transition-all duration-150 ease-out;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-height: 56px;
   }
   .k-tap:active {
-    transform: scale(0.98);
+    transform: scale(0.965);
+    filter: brightness(0.98);
   }
   /* Brutalism: solid bold ink text instead of rainbow gradient */
   .k-gradient-text {
