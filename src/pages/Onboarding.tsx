@@ -412,44 +412,73 @@ const SelectCard = ({
   <button
     onClick={onClick}
     className={cn(
-      "k-card k-tap w-full p-5 flex items-center gap-4 text-left",
-      active && "ring-2 ring-primary shadow-glow"
+      "k-card k-tap w-full p-5 min-h-[76px] flex items-center gap-4 text-left",
+      active && "ring-4 ring-primary/70 shadow-glow bg-gradient-soft"
     )}
   >
-    <div className="w-12 h-12 rounded-2xl bg-gradient-soft flex items-center justify-center">
-      <Icon className="w-6 h-6 text-primary-glow" />
+    <div className={cn(
+      "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors",
+      active ? "bg-primary text-primary-foreground" : "bg-gradient-soft"
+    )}>
+      <Icon className={cn("w-7 h-7", active ? "text-primary-foreground" : "text-primary-glow")} />
     </div>
-    <div className="flex-1">
-      <div className="font-semibold">{title}</div>
-      <div className="text-sm text-muted-foreground">{sub}</div>
+    <div className="flex-1 min-w-0">
+      <div className="font-semibold text-base leading-tight">{title}</div>
+      <div className="text-sm text-muted-foreground mt-0.5">{sub}</div>
     </div>
-    {active && <Check className="w-5 h-5 text-primary" />}
+    {active && (
+      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+        <Check className="w-5 h-5 text-primary-foreground" strokeWidth={3} />
+      </div>
+    )}
   </button>
 );
 
-const NumberInput = ({ value, onChange, suffix, min, max }: { value: number; onChange: (n: number) => void; suffix: string; min: number; max: number }) => (
-  <div className="k-card p-8 flex flex-col items-center">
-    <div className="flex items-baseline gap-2 mb-6">
+const NumberInput = ({ value, onChange, suffix, min, max }: { value: number; onChange: (n: number) => void; suffix: string; min: number; max: number }) => {
+  const clamp = (n: number) => Math.max(min, Math.min(max, n));
+  return (
+    <div className="k-card p-6 flex flex-col items-center">
+      <div className="flex items-center justify-between w-full gap-3 mb-6">
+        <button
+          type="button"
+          onClick={() => onChange(clamp(value - 1))}
+          className="k-tap w-14 h-14 rounded-2xl bg-gradient-soft flex items-center justify-center text-3xl font-bold text-primary active:bg-primary/10"
+          aria-label="Decrease"
+        >
+          −
+        </button>
+        <div className="flex items-baseline gap-2 flex-1 justify-center">
+          <input
+            type="number"
+            value={value}
+            min={min}
+            max={max}
+            onChange={(e) => onChange(clamp(Number(e.target.value)))}
+            inputMode="numeric"
+            className="bg-transparent w-28 text-center text-6xl font-semibold tracking-tight outline-none k-gradient-text"
+          />
+          <span className="text-xl text-muted-foreground font-medium">{suffix}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => onChange(clamp(value + 1))}
+          className="k-tap w-14 h-14 rounded-2xl bg-gradient-soft flex items-center justify-center text-3xl font-bold text-primary active:bg-primary/10"
+          aria-label="Increase"
+        >
+          +
+        </button>
+      </div>
       <input
-        type="number"
-        value={value}
+        type="range"
         min={min}
         max={max}
+        value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="bg-transparent w-32 text-center text-6xl font-semibold tracking-tight outline-none k-gradient-text"
+        className="w-full h-3 accent-[hsl(var(--primary))] touch-none"
       />
-      <span className="text-2xl text-muted-foreground">{suffix}</span>
     </div>
-    <input
-      type="range"
-      min={min}
-      max={max}
-      value={value}
-      onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full accent-[hsl(var(--primary))]"
-    />
-  </div>
-);
+  );
+};
 
 const PlanCard = ({ label, value, unit, big = false }: { label: string; value: number; unit: string; big?: boolean }) => (
   <div className={cn("k-card p-5", big && "col-span-2 bg-gradient-soft")}>
