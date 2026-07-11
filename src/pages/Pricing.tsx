@@ -64,7 +64,7 @@ export default function Pricing() {
       <section className="grid grid-cols-2 gap-3 mb-5">
         <div className="p-5 rounded-2xl bg-white border border-border/60 shadow-sm">
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.monthly")}</div>
-          <div className="mt-2 flex items-baseline gap-1.5"><span className="text-3xl font-bold">$19</span><span className="text-xs text-muted-foreground">{t("premium.per_month")}</span></div>
+          <div className="mt-2 flex items-baseline gap-1.5"><span className="text-3xl font-bold">{monthlyPriceLabel}</span><span className="text-xs text-muted-foreground">{t("premium.per_month")}</span></div>
           <div className="text-xs mt-1 text-muted-foreground">{t("premium.cancel_anytime")}</div>
         </div>
         <div className="p-5 rounded-2xl bg-white border border-[hsl(24_95%_53%)] shadow-[0_8px_24px_-10px_hsl(24_95%_55%/0.5)] ring-2 ring-[hsl(24_95%_53%/0.25)] relative">
