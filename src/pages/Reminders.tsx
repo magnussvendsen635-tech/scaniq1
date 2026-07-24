@@ -101,7 +101,7 @@ export default function Reminders() {
         <h1 className="text-2xl font-semibold tracking-tight">{t("reminders.page_title")}</h1>
       </header>
 
-      {!native && (
+      {!native && !isPushSupported() && (
         <div className="k-card p-4 mb-4 bg-surface-2 text-xs text-muted-foreground">
           {t("reminders.web_warning")}
         </div>
