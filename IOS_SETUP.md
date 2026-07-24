@@ -15,14 +15,21 @@ Følg trinene i rækkefølge. Alt skal køres **lokalt på din Mac**, ikke i Lov
 
 ## 1. Hent projektet lokalt
 
-I Lovable: klik **GitHub → Connect** (hvis ikke gjort) → push projektet.
+I Lovable: klik **Plus (+) → GitHub → Connect project** (hvis ikke gjort) → push projektet.
+Dit GitHub-repo hedder **scaniq1**.
+
 Så på din Mac:
 
 ```bash
-git clone <dit-github-repo>
-cd <projekt-mappe>
+cd ~
+git clone https://github.com/DIN_BRUGER/scaniq1.git
+cd scaniq1
 npm install
 ```
+
+> Erstat `DIN_BRUGER` med dit GitHub-brugernavn eller organisation. Hvis du er i en organisation, brug `https://github.com/DIN_ORG/scaniq1.git`.
+>
+> **Vigtigt:** Alle kommandoer nedenfor skal køres inde i `scaniq1`-mappen. Hvis du får fejlen `fatal: not a git repository`, betyder det, at du står i den forkerte mappe — kør `cd ~/scaniq1` først.
 
 ---
 
