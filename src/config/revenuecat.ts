@@ -15,7 +15,7 @@ export const RC_CONFIG = {
    * REPLACE BEFORE APP STORE UPLOAD — paste your production key from
    * RevenueCat → Project settings → API keys → iOS.
    */
-  iosApiKey: "", // TODO: paste "appl_..." production key here before Xcode archive
+  iosApiKey: "appl_OCtjGpzyNYzMVDRHjdxmgyFgOGO",
   /** Entitlement identifier configured in RevenueCat (e.g. "pro"). */
   entitlementId: "pro",
 } as const;
