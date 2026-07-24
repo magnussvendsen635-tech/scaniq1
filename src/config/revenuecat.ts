@@ -9,8 +9,13 @@
 // After pasting your key below, native iOS purchases will work end-to-end.
 
 export const RC_CONFIG = {
-  /** iOS public SDK key (starts with "appl_..."). Empty = IAP disabled. */
-  iosApiKey: "test_CQxDIbm0cEBSnzfKrRjbHHYnFlo",
+  /**
+   * iOS public SDK key (starts with "appl_...").
+   * Empty string = IAP disabled (safe for web/preview).
+   * REPLACE BEFORE APP STORE UPLOAD — paste your production key from
+   * RevenueCat → Project settings → API keys → iOS.
+   */
+  iosApiKey: "", // TODO: paste "appl_..." production key here before Xcode archive
   /** Entitlement identifier configured in RevenueCat (e.g. "pro"). */
   entitlementId: "pro",
 } as const;
