@@ -108,6 +108,42 @@ I Xcode:
 4. Slå **Automatically manage signing** til
 5. Klik **+ Capability** → tilføj **Sign in with Apple** og **In-App Purchase**
 
+> **Vigtigt:** Bundle Identifier skal stå præcis som `site.scaniq.app` i **TARGETS → App**, ikke kun under **PROJECT**.
+> Hvis Xcode viser noget som `scaniQ-Calorie-Tracker-com.kinetex.scaniq`, er det forkert og skal ændres manuelt til `site.scaniq.app`.
+
+### Hvis Xcode stadig siger “No profiles found”
+
+Fejlen betyder normalt, at Xcode prøver at lave signing til den forkerte Bundle Identifier eller ikke kan få Apple til at lave en provisioning profile.
+
+Tjek dette i rækkefølge:
+
+1. Klik på **App** under **TARGETS** i venstre side.
+2. Gå til **Signing & Capabilities**.
+3. Vælg fanen **All** eller **Release**.
+4. Sæt **Bundle Identifier** til præcis:
+
+```text
+site.scaniq.app
+```
+
+5. Sæt **Team** til din betalte Apple Developer-konto.
+6. Slå **Automatically manage signing** til.
+7. Vælg en rigtig destination øverst i Xcode:
+   - en fysisk iPhone, eller
+   - en iPhone Simulator
+
+Undgå at bygge direkte til **Any iOS Device**, mens signing fejlsøges.
+
+Hvis Xcode stadig viser den gamle identifier, så luk Xcode og kør lokalt på din Mac:
+
+```bash
+npm run build
+npx cap sync ios
+npx cap open ios
+```
+
+Derefter skal du igen kontrollere **TARGETS → App → Signing & Capabilities → Bundle Identifier**.
+
 ---
 
 ## 7. Kør på simulator eller device
