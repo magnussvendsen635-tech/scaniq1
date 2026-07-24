@@ -1,30 +1,47 @@
-Fejlen på billedet skyldes, at Xcode stadig bygger med Bundle Identifier:
+Problem: Du kører kommandoerne i din hjemmemappe (`~`), ikke i projekt-mappen. Derfor kan `git` ikke finde repo'et, `npm` kan ikke finde `package.json`, og `npx cap sync ios` virker ikke.
 
-`scaniQ-Calorie-Tracker-com.kinetex.scaniq`
-
-Men projektets Capacitor-konfiguration er sat til:
-
-`site.scaniq.app`
-
-Derfor kan Apple ikke finde eller generere en provisioning profile til den identifier, Xcode prøver at bruge.
+Løsning: Clone dit GitHub-repo `scaniq1` ned på din Mac, og kør alle kommandoer inde i den mappe.
 
 Plan:
 
-1. Bekræft at webprojektets `capacitor.config.ts` allerede bruger `site.scaniq.app`.
-2. Opdater iOS-guiden, så den meget tydeligt siger, at Xcode Bundle Identifier manuelt skal ændres til præcis `site.scaniq.app` efter `npx cap add ios`.
-3. Tilføj en fejlfindingssektion til `IOS_SETUP.md` for netop denne Xcode-fejl:
-   - Hvis Xcode viser `scaniQ-Calorie-Tracker-com.kinetex.scaniq`, skal den ændres.
-   - Vælg `App` target, ikke kun Project.
-   - Gå til `Signing & Capabilities`.
-   - Sæt Bundle Identifier til `site.scaniq.app`.
-   - Vælg dit Apple Developer Team.
-   - Vælg en rigtig iPhone eller simulator, ikke kun `Any iOS Device`.
-4. Tilføj de lokale kommandoer du skal køre bagefter på din Mac:
+1. Åbn Terminal på din Mac.
 
-```bash
+2. Clone repo'et (erstat `DIN_BRUGER` med dit GitHub-brugernavn eller org):
+
+```text
+cd ~
+git clone https://github.com/DIN_BRUGER/scaniq1.git
+cd scaniq1
+```
+
+3. Verificer at du nu er i projekt-mappen:
+
+```text
+pwd
+ls -la
+```
+
+Du skal se filer som `package.json`, `src/`, `capacitor.config.ts` og `IOS_SETUP.md`.
+
+4. Installér afhængigheder:
+
+```text
+npm install
+```
+
+5. Byg webappen og sync iOS-platform:
+
+```text
 npm run build
 npx cap sync ios
 npx cap open ios
 ```
 
-Vigtigt: Jeg kan rette projektfiler og guiden her i Lovable, men jeg kan ikke ændre det Xcode allerede har genereret på din Mac, før du laver `git pull` og enten syncer eller manuelt ændrer Bundle Identifier i Xcode.
+6. Følg trinene i `IOS_SETUP.md` for at rette Bundle Identifier til `site.scaniq.app` i Xcode og sætte App Capabilities op.
+
+Hvis du er i en organisation og URL'en er `https://github.com/DIN-ORG/scaniq1`, brug den i stedet.
+
+Tekniske detaljer:
+- Lovable har allerede push'et koden til `scaniq1` på GitHub, så du skal ikke oprette et nyt repo.
+- Alle Capacitor/iOS-kommandoer kræver at du står i projektroden, hvor `package.json` ligger.
+- Efter `npx cap open ios` åbner Xcode automatisk, og du kan rette Bundle Identifier manuelt under `TARGETS → App → Signing & Capabilities`.
