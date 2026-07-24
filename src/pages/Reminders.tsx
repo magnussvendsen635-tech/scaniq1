@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Bell, Droplet, UtensilsCrossed } from "lucide-react";
 import { useKStore } from "@/store/useKStore";
@@ -6,6 +7,28 @@ import { Switch } from "@/components/ui/switch";
 import { Capacitor } from "@capacitor/core";
 import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
+import { supabase } from "@/integrations/supabase/client";
+import { isPushSupported, subscribeToPush, unsubscribeFromPush } from "@/lib/push";
+
+async function syncPrefs(next: any) {
+  const { data: auth } = await supabase.auth.getUser();
+  const uid = auth.user?.id;
+  if (!uid) return;
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Copenhagen";
+  const { error } = await supabase.from("reminder_preferences").upsert(
+    {
+      user_id: uid,
+      enabled: !!next.enabled,
+      water: !!next.water,
+      meals: !!next.meals,
+      weight: true,
+      calories: !!next.enabled,
+      timezone: tz,
+    },
+    { onConflict: "user_id" },
+  );
+  if (error) console.error("[reminders] prefs save failed", error);
+}
 
 export default function Reminders() {
   const nav = useNavigate();
@@ -13,23 +36,58 @@ export default function Reminders() {
   const { reminders, setReminders, meals } = useKStore();
   const native = Capacitor.isNativePlatform();
 
+  // Load existing server prefs once so the UI reflects reality.
+  useEffect(() => {
+    (async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return;
+      const { data } = await supabase
+        .from("reminder_preferences")
+        .select("enabled, water, meals")
+        .eq("user_id", auth.user.id)
+        .maybeSingle();
+      if (data) {
+        setReminders({
+          enabled: data.enabled,
+          water: data.water,
+          meals: data.meals,
+        });
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const apply = async (next: typeof reminders) => {
     setReminders(next);
-    if (native && next.enabled) {
-      await rescheduleReminders({ reminders: next, meals });
-    } else {
-      await cancelAllScanIQ();
+    await syncPrefs(next);
+    if (native) {
+      if (next.enabled) await rescheduleReminders({ reminders: next, meals });
+      else await cancelAllScanIQ();
     }
   };
 
   const toggleEnabled = async (v: boolean) => {
     if (v) {
-      const granted = await ensurePermission(!!reminders.permissionAsked);
-      setReminders({ permissionAsked: true });
-      if (!granted) {
+      if (native) {
+        const granted = await ensurePermission(!!reminders.permissionAsked);
+        setReminders({ permissionAsked: true });
+        if (!granted) {
+          toast.error(t("reminders.permission_denied_title"), { description: t("reminders.permission_denied_sub") });
+          return;
+        }
+      } else if (isPushSupported()) {
+        const ok = await subscribeToPush();
+        setReminders({ permissionAsked: true });
+        if (!ok) {
+          toast.error(t("reminders.permission_denied_title"), { description: t("reminders.permission_denied_sub") });
+          return;
+        }
+      } else {
         toast.error(t("reminders.permission_denied_title"), { description: t("reminders.permission_denied_sub") });
         return;
       }
+    } else if (!native) {
+      await unsubscribeFromPush();
     }
     await apply({ ...reminders, enabled: v });
   };
@@ -43,7 +101,7 @@ export default function Reminders() {
         <h1 className="text-2xl font-semibold tracking-tight">{t("reminders.page_title")}</h1>
       </header>
 
-      {!native && (
+      {!native && !isPushSupported() && (
         <div className="k-card p-4 mb-4 bg-surface-2 text-xs text-muted-foreground">
           {t("reminders.web_warning")}
         </div>
