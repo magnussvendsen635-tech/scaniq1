@@ -16,6 +16,7 @@ export const RC_CONFIG = {
    * RevenueCat → Project settings → API keys → iOS.
    */
   iosApiKey: "appl_OCtjGpzyNYzMVDRHjdxmgyFgOGO",
-  /** Entitlement identifier configured in RevenueCat (e.g. "pro"). */
-  entitlementId: "pro",
+  /** Entitlement identifier configured in RevenueCat. */
+  entitlementId: "ScanIQ: Kalorietæller Pro",
+
 } as const;

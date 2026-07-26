@@ -24,13 +24,15 @@ const corsHeaders = {
 
 type Tier = { amount_cents: number; currency: string; label: string; cycle: "monthly" | "yearly" };
 const PRICE_TIERS: Record<string, Tier> = {
-  "com.scaniq.pro.monthly": { amount_cents: 1900, currency: "USD", label: "ScanIQ Pro - Monthly", cycle: "monthly" },
-  "com.scaniq.pro.yearly":  { amount_cents: 11900, currency: "USD", label: "ScanIQ Pro - Yearly",  cycle: "yearly" },
+  "com.scaniq.monthly": { amount_cents: 1900, currency: "USD", label: "ScanIQ Pro - Monthly", cycle: "monthly" },
+  "scaniq.yearly":     { amount_cents: 11900, currency: "USD", label: "ScanIQ Pro - Yearly",  cycle: "yearly" },
 };
 
 const ClientPayload = z.object({
   source: z.literal("client"),
   entitlement_active: z.boolean(),
+  entitlement_id: z.string().min(1).max(128).optional(),
+  revenuecat_customer_id: z.string().min(1).max(256).optional(),
   product_id: z.string().min(1).max(128),
   transaction_id: z.string().min(1).max(256).optional(),
   original_transaction_id: z.string().min(1).max(256).optional(),
@@ -76,7 +78,9 @@ Deno.serve(async (req) => {
     let expiresAt: string | null;
     let periodStart: string | null;
     let willRenew: boolean;
-    let env: "live" | "sandbox" = "live";
+    let env: "production" | "sandbox" = "production";
+    let entitlementId = "ScanIQ: Kalorietæller Pro";
+    let rcCustomerId: string | undefined;
 
     if ((body as any).source === "webhook") {
       const authz = req.headers.get("Authorization") ?? "";
@@ -88,14 +92,16 @@ Deno.serve(async (req) => {
       if (!parsed.success) return json({ error: "invalid_webhook", details: parsed.error.flatten() }, 400);
       const e = parsed.data.event;
       userId = e.app_user_id;
-      productId = e.product_id ?? "com.scaniq.pro.monthly";
+      productId = e.product_id ?? "com.scaniq.monthly";
       const type = (e.type || "").toUpperCase();
       active = !["EXPIRATION", "CANCELLATION", "REFUND", "SUBSCRIPTION_PAUSED"].includes(type);
       txId = e.transaction_id ?? e.original_transaction_id ?? `rc_${userId}_${productId}`;
       expiresAt = e.expiration_at_ms ? new Date(e.expiration_at_ms).toISOString() : null;
       periodStart = e.purchased_at_ms ? new Date(e.purchased_at_ms).toISOString() : null;
       willRenew = active && !["CANCELLATION"].includes(type);
-      env = e.environment === "SANDBOX" ? "sandbox" : "live";
+      env = e.environment === "SANDBOX" ? "sandbox" : "production";
+      rcCustomerId = e.app_user_id;
+      entitlementId = (e as any).entitlement_ids?.[0] ?? entitlementId;
     } else {
       // Client-driven sync — require authenticated user
       const authHeader = req.headers.get("Authorization") ?? "";
@@ -115,24 +121,26 @@ Deno.serve(async (req) => {
       expiresAt = p.expires_at ?? null;
       periodStart = p.period_start ?? null;
       willRenew = p.will_renew ?? active;
+      entitlementId = p.entitlement_id ?? entitlementId;
+      rcCustomerId = p.revenuecat_customer_id ?? `rc_${userId}`;
     }
 
     const tier: Tier = PRICE_TIERS[productId] ?? { amount_cents: 1900, currency: "USD", label: productId, cycle: "monthly" };
     const subId = `iap_${userId}_${productId}`;
     const status = active ? "active" : "canceled";
 
-    // Upsert subscription. Historical paddle_* column names now store the
-    // IAP transaction id and user key.
+    // Upsert subscription (RevenueCat / Apple IAP).
     const { data: existing } = await admin
       .from("subscriptions")
       .select("id, status")
-      .eq("paddle_subscription_id", subId)
+      .eq("revenuecat_subscription_id", subId)
       .maybeSingle();
 
     const subPayload = {
       user_id: userId,
-      paddle_subscription_id: subId,
-      paddle_customer_id: `iap_${userId}`,
+      revenuecat_subscription_id: subId,
+      revenuecat_customer_id: rcCustomerId ?? `rc_${userId}`,
+      entitlement_id: entitlementId,
       product_id: productId,
       price_id: productId,
       status,
@@ -147,7 +155,7 @@ Deno.serve(async (req) => {
 
     const { data: upserted, error: upErr } = await admin
       .from("subscriptions")
-      .upsert(subPayload, { onConflict: "paddle_subscription_id" })
+      .upsert(subPayload, { onConflict: "revenuecat_subscription_id" })
       .select("id")
       .single();
     if (upErr) return json({ error: upErr.message }, 500);

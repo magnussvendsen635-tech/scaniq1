@@ -65,102 +65,6 @@ export type Database = {
         }
         Relationships: []
       }
-      discount_codes: {
-        Row: {
-          active: boolean
-          amount: number
-          code: string
-          created_at: string
-          created_by: string | null
-          currency: string | null
-          description: string | null
-          discount_type: string
-          expires_at: string | null
-          id: string
-          max_uses: number | null
-          times_used: number
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          amount?: number
-          code: string
-          created_at?: string
-          created_by?: string | null
-          currency?: string | null
-          description?: string | null
-          discount_type?: string
-          expires_at?: string | null
-          id?: string
-          max_uses?: number | null
-          times_used?: number
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          amount?: number
-          code?: string
-          created_at?: string
-          created_by?: string | null
-          currency?: string | null
-          description?: string | null
-          discount_type?: string
-          expires_at?: string | null
-          id?: string
-          max_uses?: number | null
-          times_used?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      discount_redemptions: {
-        Row: {
-          amount_saved_cents: number
-          code_id: string
-          code_text: string
-          created_at: string
-          currency: string
-          id: string
-          subscription_id: string | null
-          user_id: string
-        }
-        Insert: {
-          amount_saved_cents?: number
-          code_id: string
-          code_text: string
-          created_at?: string
-          currency?: string
-          id?: string
-          subscription_id?: string | null
-          user_id: string
-        }
-        Update: {
-          amount_saved_cents?: number
-          code_id?: string
-          code_text?: string
-          created_at?: string
-          currency?: string
-          id?: string
-          subscription_id?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "discount_redemptions_code_id_fkey"
-            columns: ["code_id"]
-            isOneToOne: false
-            referencedRelation: "discount_codes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "discount_redemptions_subscription_id_fkey"
-            columns: ["subscription_id"]
-            isOneToOne: false
-            referencedRelation: "subscriptions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       email_send_log: {
         Row: {
           created_at: string
@@ -619,13 +523,13 @@ export type Database = {
           currency: string | null
           current_period_end: string | null
           current_period_start: string | null
-          discount_code_id: string | null
+          entitlement_id: string
           environment: string
           id: string
-          paddle_customer_id: string
-          paddle_subscription_id: string
           price_id: string
           product_id: string
+          revenuecat_customer_id: string
+          revenuecat_subscription_id: string
           status: string
           updated_at: string | null
           user_id: string
@@ -637,13 +541,13 @@ export type Database = {
           currency?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
-          discount_code_id?: string | null
+          entitlement_id?: string
           environment?: string
           id?: string
-          paddle_customer_id: string
-          paddle_subscription_id: string
           price_id: string
           product_id: string
+          revenuecat_customer_id: string
+          revenuecat_subscription_id: string
           status?: string
           updated_at?: string | null
           user_id: string
@@ -655,26 +559,18 @@ export type Database = {
           currency?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
-          discount_code_id?: string | null
+          entitlement_id?: string
           environment?: string
           id?: string
-          paddle_customer_id?: string
-          paddle_subscription_id?: string
           price_id?: string
           product_id?: string
+          revenuecat_customer_id?: string
+          revenuecat_subscription_id?: string
           status?: string
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_discount_code_id_fkey"
-            columns: ["discount_code_id"]
-            isOneToOne: false
-            referencedRelation: "discount_codes"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       suppressed_emails: {
         Row: {
