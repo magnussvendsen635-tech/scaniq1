@@ -50,6 +50,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 ALTER TABLE public.profiles ADD CONSTRAINT profiles_pkey PRIMARY KEY (id);
 ALTER TABLE public.profiles ADD CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO authenticated;
+GRANT ALL ON public.profiles TO service_role;
+
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Admins can delete profiles"
@@ -112,6 +115,9 @@ ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_pkey PRIMARY KEY (id);
 ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_role_key UNIQUE (user_id, role);
 ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_roles TO authenticated;
+GRANT ALL ON public.user_roles TO service_role;
+
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Only service role can delete user_roles"
@@ -163,6 +169,10 @@ CREATE TABLE IF NOT EXISTS public.discount_codes (
 ALTER TABLE public.discount_codes ADD CONSTRAINT discount_codes_pkey PRIMARY KEY (id);
 ALTER TABLE public.discount_codes ADD CONSTRAINT discount_codes_code_key UNIQUE (code);
 ALTER TABLE public.discount_codes ADD CONSTRAINT discount_codes_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE SET NULL;
+
+GRANT SELECT ON public.discount_codes TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.discount_codes TO authenticated;
+GRANT ALL ON public.discount_codes TO service_role;
 
 ALTER TABLE public.discount_codes ENABLE ROW LEVEL SECURITY;
 
@@ -220,6 +230,10 @@ ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_paddle_subscriptio
 ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_discount_code_id_fkey FOREIGN KEY (discount_code_id) REFERENCES discount_codes(id) ON DELETE SET NULL;
 ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.subscriptions TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.subscriptions TO authenticated;
+GRANT ALL ON public.subscriptions TO service_role;
+
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Service role can manage subscriptions"
@@ -257,6 +271,9 @@ ALTER TABLE public.discount_redemptions ADD CONSTRAINT discount_redemptions_code
 ALTER TABLE public.discount_redemptions ADD CONSTRAINT discount_redemptions_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES subscriptions(id) ON DELETE SET NULL;
 ALTER TABLE public.discount_redemptions ADD CONSTRAINT discount_redemptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
+GRANT SELECT ON public.discount_redemptions TO authenticated;
+GRANT ALL ON public.discount_redemptions TO service_role;
+
 ALTER TABLE public.discount_redemptions ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Service role manages redemptions"
@@ -290,6 +307,9 @@ CREATE TABLE IF NOT EXISTS public.ai_usage_daily (
 ALTER TABLE public.ai_usage_daily ADD CONSTRAINT ai_usage_daily_pkey PRIMARY KEY (user_id, endpoint, day);
 ALTER TABLE public.ai_usage_daily ADD CONSTRAINT ai_usage_daily_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
+GRANT SELECT ON public.ai_usage_daily TO authenticated;
+GRANT ALL ON public.ai_usage_daily TO service_role;
+
 ALTER TABLE public.ai_usage_daily ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users read own ai usage"
@@ -310,6 +330,9 @@ CREATE TABLE IF NOT EXISTS public.blocked_users (
 );
 
 ALTER TABLE public.blocked_users ADD CONSTRAINT blocked_users_pkey PRIMARY KEY (id);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.blocked_users TO authenticated;
+GRANT ALL ON public.blocked_users TO service_role;
 
 ALTER TABLE public.blocked_users ENABLE ROW LEVEL SECURITY;
 
@@ -361,6 +384,10 @@ CREATE TABLE IF NOT EXISTS public.email_send_log (
 ALTER TABLE public.email_send_log ADD CONSTRAINT email_send_log_pkey PRIMARY KEY (id);
 ALTER TABLE public.email_send_log ADD CONSTRAINT email_send_log_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'sent'::text, 'suppressed'::text, 'failed'::text, 'bounced'::text, 'complained'::text, 'dlq'::text])));
 
+GRANT SELECT, INSERT, UPDATE ON public.email_send_log TO anon;
+GRANT SELECT, INSERT, UPDATE ON public.email_send_log TO authenticated;
+GRANT ALL ON public.email_send_log TO service_role;
+
 ALTER TABLE public.email_send_log ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Service role can insert send log"
@@ -404,6 +431,10 @@ CREATE TABLE IF NOT EXISTS public.email_send_state (
 ALTER TABLE public.email_send_state ADD CONSTRAINT email_send_state_pkey PRIMARY KEY (id);
 ALTER TABLE public.email_send_state ADD CONSTRAINT email_send_state_id_check CHECK ((id = 1));
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.email_send_state TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.email_send_state TO authenticated;
+GRANT ALL ON public.email_send_state TO service_role;
+
 ALTER TABLE public.email_send_state ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Service role can manage send state"
@@ -426,6 +457,10 @@ CREATE TABLE IF NOT EXISTS public.email_unsubscribe_tokens (
 ALTER TABLE public.email_unsubscribe_tokens ADD CONSTRAINT email_unsubscribe_tokens_pkey PRIMARY KEY (id);
 ALTER TABLE public.email_unsubscribe_tokens ADD CONSTRAINT email_unsubscribe_tokens_email_key UNIQUE (email);
 ALTER TABLE public.email_unsubscribe_tokens ADD CONSTRAINT email_unsubscribe_tokens_token_key UNIQUE (token);
+
+GRANT SELECT, INSERT, UPDATE ON public.email_unsubscribe_tokens TO anon;
+GRANT SELECT, INSERT, UPDATE ON public.email_unsubscribe_tokens TO authenticated;
+GRANT ALL ON public.email_unsubscribe_tokens TO service_role;
 
 ALTER TABLE public.email_unsubscribe_tokens ENABLE ROW LEVEL SECURITY;
 
@@ -473,6 +508,9 @@ CREATE TABLE IF NOT EXISTS public.favorites (
 
 ALTER TABLE public.favorites ADD CONSTRAINT favorites_pkey PRIMARY KEY (id);
 ALTER TABLE public.favorites ADD CONSTRAINT favorites_user_id_name_key UNIQUE (user_id, name);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.favorites TO authenticated;
+GRANT ALL ON public.favorites TO service_role;
 
 ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
 
@@ -528,6 +566,9 @@ CREATE TABLE IF NOT EXISTS public.meals (
 
 ALTER TABLE public.meals ADD CONSTRAINT meals_pkey PRIMARY KEY (id);
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.meals TO authenticated;
+GRANT ALL ON public.meals TO service_role;
+
 ALTER TABLE public.meals ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "delete own meals"
@@ -572,6 +613,10 @@ CREATE TABLE IF NOT EXISTS public.page_views (
 );
 
 ALTER TABLE public.page_views ADD CONSTRAINT page_views_pkey PRIMARY KEY (id);
+
+GRANT INSERT ON public.page_views TO anon;
+GRANT SELECT, INSERT ON public.page_views TO authenticated;
+GRANT ALL ON public.page_views TO service_role;
 
 ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
 
@@ -618,6 +663,9 @@ CREATE TABLE IF NOT EXISTS public.payouts (
 
 ALTER TABLE public.payouts ADD CONSTRAINT payouts_pkey PRIMARY KEY (id);
 ALTER TABLE public.payouts ADD CONSTRAINT payouts_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.payouts TO authenticated;
+GRANT ALL ON public.payouts TO service_role;
 
 ALTER TABLE public.payouts ENABLE ROW LEVEL SECURITY;
 
@@ -677,6 +725,9 @@ ALTER TABLE public.push_subscriptions ADD CONSTRAINT push_subscriptions_pkey PRI
 ALTER TABLE public.push_subscriptions ADD CONSTRAINT push_subscriptions_endpoint_key UNIQUE (endpoint);
 ALTER TABLE public.push_subscriptions ADD CONSTRAINT push_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.push_subscriptions TO authenticated;
+GRANT ALL ON public.push_subscriptions TO service_role;
+
 ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can delete their own push subscriptions"
@@ -724,6 +775,9 @@ CREATE TABLE IF NOT EXISTS public.reminder_preferences (
 
 ALTER TABLE public.reminder_preferences ADD CONSTRAINT reminder_preferences_pkey PRIMARY KEY (user_id);
 ALTER TABLE public.reminder_preferences ADD CONSTRAINT reminder_preferences_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.reminder_preferences TO authenticated;
+GRANT ALL ON public.reminder_preferences TO service_role;
 
 ALTER TABLE public.reminder_preferences ENABLE ROW LEVEL SECURITY;
 
@@ -773,6 +827,9 @@ CREATE TABLE IF NOT EXISTS public.scans (
 ALTER TABLE public.scans ADD CONSTRAINT scans_pkey PRIMARY KEY (id);
 ALTER TABLE public.scans ADD CONSTRAINT scans_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.scans TO authenticated;
+GRANT ALL ON public.scans TO service_role;
+
 ALTER TABLE public.scans ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can delete their own scans"
@@ -818,6 +875,10 @@ CREATE TABLE IF NOT EXISTS public.suppressed_emails (
 ALTER TABLE public.suppressed_emails ADD CONSTRAINT suppressed_emails_pkey PRIMARY KEY (id);
 ALTER TABLE public.suppressed_emails ADD CONSTRAINT suppressed_emails_email_key UNIQUE (email);
 ALTER TABLE public.suppressed_emails ADD CONSTRAINT suppressed_emails_reason_check CHECK ((reason = ANY (ARRAY['unsubscribe'::text, 'bounce'::text, 'complaint'::text])));
+
+GRANT SELECT, INSERT ON public.suppressed_emails TO anon;
+GRANT SELECT, INSERT ON public.suppressed_emails TO authenticated;
+GRANT ALL ON public.suppressed_emails TO service_role;
 
 ALTER TABLE public.suppressed_emails ENABLE ROW LEVEL SECURITY;
 
@@ -869,6 +930,9 @@ CREATE TABLE IF NOT EXISTS public.user_settings (
 
 ALTER TABLE public.user_settings ADD CONSTRAINT user_settings_pkey PRIMARY KEY (user_id);
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_settings TO authenticated;
+GRANT ALL ON public.user_settings TO service_role;
+
 ALTER TABLE public.user_settings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can delete own settings"
@@ -908,6 +972,9 @@ CREATE TABLE IF NOT EXISTS public.water_logs (
 );
 
 ALTER TABLE public.water_logs ADD CONSTRAINT water_logs_pkey PRIMARY KEY (user_id, day);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.water_logs TO authenticated;
+GRANT ALL ON public.water_logs TO service_role;
 
 ALTER TABLE public.water_logs ENABLE ROW LEVEL SECURITY;
 
@@ -949,6 +1016,9 @@ CREATE TABLE IF NOT EXISTS public.weights (
 );
 
 ALTER TABLE public.weights ADD CONSTRAINT weights_pkey PRIMARY KEY (id);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.weights TO authenticated;
+GRANT ALL ON public.weights TO service_role;
 
 ALTER TABLE public.weights ENABLE ROW LEVEL SECURITY;
 
@@ -994,6 +1064,9 @@ CREATE TABLE IF NOT EXISTS public.workouts (
 );
 
 ALTER TABLE public.workouts ADD CONSTRAINT workouts_pkey PRIMARY KEY (id);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.workouts TO authenticated;
+GRANT ALL ON public.workouts TO service_role;
 
 ALTER TABLE public.workouts ENABLE ROW LEVEL SECURITY;
 
