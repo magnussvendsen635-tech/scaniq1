@@ -3,9 +3,9 @@
 -- Generated from the live database. Recreates everything from scratch:
 -- enums, tables, constraints, indexes, GRANTs, RLS policies, functions, triggers.
 --
--- NOTE: this file is a documentation / recreation artifact. It is NOT meant to be
--- run against the existing ScanIQ database (everything already exists there).
--- Run it only against an empty project.
+-- NOTE: run this file against an EMPTY Supabase project. It is idempotent and
+-- ordered so that user_roles + has_role() exist before any RLS policy uses them.
+-- Do NOT run it against the existing ScanIQ database (everything already exists).
 --
 -- NOT covered here (cannot live in a plain public-schema migration):
 --   * storage bucket "scan-images" (private) + its storage.objects policies
@@ -24,6 +24,91 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN
   CREATE TYPE public.payout_status AS ENUM ('pending', 'approved', 'paid', 'rejected');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+
+-- ============================================================ TABLE: user_roles
+CREATE TABLE IF NOT EXISTS public.user_roles (
+  id uuid DEFAULT gen_random_uuid() NOT NULL,
+  user_id uuid NOT NULL,
+  role app_role NOT NULL,
+  created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_pkey PRIMARY KEY (id);
+ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_role_key UNIQUE (user_id, role);
+ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_roles TO authenticated;
+GRANT ALL ON public.user_roles TO service_role;
+
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Only service role can delete user_roles" ON public.user_roles;
+CREATE POLICY "Only service role can delete user_roles"
+  ON public.user_roles
+  AS PERMISSIVE
+  FOR DELETE
+  TO authenticated
+  USING (false);
+
+DROP POLICY IF EXISTS "Only service role can insert user_roles" ON public.user_roles;
+CREATE POLICY "Only service role can insert user_roles"
+  ON public.user_roles
+  AS PERMISSIVE
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (false);
+
+DROP POLICY IF EXISTS "Only service role can update user_roles" ON public.user_roles;
+CREATE POLICY "Only service role can update user_roles"
+  ON public.user_roles
+  AS PERMISSIVE
+  FOR UPDATE
+  TO authenticated
+  USING (false)
+  WITH CHECK (false);
+
+DROP POLICY IF EXISTS "Users can view their own roles" ON public.user_roles;
+CREATE POLICY "Users can view their own roles"
+  ON public.user_roles
+  AS PERMISSIVE
+  FOR SELECT
+  TO authenticated
+  USING ((auth.uid() = user_id));
+
+-- ------------------------------------------- CORE FUNCTIONS (needed by RLS policies)
+
+CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = _user_id AND role = _role
+  )
+$function$;
+
+CREATE OR REPLACE FUNCTION public.is_admin(_user_id uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = 'admin')
+$function$;
+
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SET search_path TO 'public'
+AS $function$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$function$;
 
 -- ============================================================ TABLE: profiles
 CREATE TABLE IF NOT EXISTS public.profiles (
@@ -55,6 +140,7 @@ GRANT ALL ON public.profiles TO service_role;
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can delete profiles" ON public.profiles;
 CREATE POLICY "Admins can delete profiles"
   ON public.profiles
   AS PERMISSIVE
@@ -62,6 +148,7 @@ CREATE POLICY "Admins can delete profiles"
   TO authenticated
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update all profiles" ON public.profiles;
 CREATE POLICY "Admins can update all profiles"
   ON public.profiles
   AS PERMISSIVE
@@ -70,6 +157,7 @@ CREATE POLICY "Admins can update all profiles"
   USING (has_role(auth.uid(), 'admin'::app_role))
   WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles
   AS PERMISSIVE
@@ -77,6 +165,7 @@ CREATE POLICY "Admins can view all profiles"
   TO authenticated
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 CREATE POLICY "Users can insert own profile"
   ON public.profiles
   AS PERMISSIVE
@@ -84,6 +173,7 @@ CREATE POLICY "Users can insert own profile"
   TO authenticated
   WITH CHECK ((auth.uid() = id));
 
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile"
   ON public.profiles
   AS PERMISSIVE
@@ -92,6 +182,7 @@ CREATE POLICY "Users can update own profile"
   USING ((auth.uid() = id))
   WITH CHECK ((auth.uid() = id));
 
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
 CREATE POLICY "Users can view own profile"
   ON public.profiles
   AS PERMISSIVE
@@ -102,52 +193,6 @@ CREATE POLICY "Users can view own profile"
 CREATE INDEX IF NOT EXISTS idx_profiles_created_at ON public.profiles USING btree (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_profiles_device_id ON public.profiles USING btree (device_id);
 CREATE INDEX IF NOT EXISTS idx_profiles_signup_ip ON public.profiles USING btree (signup_ip);
-
--- ============================================================ TABLE: user_roles
-CREATE TABLE IF NOT EXISTS public.user_roles (
-  id uuid DEFAULT gen_random_uuid() NOT NULL,
-  user_id uuid NOT NULL,
-  role app_role NOT NULL,
-  created_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_pkey PRIMARY KEY (id);
-ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_role_key UNIQUE (user_id, role);
-ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_roles TO authenticated;
-GRANT ALL ON public.user_roles TO service_role;
-
-ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Only service role can delete user_roles"
-  ON public.user_roles
-  AS PERMISSIVE
-  FOR DELETE
-  TO authenticated
-  USING (false);
-
-CREATE POLICY "Only service role can insert user_roles"
-  ON public.user_roles
-  AS PERMISSIVE
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (false);
-
-CREATE POLICY "Only service role can update user_roles"
-  ON public.user_roles
-  AS PERMISSIVE
-  FOR UPDATE
-  TO authenticated
-  USING (false)
-  WITH CHECK (false);
-
-CREATE POLICY "Users can view their own roles"
-  ON public.user_roles
-  AS PERMISSIVE
-  FOR SELECT
-  TO authenticated
-  USING ((auth.uid() = user_id));
 
 -- ============================================================ TABLE: subscriptions (RevenueCat / Apple IAP)
 CREATE TABLE IF NOT EXISTS public.subscriptions (
@@ -178,6 +223,7 @@ GRANT ALL ON public.subscriptions TO service_role;
 
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role can manage subscriptions" ON public.subscriptions;
 CREATE POLICY "Service role can manage subscriptions"
   ON public.subscriptions
   AS PERMISSIVE
@@ -185,6 +231,7 @@ CREATE POLICY "Service role can manage subscriptions"
   TO public
   USING ((auth.role() = 'service_role'::text));
 
+DROP POLICY IF EXISTS "Users can view own subscription" ON public.subscriptions;
 CREATE POLICY "Users can view own subscription"
   ON public.subscriptions
   AS PERMISSIVE
@@ -214,6 +261,7 @@ GRANT ALL ON public.ai_usage_daily TO service_role;
 
 ALTER TABLE public.ai_usage_daily ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users read own ai usage" ON public.ai_usage_daily;
 CREATE POLICY "Users read own ai usage"
   ON public.ai_usage_daily
   AS PERMISSIVE
@@ -238,6 +286,7 @@ GRANT ALL ON public.blocked_users TO service_role;
 
 ALTER TABLE public.blocked_users ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view blocked_users" ON public.blocked_users;
 CREATE POLICY "Admins can view blocked_users"
   ON public.blocked_users
   AS PERMISSIVE
@@ -245,6 +294,7 @@ CREATE POLICY "Admins can view blocked_users"
   TO authenticated
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins manage blocked_users delete" ON public.blocked_users;
 CREATE POLICY "Admins manage blocked_users delete"
   ON public.blocked_users
   AS PERMISSIVE
@@ -252,6 +302,7 @@ CREATE POLICY "Admins manage blocked_users delete"
   TO authenticated
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins manage blocked_users insert" ON public.blocked_users;
 CREATE POLICY "Admins manage blocked_users insert"
   ON public.blocked_users
   AS PERMISSIVE
@@ -259,6 +310,7 @@ CREATE POLICY "Admins manage blocked_users insert"
   TO authenticated
   WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins manage blocked_users update" ON public.blocked_users;
 CREATE POLICY "Admins manage blocked_users update"
   ON public.blocked_users
   AS PERMISSIVE
@@ -292,6 +344,7 @@ GRANT ALL ON public.email_send_log TO service_role;
 
 ALTER TABLE public.email_send_log ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role can insert send log" ON public.email_send_log;
 CREATE POLICY "Service role can insert send log"
   ON public.email_send_log
   AS PERMISSIVE
@@ -299,6 +352,7 @@ CREATE POLICY "Service role can insert send log"
   TO public
   WITH CHECK ((auth.role() = 'service_role'::text));
 
+DROP POLICY IF EXISTS "Service role can read send log" ON public.email_send_log;
 CREATE POLICY "Service role can read send log"
   ON public.email_send_log
   AS PERMISSIVE
@@ -306,6 +360,7 @@ CREATE POLICY "Service role can read send log"
   TO public
   USING ((auth.role() = 'service_role'::text));
 
+DROP POLICY IF EXISTS "Service role can update send log" ON public.email_send_log;
 CREATE POLICY "Service role can update send log"
   ON public.email_send_log
   AS PERMISSIVE
@@ -339,6 +394,7 @@ GRANT ALL ON public.email_send_state TO service_role;
 
 ALTER TABLE public.email_send_state ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role can manage send state" ON public.email_send_state;
 CREATE POLICY "Service role can manage send state"
   ON public.email_send_state
   AS PERMISSIVE
@@ -366,6 +422,7 @@ GRANT ALL ON public.email_unsubscribe_tokens TO service_role;
 
 ALTER TABLE public.email_unsubscribe_tokens ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role can insert tokens" ON public.email_unsubscribe_tokens;
 CREATE POLICY "Service role can insert tokens"
   ON public.email_unsubscribe_tokens
   AS PERMISSIVE
@@ -373,6 +430,7 @@ CREATE POLICY "Service role can insert tokens"
   TO public
   WITH CHECK ((auth.role() = 'service_role'::text));
 
+DROP POLICY IF EXISTS "Service role can mark tokens as used" ON public.email_unsubscribe_tokens;
 CREATE POLICY "Service role can mark tokens as used"
   ON public.email_unsubscribe_tokens
   AS PERMISSIVE
@@ -381,6 +439,7 @@ CREATE POLICY "Service role can mark tokens as used"
   USING ((auth.role() = 'service_role'::text))
   WITH CHECK ((auth.role() = 'service_role'::text));
 
+DROP POLICY IF EXISTS "Service role can read tokens" ON public.email_unsubscribe_tokens;
 CREATE POLICY "Service role can read tokens"
   ON public.email_unsubscribe_tokens
   AS PERMISSIVE
@@ -416,6 +475,7 @@ GRANT ALL ON public.favorites TO service_role;
 
 ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "delete own favs" ON public.favorites;
 CREATE POLICY "delete own favs"
   ON public.favorites
   AS PERMISSIVE
@@ -423,6 +483,7 @@ CREATE POLICY "delete own favs"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "insert own favs" ON public.favorites;
 CREATE POLICY "insert own favs"
   ON public.favorites
   AS PERMISSIVE
@@ -430,6 +491,7 @@ CREATE POLICY "insert own favs"
   TO authenticated
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "select own favs" ON public.favorites;
 CREATE POLICY "select own favs"
   ON public.favorites
   AS PERMISSIVE
@@ -437,6 +499,7 @@ CREATE POLICY "select own favs"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "update own favs" ON public.favorites;
 CREATE POLICY "update own favs"
   ON public.favorites
   AS PERMISSIVE
@@ -473,6 +536,7 @@ GRANT ALL ON public.meals TO service_role;
 
 ALTER TABLE public.meals ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "delete own meals" ON public.meals;
 CREATE POLICY "delete own meals"
   ON public.meals
   AS PERMISSIVE
@@ -480,6 +544,7 @@ CREATE POLICY "delete own meals"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "insert own meals" ON public.meals;
 CREATE POLICY "insert own meals"
   ON public.meals
   AS PERMISSIVE
@@ -487,6 +552,7 @@ CREATE POLICY "insert own meals"
   TO authenticated
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "select own meals" ON public.meals;
 CREATE POLICY "select own meals"
   ON public.meals
   AS PERMISSIVE
@@ -494,6 +560,7 @@ CREATE POLICY "select own meals"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "update own meals" ON public.meals;
 CREATE POLICY "update own meals"
   ON public.meals
   AS PERMISSIVE
@@ -522,6 +589,7 @@ GRANT ALL ON public.page_views TO service_role;
 
 ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can read page views" ON public.page_views;
 CREATE POLICY "Admins can read page views"
   ON public.page_views
   AS PERMISSIVE
@@ -529,6 +597,7 @@ CREATE POLICY "Admins can read page views"
   TO authenticated
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Insert page views with matching user" ON public.page_views;
 CREATE POLICY "Insert page views with matching user"
   ON public.page_views
   AS PERMISSIVE
@@ -536,6 +605,7 @@ CREATE POLICY "Insert page views with matching user"
   TO public
   WITH CHECK (((user_id IS NULL) OR (user_id = auth.uid())));
 
+DROP POLICY IF EXISTS "Users read own page_views" ON public.page_views;
 CREATE POLICY "Users read own page_views"
   ON public.page_views
   AS PERMISSIVE
@@ -571,6 +641,7 @@ GRANT ALL ON public.payouts TO service_role;
 
 ALTER TABLE public.payouts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can delete payouts" ON public.payouts;
 CREATE POLICY "Admins can delete payouts"
   ON public.payouts
   AS PERMISSIVE
@@ -578,6 +649,7 @@ CREATE POLICY "Admins can delete payouts"
   TO authenticated
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can insert payouts" ON public.payouts;
 CREATE POLICY "Admins can insert payouts"
   ON public.payouts
   AS PERMISSIVE
@@ -585,6 +657,7 @@ CREATE POLICY "Admins can insert payouts"
   TO authenticated
   WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update payouts" ON public.payouts;
 CREATE POLICY "Admins can update payouts"
   ON public.payouts
   AS PERMISSIVE
@@ -593,6 +666,7 @@ CREATE POLICY "Admins can update payouts"
   USING (has_role(auth.uid(), 'admin'::app_role))
   WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can view all payouts" ON public.payouts;
 CREATE POLICY "Admins can view all payouts"
   ON public.payouts
   AS PERMISSIVE
@@ -600,6 +674,7 @@ CREATE POLICY "Admins can view all payouts"
   TO authenticated
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Users can view their own payouts" ON public.payouts;
 CREATE POLICY "Users can view their own payouts"
   ON public.payouts
   AS PERMISSIVE
@@ -632,6 +707,7 @@ GRANT ALL ON public.push_subscriptions TO service_role;
 
 ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can delete their own push subscriptions" ON public.push_subscriptions;
 CREATE POLICY "Users can delete their own push subscriptions"
   ON public.push_subscriptions
   AS PERMISSIVE
@@ -639,6 +715,7 @@ CREATE POLICY "Users can delete their own push subscriptions"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "Users can insert their own push subscriptions" ON public.push_subscriptions;
 CREATE POLICY "Users can insert their own push subscriptions"
   ON public.push_subscriptions
   AS PERMISSIVE
@@ -646,6 +723,7 @@ CREATE POLICY "Users can insert their own push subscriptions"
   TO authenticated
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "Users can update their own push subscriptions" ON public.push_subscriptions;
 CREATE POLICY "Users can update their own push subscriptions"
   ON public.push_subscriptions
   AS PERMISSIVE
@@ -653,6 +731,7 @@ CREATE POLICY "Users can update their own push subscriptions"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "Users can view their own push subscriptions" ON public.push_subscriptions;
 CREATE POLICY "Users can view their own push subscriptions"
   ON public.push_subscriptions
   AS PERMISSIVE
@@ -683,6 +762,7 @@ GRANT ALL ON public.reminder_preferences TO service_role;
 
 ALTER TABLE public.reminder_preferences ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can delete their own reminder preferences" ON public.reminder_preferences;
 CREATE POLICY "Users can delete their own reminder preferences"
   ON public.reminder_preferences
   AS PERMISSIVE
@@ -690,6 +770,7 @@ CREATE POLICY "Users can delete their own reminder preferences"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "Users can insert their own reminder preferences" ON public.reminder_preferences;
 CREATE POLICY "Users can insert their own reminder preferences"
   ON public.reminder_preferences
   AS PERMISSIVE
@@ -697,6 +778,7 @@ CREATE POLICY "Users can insert their own reminder preferences"
   TO authenticated
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "Users can update their own reminder preferences" ON public.reminder_preferences;
 CREATE POLICY "Users can update their own reminder preferences"
   ON public.reminder_preferences
   AS PERMISSIVE
@@ -704,6 +786,7 @@ CREATE POLICY "Users can update their own reminder preferences"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "Users can view their own reminder preferences" ON public.reminder_preferences;
 CREATE POLICY "Users can view their own reminder preferences"
   ON public.reminder_preferences
   AS PERMISSIVE
@@ -734,6 +817,7 @@ GRANT ALL ON public.scans TO service_role;
 
 ALTER TABLE public.scans ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can delete their own scans" ON public.scans;
 CREATE POLICY "Users can delete their own scans"
   ON public.scans
   AS PERMISSIVE
@@ -741,6 +825,7 @@ CREATE POLICY "Users can delete their own scans"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "Users can insert their own scans" ON public.scans;
 CREATE POLICY "Users can insert their own scans"
   ON public.scans
   AS PERMISSIVE
@@ -748,6 +833,7 @@ CREATE POLICY "Users can insert their own scans"
   TO authenticated
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "Users can update their own scans" ON public.scans;
 CREATE POLICY "Users can update their own scans"
   ON public.scans
   AS PERMISSIVE
@@ -756,6 +842,7 @@ CREATE POLICY "Users can update their own scans"
   USING ((auth.uid() = user_id))
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "Users can view their own scans" ON public.scans;
 CREATE POLICY "Users can view their own scans"
   ON public.scans
   AS PERMISSIVE
@@ -784,6 +871,7 @@ GRANT ALL ON public.suppressed_emails TO service_role;
 
 ALTER TABLE public.suppressed_emails ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role can insert suppressed emails" ON public.suppressed_emails;
 CREATE POLICY "Service role can insert suppressed emails"
   ON public.suppressed_emails
   AS PERMISSIVE
@@ -791,6 +879,7 @@ CREATE POLICY "Service role can insert suppressed emails"
   TO public
   WITH CHECK ((auth.role() = 'service_role'::text));
 
+DROP POLICY IF EXISTS "Service role can read suppressed emails" ON public.suppressed_emails;
 CREATE POLICY "Service role can read suppressed emails"
   ON public.suppressed_emails
   AS PERMISSIVE
@@ -837,6 +926,7 @@ GRANT ALL ON public.user_settings TO service_role;
 
 ALTER TABLE public.user_settings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can delete own settings" ON public.user_settings;
 CREATE POLICY "Users can delete own settings"
   ON public.user_settings
   AS PERMISSIVE
@@ -844,6 +934,7 @@ CREATE POLICY "Users can delete own settings"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "insert own settings" ON public.user_settings;
 CREATE POLICY "insert own settings"
   ON public.user_settings
   AS PERMISSIVE
@@ -851,6 +942,7 @@ CREATE POLICY "insert own settings"
   TO authenticated
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "select own settings" ON public.user_settings;
 CREATE POLICY "select own settings"
   ON public.user_settings
   AS PERMISSIVE
@@ -858,6 +950,7 @@ CREATE POLICY "select own settings"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "update own settings" ON public.user_settings;
 CREATE POLICY "update own settings"
   ON public.user_settings
   AS PERMISSIVE
@@ -880,6 +973,7 @@ GRANT ALL ON public.water_logs TO service_role;
 
 ALTER TABLE public.water_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "delete own water" ON public.water_logs;
 CREATE POLICY "delete own water"
   ON public.water_logs
   AS PERMISSIVE
@@ -887,6 +981,7 @@ CREATE POLICY "delete own water"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "insert own water" ON public.water_logs;
 CREATE POLICY "insert own water"
   ON public.water_logs
   AS PERMISSIVE
@@ -894,6 +989,7 @@ CREATE POLICY "insert own water"
   TO authenticated
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "select own water" ON public.water_logs;
 CREATE POLICY "select own water"
   ON public.water_logs
   AS PERMISSIVE
@@ -901,6 +997,7 @@ CREATE POLICY "select own water"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "update own water" ON public.water_logs;
 CREATE POLICY "update own water"
   ON public.water_logs
   AS PERMISSIVE
@@ -924,6 +1021,7 @@ GRANT ALL ON public.weights TO service_role;
 
 ALTER TABLE public.weights ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "delete own weights" ON public.weights;
 CREATE POLICY "delete own weights"
   ON public.weights
   AS PERMISSIVE
@@ -931,6 +1029,7 @@ CREATE POLICY "delete own weights"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "insert own weights" ON public.weights;
 CREATE POLICY "insert own weights"
   ON public.weights
   AS PERMISSIVE
@@ -938,6 +1037,7 @@ CREATE POLICY "insert own weights"
   TO authenticated
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "select own weights" ON public.weights;
 CREATE POLICY "select own weights"
   ON public.weights
   AS PERMISSIVE
@@ -945,6 +1045,7 @@ CREATE POLICY "select own weights"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "update own weights" ON public.weights;
 CREATE POLICY "update own weights"
   ON public.weights
   AS PERMISSIVE
@@ -972,6 +1073,7 @@ GRANT ALL ON public.workouts TO service_role;
 
 ALTER TABLE public.workouts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "delete own workouts" ON public.workouts;
 CREATE POLICY "delete own workouts"
   ON public.workouts
   AS PERMISSIVE
@@ -979,6 +1081,7 @@ CREATE POLICY "delete own workouts"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "insert own workouts" ON public.workouts;
 CREATE POLICY "insert own workouts"
   ON public.workouts
   AS PERMISSIVE
@@ -986,6 +1089,7 @@ CREATE POLICY "insert own workouts"
   TO authenticated
   WITH CHECK ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "select own workouts" ON public.workouts;
 CREATE POLICY "select own workouts"
   ON public.workouts
   AS PERMISSIVE
@@ -993,6 +1097,7 @@ CREATE POLICY "select own workouts"
   TO authenticated
   USING ((auth.uid() = user_id));
 
+DROP POLICY IF EXISTS "update own workouts" ON public.workouts;
 CREATE POLICY "update own workouts"
   ON public.workouts
   AS PERMISSIVE
@@ -1205,27 +1310,6 @@ BEGIN
 END;
 $function$;
 
-CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
- RETURNS boolean
- LANGUAGE sql
- STABLE SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-  SELECT EXISTS (
-    SELECT 1 FROM public.user_roles
-    WHERE user_id = _user_id AND role = _role
-  )
-$function$;
-
-CREATE OR REPLACE FUNCTION public.is_admin(_user_id uuid)
- RETURNS boolean
- LANGUAGE sql
- STABLE SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = 'admin')
-$function$;
-
 CREATE OR REPLACE FUNCTION public.is_blocked(_user_id uuid, _ip text DEFAULT NULL::text, _device text DEFAULT NULL::text)
  RETURNS boolean
  LANGUAGE sql
@@ -1318,17 +1402,6 @@ EXCEPTION WHEN undefined_table THEN
 END;
 $function$;
 
-CREATE OR REPLACE FUNCTION public.set_updated_at()
- RETURNS trigger
- LANGUAGE plpgsql
- SET search_path TO 'public'
-AS $function$
-BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
-END;
-$function$;
-
 CREATE OR REPLACE FUNCTION public.sync_email_verified()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -1347,14 +1420,23 @@ $function$;
 
 -- -------------------------------------------------------------- TRIGGERS
 
+DROP TRIGGER IF EXISTS payouts_set_updated_at ON public.payouts;
 CREATE TRIGGER payouts_set_updated_at BEFORE UPDATE ON public.payouts FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+DROP TRIGGER IF EXISTS profiles_prevent_premium_self_upgrade ON public.profiles;
 CREATE TRIGGER profiles_prevent_premium_self_upgrade BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION prevent_premium_self_upgrade();
+DROP TRIGGER IF EXISTS profiles_prevent_self_upgrade ON public.profiles;
 CREATE TRIGGER profiles_prevent_self_upgrade BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION prevent_premium_self_upgrade();
+DROP TRIGGER IF EXISTS profiles_set_updated_at ON public.profiles;
 CREATE TRIGGER profiles_set_updated_at BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+DROP TRIGGER IF EXISTS scans_set_updated_at ON public.scans;
 CREATE TRIGGER scans_set_updated_at BEFORE UPDATE ON public.scans FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+DROP TRIGGER IF EXISTS trg_user_settings_updated_at ON public.user_settings;
 CREATE TRIGGER trg_user_settings_updated_at BEFORE UPDATE ON public.user_settings FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+DROP TRIGGER IF EXISTS trg_water_logs_updated_at ON public.water_logs;
 CREATE TRIGGER trg_water_logs_updated_at BEFORE UPDATE ON public.water_logs FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+DROP TRIGGER IF EXISTS update_push_subscriptions_updated_at ON public.push_subscriptions;
 CREATE TRIGGER update_push_subscriptions_updated_at BEFORE UPDATE ON public.push_subscriptions FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+DROP TRIGGER IF EXISTS update_reminder_preferences_updated_at ON public.reminder_preferences;
 CREATE TRIGGER update_reminder_preferences_updated_at BEFORE UPDATE ON public.reminder_preferences FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ------------------------------------------------------------------- NOTES
