@@ -1029,638 +1029,345 @@ CREATE INDEX IF NOT EXISTS idx_workouts_user_perf ON public.workouts USING btree
 
 -- ------------------------------------------------------------- FUNCTIONS
 
-CREATE OR REPLACE FUNCTION public.check_and_increment_ai_quota(_user_id uuid, _endpoint text, _limit integer);
-
- RETURNS TABLE(allowed boolean, used integer, quota_limit integer);
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO 'public';
-
-AS $function$;
-
-DECLARE;
-
+CREATE OR REPLACE FUNCTION public.check_and_increment_ai_quota(_user_id uuid, _endpoint text, _limit integer)
+ RETURNS TABLE(allowed boolean, used integer, quota_limit integer)
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+DECLARE
   today_utc DATE := (now() AT TIME ZONE 'utc')::date;
-
   new_count INTEGER;
-
-BEGIN;
-
-  INSERT INTO public.ai_usage_daily (user_id, endpoint, day, count, updated_at);
-
-  VALUES (_user_id, _endpoint, today_utc, 1, now());
-
-  ON CONFLICT (user_id, endpoint, day);
-
-  DO UPDATE SET count = public.ai_usage_daily.count + 1, updated_at = now();
-
+BEGIN
+  INSERT INTO public.ai_usage_daily (user_id, endpoint, day, count, updated_at)
+  VALUES (_user_id, _endpoint, today_utc, 1, now())
+  ON CONFLICT (user_id, endpoint, day)
+  DO UPDATE SET count = public.ai_usage_daily.count + 1, updated_at = now()
   RETURNING count INTO new_count;
 
-  IF new_count > _limit THEN;
-
-    -- rollback the increment so users can try again tomorrow with correct counters;
-
-    UPDATE public.ai_usage_daily;
-
-       SET count = count - 1;
-
+  IF new_count > _limit THEN
+    -- rollback the increment so users can try again tomorrow with correct counters
+    UPDATE public.ai_usage_daily
+       SET count = count - 1
      WHERE user_id = _user_id AND endpoint = _endpoint AND day = today_utc;
-
     RETURN QUERY SELECT FALSE, new_count - 1, _limit;
-
-  ELSE;
-
+  ELSE
     RETURN QUERY SELECT TRUE, new_count, _limit;
-
   END IF;
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.delete_email(queue_name text, message_id bigint);
-
- RETURNS boolean;
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO 'public', 'pgmq';
-
-AS $function$;
-
-BEGIN;
-
+CREATE OR REPLACE FUNCTION public.delete_email(queue_name text, message_id bigint)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pgmq'
+AS $function$
+BEGIN
   RETURN pgmq.delete(queue_name, message_id);
-
-EXCEPTION WHEN undefined_table THEN;
-
+EXCEPTION WHEN undefined_table THEN
   RETURN FALSE;
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.email_queue_dispatch();
-
- RETURNS void;
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO '';
-
-AS $function$;
-
-BEGIN;
-
-  IF NOT EXISTS (SELECT 1 FROM pgmq.q_auth_emails);
-
-     AND NOT EXISTS (SELECT 1 FROM pgmq.q_transactional_emails) THEN;
-
-    BEGIN;
-
-      -- Serialize disarm against email_queue_wake on a shared advisory lock, then;
-
-      -- re-read under it: an enqueue racing the unschedule either committed (we;
-
-      -- see its row and leave the cron) or waits and re-arms after we commit.;
-
+CREATE OR REPLACE FUNCTION public.email_queue_dispatch()
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pgmq.q_auth_emails)
+     AND NOT EXISTS (SELECT 1 FROM pgmq.q_transactional_emails) THEN
+    BEGIN
+      -- Serialize disarm against email_queue_wake on a shared advisory lock, then
+      -- re-read under it: an enqueue racing the unschedule either committed (we
+      -- see its row and leave the cron) or waits and re-arms after we commit.
       PERFORM pg_catalog.pg_advisory_xact_lock(7700000000000001);
-
-      IF EXISTS (SELECT 1 FROM pgmq.q_auth_emails);
-
-         OR EXISTS (SELECT 1 FROM pgmq.q_transactional_emails) THEN;
-
+      IF EXISTS (SELECT 1 FROM pgmq.q_auth_emails)
+         OR EXISTS (SELECT 1 FROM pgmq.q_transactional_emails) THEN
         RETURN;
-
       END IF;
-
       PERFORM cron.unschedule('process-email-queue');
-
-    EXCEPTION WHEN OTHERS THEN;
-
+    EXCEPTION WHEN OTHERS THEN
       RAISE WARNING 'email_queue_dispatch: cron unschedule failed: %', SQLERRM;
-
     END;
-
     RETURN;
-
   END IF;
 
-  IF (SELECT retry_after_until FROM public.email_send_state WHERE id = 1) > now() THEN;
-
+  IF (SELECT retry_after_until FROM public.email_send_state WHERE id = 1) > now() THEN
     RETURN;
-
   END IF;
 
-  PERFORM net.http_post(;
-
-    url := 'https://uqnwhypjrisbfkouwcge.supabase.co/functions/v1/process-email-queue',;
-
-    headers := jsonb_build_object(;
-
-      'Content-Type', 'application/json',;
-
-      'Lovable-Context', 'cron',;
-
-      'Authorization', 'Bearer ' || (;
-
-        SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'email_queue_service_role_key';
-
-      );
-
-    ),;
-
-    body := '{}'::jsonb;
-
+  PERFORM net.http_post(
+    url := 'https://uqnwhypjrisbfkouwcge.supabase.co/functions/v1/process-email-queue',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Lovable-Context', 'cron',
+      'Authorization', 'Bearer ' || (
+        SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'email_queue_service_role_key'
+      )
+    ),
+    body := '{}'::jsonb
   );
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.email_queue_wake();
-
- RETURNS trigger;
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO '';
-
-AS $function$;
-
-BEGIN;
-
-  -- Runs inside the enqueue transaction; the outer handler guarantees nothing;
-
-  -- below can roll back the customer's email. Shared advisory lock serializes;
-
-  -- arming against email_queue_dispatch's disarm.;
-
+CREATE OR REPLACE FUNCTION public.email_queue_wake()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+BEGIN
+  -- Runs inside the enqueue transaction; the outer handler guarantees nothing
+  -- below can roll back the customer's email. Shared advisory lock serializes
+  -- arming against email_queue_dispatch's disarm.
   PERFORM pg_catalog.pg_advisory_xact_lock(7700000000000001);
-
-  IF NOT EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'process-email-queue') THEN;
-
-    BEGIN;
-
+  IF NOT EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'process-email-queue') THEN
+    BEGIN
       PERFORM cron.schedule('process-email-queue', '5 seconds', $cron$ SELECT public.email_queue_dispatch(); $cron$);
-
-    EXCEPTION WHEN OTHERS THEN;
-
+    EXCEPTION WHEN OTHERS THEN
       RAISE WARNING 'email_queue_wake: cron schedule failed: %', SQLERRM;
-
     END;
-
   END IF;
 
-  BEGIN;
-
-    PERFORM net.http_post(;
-
-      url := 'https://uqnwhypjrisbfkouwcge.supabase.co/functions/v1/process-email-queue',;
-
-      headers := jsonb_build_object(;
-
-        'Content-Type', 'application/json',;
-
-        'Lovable-Context', 'cron',;
-
-        'Authorization', 'Bearer ' || (;
-
-          SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'email_queue_service_role_key';
-
-        );
-
-      ),;
-
-      body := '{}'::jsonb;
-
+  BEGIN
+    PERFORM net.http_post(
+      url := 'https://uqnwhypjrisbfkouwcge.supabase.co/functions/v1/process-email-queue',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'Lovable-Context', 'cron',
+        'Authorization', 'Bearer ' || (
+          SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'email_queue_service_role_key'
+        )
+      ),
+      body := '{}'::jsonb
     );
-
   EXCEPTION WHEN OTHERS THEN NULL;
-
   END;
 
   RETURN NULL;
-
-EXCEPTION WHEN OTHERS THEN;
-
+EXCEPTION WHEN OTHERS THEN
   RAISE WARNING 'email_queue_wake failed (enqueue preserved): %', SQLERRM;
-
   RETURN NULL;
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.enqueue_email(queue_name text, payload jsonb);
-
- RETURNS bigint;
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO 'public', 'pgmq';
-
-AS $function$;
-
-BEGIN;
-
+CREATE OR REPLACE FUNCTION public.enqueue_email(queue_name text, payload jsonb)
+ RETURNS bigint
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pgmq'
+AS $function$
+BEGIN
   RETURN pgmq.send(queue_name, payload);
-
-EXCEPTION WHEN undefined_table THEN;
-
+EXCEPTION WHEN undefined_table THEN
   PERFORM pgmq.create(queue_name);
-
   RETURN pgmq.send(queue_name, payload);
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.handle_new_user();
-
- RETURNS trigger;
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO 'public';
-
-AS $function$;
-
-DECLARE;
-
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+DECLARE
   v_ip inet;
-
-BEGIN;
-
-  BEGIN;
-
+BEGIN
+  BEGIN
     v_ip := NULLIF(NEW.raw_user_meta_data->>'signup_ip','')::inet;
-
   EXCEPTION WHEN others THEN v_ip := NULL; END;
 
-  INSERT INTO public.profiles (id, email, display_name, avatar_url, device_id, signup_ip, email_verified_at);
-
-  VALUES (;
-
-    NEW.id,;
-
-    NEW.email,;
-
-    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', split_part(NEW.email,'@',1)),;
-
-    NEW.raw_user_meta_data->>'avatar_url',;
-
-    NULLIF(NEW.raw_user_meta_data->>'device_id',''),;
-
-    v_ip,;
-
-    NEW.email_confirmed_at;
-
-  );
-
+  INSERT INTO public.profiles (id, email, display_name, avatar_url, device_id, signup_ip, email_verified_at)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', split_part(NEW.email,'@',1)),
+    NEW.raw_user_meta_data->>'avatar_url',
+    NULLIF(NEW.raw_user_meta_data->>'device_id',''),
+    v_ip,
+    NEW.email_confirmed_at
+  )
   ON CONFLICT (id) DO NOTHING;
-
   RETURN NEW;
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.has_active_subscription(user_uuid uuid, check_env text DEFAULT 'live'::text);
-
- RETURNS boolean;
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO 'public';
-
-AS $function$;
-
-DECLARE;
-
+CREATE OR REPLACE FUNCTION public.has_active_subscription(user_uuid uuid, check_env text DEFAULT 'live'::text)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+DECLARE
   jwt_role text;
-
-BEGIN;
-
+BEGIN
   jwt_role := current_setting('request.jwt.claims', true)::jsonb->>'role';
 
-  -- Service role bypass (used by edge functions and webhooks);
-
-  IF jwt_role = 'service_role' THEN;
-
-    -- allowed;
-
+  -- Service role bypass (used by edge functions and webhooks)
+  IF jwt_role = 'service_role' THEN
+    -- allowed
     NULL;
-
-  ELSE;
-
-    -- Anyone else may only check their own subscription status;
-
-    IF auth.uid() IS NULL OR auth.uid() <> user_uuid THEN;
-
+  ELSE
+    -- Anyone else may only check their own subscription status
+    IF auth.uid() IS NULL OR auth.uid() <> user_uuid THEN
       RAISE EXCEPTION 'access denied';
-
     END IF;
-
   END IF;
 
-  RETURN exists (;
-
-    select 1 from public.subscriptions;
-
-    where user_id = user_uuid;
-
-      and environment = check_env;
-
-      and (;
-
-        (status in ('active', 'trialing') and (current_period_end is null or current_period_end > now()));
-
-        or (status = 'canceled' and current_period_end > now());
-
-      );
-
+  RETURN exists (
+    select 1 from public.subscriptions
+    where user_id = user_uuid
+      and environment = check_env
+      and (
+        (status in ('active', 'trialing') and (current_period_end is null or current_period_end > now()))
+        or (status = 'canceled' and current_period_end > now())
+      )
   );
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role);
+CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = _user_id AND role = _role
+  )
+$function$;
 
- RETURNS boolean;
+CREATE OR REPLACE FUNCTION public.is_admin(_user_id uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = 'admin')
+$function$;
 
- LANGUAGE sql;
-
- STABLE SECURITY DEFINER;
-
- SET search_path TO 'public';
-
-AS $function$;
-
-  SELECT EXISTS (;
-
-    SELECT 1 FROM public.user_roles;
-
-    WHERE user_id = _user_id AND role = _role;
-
+CREATE OR REPLACE FUNCTION public.is_blocked(_user_id uuid, _ip text DEFAULT NULL::text, _device text DEFAULT NULL::text)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  SELECT EXISTS (
+    SELECT 1 FROM public.blocked_users
+    WHERE (_user_id IS NOT NULL AND user_id = _user_id)
+       OR (_ip IS NOT NULL AND ip_address = _ip)
+       OR (_device IS NOT NULL AND device_fingerprint = _device)
   );
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.is_admin(_user_id uuid);
-
- RETURNS boolean;
-
- LANGUAGE sql;
-
- STABLE SECURITY DEFINER;
-
- SET search_path TO 'public';
-
-AS $function$;
-
-  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = 'admin');
-
-$function$;
-
-CREATE OR REPLACE FUNCTION public.is_blocked(_user_id uuid, _ip text DEFAULT NULL::text, _device text DEFAULT NULL::text);
-
- RETURNS boolean;
-
- LANGUAGE sql;
-
- STABLE SECURITY DEFINER;
-
- SET search_path TO 'public';
-
-AS $function$;
-
-  SELECT EXISTS (;
-
-    SELECT 1 FROM public.blocked_users;
-
-    WHERE (_user_id IS NOT NULL AND user_id = _user_id);
-
-       OR (_ip IS NOT NULL AND ip_address = _ip);
-
-       OR (_device IS NOT NULL AND device_fingerprint = _device);
-
-  );
-
-$function$;
-
-CREATE OR REPLACE FUNCTION public.move_to_dlq(source_queue text, dlq_name text, message_id bigint, payload jsonb);
-
- RETURNS bigint;
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO 'public', 'pgmq';
-
-AS $function$;
-
+CREATE OR REPLACE FUNCTION public.move_to_dlq(source_queue text, dlq_name text, message_id bigint, payload jsonb)
+ RETURNS bigint
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pgmq'
+AS $function$
 DECLARE new_id BIGINT;
-
-BEGIN;
-
+BEGIN
   SELECT pgmq.send(dlq_name, payload) INTO new_id;
-
   PERFORM pgmq.delete(source_queue, message_id);
-
   RETURN new_id;
-
-EXCEPTION WHEN undefined_table THEN;
-
-  BEGIN;
-
+EXCEPTION WHEN undefined_table THEN
+  BEGIN
     PERFORM pgmq.create(dlq_name);
-
-  EXCEPTION WHEN OTHERS THEN;
-
+  EXCEPTION WHEN OTHERS THEN
     NULL;
-
   END;
-
   SELECT pgmq.send(dlq_name, payload) INTO new_id;
-
-  BEGIN;
-
+  BEGIN
     PERFORM pgmq.delete(source_queue, message_id);
-
-  EXCEPTION WHEN undefined_table THEN;
-
+  EXCEPTION WHEN undefined_table THEN
     NULL;
-
   END;
-
   RETURN new_id;
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.prevent_premium_self_upgrade();
-
- RETURNS trigger;
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO 'public';
-
-AS $function$;
-
+CREATE OR REPLACE FUNCTION public.prevent_premium_self_upgrade()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
 DECLARE jwt_role text;
-
-BEGIN;
-
+BEGIN
   jwt_role := current_setting('request.jwt.claims', true)::jsonb->>'role';
-
   IF jwt_role = 'service_role' THEN RETURN NEW; END IF;
 
-  IF current_setting('request.jwt.claims', true) IS NOT NULL THEN;
-
-    IF OLD.is_premium IS DISTINCT FROM NEW.is_premium THEN;
-
+  IF current_setting('request.jwt.claims', true) IS NOT NULL THEN
+    IF OLD.is_premium IS DISTINCT FROM NEW.is_premium THEN
       RAISE EXCEPTION 'is_premium can only be changed by the server';
-
     END IF;
-
-    -- Only admins may change ban status via Data API; regular users cannot.;
-
-    IF (OLD.is_banned IS DISTINCT FROM NEW.is_banned;
-
-        OR OLD.banned_at IS DISTINCT FROM NEW.banned_at;
-
-        OR OLD.ban_reason IS DISTINCT FROM NEW.ban_reason);
-
-       AND NOT public.has_role(auth.uid(),'admin') THEN;
-
+    -- Only admins may change ban status via Data API; regular users cannot.
+    IF (OLD.is_banned IS DISTINCT FROM NEW.is_banned
+        OR OLD.banned_at IS DISTINCT FROM NEW.banned_at
+        OR OLD.ban_reason IS DISTINCT FROM NEW.ban_reason)
+       AND NOT public.has_role(auth.uid(),'admin') THEN
       RAISE EXCEPTION 'is_banned can only be changed by an admin';
-
     END IF;
-
     NEW.scan_count := OLD.scan_count;
-
     NEW.daily_scan_count := OLD.daily_scan_count;
-
     NEW.last_scan_date := OLD.last_scan_date;
-
     NEW.last_scan_at := OLD.last_scan_at;
-
-    -- Lock immutable audit fields for self-updates;
-
-    IF NOT public.has_role(auth.uid(),'admin') THEN;
-
+    -- Lock immutable audit fields for self-updates
+    IF NOT public.has_role(auth.uid(),'admin') THEN
       NEW.signup_ip := OLD.signup_ip;
-
       NEW.device_id := OLD.device_id;
-
       NEW.email_verified_at := OLD.email_verified_at;
-
     END IF;
-
   END IF;
-
   RETURN NEW;
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.read_email_batch(queue_name text, batch_size integer, vt integer);
-
- RETURNS TABLE(msg_id bigint, read_ct integer, message jsonb);
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO 'public', 'pgmq';
-
-AS $function$;
-
-BEGIN;
-
+CREATE OR REPLACE FUNCTION public.read_email_batch(queue_name text, batch_size integer, vt integer)
+ RETURNS TABLE(msg_id bigint, read_ct integer, message jsonb)
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pgmq'
+AS $function$
+BEGIN
   RETURN QUERY SELECT r.msg_id, r.read_ct, r.message FROM pgmq.read(queue_name, vt, batch_size) r;
-
-EXCEPTION WHEN undefined_table THEN;
-
+EXCEPTION WHEN undefined_table THEN
   PERFORM pgmq.create(queue_name);
-
   RETURN;
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.set_updated_at();
-
- RETURNS trigger;
-
- LANGUAGE plpgsql;
-
- SET search_path TO 'public';
-
-AS $function$;
-
-BEGIN;
-
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SET search_path TO 'public'
+AS $function$
+BEGIN
   NEW.updated_at = now();
-
   RETURN NEW;
-
 END;
-
 $function$;
 
-CREATE OR REPLACE FUNCTION public.sync_email_verified();
-
- RETURNS trigger;
-
- LANGUAGE plpgsql;
-
- SECURITY DEFINER;
-
- SET search_path TO 'public';
-
-AS $function$;
-
-BEGIN;
-
-  IF NEW.email_confirmed_at IS DISTINCT FROM OLD.email_confirmed_at THEN;
-
-    UPDATE public.profiles;
-
-       SET email_verified_at = NEW.email_confirmed_at;
-
+CREATE OR REPLACE FUNCTION public.sync_email_verified()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+BEGIN
+  IF NEW.email_confirmed_at IS DISTINCT FROM OLD.email_confirmed_at THEN
+    UPDATE public.profiles
+       SET email_verified_at = NEW.email_confirmed_at
      WHERE id = NEW.id;
-
   END IF;
-
   RETURN NEW;
-
 END;
-
 $function$;
 
 -- -------------------------------------------------------------- TRIGGERS
