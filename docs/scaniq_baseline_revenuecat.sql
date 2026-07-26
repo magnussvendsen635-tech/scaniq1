@@ -34,9 +34,15 @@ CREATE TABLE IF NOT EXISTS public.user_roles (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_pkey PRIMARY KEY (id);
-ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_role_key UNIQUE (user_id, role);
-ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+DO $do$ BEGIN
+  ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_role_key UNIQUE (user_id, role);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_roles TO authenticated;
 GRANT ALL ON public.user_roles TO service_role;
@@ -132,8 +138,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   acquisition_channel text
 );
 
-ALTER TABLE public.profiles ADD CONSTRAINT profiles_pkey PRIMARY KEY (id);
-ALTER TABLE public.profiles ADD CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+DO $do$ BEGIN
+  ALTER TABLE public.profiles ADD CONSTRAINT profiles_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.profiles ADD CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO authenticated;
 GRANT ALL ON public.profiles TO service_role;
@@ -214,9 +224,15 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
   currency text DEFAULT 'USD'::text
 );
 
-ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
-ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_revenuecat_subscription_id_key UNIQUE (revenuecat_subscription_id);
-ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+DO $do$ BEGIN
+  ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_revenuecat_subscription_id_key UNIQUE (revenuecat_subscription_id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.subscriptions TO authenticated;
 GRANT ALL ON public.subscriptions TO service_role;
@@ -253,8 +269,12 @@ CREATE TABLE IF NOT EXISTS public.ai_usage_daily (
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.ai_usage_daily ADD CONSTRAINT ai_usage_daily_pkey PRIMARY KEY (user_id, endpoint, day);
-ALTER TABLE public.ai_usage_daily ADD CONSTRAINT ai_usage_daily_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+DO $do$ BEGIN
+  ALTER TABLE public.ai_usage_daily ADD CONSTRAINT ai_usage_daily_pkey PRIMARY KEY (user_id, endpoint, day);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.ai_usage_daily ADD CONSTRAINT ai_usage_daily_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT ON public.ai_usage_daily TO authenticated;
 GRANT ALL ON public.ai_usage_daily TO service_role;
@@ -279,7 +299,9 @@ CREATE TABLE IF NOT EXISTS public.blocked_users (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.blocked_users ADD CONSTRAINT blocked_users_pkey PRIMARY KEY (id);
+DO $do$ BEGIN
+  ALTER TABLE public.blocked_users ADD CONSTRAINT blocked_users_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.blocked_users TO authenticated;
 GRANT ALL ON public.blocked_users TO service_role;
@@ -335,8 +357,12 @@ CREATE TABLE IF NOT EXISTS public.email_send_log (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.email_send_log ADD CONSTRAINT email_send_log_pkey PRIMARY KEY (id);
-ALTER TABLE public.email_send_log ADD CONSTRAINT email_send_log_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'sent'::text, 'suppressed'::text, 'failed'::text, 'bounced'::text, 'complained'::text, 'dlq'::text])));
+DO $do$ BEGIN
+  ALTER TABLE public.email_send_log ADD CONSTRAINT email_send_log_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.email_send_log ADD CONSTRAINT email_send_log_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'sent'::text, 'suppressed'::text, 'failed'::text, 'bounced'::text, 'complained'::text, 'dlq'::text])));
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE ON public.email_send_log TO anon;
 GRANT SELECT, INSERT, UPDATE ON public.email_send_log TO authenticated;
@@ -385,8 +411,12 @@ CREATE TABLE IF NOT EXISTS public.email_send_state (
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.email_send_state ADD CONSTRAINT email_send_state_pkey PRIMARY KEY (id);
-ALTER TABLE public.email_send_state ADD CONSTRAINT email_send_state_id_check CHECK ((id = 1));
+DO $do$ BEGIN
+  ALTER TABLE public.email_send_state ADD CONSTRAINT email_send_state_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.email_send_state ADD CONSTRAINT email_send_state_id_check CHECK ((id = 1));
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.email_send_state TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.email_send_state TO authenticated;
@@ -412,9 +442,15 @@ CREATE TABLE IF NOT EXISTS public.email_unsubscribe_tokens (
   used_at timestamp with time zone
 );
 
-ALTER TABLE public.email_unsubscribe_tokens ADD CONSTRAINT email_unsubscribe_tokens_pkey PRIMARY KEY (id);
-ALTER TABLE public.email_unsubscribe_tokens ADD CONSTRAINT email_unsubscribe_tokens_email_key UNIQUE (email);
-ALTER TABLE public.email_unsubscribe_tokens ADD CONSTRAINT email_unsubscribe_tokens_token_key UNIQUE (token);
+DO $do$ BEGIN
+  ALTER TABLE public.email_unsubscribe_tokens ADD CONSTRAINT email_unsubscribe_tokens_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.email_unsubscribe_tokens ADD CONSTRAINT email_unsubscribe_tokens_email_key UNIQUE (email);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.email_unsubscribe_tokens ADD CONSTRAINT email_unsubscribe_tokens_token_key UNIQUE (token);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE ON public.email_unsubscribe_tokens TO anon;
 GRANT SELECT, INSERT, UPDATE ON public.email_unsubscribe_tokens TO authenticated;
@@ -467,8 +503,12 @@ CREATE TABLE IF NOT EXISTS public.favorites (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.favorites ADD CONSTRAINT favorites_pkey PRIMARY KEY (id);
-ALTER TABLE public.favorites ADD CONSTRAINT favorites_user_id_name_key UNIQUE (user_id, name);
+DO $do$ BEGIN
+  ALTER TABLE public.favorites ADD CONSTRAINT favorites_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.favorites ADD CONSTRAINT favorites_user_id_name_key UNIQUE (user_id, name);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.favorites TO authenticated;
 GRANT ALL ON public.favorites TO service_role;
@@ -529,7 +569,9 @@ CREATE TABLE IF NOT EXISTS public.meals (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.meals ADD CONSTRAINT meals_pkey PRIMARY KEY (id);
+DO $do$ BEGIN
+  ALTER TABLE public.meals ADD CONSTRAINT meals_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.meals TO authenticated;
 GRANT ALL ON public.meals TO service_role;
@@ -581,7 +623,9 @@ CREATE TABLE IF NOT EXISTS public.page_views (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.page_views ADD CONSTRAINT page_views_pkey PRIMARY KEY (id);
+DO $do$ BEGIN
+  ALTER TABLE public.page_views ADD CONSTRAINT page_views_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT INSERT ON public.page_views TO anon;
 GRANT SELECT, INSERT ON public.page_views TO authenticated;
@@ -633,8 +677,12 @@ CREATE TABLE IF NOT EXISTS public.payouts (
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.payouts ADD CONSTRAINT payouts_pkey PRIMARY KEY (id);
-ALTER TABLE public.payouts ADD CONSTRAINT payouts_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+DO $do$ BEGIN
+  ALTER TABLE public.payouts ADD CONSTRAINT payouts_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.payouts ADD CONSTRAINT payouts_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.payouts TO authenticated;
 GRANT ALL ON public.payouts TO service_role;
@@ -698,9 +746,15 @@ CREATE TABLE IF NOT EXISTS public.push_subscriptions (
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.push_subscriptions ADD CONSTRAINT push_subscriptions_pkey PRIMARY KEY (id);
-ALTER TABLE public.push_subscriptions ADD CONSTRAINT push_subscriptions_endpoint_key UNIQUE (endpoint);
-ALTER TABLE public.push_subscriptions ADD CONSTRAINT push_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+DO $do$ BEGIN
+  ALTER TABLE public.push_subscriptions ADD CONSTRAINT push_subscriptions_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.push_subscriptions ADD CONSTRAINT push_subscriptions_endpoint_key UNIQUE (endpoint);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.push_subscriptions ADD CONSTRAINT push_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.push_subscriptions TO authenticated;
 GRANT ALL ON public.push_subscriptions TO service_role;
@@ -754,8 +808,12 @@ CREATE TABLE IF NOT EXISTS public.reminder_preferences (
   calories boolean DEFAULT true NOT NULL
 );
 
-ALTER TABLE public.reminder_preferences ADD CONSTRAINT reminder_preferences_pkey PRIMARY KEY (user_id);
-ALTER TABLE public.reminder_preferences ADD CONSTRAINT reminder_preferences_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+DO $do$ BEGIN
+  ALTER TABLE public.reminder_preferences ADD CONSTRAINT reminder_preferences_pkey PRIMARY KEY (user_id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.reminder_preferences ADD CONSTRAINT reminder_preferences_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.reminder_preferences TO authenticated;
 GRANT ALL ON public.reminder_preferences TO service_role;
@@ -809,8 +867,12 @@ CREATE TABLE IF NOT EXISTS public.scans (
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.scans ADD CONSTRAINT scans_pkey PRIMARY KEY (id);
-ALTER TABLE public.scans ADD CONSTRAINT scans_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+DO $do$ BEGIN
+  ALTER TABLE public.scans ADD CONSTRAINT scans_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.scans ADD CONSTRAINT scans_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.scans TO authenticated;
 GRANT ALL ON public.scans TO service_role;
@@ -861,9 +923,15 @@ CREATE TABLE IF NOT EXISTS public.suppressed_emails (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.suppressed_emails ADD CONSTRAINT suppressed_emails_pkey PRIMARY KEY (id);
-ALTER TABLE public.suppressed_emails ADD CONSTRAINT suppressed_emails_email_key UNIQUE (email);
-ALTER TABLE public.suppressed_emails ADD CONSTRAINT suppressed_emails_reason_check CHECK ((reason = ANY (ARRAY['unsubscribe'::text, 'bounce'::text, 'complaint'::text])));
+DO $do$ BEGIN
+  ALTER TABLE public.suppressed_emails ADD CONSTRAINT suppressed_emails_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.suppressed_emails ADD CONSTRAINT suppressed_emails_email_key UNIQUE (email);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
+DO $do$ BEGIN
+  ALTER TABLE public.suppressed_emails ADD CONSTRAINT suppressed_emails_reason_check CHECK ((reason = ANY (ARRAY['unsubscribe'::text, 'bounce'::text, 'complaint'::text])));
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT ON public.suppressed_emails TO anon;
 GRANT SELECT, INSERT ON public.suppressed_emails TO authenticated;
@@ -919,7 +987,9 @@ CREATE TABLE IF NOT EXISTS public.user_settings (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.user_settings ADD CONSTRAINT user_settings_pkey PRIMARY KEY (user_id);
+DO $do$ BEGIN
+  ALTER TABLE public.user_settings ADD CONSTRAINT user_settings_pkey PRIMARY KEY (user_id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_settings TO authenticated;
 GRANT ALL ON public.user_settings TO service_role;
@@ -966,7 +1036,9 @@ CREATE TABLE IF NOT EXISTS public.water_logs (
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.water_logs ADD CONSTRAINT water_logs_pkey PRIMARY KEY (user_id, day);
+DO $do$ BEGIN
+  ALTER TABLE public.water_logs ADD CONSTRAINT water_logs_pkey PRIMARY KEY (user_id, day);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.water_logs TO authenticated;
 GRANT ALL ON public.water_logs TO service_role;
@@ -1014,7 +1086,9 @@ CREATE TABLE IF NOT EXISTS public.weights (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.weights ADD CONSTRAINT weights_pkey PRIMARY KEY (id);
+DO $do$ BEGIN
+  ALTER TABLE public.weights ADD CONSTRAINT weights_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.weights TO authenticated;
 GRANT ALL ON public.weights TO service_role;
@@ -1066,7 +1140,9 @@ CREATE TABLE IF NOT EXISTS public.workouts (
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-ALTER TABLE public.workouts ADD CONSTRAINT workouts_pkey PRIMARY KEY (id);
+DO $do$ BEGIN
+  ALTER TABLE public.workouts ADD CONSTRAINT workouts_pkey PRIMARY KEY (id);
+EXCEPTION WHEN duplicate_table OR duplicate_object OR invalid_table_definition THEN NULL; END $do$;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.workouts TO authenticated;
 GRANT ALL ON public.workouts TO service_role;
