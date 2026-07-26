@@ -7,10 +7,11 @@ import { RC_CONFIG } from "@/config/revenuecat";
  * Native In-App Purchase hook backed by RevenueCat.
  *
  * Configure in App Store Connect:
- *   - com.scaniq.pro.monthly  (auto-renewable subscription, $19/month)
+ *   - com.scaniq.monthly  (auto-renewable monthly subscription)
+ *   - scaniq.yearly       (auto-renewable yearly subscription)
  *
  * Configure in RevenueCat:
- *   - Entitlement identifier: "pro"
+ *   - Entitlement identifier: "ScanIQ: Kalorietæller Pro"
  *   - Offering with the monthly package above
  *   - Paste your iOS public SDK key into src/config/revenuecat.ts
  *
@@ -21,7 +22,8 @@ import { RC_CONFIG } from "@/config/revenuecat";
  */
 
 export const IAP_PRODUCTS = {
-  monthly: "com.scaniq.pro.monthly" as const,
+  monthly: "com.scaniq.monthly" as const,
+  yearly: "scaniq.yearly" as const,
 } as const;
 
 export type IAPProductId = (typeof IAP_PRODUCTS)[keyof typeof IAP_PRODUCTS];
@@ -52,13 +54,21 @@ async function configureRC(appUserID: string | undefined) {
   }
 }
 
+/** Active entitlement: prefer the configured one, else any active entitlement. */
+function activeEntitlement(ci: any) {
+  const active = ci?.entitlements?.active ?? {};
+  return active[ENTITLEMENT_ID] ?? Object.values(active)[0];
+}
+
 async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any) {
-  const ent = ci?.entitlements?.active?.[ENTITLEMENT_ID];
+  const ent: any = activeEntitlement(ci);
   await supabase.functions.invoke("iap-sync", {
     body: {
       source: "client",
       entitlement_active: !!ent,
       product_id: ent?.productIdentifier ?? productId,
+      entitlement_id: ent?.identifier ?? ENTITLEMENT_ID,
+      revenuecat_customer_id: ci?.originalAppUserId ?? undefined,
       transaction_id: ci?.originalAppUserId ?? undefined,
       original_transaction_id: ent?.originalPurchaseDate ?? undefined,
       expires_at: ent?.expirationDate ?? null,
@@ -119,7 +129,7 @@ export function useIAP() {
       }
       const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
       await syncCustomerInfoToBackend(productId, customerInfo);
-      return { success: !!customerInfo?.entitlements?.active?.[ENTITLEMENT_ID] };
+      return { success: !!activeEntitlement(customerInfo) };
     } catch (e: any) {
       if (e?.userCancelled) return { success: false };
       toast.error("Purchase failed", { description: e?.message });
@@ -139,7 +149,7 @@ export function useIAP() {
       const { Purchases } = await import("@revenuecat/purchases-capacitor");
       const { customerInfo } = await Purchases.restorePurchases();
       await syncCustomerInfoToBackend(IAP_PRODUCTS.monthly, customerInfo);
-      return { restored: !!customerInfo?.entitlements?.active?.[ENTITLEMENT_ID] };
+      return { restored: !!activeEntitlement(customerInfo) };
     } catch (e: any) {
       toast.error("Restore failed", { description: e?.message });
       return { restored: false };

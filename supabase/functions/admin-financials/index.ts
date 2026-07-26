@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
 
     // Total revenue = sum of all amount_paid_cents for live, non-zero rows
     const totalRevenueCents = subs
-      .filter((s: any) => s.environment === "live")
+      .filter((s: any) => s.environment === "production")
       .reduce((acc: number, s: any) => acc + (s.amount_paid_cents ?? 0), 0);
 
     const premiumUserIds = new Set(active.map((s: any) => s.user_id));

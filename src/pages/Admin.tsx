@@ -307,7 +307,7 @@ export default function Admin() {
                     <span>·</span>
                     <span>{tx.status}</span>
                     <span>·</span>
-                    <span className={tx.environment === "live" ? "text-green-600" : "text-yellow-600"}>{tx.environment}</span>
+                    <span className={tx.environment === "production" ? "text-green-600" : "text-yellow-600"}>{tx.environment}</span>
                     <span className="ml-auto">{new Date(tx.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
