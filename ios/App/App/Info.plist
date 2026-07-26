@@ -47,5 +47,20 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>ScanIQ needs camera access to scan your food and read nutrition labels.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ScanIQ needs photo access so you can pick meal photos from your library.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>ScanIQ can save scanned meal photos to your library.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>ScanIQ reads weight and activity from Apple Health to personalise your daily goals.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>ScanIQ writes meals and nutrition data to Apple Health so you can track it there.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>ScanIQ uses this to improve product recognition. You can decline.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+
 </dict>
 </plist>
