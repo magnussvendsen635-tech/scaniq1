@@ -3,8 +3,11 @@
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import type { Meal, MealCategory, ReminderSettings } from "@/store/useKStore";
+import { useKStore } from "@/store/useKStore";
+import { translateManyNow } from "@/i18n/runtimeFallback";
 
 const isNative = () => Capacitor.isNativePlatform();
+
 
 const MOTIVATION = [
   "Stay consistent today 💪",
@@ -124,6 +127,16 @@ export async function rescheduleReminders(opts: {
   });
 
   if (notifs.length) {
+    // Localise every title/body into the user's selected language.
+    const lang = useKStore.getState().language || "en";
+    if (lang.split("-")[0] !== "en") {
+      const sources = notifs.flatMap((n) => [n.title, n.body]);
+      const translated = await translateManyNow(lang, sources);
+      notifs.forEach((n, i) => {
+        n.title = translated[i * 2] || n.title;
+        n.body = translated[i * 2 + 1] || n.body;
+      });
+    }
     try {
       await LocalNotifications.schedule({ notifications: notifs });
     } catch (e) {
@@ -131,3 +144,4 @@ export async function rescheduleReminders(opts: {
     }
   }
 }
+

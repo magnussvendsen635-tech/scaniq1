@@ -110,3 +110,31 @@ export function subscribe(listener: Listener): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
+
+// Awaitable batch translation — used for imperative flows (e.g. scheduling
+// local notifications) where we need the translated strings before continuing.
+export async function translateManyNow(lang: string, sources: string[]): Promise<string[]> {
+  if (!sources.length) return sources;
+  if (!lang || lang.split("-")[0] === "en") return sources;
+
+  const missing = sources.filter((s) => s && getCachedTranslation(lang, s) === undefined);
+  if (missing.length) {
+    try {
+      const { data, error } = await supabase.functions.invoke("translate-text", {
+        body: { texts: missing, language: lang },
+      });
+      if (error) throw error;
+      const translations: string[] =
+        Array.isArray(data?.translations) && data.translations.length === missing.length
+          ? data.translations
+          : missing;
+      missing.forEach((src, i) => {
+        const value = translations[i] || src;
+        memoryCache.set(cacheKey(lang, src), value);
+        try { localStorage.setItem(storageKey(lang, src), value); } catch { /* quota */ }
+      });
+      notify();
+    } catch { /* fall back to English below */ }
+  }
+  return sources.map((s) => getCachedTranslation(lang, s) ?? s);
+}
