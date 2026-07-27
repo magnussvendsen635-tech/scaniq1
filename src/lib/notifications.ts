@@ -3,8 +3,11 @@
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import type { Meal, MealCategory, ReminderSettings } from "@/store/useKStore";
+import { useKStore } from "@/store/useKStore";
+import { translateManyNow } from "@/i18n/runtimeFallback";
 
 const isNative = () => Capacitor.isNativePlatform();
+
 
 const MOTIVATION = [
   "Stay consistent today 💪",
