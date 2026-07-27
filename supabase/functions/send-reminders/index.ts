@@ -120,6 +120,53 @@ Deno.serve(async (req) => {
     }
   }
 
+  // Localise notification copy into each user's selected language.
+  const userIds = [...new Set(jobs.map((j) => j.user_id))];
+  const langByUser = new Map<string, string>();
+  if (userIds.length) {
+    const { data: settings } = await admin
+      .from("user_settings")
+      .select("user_id, language")
+      .in("user_id", userIds);
+    for (const s of settings || []) langByUser.set(s.user_id, s.language || "en");
+  }
+
+  // Unique english strings per language -> one translate-text call per language.
+  const byLang = new Map<string, Set<string>>();
+  for (const j of jobs) {
+    const lang = langByUser.get(j.user_id) || "en";
+    if (lang.split("-")[0] === "en") continue;
+    if (!byLang.has(lang)) byLang.set(lang, new Set());
+    byLang.get(lang)!.add(j.title);
+    byLang.get(lang)!.add(j.body);
+  }
+
+  const dict = new Map<string, string>(); // `${lang}::${en}` -> translated
+  await Promise.all(
+    [...byLang.entries()].map(async ([lang, set]) => {
+      const texts = [...set];
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/translate-text`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${SERVICE_KEY}` },
+          body: JSON.stringify({ texts, language: lang }),
+        });
+        const data = await res.json();
+        const out: string[] = Array.isArray(data?.translations) && data.translations.length === texts.length
+          ? data.translations
+          : texts;
+        texts.forEach((t, i) => dict.set(`${lang}::${t}`, out[i] || t));
+      } catch (_e) { /* keep english */ }
+    })
+  );
+
+  for (const j of jobs) {
+    const lang = langByUser.get(j.user_id) || "en";
+    if (lang.split("-")[0] === "en") continue;
+    j.title = dict.get(`${lang}::${j.title}`) || j.title;
+    j.body = dict.get(`${lang}::${j.body}`) || j.body;
+  }
+
   // Dispatch in parallel — call send-push for each unique notification
   const results = await Promise.all(
     jobs.map(async (j) => {
@@ -134,6 +181,7 @@ Deno.serve(async (req) => {
       return { user: j.user_id, tag: j.tag, ok: res.ok };
     })
   );
+
 
   return new Response(JSON.stringify({ jobs: jobs.length, results }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
