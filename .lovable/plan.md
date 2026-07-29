@@ -1,22 +1,50 @@
-## Problem (bekræftet)
+Mål: Sikre, at ScanIQ bruger kryptering og stærke adgangskontroller, lukke de nuværende sikkerhedsadvarsler, og offentliggøre en trust/sikkerhedsside for brugerne.
 
-I `docs/scaniq_baseline_revenuecat.sql` bliver `public.has_role()` først oprettet på linje 1208, men den bruges allerede i RLS-politikker fra linje 63 (`profiles`), samt i `blocked_users`, `page_views`, `payouts` m.fl. På et tomt projekt fejler filen derfor med "function has_role(uuid, app_role) does not exist".
+Nuværende status (verificeret):
+- Data sendes krypteret (HTTPS/TLS) og ligger krypteret i hvile hos Lovable Cloud backend.
+- RLS (Row-Level Security) er aktiveret på brugertabeller, så brugere normalt kun ser egne data.
+- Kodeord hashes — appen ser aldrig kodeord i klar tekst.
+- Der er ingen kritiske (error) sikkerhedsfund i øjeblikket.
+- Supabase-linteren rapporterer 23 advarsler, især om SECURITY DEFINER-funktioner, der kan kaldes af anonyme eller almindelige brugere uden at være nødvendigt.
+- Der findes allerede en /privacy-side, men ingen dedikeret /security- eller trust-side.
 
-Bemærk også: `has_role` og `is_blocked` er `LANGUAGE sql` og bliver parset ved oprettelse, så de kræver at deres tabeller findes først. `is_blocked` ligger allerede efter `blocked_users` — kun `has_role`/`is_admin` skal flyttes.
+Plan:
 
-## Løsning: ny rækkefølge i filen
+1. Hærd databaseadgangen
+   - Gennemgå alle SECURITY DEFINER-funktioner og fjern `EXECUTE` for `anon`/`public` overalt, hvor funktionen ikke er tiltænkt offentlige kald.
+   - Sikre, at `authenticated` kun kan kalde de funktioner, de har brug for (f.eks. `has_role`, `is_admin`, `check_and_increment_ai_quota`), og at service-/admin-funktioner kun er åbne for `service_role`.
+   - Revidere RLS-policies og GRANTs på tabeller for at sikre, at ingen brugere kan læse/skrive andres data.
+   - Sikre, at `user_roles` kun kan læses af `authenticated` og `service_role` (ikke `anon`).
 
-1. Enums: `app_role`, `payout_status` (uændret, linje 19-26)
-2. `user_roles`: CREATE TABLE → GRANT → ENABLE RLS → politikker (de fire politikker bruger kun `auth.uid()`/service role, så de kan køre her)
-3. `set_updated_at()`, `has_role(uuid, app_role)`, `is_admin(uuid)` — flyttes op hertil
-4. Alle øvrige tabeller i nuværende rækkefølge (`profiles`, `subscriptions`, `ai_usage_daily`, … `workouts`) med deres GRANTs, RLS, politikker og indexes — nu virker `has_role()` i politikkerne
-5. Resterende funktioner (kvote, e-mail-kø, `handle_new_user`, `has_active_subscription`, `is_blocked`, `prevent_premium_self_upgrade`, `sync_email_verified`, `move_to_dlq`, …) — uændret indhold, minus de tre der er flyttet op
-6. Triggers til sidst (uændret)
+2. Hærd app-sikkerheden
+   - Tilføje sikkerheds-headere i Vite/Edge Function-responses (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy).
+   - Implementere automatisk udløb af inaktive sessioner (f.eks. 7 dage på web, 30 dage på mobil — efter aftale).
+   - Tilføje login-aktivitetslog: registrer seneste login-tidspunkt og IP, og vis en "ny enhed"-advarsel/besked ved usædvanlige logins.
+   - Sikre, at adgangskodeændringer kræver bekræftelse af nuværende kodeord.
+   - Overveje rate limiting på login/forsøg (håndteres primært af backend, men appen kan vise brugervenlige fejl).
 
-## Tekniske noter
+3. Opret offentlig /security-side (trust-side)
+   - Ny side: /security med SEO, oversat via eksisterende i18n-system.
+   - Indhold skal forklare på almindeligt sprog:
+     - Kryptering i transit og i hvile.
+     - RLS: kun brugeren selv kan se sine måltider, vægt, billeder osv.
+     - Adgangskontrol: hashed passwords, Google/Apple OAuth, validering af email.
+     - Hvor data opbevares (Lovable Cloud backend / EU).
+     - Underleverandører: Apple App Store/Google Play (betaling), Google Gemini (AI-analyse via Lovable AI Gateway).
+     - Dataopbevaring: brugerdata slettes ved kontosletning, betalingsdata opbevares efter lovkrav.
+     - Brugerrettigheder (GDPR): indsigt, rettelse, sletning, eksport.
+     - Kontakt: scaniqapp1@gmail.com.
+   - Link til siden fra /privacy, /settings, /terms og landing/footer.
+   - Brug appens eksisterende designsystem og komponenter — ingen ny palette.
 
-- Ingen ændringer i SQL-indhold: kun rækkefølge. Alle kolonner, constraints, GRANTs, politikker og indexes bevares 1:1.
-- Triggers bruger `CREATE TRIGGER` uden `IF NOT EXISTS`; jeg pakker dem i `DO $$ ... EXCEPTION WHEN duplicate_object` (eller `DROP TRIGGER IF EXISTS` først), så filen kan køres igen uden fejl.
-- Alle policies får `DROP POLICY IF EXISTS` foran, så filen bliver fuldt idempotent på et tomt såvel som delvist oprettet projekt.
-- Headerkommentaren opdateres: filen kan nu køres direkte mod et tomt Supabase-projekt.
-- Filen forbliver `docs/scaniq_baseline_revenuecat.sql` (filer under `supabase/migrations/` er beskyttede og kan ikke redigeres direkte).
+4. Dokumentation og verifikation
+   - Opdatere sikkerheds-memory med, hvad der er bevidst valgt (f.eks. offentlige price-sider, anonyme sider uden RLS).
+   - Efter rettelser: køre Supabase-linter og sikkerhedsscan igen for at bekræfte, at advarslerne er væk.
+   - Teste login, signup, password reset, konto-sletning og AI-scan-kvoten end-to-end.
+
+Krav til brugeren:
+- Bekræft, om sessioner skal udløbe efter 7 dage (web) / 30 dage (mobil), eller andre værdier.
+- Bekræft emailadresse til sikkerhedskontakt (pt. scaniqapp1@gmail.com) og om den skal stå på /security.
+- Beslutning: skal vi tilføje "ny enhed"-beskeder som push/email, eller blot vise en note i appen?
+
+Efter plan-godkendelse: Jeg starter med database-hærdningen og /security-siden, derefter app-hærdning og verifikation.
