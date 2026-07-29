@@ -28,8 +28,10 @@ import Weight from "./pages/Weight";
 import Recipes from "./pages/Recipes";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Security from "./pages/Security";
 import Refund from "./pages/Refund";
 import Pricing from "./pages/Pricing";
+
 import DataPrivacy from "./pages/DataPrivacy";
 import Help from "./pages/Help";
 import Admin from "./pages/Admin";
@@ -119,7 +121,9 @@ const App = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/security" element={<Security />} />
             <Route path="/refund" element={<Refund />} />
+
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />

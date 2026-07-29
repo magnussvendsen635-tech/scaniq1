@@ -356,6 +356,8 @@ export type Database = {
           id: string
           is_banned: boolean
           is_premium: boolean
+          last_login_at: string | null
+          last_login_ip: unknown
           last_scan_at: string | null
           last_scan_date: string | null
           scan_count: number
@@ -376,6 +378,8 @@ export type Database = {
           id: string
           is_banned?: boolean
           is_premium?: boolean
+          last_login_at?: string | null
+          last_login_ip?: unknown
           last_scan_at?: string | null
           last_scan_date?: string | null
           scan_count?: number
@@ -396,6 +400,8 @@ export type Database = {
           id?: string
           is_banned?: boolean
           is_premium?: boolean
+          last_login_at?: string | null
+          last_login_ip?: unknown
           last_scan_at?: string | null
           last_scan_date?: string | null
           scan_count?: number
@@ -833,6 +839,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      record_login: {
+        Args: { _ip: unknown; _user_id: string }
+        Returns: undefined
       }
     }
     Enums: {

@@ -92,7 +92,12 @@ export default function Terms() {
         <Section title={T[30]}>
           <p>ScanIQ · Kinetex Intelligens · <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">scaniqapp1@gmail.com</a></p>
         </Section>
+
+        <div className="pt-4 border-t border-border/60 flex items-center justify-center">
+          <button onClick={() => nav("/security")} className="text-xs text-primary-glow hover:underline">{t("profile.security")}</button>
+        </div>
       </div>
+
     </div>
   );
 }
