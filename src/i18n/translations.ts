@@ -147,8 +147,9 @@ export type TKey =
   | "reminders.title" | "reminders.sub_on" | "reminders.sub_off"
   // Settings extras
   | "settings.scan_accuracy" | "settings.cal_adjust" | "settings.cal_adjust_sub" | "settings.recommended"
-  | "settings.about" | "settings.data_privacy" | "settings.privacy_policy" | "settings.terms_of_service"
+  | "settings.about" | "settings.data_privacy" | "settings.privacy_policy" | "settings.terms_of_service" | "settings.security"
   | "settings.developer" | "settings.admin_panel"
+
   // Home extras
   | "home.greet_morning" | "home.greet_day" | "home.greet_afternoon" | "home.greet_evening"
   | "home.food_scan_label" | "home.scan_first_meal" | "home.tap_to_scan" | "home.last_scan"
