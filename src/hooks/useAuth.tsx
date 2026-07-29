@@ -119,7 +119,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [checkSessionTimeout]);
 
+  useEffect(() => {
     // Safety net: never let the app hang on the loading screen.
+
     const failsafe = setTimeout(() => setLoading((l) => (l ? false : l)), MAX_AUTH_LOADING_MS);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
