@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
-import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift, Tag } from "lucide-react";
+import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift, Tag, Lock } from "lucide-react";
 import leafLogo from "@/assets/scaniq-logo-new.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -135,6 +135,8 @@ export default function Profile() {
         />
         <Row Icon={Shield} title={t("profile.privacy")} sub={t("profile.privacy_sub")} onClick={() => nav("/privacy")} />
         <Row Icon={FileText} title={t("profile.terms")} sub={t("profile.terms_sub")} onClick={() => nav("/terms")} />
+        <Row Icon={Lock} title={t("profile.security")} sub={t("profile.security_sub")} onClick={() => nav("/security")} />
+
         <Row Icon={Gift} title={t("profile.bonus_terms")} sub={t("profile.bonus_terms_sub")} onClick={() => nav("/bonus-terms")} />
         <Row Icon={LifeBuoy} title={t("profile.help")} sub={t("profile.help_sub")} onClick={() => nav("/help")} />
         {isAdmin && <Row Icon={Database} title={t("profile.admin")} sub={t("profile.admin_sub")} onClick={() => nav("/admin")} />}
