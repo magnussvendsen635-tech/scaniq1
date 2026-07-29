@@ -566,8 +566,10 @@ const en: Record<TKey, string> = {
   "settings.data_privacy": "Data & privacy",
   "settings.privacy_policy": "Privacy policy",
   "settings.terms_of_service": "Terms of service",
+  "settings.security": "Security",
   "settings.developer": "Developer",
   "settings.admin_panel": "Admin panel",
+
   // Home extras
   "home.greet_morning": "Good morning",
   "home.greet_day": "Good day",
