@@ -527,7 +527,10 @@ const en: Record<TKey, string> = {
   "profile.privacy_sub": "How we use your data",
   "profile.terms": "Terms of Service",
   "profile.terms_sub": "Terms and conditions",
+  "profile.security": "Security",
+  "profile.security_sub": "How we protect your data",
   "profile.pricing": "Pricing",
+
   "profile.pricing_sub": "Plans and prices",
   "profile.bonus_terms": "Bonus Terms",
   "profile.bonus_terms_sub": "Refer-a-friend bonus terms",
