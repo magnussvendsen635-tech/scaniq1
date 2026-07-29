@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useKStore } from "@/store/useKStore";
 import { toast } from "sonner";
@@ -19,6 +19,9 @@ const AuthContext = createContext<AuthContextValue>({
 });
 
 const MAX_AUTH_LOADING_MS = 5000;
+const SESSION_TIMEOUT_MS = 7 * 24 * 60 * 60 * 1000; // 7 days of inactivity on web
+const LAST_ACTIVITY_KEY = "scaniq_last_activity";
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
