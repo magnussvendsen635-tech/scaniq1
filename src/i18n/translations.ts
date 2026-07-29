@@ -120,7 +120,8 @@ export type TKey =
   | "landing.footer_pricing" | "landing.footer_terms" | "landing.footer_refund" | "landing.footer_privacy"
   | "landing.footer_copyright"
   // Legal page titles
-  | "legal.terms_title" | "legal.privacy_title" | "legal.refund_title"
+  | "legal.terms_title" | "legal.privacy_title" | "legal.refund_title" | "legal.security_title"
+
   // Acquisition survey
   | "survey.title" | "survey.sub" | "survey.skip" | "survey.saved"
   | "survey.tiktok" | "survey.instagram" | "survey.ai_search" | "survey.influencer"
