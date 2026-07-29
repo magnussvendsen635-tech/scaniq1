@@ -142,8 +142,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.session?.user) {
         setTimeout(() => enforceBan(data.session), 0);
         setTimeout(() => maybeSendWelcome(data.session!.user), 0);
+        setTimeout(() => recordLoginActivity(data.session!.user), 0);
       }
     }).catch(() => {
+
       setLoading(false);
       clearTimeout(failsafe);
     });
