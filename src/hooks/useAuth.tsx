@@ -131,9 +131,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (s?.user) {
         setTimeout(() => enforceBan(s), 0);
         setTimeout(() => maybeSendWelcome(s.user), 0);
+        setTimeout(() => recordLoginActivity(s.user), 0);
       }
     });
     supabase.auth.getSession().then(({ data }) => {
+
       setSession(data.session);
       setLoading(false);
       clearTimeout(failsafe);
