@@ -132,7 +132,9 @@ export type TKey =
   | "profile.manage_sub" | "profile.manage_sub_sub"
   | "profile.privacy" | "profile.privacy_sub"
   | "profile.terms" | "profile.terms_sub"
+  | "profile.security" | "profile.security_sub"
   | "profile.pricing" | "profile.pricing_sub"
+
   | "profile.bonus_terms" | "profile.bonus_terms_sub"
   | "profile.help" | "profile.help_sub"
   | "profile.admin" | "profile.admin_sub"
