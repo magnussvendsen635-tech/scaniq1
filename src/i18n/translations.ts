@@ -497,6 +497,8 @@ const en: Record<TKey, string> = {
   "legal.terms_title": "Terms of Service",
   "legal.privacy_title": "Privacy Policy",
   "legal.refund_title": "Refund Policy",
+  "legal.security_title": "Security",
+
   // Acquisition survey
   "survey.title": "How did you hear about us?",
   "survey.sub": "This helps us understand how to reach more people like you.",
