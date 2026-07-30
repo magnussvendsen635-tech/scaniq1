@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,9 +10,19 @@ import { toast } from "sonner";
 import { useT } from "@/i18n/useT";
 import { Seo } from "@/components/Seo";
 
+/** Only allow same-origin relative paths as a post-login redirect target. */
+function safeNext(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+  return raw;
+}
+
 export default function Auth() {
   const t = useT();
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const next = safeNext(params.get("next"));
+  const returnTo = `${window.location.origin}${next ?? "/"}`;
   const { session, loading } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
@@ -21,7 +31,7 @@ export default function Auth() {
   const [consent, setConsent] = useState(false);
 
   if (loading) return null;
-  if (session) return <Navigate to="/app" replace />;
+  if (session) return <Navigate to={next ?? "/app"} replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
