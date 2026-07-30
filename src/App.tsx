@@ -39,6 +39,7 @@ import Reminders from "./pages/Reminders";
 import BonusTerms from "./pages/BonusTerms";
 import NotFound from "./pages/NotFound.tsx";
 import Unsubscribe from "./pages/Unsubscribe";
+import OAuthConsent from "./pages/OAuthConsent";
 import { CookieConsent } from "@/components/CookieConsent";
 import { UpgradeFab } from "@/components/UpgradeFab";
 import { SplashScreen } from "@/components/SplashScreen";
@@ -127,6 +128,7 @@ const App = () => {
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
             {loading ? (
               <Route path="*" element={<div className="min-h-screen bg-background" />} />
             ) : !session ? (
