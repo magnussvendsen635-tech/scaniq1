@@ -85,16 +85,22 @@ export function useSubscription() {
     setVerified(false);
     fetchSub();
     if (!user) return;
-    const channel = supabase
-      .channel(`sub-${user.id}-${Math.random().toString(36).slice(2)}`)
-      .on(
-        "postgres_changes" as any,
-        { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${user.id}` },
-        () => fetchSub()
-      )
-      .subscribe();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    try {
+      channel = supabase
+        .channel(`sub-${user.id}-${Math.random().toString(36).slice(2)}`)
+        .on(
+          "postgres_changes" as any,
+          { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${user.id}` },
+          () => fetchSub()
+        )
+        .subscribe();
+    } catch {
+      // Realtime unavailable (e.g. blocked WebSocket) — polling via refetch still works.
+      channel = null;
+    }
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
