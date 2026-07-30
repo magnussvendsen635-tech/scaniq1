@@ -69,7 +69,7 @@ export default function Auth() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: returnTo,
             data: { device_id, signup_ip },
           },
         });
@@ -95,7 +95,7 @@ export default function Auth() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        nav("/");
+        nav(next ?? "/");
       }
     } catch (err: any) {
       const code = err?.code || err?.name;
@@ -110,7 +110,7 @@ export default function Auth() {
                 const { error } = await supabase.auth.resend({
                   type: "signup",
                   email,
-                  options: { emailRedirectTo: `${window.location.origin}/` },
+                  options: { emailRedirectTo: returnTo },
                 });
                 if (error) throw error;
                 toast.success("Confirmation email sent");
@@ -137,7 +137,7 @@ export default function Auth() {
     setBusy(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/`,
+        redirect_uri: returnTo,
       });
       if (result.error) throw result.error;
     } catch (err: any) {
@@ -150,7 +150,7 @@ export default function Auth() {
     setBusy(true);
     try {
       const result = await lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: `${window.location.origin}/`,
+        redirect_uri: returnTo,
       });
       if (result.error) throw result.error;
     } catch (err: any) {
