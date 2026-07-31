@@ -246,7 +246,11 @@ export default function Diary() {
                   <button
                     key={day}
                     onClick={() => setSelected(date)}
+                    ref={(el) => {
+                      if (el && isSelected) el.scrollIntoView({ block: "nearest", inline: "center" });
+                    }}
                     aria-current={isSelected ? "date" : undefined}
+
                     className={
                       "k-tap shrink-0 inline-flex h-9 w-9 items-center justify-center rounded-full leading-none transition-colors " +
                       (isSelected
