@@ -230,22 +230,37 @@ export default function Diary() {
 
       {/* Horizontal calendar strip */}
       {(() => {
-        const DAYS = 31;
+        const DAYS = new Date(selected.getFullYear(), selected.getMonth() + 1, 0).getDate();
         const calendarDays = Array.from({ length: DAYS }, (_, i) => i + 1);
-        const todayDay = new Date().getDate();
+        const now = new Date();
+        const isCurrentMonth =
+          selected.getFullYear() === now.getFullYear() && selected.getMonth() === now.getMonth();
         return (
-          <div className="k-card p-4 mb-4">
-            <div className="flex w-full items-center justify-between overflow-hidden px-0.5 text-[8px] sm:text-[10px] tabular-nums">
+          <div className="k-card p-3 sm:p-4 mb-4">
+            <div className="flex w-full items-center gap-1 overflow-x-auto scrollbar-none px-0.5 py-0.5 text-xs tabular-nums [scrollbar-width:none] [-ms-overflow-style:none]">
               {calendarDays.map((day) => {
                 const date = new Date(selected.getFullYear(), selected.getMonth(), day);
-                const isTodayDay = day === todayDay;
+                const isSelected = day === selected.getDate();
+                const isTodayDay = isCurrentMonth && day === now.getDate();
                 return (
                   <button
                     key={day}
                     onClick={() => setSelected(date)}
-                    className="k-tap shrink-0 inline-flex h-6 min-w-[8px] items-center justify-center leading-none text-muted-foreground"
+                    ref={(el) => {
+                      if (el && isSelected) el.scrollIntoView({ block: "nearest", inline: "center" });
+                    }}
+                    aria-current={isSelected ? "date" : undefined}
+
+                    className={
+                      "k-tap shrink-0 inline-flex h-9 w-9 items-center justify-center rounded-full leading-none transition-colors " +
+                      (isSelected
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : isTodayDay
+                        ? "border border-primary/60 text-foreground font-semibold"
+                        : "text-muted-foreground hover:text-foreground")
+                    }
                   >
-                    <span className={isTodayDay ? "inline-flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold" : "inline-flex items-center justify-center"}>{day}</span>
+                    {day}
                   </button>
                 );
               })}
@@ -253,6 +268,7 @@ export default function Diary() {
           </div>
         );
       })()}
+
 
       {/* Update Weight dialog */}
       {weightDialogOpen && (
