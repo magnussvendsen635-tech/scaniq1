@@ -685,7 +685,6 @@ const NumberInput = ({ value, onChange, suffix, min, max }: { value: number; onC
             max={max}
             onChange={(e) => onChange(clamp(Number(e.target.value)))}
             inputMode="numeric"
-            key={undefined}
             animate={reduce ? undefined : { scale: 1 }}
             whileFocus={reduce ? undefined : { scale: 1.04 }}
             transition={SPRING}
