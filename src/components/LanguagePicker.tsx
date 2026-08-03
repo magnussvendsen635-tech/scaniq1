@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { LANGUAGES } from "@/data/languages";
 import { Check, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ interface Props {
 
 export function LanguagePicker({ value, onChange, className }: Props) {
   const t = useT();
+  const reduce = useReducedMotion();
   const [q, setQ] = useState("");
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -26,7 +28,7 @@ export function LanguagePicker({ value, onChange, className }: Props) {
 
   return (
     <div className={cn("k-card overflow-hidden flex flex-col", className)}>
-      <div className="p-3 border-b border-border/60 flex items-center gap-2 bg-surface-2">
+      <div className="p-3 border-b border-border/60 flex items-center gap-2 bg-surface-2 transition-shadow duration-300 focus-within:ring-2 focus-within:ring-primary/60">
         <Search className="w-4 h-4 text-muted-foreground" />
         <input
           value={q}
@@ -35,13 +37,18 @@ export function LanguagePicker({ value, onChange, className }: Props) {
           className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
         />
       </div>
-      <div className="overflow-y-auto divide-y divide-border/60 max-h-[55vh]">
-        {filtered.map((l) => {
+      <div className="overflow-y-auto divide-y divide-border/60 max-h-[55vh]" style={{ WebkitOverflowScrolling: "touch" }}>
+        {filtered.map((l, i) => {
           const active = l.code === value;
           return (
-            <button
+            <motion.button
               key={l.code}
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: reduce ? 0 : Math.min(i, 12) * 0.03, type: "spring", stiffness: 520, damping: 32 }}
               onClick={() => onChange(l.code)}
+              whileTap={reduce ? undefined : { scale: 0.98 }}
+              style={{ willChange: "transform, opacity" }}
               className={cn(
                 "w-full px-4 py-3 flex items-center gap-3 text-left k-tap hover:bg-surface-2 transition-colors",
                 active && "bg-surface-2"
@@ -52,8 +59,12 @@ export function LanguagePicker({ value, onChange, className }: Props) {
                 <div className="font-medium truncate">{l.native}</div>
                 <div className="text-xs text-muted-foreground truncate">{l.name}</div>
               </div>
-              {active && <Check className="w-5 h-5 text-primary" />}
-            </button>
+              {active && (
+                <motion.span initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 520, damping: 30 }}>
+                  <Check className="w-5 h-5 text-primary" />
+                </motion.span>
+              )}
+            </motion.button>
           );
         })}
         {filtered.length === 0 && (
