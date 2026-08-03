@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet, type Sex } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
@@ -8,11 +9,15 @@ import { translate, type TKey } from "@/i18n/translations";
 import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf, Heart, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isHealthAvailable, requestHealthPermissions } from "@/lib/health";
+import { hapticLight, hapticMedium, hapticSuccess } from "@/lib/haptics";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 
 const TOTAL_QUESTIONS = 14; // 0=lang, 1=name, 2=sex, ... 12=AppleHealth, 13=Acquisition survey
+
+const SPRING = { type: "spring" as const, stiffness: 520, damping: 32, mass: 0.7 };
+const PAGE_SPRING = { type: "spring" as const, stiffness: 320, damping: 34, mass: 0.8 };
 
 const SURVEY_OPTIONS: { id: string; key: TKey }[] = [
   { id: "tiktok", key: "survey.tiktok" },
@@ -28,7 +33,9 @@ const SURVEY_OPTIONS: { id: string; key: TKey }[] = [
 export default function Onboarding() {
   const nav = useNavigate();
   const { user, updateUser, setOnboarded, language, setLanguage } = useKStore();
+  const reduce = useReducedMotion();
   const [step, setStep] = useState(0);
+  const [dir, setDir] = useState(1);
   const [lang, setLang] = useState(language);
   const tt = (k: TKey) => translate(lang, k);
   const [name, setName] = useState(user.name ?? "");
@@ -44,6 +51,9 @@ export default function Onboarding() {
   const [diet, setDiet] = useState<Diet>(user.diet);
   const [channel, setChannel] = useState<string | null>(null);
   const [loadingMsg, setLoadingMsg] = useState("");
+  const [doneSteps, setDoneSteps] = useState(0);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [showCheck, setShowCheck] = useState(false);
   const [plan, setPlan] = useState<{ calories: number; protein: number; carbs: number; fat: number } | null>(null);
 
   // Sync language live so other components reading from store update.
@@ -82,22 +92,37 @@ export default function Onboarding() {
     { id: "vegetarian", titleKey: "onboarding.diet_veg", subKey: "onboarding.diet_veg_sub", Icon: Leaf },
   ];
 
-  const next = () => setStep((s) => s + 1);
+  const next = () => { hapticMedium(); setDir(1); setStep((s) => s + 1); };
+  const back = () => { hapticLight(); setDir(-1); setStep((s) => Math.max(0, s - 1)); };
+  const pick = <T,>(setter: (v: T) => void) => (v: T) => { hapticLight(); setter(v); };
+
+  const loadingSteps: TKey[] = ["onboarding.loading_1", "onboarding.loading_2", "onboarding.loading_3"];
 
   const generate = async () => {
+    hapticMedium();
+    setDir(1);
     setStep(TOTAL_QUESTIONS);
-    const msgs: TKey[] = ["onboarding.loading_1", "onboarding.loading_2", "onboarding.loading_3"];
-    for (const m of msgs) {
-      setLoadingMsg(tt(m));
-      await new Promise((r) => setTimeout(r, 900));
+    setDoneSteps(0);
+    setLoadProgress(0);
+    setShowCheck(false);
+    const items = [...loadingSteps, "onboarding.personalizing" as TKey];
+    for (let i = 0; i < items.length; i++) {
+      setLoadingMsg(tt(items[i]));
+      await new Promise((r) => setTimeout(r, reduce ? 120 : 600));
+      setDoneSteps(i + 1);
+      setLoadProgress(((i + 1) / items.length) * 100);
     }
     const p = computePlan({ weight, height, goal, activity, sex, age });
     setPlan(p);
+    setShowCheck(true);
+    hapticSuccess();
+    await new Promise((r) => setTimeout(r, reduce ? 200 : 900));
     setStep(TOTAL_QUESTIONS + 1);
   };
 
   const finish = async () => {
     if (!plan) return;
+    hapticSuccess();
     setLanguage(lang);
     updateUser({ name: name.trim(), age, weight, targetWeight, height, goal, sex, activity, pace, frequency, diet, ...plan });
     try {
@@ -114,279 +139,461 @@ export default function Onboarding() {
 
   const progressIndex = Math.min(step + 1, TOTAL_QUESTIONS);
 
+  const pageVariants = {
+    enter: (d: number) => (reduce ? { opacity: 0 } : { opacity: 0, x: d > 0 ? 48 : -48 }),
+    center: { opacity: 1, x: 0 },
+    exit: (d: number) => (reduce ? { opacity: 0 } : { opacity: 0, x: d > 0 ? -32 : 32 }),
+  };
+
+  const listStagger = {
+    center: { transition: { staggerChildren: reduce ? 0 : 0.045, delayChildren: 0.04 } },
+  };
+  const itemVariants = {
+    enter: reduce ? { opacity: 0 } : { opacity: 0, y: 12 },
+    center: { opacity: 1, y: 0, transition: SPRING },
+    exit: { opacity: 0 },
+  };
+
   return (
     <div className="min-h-screen w-full max-w-md mx-auto px-6 pt-12 pb-10 flex flex-col">
       <header className="flex items-center justify-between mb-8">
-        <Logo size={36} withText />
-        <span className="text-xs text-muted-foreground tracking-widest">{progressIndex} / {TOTAL_QUESTIONS}</span>
+        <motion.div
+          animate={reduce ? undefined : { y: [0, -3, 0] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+          style={{ willChange: "transform" }}
+        >
+          <Logo size={36} withText />
+        </motion.div>
+        <span className="text-xs text-muted-foreground tracking-widest tabular-nums">
+          <AnimatedNumber value={progressIndex} /> / {TOTAL_QUESTIONS}
+        </span>
       </header>
 
       <div className="h-1 w-full bg-surface-3 rounded-full overflow-hidden mb-10">
-        <div
-          className="h-full bg-gradient-primary transition-all duration-500"
-          style={{ width: `${(progressIndex / TOTAL_QUESTIONS) * 100}%` }}
+        <motion.div
+          className="h-full bg-gradient-primary"
+          initial={false}
+          animate={{ width: `${(progressIndex / TOTAL_QUESTIONS) * 100}%` }}
+          transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 200, damping: 28 }}
+          style={{ willChange: "width" }}
         />
       </div>
 
-      <div className="flex-1 animate-fade-in" key={step}>
-        {step === 0 && (
-          <Step title={tt("onboarding.choose_language")} sub={tt("onboarding.choose_language_sub")}>
-            <LanguagePicker value={lang} onChange={setLang} />
-          </Step>
-        )}
+      <div className="flex-1">
+        <AnimatePresence mode="wait" custom={dir} initial={false}>
+          <motion.div
+            key={step}
+            custom={dir}
+            variants={pageVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={reduce ? { duration: 0.15 } : PAGE_SPRING}
+            style={{ willChange: "transform, opacity" }}
+          >
+            {step === 0 && (
+              <Step title={tt("onboarding.choose_language")} sub={tt("onboarding.choose_language_sub")}>
+                <LanguagePicker value={lang} onChange={(c) => { hapticLight(); setLang(c); }} />
+              </Step>
+            )}
 
-        {step === 1 && (
-          <Step title={tt("onboarding.q_name")} sub={tt("onboarding.q_name_sub")}>
-            <div className="k-card p-6">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={tt("onboarding.q_name_placeholder")}
-                autoFocus
-                maxLength={30}
-                className="bg-transparent w-full text-center text-3xl font-semibold tracking-tight outline-none k-gradient-text placeholder:text-muted-foreground/40 placeholder:font-normal"
-              />
-            </div>
-          </Step>
-        )}
-
-        {step === 2 && (
-          <Step title={tt("onboarding.q_sex")} sub={tt("onboarding.q_sex_sub")}>
-            <div className="space-y-3">
-              <SelectCard active={sex === "male"} onClick={() => setSex("male")} title={tt("onboarding.sex_male")} sub={tt("onboarding.sex_male_sub")} Icon={UserIcon} />
-              <SelectCard active={sex === "female"} onClick={() => setSex("female")} title={tt("onboarding.sex_female")} sub={tt("onboarding.sex_female_sub")} Icon={UserIcon} />
-            </div>
-          </Step>
-        )}
-
-        {step === 3 && (
-          <Step title={tt("onboarding.q_goal")} sub={tt("onboarding.q_goal_sub")}>
-            <div className="space-y-3">
-              {goals.map(({ id, titleKey, subKey, Icon }) => (
-                <SelectCard key={id} active={goal === id} onClick={() => setGoal(id)} title={tt(titleKey)} sub={tt(subKey)} Icon={Icon} />
-              ))}
-            </div>
-          </Step>
-        )}
-
-        {step === 4 && (
-          <Step title={tt("onboarding.q_age")} sub={tt("onboarding.q_age_sub")}>
-            <NumberInput value={age} onChange={setAge} suffix={tt("onboarding.suffix_yrs")} min={13} max={100} />
-          </Step>
-        )}
-
-        {step === 5 && (
-          <Step title={tt("onboarding.q_height")} sub={tt("onboarding.q_height_sub")}>
-            <NumberInput value={height} onChange={setHeight} suffix={tt("onboarding.suffix_cm")} min={120} max={230} />
-          </Step>
-        )}
-
-        {step === 6 && (
-          <Step title={tt("onboarding.q_weight")} sub={tt("onboarding.q_weight_sub")}>
-            <NumberInput value={weight} onChange={setWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
-          </Step>
-        )}
-
-        {step === 7 && (
-          <Step title={tt("onboarding.q_target")} sub={tt("onboarding.q_target_sub")}>
-            <NumberInput value={targetWeight} onChange={setTargetWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
-          </Step>
-        )}
-
-        {step === 8 && (
-          <Step title={tt("onboarding.q_pace")} sub={tt("onboarding.q_pace_sub")}>
-            <div className="space-y-3">
-              {paces.map(({ id, titleKey, subKey, Icon }) => (
-                <SelectCard key={id} active={pace === id} onClick={() => setPace(id)} title={tt(titleKey)} sub={tt(subKey)} Icon={Icon} />
-              ))}
-            </div>
-          </Step>
-        )}
-
-        {step === 9 && (
-          <Step title={tt("onboarding.q_freq")} sub={tt("onboarding.q_freq_sub")}>
-            <div className="space-y-2.5">
-              {frequencies.map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setFrequency(f.id)}
-                  className={cn(
-                    "k-card k-tap w-full p-4 flex items-center justify-between text-left",
-                    frequency === f.id && "ring-2 ring-primary"
-                  )}
+            {step === 1 && (
+              <Step title={tt("onboarding.q_name")} sub={tt("onboarding.q_name_sub")}>
+                <motion.div
+                  className="k-card p-6 transition-shadow duration-300 focus-within:ring-2 focus-within:ring-primary/70 focus-within:shadow-glow"
                 >
-                  <div>
-                    <div className="font-medium">{tt(f.titleKey)}</div>
-                    <div className="text-xs text-muted-foreground">{tt(f.subKey)}</div>
-                  </div>
-                  {frequency === f.id && <Check className="w-5 h-5 text-primary" />}
-                </button>
-              ))}
-            </div>
-          </Step>
-        )}
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={tt("onboarding.q_name_placeholder")}
+                    autoFocus
+                    maxLength={30}
+                    className="bg-transparent w-full text-center text-3xl font-semibold tracking-tight outline-none k-gradient-text placeholder:text-muted-foreground/40 placeholder:font-normal transition-all duration-200 placeholder:transition-opacity focus:placeholder:opacity-40"
+                  />
+                </motion.div>
+              </Step>
+            )}
 
-        {step === 10 && (
-          <Step title={tt("onboarding.q_diet")} sub={tt("onboarding.q_diet_sub")}>
-            <div className="space-y-3">
-              {diets.map(({ id, titleKey, subKey, Icon }) => (
-                <SelectCard key={id} active={diet === id} onClick={() => setDiet(id)} title={tt(titleKey)} sub={tt(subKey)} Icon={Icon} />
-              ))}
-            </div>
-          </Step>
-        )}
+            {step === 2 && (
+              <Step title={tt("onboarding.q_sex")} sub={tt("onboarding.q_sex_sub")}>
+                <motion.div className="space-y-3" variants={listStagger} initial="enter" animate="center">
+                  <motion.div variants={itemVariants}>
+                    <SelectCard active={sex === "male"} onClick={() => pick(setSex)("male")} title={tt("onboarding.sex_male")} sub={tt("onboarding.sex_male_sub")} Icon={UserIcon} />
+                  </motion.div>
+                  <motion.div variants={itemVariants}>
+                    <SelectCard active={sex === "female"} onClick={() => pick(setSex)("female")} title={tt("onboarding.sex_female")} sub={tt("onboarding.sex_female_sub")} Icon={UserIcon} />
+                  </motion.div>
+                </motion.div>
+              </Step>
+            )}
 
-        {step === 11 && (
-          <Step title={tt("onboarding.q_activity")} sub={tt("onboarding.q_activity_sub")}>
-            <div className="space-y-2.5">
-              {activities.map((a) => (
-                <button
-                  key={a.id}
-                  onClick={() => setActivity(a.id)}
-                  className={cn(
-                    "k-card k-tap w-full p-4 flex items-center justify-between text-left",
-                    activity === a.id && "ring-2 ring-primary"
-                  )}
-                >
-                  <div>
-                    <div className="font-medium">{tt(a.titleKey)}</div>
-                    <div className="text-xs text-muted-foreground">{tt(a.subKey)}</div>
-                  </div>
-                  {activity === a.id && <Check className="w-5 h-5 text-primary" />}
-                </button>
-              ))}
-            </div>
-          </Step>
-        )}
+            {step === 3 && (
+              <Step title={tt("onboarding.q_goal")} sub={tt("onboarding.q_goal_sub")}>
+                <motion.div className="space-y-3" variants={listStagger} initial="enter" animate="center">
+                  {goals.map(({ id, titleKey, subKey, Icon }) => (
+                    <motion.div key={id} variants={itemVariants}>
+                      <SelectCard active={goal === id} onClick={() => pick(setGoal)(id)} title={tt(titleKey)} sub={tt(subKey)} Icon={Icon} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </Step>
+            )}
 
-        {step === 12 && (
-          <Step title={tt("onboarding.health_title")} sub={tt("onboarding.health_sub")}>
-            <div className="k-card p-6 flex flex-col items-center text-center gap-5">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-soft flex items-center justify-center">
-                <Heart className="w-10 h-10 text-primary-glow" fill="currentColor" />
+            {step === 4 && (
+              <Step title={tt("onboarding.q_age")} sub={tt("onboarding.q_age_sub")}>
+                <NumberInput value={age} onChange={setAge} suffix={tt("onboarding.suffix_yrs")} min={13} max={100} />
+              </Step>
+            )}
+
+            {step === 5 && (
+              <Step title={tt("onboarding.q_height")} sub={tt("onboarding.q_height_sub")}>
+                <NumberInput value={height} onChange={setHeight} suffix={tt("onboarding.suffix_cm")} min={120} max={230} />
+              </Step>
+            )}
+
+            {step === 6 && (
+              <Step title={tt("onboarding.q_weight")} sub={tt("onboarding.q_weight_sub")}>
+                <NumberInput value={weight} onChange={setWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
+              </Step>
+            )}
+
+            {step === 7 && (
+              <Step title={tt("onboarding.q_target")} sub={tt("onboarding.q_target_sub")}>
+                <NumberInput value={targetWeight} onChange={setTargetWeight} suffix={tt("onboarding.suffix_kg")} min={30} max={250} />
+              </Step>
+            )}
+
+            {step === 8 && (
+              <Step title={tt("onboarding.q_pace")} sub={tt("onboarding.q_pace_sub")}>
+                <motion.div className="space-y-3" variants={listStagger} initial="enter" animate="center">
+                  {paces.map(({ id, titleKey, subKey, Icon }) => (
+                    <motion.div key={id} variants={itemVariants}>
+                      <SelectCard active={pace === id} onClick={() => pick(setPace)(id)} title={tt(titleKey)} sub={tt(subKey)} Icon={Icon} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </Step>
+            )}
+
+            {step === 9 && (
+              <Step title={tt("onboarding.q_freq")} sub={tt("onboarding.q_freq_sub")}>
+                <motion.div className="space-y-2.5" variants={listStagger} initial="enter" animate="center">
+                  {frequencies.map((f) => (
+                    <motion.button
+                      key={f.id}
+                      variants={itemVariants}
+                      onClick={() => pick(setFrequency)(f.id)}
+                      whileTap={reduce ? undefined : { scale: 0.97 }}
+                      animate={{ scale: 1 }}
+                      transition={SPRING}
+                      className={cn(
+                        "k-card k-tap w-full p-4 flex items-center justify-between text-left transition-shadow duration-200",
+                        frequency === f.id && "ring-2 ring-primary shadow-glow"
+                      )}
+                      style={{ willChange: "transform" }}
+                    >
+                      <div>
+                        <div className="font-medium">{tt(f.titleKey)}</div>
+                        <div className="text-xs text-muted-foreground">{tt(f.subKey)}</div>
+                      </div>
+                      <AnimatePresence>
+                        {frequency === f.id && (
+                          <motion.span initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }} transition={SPRING}>
+                            <Check className="w-5 h-5 text-primary" />
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
+                  ))}
+                </motion.div>
+              </Step>
+            )}
+
+            {step === 10 && (
+              <Step title={tt("onboarding.q_diet")} sub={tt("onboarding.q_diet_sub")}>
+                <motion.div className="space-y-3" variants={listStagger} initial="enter" animate="center">
+                  {diets.map(({ id, titleKey, subKey, Icon }) => (
+                    <motion.div key={id} variants={itemVariants}>
+                      <SelectCard active={diet === id} onClick={() => pick(setDiet)(id)} title={tt(titleKey)} sub={tt(subKey)} Icon={Icon} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </Step>
+            )}
+
+            {step === 11 && (
+              <Step title={tt("onboarding.q_activity")} sub={tt("onboarding.q_activity_sub")}>
+                <motion.div className="space-y-2.5" variants={listStagger} initial="enter" animate="center">
+                  {activities.map((a) => (
+                    <motion.button
+                      key={a.id}
+                      variants={itemVariants}
+                      onClick={() => pick(setActivity)(a.id)}
+                      whileTap={reduce ? undefined : { scale: 0.97 }}
+                      transition={SPRING}
+                      className={cn(
+                        "k-card k-tap w-full p-4 flex items-center justify-between text-left transition-shadow duration-200",
+                        activity === a.id && "ring-2 ring-primary shadow-glow"
+                      )}
+                      style={{ willChange: "transform" }}
+                    >
+                      <div>
+                        <div className="font-medium">{tt(a.titleKey)}</div>
+                        <div className="text-xs text-muted-foreground">{tt(a.subKey)}</div>
+                      </div>
+                      <AnimatePresence>
+                        {activity === a.id && (
+                          <motion.span initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }} transition={SPRING}>
+                            <Check className="w-5 h-5 text-primary" />
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
+                  ))}
+                </motion.div>
+              </Step>
+            )}
+
+            {step === 12 && (
+              <Step title={tt("onboarding.health_title")} sub={tt("onboarding.health_sub")}>
+                <div className="k-card p-6 flex flex-col items-center text-center gap-5">
+                  <motion.div
+                    className="w-20 h-20 rounded-3xl bg-gradient-soft flex items-center justify-center"
+                    animate={reduce ? undefined : { scale: [1, 1.06, 1] }}
+                    transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                    style={{ willChange: "transform" }}
+                  >
+                    <Heart className="w-10 h-10 text-primary-glow" fill="currentColor" />
+                  </motion.div>
+                  <motion.div className="w-full" whileTap={reduce ? undefined : { scale: 0.97 }} transition={{ duration: 0.15 }}>
+                    <Button
+                      size="lg"
+                      className="w-full h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
+                      onClick={async () => {
+                        hapticMedium();
+                        if (!isHealthAvailable()) {
+                          toast.info(tt("onboarding.health_later"), { description: tt("onboarding.health_native_only") });
+                          next();
+                          return;
+                        }
+                        const ok = await requestHealthPermissions();
+                        if (ok) toast.success(tt("settings.health_connected"));
+                        next();
+                      }}
+                    >
+                      <Heart className="w-5 h-5 mr-2" fill="currentColor" />
+                      {tt("onboarding.health_connect")}
+                    </Button>
+                  </motion.div>
+                  <button
+                    onClick={next}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                  >
+                    {tt("onboarding.health_later")}
+                  </button>
+                </div>
+              </Step>
+            )}
+
+            {step === 13 && (
+              <div>
+                <div className="flex items-start justify-between mb-2">
+                  <h1 className="text-3xl font-semibold tracking-tight">{tt("survey.title")}</h1>
+                  <button
+                    onClick={generate}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full"
+                  >
+                    {tt("survey.skip")}
+                  </button>
+                </div>
+                <p className="text-muted-foreground mb-8">{tt("survey.sub")}</p>
+                <motion.div className="space-y-2.5" variants={listStagger} initial="enter" animate="center">
+                  {SURVEY_OPTIONS.map((o) => (
+                    <motion.button
+                      key={o.id}
+                      variants={itemVariants}
+                      onClick={() => pick(setChannel)(o.id)}
+                      whileTap={reduce ? undefined : { scale: 0.97 }}
+                      transition={SPRING}
+                      className={cn(
+                        "k-card k-tap w-full p-4 flex items-center justify-between text-left transition-shadow duration-200",
+                        channel === o.id && "ring-2 ring-primary shadow-glow"
+                      )}
+                      style={{ willChange: "transform" }}
+                    >
+                      <div className="font-medium">{tt(o.key)}</div>
+                      <AnimatePresence>
+                        {channel === o.id && (
+                          <motion.span initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }} transition={SPRING}>
+                            <Check className="w-5 h-5 text-primary" />
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
+                  ))}
+                </motion.div>
               </div>
-              <Button
-                size="lg"
-                className="w-full h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
-                onClick={async () => {
-                  if (!isHealthAvailable()) {
-                    toast.info(tt("onboarding.health_later"), { description: tt("onboarding.health_native_only") });
-                    next();
-                    return;
-                  }
-                  const ok = await requestHealthPermissions();
-                  if (ok) toast.success(tt("settings.health_connected"));
-                  next();
-                }}
-              >
-                <Heart className="w-5 h-5 mr-2" fill="currentColor" />
-                {tt("onboarding.health_connect")}
-              </Button>
-              <button
-                onClick={next}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
-              >
-                {tt("onboarding.health_later")}
-              </button>
-            </div>
-          </Step>
-        )}
+            )}
 
-        {step === 13 && (
-          <div>
-            <div className="flex items-start justify-between mb-2">
-              <h1 className="text-3xl font-semibold tracking-tight">{tt("survey.title")}</h1>
-              <button
-                onClick={generate}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full"
-              >
-                {tt("survey.skip")}
-              </button>
-            </div>
-            <p className="text-muted-foreground mb-8">{tt("survey.sub")}</p>
-            <div className="space-y-2.5">
-              {SURVEY_OPTIONS.map((o) => (
-                <button
-                  key={o.id}
-                  onClick={() => setChannel(o.id)}
-                  className={cn(
-                    "k-card k-tap w-full p-4 flex items-center justify-between text-left",
-                    channel === o.id && "ring-2 ring-primary"
+            {step === TOTAL_QUESTIONS && (
+              <div className="flex flex-col items-center justify-center text-center pt-16 gap-6">
+                <AnimatePresence mode="wait">
+                  {!showCheck ? (
+                    <motion.div key="load" className="flex flex-col items-center gap-6 w-full" exit={{ opacity: 0, scale: 0.96 }}>
+                      <div className="relative">
+                        <div className="w-24 h-24 rounded-full bg-gradient-primary opacity-20 blur-2xl absolute inset-0" />
+                        <Loader2 className="w-16 h-16 text-primary animate-spin" />
+                      </div>
+                      <div className="text-lg font-medium">{loadingMsg}</div>
+
+                      <div className="h-1.5 w-full max-w-xs bg-surface-3 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-gradient-primary"
+                          initial={false}
+                          animate={{ width: `${loadProgress}%` }}
+                          transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 160, damping: 26 }}
+                          style={{ willChange: "width" }}
+                        />
+                      </div>
+
+                      <div className="w-full max-w-xs space-y-2.5 text-left">
+                        {[...loadingSteps, "onboarding.personalizing" as TKey].map((k, i) => (
+                          <motion.div
+                            key={k}
+                            className="flex items-center gap-3 text-sm"
+                            animate={{ opacity: i < doneSteps ? 1 : 0.4 }}
+                            transition={{ duration: 0.25 }}
+                          >
+                            <motion.span
+                              className={cn(
+                                "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
+                                i < doneSteps ? "bg-primary text-primary-foreground" : "bg-surface-3"
+                              )}
+                              animate={i < doneSteps && !reduce ? { scale: [0.7, 1.15, 1] } : { scale: 1 }}
+                              transition={SPRING}
+                            >
+                              {i < doneSteps && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
+                            </motion.span>
+                            <span className={cn(i < doneSteps ? "text-foreground" : "text-muted-foreground")}>{tt(k)}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="done"
+                      className="flex flex-col items-center gap-5 pt-8"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={SPRING}
+                    >
+                      <motion.div
+                        className="w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow"
+                        initial={{ scale: 0.5 }}
+                        animate={reduce ? { scale: 1 } : { scale: [0.5, 1.12, 1] }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      >
+                        <Check className="w-12 h-12 text-primary-foreground" strokeWidth={3} />
+                      </motion.div>
+                      <div className="text-lg font-medium">{tt("onboarding.plan_ready_sub")}</div>
+                    </motion.div>
                   )}
-                >
-                  <div className="font-medium">{tt(o.key)}</div>
-                  {channel === o.id && <Check className="w-5 h-5 text-primary" />}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+                </AnimatePresence>
+              </div>
+            )}
 
-
-        {step === TOTAL_QUESTIONS && (
-          <div className="flex flex-col items-center justify-center text-center pt-24 gap-6">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-primary opacity-20 blur-2xl absolute inset-0" />
-              <Loader2 className="w-16 h-16 text-primary animate-spin" />
-            </div>
-            <div className="text-lg font-medium animate-fade-in" key={loadingMsg}>{loadingMsg}</div>
-            <div className="text-sm text-muted-foreground">{tt("onboarding.personalizing")}</div>
-          </div>
-        )}
-
-        {step === TOTAL_QUESTIONS + 1 && plan && (
-          <Step title={tt("onboarding.plan_ready")} sub={tt("onboarding.plan_ready_sub")}>
-            <div className="grid grid-cols-2 gap-3">
-              <PlanCard label={tt("settings.calories")} value={plan.calories} unit={tt("common.kcal")} big />
-              <PlanCard label={tt("home.protein")} value={plan.protein} unit="g" />
-              <PlanCard label={tt("home.carbs")} value={plan.carbs} unit="g" />
-              <PlanCard label={tt("home.fat")} value={plan.fat} unit="g" />
-            </div>
-          </Step>
-        )}
+            {step === TOTAL_QUESTIONS + 1 && plan && (
+              <Step title={tt("onboarding.plan_ready")} sub={tt("onboarding.plan_ready_sub")}>
+                <motion.div className="grid grid-cols-2 gap-3" variants={listStagger} initial="enter" animate="center">
+                  <motion.div variants={itemVariants} className="col-span-2">
+                    <PlanCard label={tt("settings.calories")} value={plan.calories} unit={tt("common.kcal")} big />
+                  </motion.div>
+                  <motion.div variants={itemVariants}><PlanCard label={tt("home.protein")} value={plan.protein} unit="g" /></motion.div>
+                  <motion.div variants={itemVariants}><PlanCard label={tt("home.carbs")} value={plan.carbs} unit="g" /></motion.div>
+                  <motion.div variants={itemVariants}><PlanCard label={tt("home.fat")} value={plan.fat} unit="g" /></motion.div>
+                </motion.div>
+              </Step>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       <div className="pt-8 flex gap-3">
         {step < TOTAL_QUESTIONS && step > 0 && step !== 12 && (
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-14 rounded-2xl px-5 text-base font-semibold"
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
-            aria-label={tt("common.back")}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} whileTap={reduce ? undefined : { scale: 0.97 }} transition={{ duration: 0.15 }}>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-14 rounded-2xl px-5 text-base font-semibold"
+              onClick={back}
+              aria-label={tt("common.back")}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </motion.div>
         )}
         {step < TOTAL_QUESTIONS && step !== 12 && (
-          <Button
-            size="lg"
-            disabled={step === 13 && !channel}
-            className="group flex-1 h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0 disabled:opacity-50"
-            onClick={step === 13 ? generate : next}
+          <motion.div
+            className="flex-1"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={reduce ? { duration: 0.15 } : SPRING}
+            whileTap={reduce ? undefined : { scale: 0.97 }}
           >
-            <span className="text-white">{tt("common.continue")}</span>
-            <span className="ml-2 inline-flex items-center -space-x-2 transition-transform group-hover:translate-x-1">
-              <ChevronRight className="w-5 h-5 text-white" strokeWidth={2.75} />
-              <ChevronRight className="w-5 h-5 text-white opacity-60" strokeWidth={2.75} />
-            </span>
-          </Button>
+            <Button
+              size="lg"
+              disabled={step === 13 && !channel}
+              className="group w-full h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0 disabled:opacity-50"
+              onClick={step === 13 ? generate : next}
+            >
+              <span className="text-white">{tt("common.continue")}</span>
+              <span className="ml-2 inline-flex items-center -space-x-2 transition-transform group-hover:translate-x-1">
+                <ChevronRight className="w-5 h-5 text-white" strokeWidth={2.75} />
+                <ChevronRight className="w-5 h-5 text-white opacity-60" strokeWidth={2.75} />
+              </span>
+            </Button>
+          </motion.div>
         )}
         {step === TOTAL_QUESTIONS + 1 && (
-          <Button
-            size="lg"
-            className="w-full h-14 rounded-2xl bg-gradient-primary hover:opacity-90 text-base font-semibold shadow-glow"
-            onClick={finish}
+          <motion.div
+            className="w-full"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={reduce ? { duration: 0.15 } : SPRING}
+            whileTap={reduce ? undefined : { scale: 0.97 }}
           >
-            {tt("onboarding.start_training")}
-            <Flame className="ml-2 w-5 h-5" />
-          </Button>
+            <Button
+              size="lg"
+              className="w-full h-14 rounded-2xl bg-gradient-primary hover:opacity-90 text-base font-semibold shadow-glow"
+              onClick={finish}
+            >
+              {tt("onboarding.start_training")}
+              <Flame className="ml-2 w-5 h-5" />
+            </Button>
+          </motion.div>
         )}
       </div>
     </div>
   );
 }
+
+const AnimatedNumber = ({ value }: { value: number }) => (
+  <span className="inline-block relative align-baseline">
+    <AnimatePresence mode="popLayout" initial={false}>
+      <motion.span
+        key={value}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6, position: "absolute" }}
+        transition={{ duration: 0.22 }}
+        className="inline-block"
+      >
+        {value}
+      </motion.span>
+    </AnimatePresence>
+  </span>
+);
 
 const Step = ({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) => (
   <div>
@@ -408,65 +615,94 @@ const SelectCard = ({
   title: string;
   sub: string;
   Icon: any;
-}) => (
-  <button
-    onClick={onClick}
-    className={cn(
-      "k-card k-tap w-full p-5 min-h-[76px] flex items-center gap-4 text-left",
-      active && "ring-4 ring-primary/70 shadow-glow bg-gradient-soft"
-    )}
-  >
-    <div className={cn(
-      "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors",
-      active ? "bg-primary text-primary-foreground" : "bg-gradient-soft"
-    )}>
-      <Icon className={cn("w-7 h-7", active ? "text-primary-foreground" : "text-primary-glow")} />
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className="font-semibold text-base leading-tight">{title}</div>
-      <div className="text-sm text-muted-foreground mt-0.5">{sub}</div>
-    </div>
-    {active && (
-      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
-        <Check className="w-5 h-5 text-primary-foreground" strokeWidth={3} />
+}) => {
+  const reduce = useReducedMotion();
+  return (
+    <motion.button
+      onClick={onClick}
+      whileTap={reduce ? undefined : { scale: 0.97 }}
+      animate={reduce ? undefined : { scale: active ? 1.02 : 1 }}
+      transition={SPRING}
+      style={{ willChange: "transform" }}
+      className={cn(
+        "k-card k-tap w-full p-5 min-h-[76px] flex items-center gap-4 text-left transition-shadow duration-200",
+        active && "ring-4 ring-primary/70 shadow-glow bg-gradient-soft"
+      )}
+    >
+      <motion.div
+        className={cn(
+          "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors duration-200",
+          active ? "bg-primary text-primary-foreground" : "bg-gradient-soft"
+        )}
+        animate={reduce ? undefined : { scale: active ? 1.12 : 1 }}
+        transition={{ type: "spring", stiffness: 600, damping: 18 }}
+      >
+        <Icon className={cn("w-7 h-7 transition-colors duration-200", active ? "text-primary-foreground" : "text-primary-glow")} />
+      </motion.div>
+      <div className="flex-1 min-w-0">
+        <div className="font-semibold text-base leading-tight">{title}</div>
+        <div className="text-sm text-muted-foreground mt-0.5">{sub}</div>
       </div>
-    )}
-  </button>
-);
+      <AnimatePresence>
+        {active && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={SPRING}
+            className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"
+          >
+            <Check className="w-5 h-5 text-primary-foreground" strokeWidth={3} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.button>
+  );
+};
 
 const NumberInput = ({ value, onChange, suffix, min, max }: { value: number; onChange: (n: number) => void; suffix: string; min: number; max: number }) => {
+  const reduce = useReducedMotion();
   const clamp = (n: number) => Math.max(min, Math.min(max, n));
+  const step = (n: number) => { hapticLight(); onChange(clamp(n)); };
   return (
-    <div className="k-card p-6 flex flex-col items-center">
+    <div className="k-card p-6 flex flex-col items-center transition-shadow duration-300 focus-within:ring-2 focus-within:ring-primary/70 focus-within:shadow-glow">
       <div className="flex items-center justify-between w-full gap-3 mb-6">
-        <button
+        <motion.button
           type="button"
-          onClick={() => onChange(clamp(value - 1))}
+          onClick={() => step(value - 1)}
+          whileTap={reduce ? undefined : { scale: 0.9 }}
+          transition={SPRING}
           className="k-tap w-14 h-14 rounded-2xl bg-gradient-soft flex items-center justify-center text-3xl font-bold text-primary active:bg-primary/10"
           aria-label="Decrease"
         >
           −
-        </button>
+        </motion.button>
         <div className="flex items-baseline gap-2 flex-1 justify-center">
-          <input
+          <motion.input
             type="number"
             value={value}
             min={min}
             max={max}
             onChange={(e) => onChange(clamp(Number(e.target.value)))}
             inputMode="numeric"
+            key={undefined}
+            animate={reduce ? undefined : { scale: 1 }}
+            whileFocus={reduce ? undefined : { scale: 1.04 }}
+            transition={SPRING}
             className="bg-transparent w-28 text-center text-6xl font-semibold tracking-tight outline-none k-gradient-text"
           />
           <span className="text-xl text-muted-foreground font-medium">{suffix}</span>
         </div>
-        <button
+        <motion.button
           type="button"
-          onClick={() => onChange(clamp(value + 1))}
+          onClick={() => step(value + 1)}
+          whileTap={reduce ? undefined : { scale: 0.9 }}
+          transition={SPRING}
           className="k-tap w-14 h-14 rounded-2xl bg-gradient-soft flex items-center justify-center text-3xl font-bold text-primary active:bg-primary/10"
           aria-label="Increase"
         >
           +
-        </button>
+        </motion.button>
       </div>
       <input
         type="range"
@@ -481,7 +717,7 @@ const NumberInput = ({ value, onChange, suffix, min, max }: { value: number; onC
 };
 
 const PlanCard = ({ label, value, unit, big = false }: { label: string; value: number; unit: string; big?: boolean }) => (
-  <div className={cn("k-card p-5", big && "col-span-2 bg-gradient-soft")}>
+  <div className={cn("k-card p-5 h-full", big && "bg-gradient-soft")}>
     <div className="text-xs text-muted-foreground tracking-widest uppercase">{label}</div>
     <div className="mt-2 flex items-baseline gap-1.5">
       <span className={cn("font-semibold tracking-tight", big ? "text-5xl k-gradient-text" : "text-3xl")}>{value}</span>
