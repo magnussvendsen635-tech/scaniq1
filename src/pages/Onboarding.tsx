@@ -97,27 +97,82 @@ export default function Onboarding() {
 
   const loadingSteps: TKey[] = ["onboarding.loading_1", "onboarding.loading_2", "onboarding.loading_3"];
 
+  /** Never let a translation/haptics/timer hiccup leave the user on a spinner. */
+  const safeT = (k: TKey) => { try { return translate(lang, k); } catch { return ""; } };
+
+  /** Always ends on the plan screen, even if a step throws. */
   const generate = async () => {
-    hapticMedium();
+    if (generatingRef.current) return;
+    generatingRef.current = true;
+    try { hapticMedium(); } catch { /* haptics are optional */ }
     setDir(1);
     setStep(TOTAL_QUESTIONS);
     setDoneSteps(0);
     setLoadProgress(0);
     setShowCheck(false);
-    const items = [...loadingSteps, "onboarding.personalizing" as TKey];
-    for (let i = 0; i < items.length; i++) {
-      setLoadingMsg(tt(items[i]));
-      await new Promise((r) => setTimeout(r, reduce ? 120 : 600));
-      setDoneSteps(i + 1);
-      setLoadProgress(((i + 1) / items.length) * 100);
+    setStalled(false);
+
+    // Compute the plan up front: it is pure math and must never depend on the animation.
+    let p: { calories: number; protein: number; carbs: number; fat: number } | null = null;
+    try {
+      p = computePlan({ weight, height, goal, activity, sex, age });
+      setPlan(p);
+    } catch (e) {
+      console.error("computePlan failed", e);
     }
-    const p = computePlan({ weight, height, goal, activity, sex, age });
-    setPlan(p);
-    setShowCheck(true);
-    hapticSuccess();
-    await new Promise((r) => setTimeout(r, reduce ? 200 : 900));
+
+    try {
+      const items = [...loadingSteps, "onboarding.personalizing" as TKey];
+      for (let i = 0; i < items.length; i++) {
+        if (cancelledRef.current) return;
+        setLoadingMsg(safeT(items[i]));
+        await new Promise((r) => setTimeout(r, reduce ? 120 : 600));
+        setDoneSteps(i + 1);
+        setLoadProgress(((i + 1) / items.length) * 100);
+      }
+      if (cancelledRef.current) return;
+      setShowCheck(true);
+      try { hapticSuccess(); } catch { /* haptics are optional */ }
+      await new Promise((r) => setTimeout(r, reduce ? 200 : 900));
+    } catch (e) {
+      console.error("Onboarding loading sequence failed", e);
+    } finally {
+      generatingRef.current = false;
+      if (!cancelledRef.current && p) {
+        setLoadProgress(100);
+        setDoneSteps(4);
+        setStep(TOTAL_QUESTIONS + 1);
+      }
+    }
+  };
+
+  // Watchdog: if the loader is still on screen after 8s (throttled timers in a
+  // backgrounded webview, a stalled promise), show a manual way forward.
+  useEffect(() => {
+    if (step !== TOTAL_QUESTIONS) return;
+    const id = setTimeout(() => setStalled(true), 8000);
+    return () => clearTimeout(id);
+  }, [step]);
+
+  useEffect(() => () => { cancelledRef.current = true; }, []);
+
+  /** Manual escape hatch from a stuck loader. */
+  const skipLoading = () => {
+    generatingRef.current = false;
+    let p = plan;
+    if (!p) {
+      try {
+        p = computePlan({ weight, height, goal, activity, sex, age });
+        setPlan(p);
+      } catch (e) {
+        console.error("computePlan failed", e);
+        toast.error(safeT("common.error") || "Something went wrong");
+        return;
+      }
+    }
     setStep(TOTAL_QUESTIONS + 1);
   };
+
 
   const finish = async () => {
     if (!plan) return;
