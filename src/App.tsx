@@ -42,6 +42,7 @@ import BonusTerms from "./pages/BonusTerms";
 import NotFound from "./pages/NotFound.tsx";
 import Unsubscribe from "./pages/Unsubscribe";
 import OAuthConsent from "./pages/OAuthConsent";
+import AppleSignInDebug from "./pages/AppleSignInDebug";
 import { CookieConsent } from "@/components/CookieConsent";
 import { UpgradeFab } from "@/components/UpgradeFab";
 import { SplashScreen } from "@/components/SplashScreen";
@@ -132,6 +133,7 @@ const App = () => {
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />
             <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+            <Route path="/debug/apple-signin" element={<AppleSignInDebug />} />
             {loading ? (
               <Route path="*" element={<div className="min-h-screen bg-background" />} />
             ) : !session ? (
