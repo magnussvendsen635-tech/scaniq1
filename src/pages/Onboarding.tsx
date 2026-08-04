@@ -583,9 +583,9 @@ export default function Onboarding() {
           >
             <Button
               size="lg"
-              disabled={step === 13 && !channel}
+              disabled={step === LAST_QUESTION && !channel}
               className="group w-full h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0 disabled:opacity-50"
-              onClick={step === 13 ? generate : next}
+              onClick={step === LAST_QUESTION ? generate : next}
             >
               <span className="text-white">{tt("common.continue")}</span>
               <span className="ml-2 inline-flex items-center -space-x-2 transition-transform group-hover:translate-x-1">
