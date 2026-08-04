@@ -30,6 +30,8 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Security from "./pages/Security";
 import Refund from "./pages/Refund";
+import Sources from "./pages/Sources";
+
 import Pricing from "./pages/Pricing";
 
 import DataPrivacy from "./pages/DataPrivacy";
