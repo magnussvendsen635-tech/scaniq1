@@ -53,25 +53,18 @@ export default function Refund() {
 
         <section>
           <h2 className="text-base font-semibold mb-2">{T[6]}</h2>
-          <p>
-            {T[7]}{" "}
-            <a className="text-primary-glow underline" href="https://play.google.com" target="_blank" rel="noopener">play.google.com</a>.
-          </p>
+          <p>{T[7]}</p>
         </section>
 
         <section>
           <h2 className="text-base font-semibold mb-2">{T[8]}</h2>
-          <p>{T[9]}</p>
-        </section>
-
-        <section>
-          <h2 className="text-base font-semibold mb-2">{T[10]}</h2>
           <p>
-            {T[11]}{" "}
+            {T[9]}{" "}
             <a className="text-primary-glow underline" href="mailto:scaniqapp1@gmail.com">scaniqapp1@gmail.com</a>{" "}
-            {T[12]}
+            {T[10]}
           </p>
         </section>
+
       </div>
     </div>
   );
