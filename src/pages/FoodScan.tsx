@@ -1397,7 +1397,19 @@ export default function FoodScan() {
                         </div>
                       ));
                     })()}
+
+                    <p className="mt-3 pt-3 border-t border-foreground/10 text-[11px] leading-relaxed text-muted-foreground">
+                      {tt("Nutrition values are estimates for general wellness only and are not medical advice.")}{" "}
+                      <button
+                        type="button"
+                        onClick={() => nav("/sources")}
+                        className="underline font-semibold text-foreground"
+                      >
+                        {tt("Sources & method")}
+                      </button>
+                    </p>
                   </div>
+
                 );
               })()}
 
