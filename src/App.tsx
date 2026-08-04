@@ -31,6 +31,7 @@ import Terms from "./pages/Terms";
 import Security from "./pages/Security";
 import Refund from "./pages/Refund";
 import Sources from "./pages/Sources";
+import Disclosures from "./pages/Disclosures";
 
 import Pricing from "./pages/Pricing";
 
@@ -128,6 +129,7 @@ const App = () => {
             <Route path="/security" element={<Security />} />
             <Route path="/refund" element={<Refund />} />
             <Route path="/sources" element={<Sources />} />
+            <Route path="/disclosures" element={<Disclosures />} />
 
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/onboarding" element={<Onboarding />} />

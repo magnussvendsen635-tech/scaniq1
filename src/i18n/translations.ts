@@ -108,6 +108,9 @@ export type TKey =
   // Pricing & Premium extras
   | "pricing.title" | "pricing.cta_get_started" | "pricing.note" | "pricing.most_popular"
   | "premium.restore" | "premium.restoring" | "premium.restored" | "premium.no_active"
+  | "premium.status_premium" | "premium.status_free" | "premium.status_before" | "premium.status_after"
+  | "premium.status_plan" | "premium.status_renews" | "premium.restore_ok_desc"
+  | "premium.restore_none_desc" | "premium.restore_failed" | "premium.restore_unavailable"
   | "premium.auto_renew_note" | "premium.most_popular" | "premium.must_sign_in" | "premium.thanks"
   // Landing page
   | "landing.nav_pricing" | "landing.nav_terms" | "landing.nav_privacy" | "landing.nav_login"
@@ -458,6 +461,16 @@ const en: Record<TKey, string> = {
   "premium.restoring": "Restoring…",
   "premium.restored": "Your subscription has been restored",
   "premium.no_active": "No active subscription found",
+  "premium.status_premium": "Premium — unlocked",
+  "premium.status_free": "Free",
+  "premium.status_before": "Status before",
+  "premium.status_after": "Status after",
+  "premium.status_plan": "Plan",
+  "premium.status_renews": "Renews",
+  "premium.restore_ok_desc": "Premium is unlocked on this device. Your Apple ID subscription was found and re-activated.",
+  "premium.restore_none_desc": "Apple reports no active ScanIQ subscription for the Apple ID signed in on this device. You have not been charged and nothing has changed.",
+  "premium.restore_failed": "We could not reach the App Store",
+  "premium.restore_unavailable": "Restore purchases is only available in the ScanIQ iOS app.",
   "premium.auto_renew_note": "Subscription auto-renews. You can cancel anytime in your App Store or account.",
   "premium.most_popular": "Most Popular",
   "premium.must_sign_in": "You must be signed in",
