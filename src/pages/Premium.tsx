@@ -27,6 +27,14 @@ export default function Premium() {
   const { purchase, restore: restoreIAP, loading, monthlyPriceLabel, yearlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
+  const [restoreInfo, setRestoreInfo] = useState<{
+    before: boolean;
+    after: boolean;
+    state: "running" | "restored" | "none" | "error" | "unavailable";
+    productId?: string;
+    expiresAt?: string;
+    message?: string;
+  } | null>(null);
 
   /** The backend row is written by `iap-sync`; poll briefly so Premium unlocks
    *  immediately after StoreKit confirms the purchase. */
@@ -36,6 +44,10 @@ export default function Premium() {
       await new Promise((r) => setTimeout(r, 600));
     }
   };
+
+  /** Human-readable premium status used for the before/after restore summary. */
+  const statusLabel = (active: boolean) =>
+    active ? t("premium.status_premium") : t("premium.status_free");
 
   const upgrade = async () => {
     if (!user) { toast.error(t("premium.must_sign_in")); return; }
@@ -84,15 +96,42 @@ export default function Premium() {
 
   const restore = async () => {
     setRestoring(true);
+    // Snapshot the status the user can see right now, so the result message can
+    // state exactly what changed.
+    const before = isActive;
+    setRestoreInfo({ before, after: before, state: "running" });
     try {
-      const { restored } = await restoreIAP();
-      await refetch();
-      if (restored) {
-        toast.success(t("premium.restored"));
-        await settleEntitlement();
-      } else {
-        toast(t("premium.no_active"));
+      const res = await restoreIAP();
+
+      if (res.outcome === "unavailable") {
+        setRestoreInfo({ before, after: before, state: "unavailable" });
+        toast.info(t("premium.restore_unavailable"));
+        return;
       }
+      if (res.outcome === "error") {
+        setRestoreInfo({ before, after: before, state: "error", message: res.message });
+        toast.error(t("premium.restore_failed"), { description: res.message });
+        return; // stay on this screen — never navigate away on failure
+      }
+      if (!res.restored) {
+        await refetch();
+        setRestoreInfo({ before, after: false, state: "none" });
+        toast(t("premium.no_active"), { description: t("premium.restore_none_desc") });
+        return; // stay on this screen — nothing to restore is not an error
+      }
+
+      await settleEntitlement();
+      setRestoreInfo({
+        before,
+        after: true,
+        state: "restored",
+        productId: res.productId,
+        expiresAt: res.expiresAt ?? undefined,
+      });
+      toast.success(t("premium.restored"), {
+        description: `${statusLabel(before)} → ${statusLabel(true)}`,
+      });
+      if (!before) fireConfetti();
     } finally {
       setRestoring(false);
     }
@@ -201,6 +240,52 @@ export default function Premium() {
             {restoring ? t("premium.restoring") : t("premium.restore")}
           </button>
         </div>
+
+        {restoreInfo && restoreInfo.state !== "running" && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="rounded-2xl bg-white border border-border/60 p-4 text-xs shadow-sm"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">{t("premium.status_before")}</span>
+              <span className="font-semibold">{statusLabel(restoreInfo.before)}</span>
+            </div>
+            <div className="flex items-center justify-between gap-3 mt-1.5">
+              <span className="text-muted-foreground">{t("premium.status_after")}</span>
+              <span
+                className={`font-semibold ${
+                  restoreInfo.after ? "text-[hsl(24_95%_45%)]" : "text-foreground"
+                }`}
+              >
+                {statusLabel(restoreInfo.after)}
+              </span>
+            </div>
+            {restoreInfo.productId && (
+              <div className="flex items-center justify-between gap-3 mt-1.5">
+                <span className="text-muted-foreground">{t("premium.status_plan")}</span>
+                <span className="font-semibold">
+                  {restoreInfo.productId === IAP_PRODUCTS.yearly ? "Basic" : "Premium"}
+                </span>
+              </div>
+            )}
+            {restoreInfo.expiresAt && (
+              <div className="flex items-center justify-between gap-3 mt-1.5">
+                <span className="text-muted-foreground">{t("premium.status_renews")}</span>
+                <span className="font-semibold">
+                  {new Date(restoreInfo.expiresAt).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+            <p className="mt-2.5 pt-2.5 border-t border-border/50 text-muted-foreground leading-relaxed">
+              {restoreInfo.state === "restored" && t("premium.restore_ok_desc")}
+              {restoreInfo.state === "none" && t("premium.restore_none_desc")}
+              {restoreInfo.state === "unavailable" && t("premium.restore_unavailable")}
+              {restoreInfo.state === "error" &&
+                `${t("premium.restore_failed")}${restoreInfo.message ? ` — ${restoreInfo.message}` : ""}`}
+            </p>
+          </div>
+        )}
         <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground flex-wrap mt-4">
           <button onClick={() => nav("/terms")} className="hover:text-foreground transition-colors underline-offset-4 hover:underline">{t("landing.footer_terms")}</button>
           <span className="text-border">·</span>
