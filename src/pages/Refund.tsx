@@ -11,13 +11,12 @@ const SOURCE = [
   "Refunds for In-App Purchases (Apple App Store)",
   "Because Apple is the seller of all subscriptions purchased in the app, all refund requests must be submitted directly to Apple at",
   "Apple decides whether a refund is granted according to Apple's Media Services Terms and Conditions.",
-  "Refunds for Google Play Purchases",
-  "For subscriptions purchased via Google Play, refunds are handled directly by Google. Submit your request at",
   "Subscription Cancellation",
-  "You can cancel your subscription at any time in your Apple App Store or Google Play account. Cancellation takes effect at the end of the current billing period, and you retain Premium access until that date. Already paid periods are not refunded.",
+  "You can cancel your subscription at any time in your Apple App Store account (Settings → your name → Subscriptions). Cancellation takes effect at the end of the current billing period, and you retain Premium access until that date. Already paid periods are not refunded.",
   "Contact",
   "If you have questions, contact us at",
-  "— note that we cannot issue refunds for in-app purchases directly, as Apple and Google are the merchant of record.",
+  "— note that we cannot issue refunds for in-app purchases directly, as Apple is the merchant of record.",
+
 ];
 
 export default function Refund() {
