@@ -81,6 +81,7 @@ export type TKey =
   | "onboarding.create_plan" | "onboarding.start_training"
   | "onboarding.loading_1" | "onboarding.loading_2" | "onboarding.loading_3"
   | "onboarding.personalizing" | "onboarding.plan_ready" | "onboarding.plan_ready_sub"
+  | "onboarding.show_plan"
   | "auth.welcome_back" | "auth.create_account" | "auth.sign_in_sub" | "auth.sign_up_sub"
   | "auth.continue_google" | "auth.or" | "auth.email" | "auth.password"
   | "auth.sign_in" | "auth.sign_up" | "auth.no_account" | "auth.have_account"
@@ -362,6 +363,7 @@ const en: Record<TKey, string> = {
   "onboarding.loading_2": "Calibrating your metabolism…",
   "onboarding.loading_3": "Creating your plan…",
   "onboarding.personalizing": "Personalizing your ScanIQ experience",
+  "onboarding.show_plan": "Taking too long? Show my plan",
   "onboarding.plan_ready": "Your plan is ready",
   "onboarding.plan_ready_sub": "Tuned to your body and goal.",
   "auth.welcome_back": "Welcome back",
@@ -864,6 +866,7 @@ const da: Dict = {
   "onboarding.loading_2": "Kalibrerer dit stofskifte…",
   "onboarding.loading_3": "Opretter din plan…",
   "onboarding.personalizing": "Personliggør din ScanIQ-oplevelse",
+  "onboarding.show_plan": "Tager det for lang tid? Vis min plan",
   "onboarding.plan_ready": "Din plan er klar",
   "onboarding.plan_ready_sub": "Tilpasset din krop og dit mål.",
   "micro.title": "Mikronæring",
