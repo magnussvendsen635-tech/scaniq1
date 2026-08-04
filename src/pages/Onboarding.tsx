@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const TOTAL_QUESTIONS = 13; // 0=lang, 1=name, 2=sex, ... 12=Acquisition survey
+/** Index of the final question; the next step is the loading screen. */
+const LAST_QUESTION = TOTAL_QUESTIONS - 1;
 
 const SPRING = { type: "spring" as const, stiffness: 520, damping: 32, mass: 0.7 };
 const PAGE_SPRING = { type: "spring" as const, stiffness: 320, damping: 34, mass: 0.8 };
