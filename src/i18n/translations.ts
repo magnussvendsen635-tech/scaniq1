@@ -43,6 +43,7 @@ export type TKey =
   | "premium.feat_meal_plans" | "premium.feat_trends" | "premium.feat_priority"
   | "premium.monthly" | "premium.yearly" | "premium.per_month" | "premium.per_year"
   | "premium.cancel_anytime" | "premium.pay_once" | "premium.best_value"
+  | "premium.basic_desc"
   | "premium.upgrade_now" | "premium.youre_premium"
   | "premium.welcome" | "premium.welcome_sub"
   | "premium.best_price" | "premium.lifetime"
@@ -312,6 +313,7 @@ const en: Record<TKey, string> = {
   "premium.feat_priority": "Priority new features",
   "premium.monthly": "Monthly", "premium.yearly": "Yearly",
   "premium.per_month": "/ month", "premium.per_year": "/ year",
+  "premium.basic_desc": "Billed yearly. Save vs. paying monthly.",
   "premium.cancel_anytime": "Billed monthly. Cancel anytime.", "premium.pay_once": "Pay once, get full access",
   "premium.best_value": "Best Value",
   "premium.upgrade_now": "Upgrade now", "premium.youre_premium": "You're Premium",
@@ -813,6 +815,7 @@ const da: Dict = {
   "premium.feat_priority": "Nye funktioner først",
   "premium.monthly": "Månedligt", "premium.yearly": "Årligt",
   "premium.per_month": "/ måned", "premium.per_year": "/ år",
+  "premium.basic_desc": "Faktureres årligt. Spar i forhold til månedlig betaling.",
   "premium.cancel_anytime": "Faktureres månedligt. Opsig når som helst.", "premium.pay_once": "Betal én gang, få fuld adgang",
   "premium.best_value": "Bedste værdi",
   "premium.upgrade_now": "Opgrader nu", "premium.youre_premium": "Du er Premium",
