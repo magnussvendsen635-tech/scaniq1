@@ -30,7 +30,7 @@ Plan:
      - RLS: kun brugeren selv kan se sine måltider, vægt, billeder osv.
      - Adgangskontrol: hashed passwords, Google/Apple OAuth, validering af email.
      - Hvor data opbevares (Lovable Cloud backend / EU).
-     - Underleverandører: Apple App Store/Google Play (betaling), Google Gemini (AI-analyse via Lovable AI Gateway).
+     - Underleverandører: Apple App Store (betaling via Apple som merchant of record), Google Gemini (AI-analyse via Lovable AI Gateway).
      - Dataopbevaring: brugerdata slettes ved kontosletning, betalingsdata opbevares efter lovkrav.
      - Brugerrettigheder (GDPR): indsigt, rettelse, sletning, eksport.
      - Kontakt: scaniqapp1@gmail.com.
