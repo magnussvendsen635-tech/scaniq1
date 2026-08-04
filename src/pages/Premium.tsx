@@ -28,16 +28,25 @@ export default function Premium() {
   const [restoring, setRestoring] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
 
+  /** The backend row is written by `iap-sync`; poll briefly so Premium unlocks
+   *  immediately after StoreKit confirms the purchase. */
+  const settleEntitlement = async () => {
+    for (let i = 0; i < 5; i++) {
+      await refetch();
+      await new Promise((r) => setTimeout(r, 600));
+    }
+  };
+
   const upgrade = async () => {
     if (!user) { toast.error(t("premium.must_sign_in")); return; }
     // Buy exactly the plan the user selected — Basic = yearly, Premium = monthly.
     const productId = selectedPlan === "basic" ? IAP_PRODUCTS.yearly : IAP_PRODUCTS.monthly;
     const { success } = await purchase(productId);
-    if (success) {
-      toast.success(t("premium.thanks"));
-      fireConfetti();
-      await refetch();
-    }
+    // Cancelled or failed purchases stay on this screen — never navigate away.
+    if (!success) return;
+    toast.success(t("premium.thanks"));
+    fireConfetti();
+    await settleEntitlement();
   };
 
 
@@ -76,10 +85,14 @@ export default function Premium() {
   const restore = async () => {
     setRestoring(true);
     try {
-      await restoreIAP();
+      const { restored } = await restoreIAP();
       await refetch();
-      if (isActive) toast.success(t("premium.restored"));
-      else toast(t("premium.no_active"));
+      if (restored) {
+        toast.success(t("premium.restored"));
+        await settleEntitlement();
+      } else {
+        toast(t("premium.no_active"));
+      }
     } finally {
       setRestoring(false);
     }
@@ -166,7 +179,7 @@ export default function Premium() {
 
       <Button
         onClick={upgrade}
-        disabled={isActive || loading}
+        disabled={isActive || loading || restoring}
         className="w-full h-14 rounded-2xl bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-base font-semibold tracking-tight shadow-[0_10px_24px_-8px_hsl(24_95%_55%/0.6)] transition-all"
       >
         {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Sparkles className="w-5 h-5 mr-2" />}
@@ -181,7 +194,7 @@ export default function Premium() {
         <div className="grid grid-cols-1 gap-2 mb-2">
           <button
             onClick={restore}
-            disabled={restoring}
+            disabled={restoring || loading}
             className="k-tap flex items-center justify-center gap-2 h-11 rounded-xl bg-white border border-border/60 text-sm font-medium text-foreground/80 hover:text-foreground hover:border-border transition-all disabled:opacity-60"
           >
             <RefreshCw className="w-4 h-4" />
