@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet, type Sex } from "@/store/useKStore";
@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const TOTAL_QUESTIONS = 13; // 0=lang, 1=name, 2=sex, ... 12=Acquisition survey
+/** Index of the final question; the next step is the loading screen. */
+const LAST_QUESTION = TOTAL_QUESTIONS - 1;
 
 const SPRING = { type: "spring" as const, stiffness: 520, damping: 32, mass: 0.7 };
 const PAGE_SPRING = { type: "spring" as const, stiffness: 320, damping: 34, mass: 0.8 };
@@ -54,6 +56,9 @@ export default function Onboarding() {
   const [loadProgress, setLoadProgress] = useState(0);
   const [showCheck, setShowCheck] = useState(false);
   const [plan, setPlan] = useState<{ calories: number; protein: number; carbs: number; fat: number } | null>(null);
+  const [stalled, setStalled] = useState(false);
+  const generatingRef = useRef(false);
+  const cancelledRef = useRef(false);
 
   // Sync language live so other components reading from store update.
   useEffect(() => { setLanguage(lang); }, [lang, setLanguage]);
@@ -97,27 +102,82 @@ export default function Onboarding() {
 
   const loadingSteps: TKey[] = ["onboarding.loading_1", "onboarding.loading_2", "onboarding.loading_3"];
 
+  /** Never let a translation/haptics/timer hiccup leave the user on a spinner. */
+  const safeT = (k: TKey) => { try { return translate(lang, k); } catch { return ""; } };
+
+  /** Always ends on the plan screen, even if a step throws. */
   const generate = async () => {
-    hapticMedium();
+    if (generatingRef.current) return;
+    generatingRef.current = true;
+    try { hapticMedium(); } catch { /* haptics are optional */ }
     setDir(1);
     setStep(TOTAL_QUESTIONS);
     setDoneSteps(0);
     setLoadProgress(0);
     setShowCheck(false);
-    const items = [...loadingSteps, "onboarding.personalizing" as TKey];
-    for (let i = 0; i < items.length; i++) {
-      setLoadingMsg(tt(items[i]));
-      await new Promise((r) => setTimeout(r, reduce ? 120 : 600));
-      setDoneSteps(i + 1);
-      setLoadProgress(((i + 1) / items.length) * 100);
+    setStalled(false);
+
+    // Compute the plan up front: it is pure math and must never depend on the animation.
+    let p: { calories: number; protein: number; carbs: number; fat: number } | null = null;
+    try {
+      p = computePlan({ weight, height, goal, activity, sex, age });
+      setPlan(p);
+    } catch (e) {
+      console.error("computePlan failed", e);
     }
-    const p = computePlan({ weight, height, goal, activity, sex, age });
-    setPlan(p);
-    setShowCheck(true);
-    hapticSuccess();
-    await new Promise((r) => setTimeout(r, reduce ? 200 : 900));
+
+    try {
+      const items = [...loadingSteps, "onboarding.personalizing" as TKey];
+      for (let i = 0; i < items.length; i++) {
+        if (cancelledRef.current) return;
+        setLoadingMsg(safeT(items[i]));
+        await new Promise((r) => setTimeout(r, reduce ? 120 : 600));
+        setDoneSteps(i + 1);
+        setLoadProgress(((i + 1) / items.length) * 100);
+      }
+      if (cancelledRef.current) return;
+      setShowCheck(true);
+      try { hapticSuccess(); } catch { /* haptics are optional */ }
+      await new Promise((r) => setTimeout(r, reduce ? 200 : 900));
+    } catch (e) {
+      console.error("Onboarding loading sequence failed", e);
+    } finally {
+      generatingRef.current = false;
+      if (!cancelledRef.current && p) {
+        setLoadProgress(100);
+        setDoneSteps(4);
+        setStep(TOTAL_QUESTIONS + 1);
+      }
+    }
+  };
+
+  // Watchdog: if the loader is still on screen after 8s (throttled timers in a
+  // backgrounded webview, a stalled promise), show a manual way forward.
+  useEffect(() => {
+    if (step !== TOTAL_QUESTIONS) return;
+    const id = setTimeout(() => setStalled(true), 8000);
+    return () => clearTimeout(id);
+  }, [step]);
+
+  useEffect(() => () => { cancelledRef.current = true; }, []);
+
+  /** Manual escape hatch from a stuck loader. */
+  const skipLoading = () => {
+    generatingRef.current = false;
+    let p = plan;
+    if (!p) {
+      try {
+        p = computePlan({ weight, height, goal, activity, sex, age });
+        setPlan(p);
+      } catch (e) {
+        console.error("computePlan failed", e);
+        toast.error("Something went wrong");
+        return;
+      }
+    }
     setStep(TOTAL_QUESTIONS + 1);
   };
+
 
   const finish = async () => {
     if (!plan) return;
@@ -437,7 +497,20 @@ export default function Onboarding() {
                           </motion.div>
                         ))}
                       </div>
+
+                      {stalled && (
+                        <motion.button
+                          type="button"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          onClick={skipLoading}
+                          className="k-tap text-sm font-medium text-primary underline underline-offset-4"
+                        >
+                          {tt("onboarding.show_plan")}
+                        </motion.button>
+                      )}
                     </motion.div>
+
                   ) : (
                     <motion.div
                       key="done"
@@ -512,9 +585,9 @@ export default function Onboarding() {
           >
             <Button
               size="lg"
-              disabled={step === 13 && !channel}
+              disabled={step === LAST_QUESTION && !channel}
               className="group w-full h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0 disabled:opacity-50"
-              onClick={step === 13 ? generate : next}
+              onClick={step === LAST_QUESTION ? generate : next}
             >
               <span className="text-white">{tt("common.continue")}</span>
               <span className="ml-2 inline-flex items-center -space-x-2 transition-transform group-hover:translate-x-1">
