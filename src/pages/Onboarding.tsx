@@ -495,7 +495,20 @@ export default function Onboarding() {
                           </motion.div>
                         ))}
                       </div>
+
+                      {stalled && (
+                        <motion.button
+                          type="button"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          onClick={skipLoading}
+                          className="k-tap text-sm font-medium text-primary underline underline-offset-4"
+                        >
+                          {tt("onboarding.show_plan")}
+                        </motion.button>
+                      )}
                     </motion.div>
+
                   ) : (
                     <motion.div
                       key="done"
