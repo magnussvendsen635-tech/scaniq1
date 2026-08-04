@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { isNativeApple, signInWithAppleNative } from "@/lib/appleAuth";
+
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
@@ -149,6 +151,17 @@ export default function Auth() {
   const handleApple = async () => {
     setBusy(true);
     try {
+      // Native iOS/iPadOS: use Apple's own ASAuthorization sheet. A web redirect
+      // flow cannot return a session inside the Capacitor WebView.
+      if (isNativeApple()) {
+        const signedIn = await signInWithAppleNative();
+        if (signedIn) {
+          nav(next ?? "/app", { replace: true });
+          return;
+        }
+        setBusy(false);
+        return;
+      }
       const result = await lovable.auth.signInWithOAuth("apple", {
         redirect_uri: returnTo,
       });
@@ -158,6 +171,7 @@ export default function Auth() {
       setBusy(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-10">

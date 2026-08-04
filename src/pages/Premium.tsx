@@ -24,19 +24,22 @@ export default function Premium() {
   const t = useT();
   const { user } = useAuth();
   const { isActive, refetch } = useSubscription();
-  const { purchase, restore: restoreIAP, loading, monthlyPriceLabel } = useIAP();
+  const { purchase, restore: restoreIAP, loading, monthlyPriceLabel, yearlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
 
   const upgrade = async () => {
     if (!user) { toast.error(t("premium.must_sign_in")); return; }
-    const { success } = await purchase(IAP_PRODUCTS.monthly);
+    // Buy exactly the plan the user selected — Basic = yearly, Premium = monthly.
+    const productId = selectedPlan === "basic" ? IAP_PRODUCTS.yearly : IAP_PRODUCTS.monthly;
+    const { success } = await purchase(productId);
     if (success) {
       toast.success(t("premium.thanks"));
       fireConfetti();
       await refetch();
     }
   };
+
 
   const fireConfetti = () => {
     const end = Date.now() + 2500;
@@ -120,7 +123,7 @@ export default function Premium() {
         >
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">Basic</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-3xl font-bold tracking-tight">$119</span>
+            <span className="text-3xl font-bold tracking-tight">{yearlyPriceLabel}</span>
             <span className="text-xs text-muted-foreground">{t("premium.per_year")}</span>
           </div>
           <div className="text-xs mt-1 text-muted-foreground">Save money — pay for a whole year at a time</div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Cookie, X } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import { useT } from "@/i18n/useT";
 
 const KEY = "scaniq_cookie_consent_v1";
@@ -10,6 +11,13 @@ export function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // The native iOS app uses no cookies and no cross-app/cross-site tracking,
+    // so no cookie banner is shown there (and no ATT prompt is required).
+    try {
+      if (Capacitor.isNativePlatform()) return;
+    } catch {
+      /* web */
+    }
     try {
       if (!localStorage.getItem(KEY)) {
         const timer = setTimeout(() => setVisible(true), 600);
@@ -19,6 +27,7 @@ export function CookieConsent() {
       /* ignore */
     }
   }, []);
+
 
   const close = (value: "accepted" | "essential") => {
     try {

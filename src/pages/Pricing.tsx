@@ -23,7 +23,7 @@ export default function Pricing() {
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto max-w-2xl mx-auto" style={{ paddingBottom: 60 }}>
       <Seo
         title="Pricing — ScanIQ Premium"
-        description="ScanIQ Premium from $19/month or $179/year. Subscriptions handled by the App Store and Google Play."
+        description="ScanIQ Premium from $19/month or $179/year. Subscriptions handled by the Apple App Store."
         path="/pricing"
       />
       <header className="flex items-center gap-3 mb-6 pt-2">

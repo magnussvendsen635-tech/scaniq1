@@ -65,12 +65,7 @@ export default function Profile() {
   };
 
   const manageSubscription = () => {
-    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-    const isIOS = /iPad|iPhone|iPod/.test(ua);
-    const isAndroid = /Android/.test(ua);
-    if (isIOS) window.location.href = "https://apps.apple.com/account/subscriptions";
-    else if (isAndroid) window.location.href = "https://play.google.com/store/account/subscriptions";
-    else toast.info("Åbn App Store / Google Play på din telefon for at administrere abonnementet");
+    window.location.href = "https://apps.apple.com/account/subscriptions";
   };
 
 

@@ -1,24 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { RC_CONFIG } from "@/config/revenuecat";
 
 /**
- * Native In-App Purchase hook backed by RevenueCat.
+ * Native In-App Purchase hook backed by RevenueCat / StoreKit.
  *
- * Configure in App Store Connect:
- *   - com.scaniq.monthly  (auto-renewable monthly subscription)
- *   - scaniq.yearly       (auto-renewable yearly subscription)
+ * App Store Connect products:
+ *   - com.scaniq.monthly  (auto-renewable monthly subscription — "Premium")
+ *   - scaniq.yearly       (auto-renewable yearly subscription — "Basic")
  *
- * Configure in RevenueCat:
- *   - Entitlement identifier: "ScanIQ: Kalorietæller Pro"
- *   - Offering with the monthly package above
- *   - Paste your iOS public SDK key into src/config/revenuecat.ts
+ * RevenueCat:
+ *   - Entitlement identifier: see RC_CONFIG.entitlementId
+ *   - Current offering must contain both packages above
  *
- * Apple is the merchant of record. Apple handles payment, receipt, and refunds.
- * After a successful purchase the SDK gives us CustomerInfo; we forward the
- * relevant fields to the `iap-sync` edge function which is the single source
- * of truth for our `subscriptions` table and `profiles.is_premium`.
+ * Apple is the merchant of record. After a purchase the SDK returns
+ * CustomerInfo, which we forward to the `iap-sync` edge function — the single
+ * source of truth for `subscriptions` and `profiles.is_premium`.
  */
 
 export const IAP_PRODUCTS = {
@@ -39,16 +37,24 @@ const isNative = (): boolean =>
 let configured = false;
 
 async function configureRC(appUserID: string | undefined) {
-  if (configured || !isNative()) return;
-  if (!RC_API_KEY_IOS) {
-    console.warn("[IAP] VITE_RC_API_KEY_IOS missing — RevenueCat not configured");
-    return;
-  }
+  if (!isNative() || !RC_API_KEY_IOS) return;
   try {
     const { Purchases, LOG_LEVEL } = await import("@revenuecat/purchases-capacitor");
-    await Purchases.setLogLevel({ level: LOG_LEVEL.WARN });
-    await Purchases.configure({ apiKey: RC_API_KEY_IOS, appUserID });
-    configured = true;
+    if (!configured) {
+      await Purchases.setLogLevel({ level: LOG_LEVEL.WARN });
+      await Purchases.configure({ apiKey: RC_API_KEY_IOS, appUserID });
+      configured = true;
+      return;
+    }
+    // Already configured (e.g. anonymous) — attach the signed-in user so the
+    // purchase is credited to the right account.
+    if (appUserID) {
+      try {
+        await Purchases.logIn({ appUserID });
+      } catch {
+        /* non-fatal */
+      }
+    }
   } catch (e) {
     console.error("[IAP] RevenueCat configure failed", e);
   }
@@ -58,6 +64,15 @@ async function configureRC(appUserID: string | undefined) {
 function activeEntitlement(ci: any) {
   const active = ci?.entitlements?.active ?? {};
   return active[ENTITLEMENT_ID] ?? Object.values(active)[0];
+}
+
+function findPackage(offering: any, productId: IAPProductId) {
+  const pkgs: any[] = offering?.availablePackages ?? [];
+  return (
+    pkgs.find((p) => p?.product?.identifier === productId) ??
+    (productId === IAP_PRODUCTS.monthly ? offering?.monthly : offering?.annual) ??
+    null
+  );
 }
 
 async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any) {
@@ -80,58 +95,79 @@ async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any) {
 
 export function useIAP() {
   const [loading, setLoading] = useState(false);
+  const [ready, setReady] = useState(false);
   const [monthlyPriceLabel, setMonthlyPriceLabel] = useState<string>("$19");
+  const [yearlyPriceLabel, setYearlyPriceLabel] = useState<string>("$119");
   const offeringRef = useRef<any>(null);
+
+  const loadOfferings = useCallback(async () => {
+    if (!isNative() || !RC_API_KEY_IOS) return null;
+    const { data } = await supabase.auth.getUser();
+    await configureRC(data.user?.id);
+    const { Purchases } = await import("@revenuecat/purchases-capacitor");
+    const offerings = await Purchases.getOfferings();
+    const current = offerings.current;
+    offeringRef.current = current;
+    const monthly = findPackage(current, IAP_PRODUCTS.monthly);
+    const yearly = findPackage(current, IAP_PRODUCTS.yearly);
+    if (monthly?.product?.priceString) setMonthlyPriceLabel(monthly.product.priceString);
+    if (yearly?.product?.priceString) setYearlyPriceLabel(yearly.product.priceString);
+    return current;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!isNative() || !RC_API_KEY_IOS) return;
-      const { data } = await supabase.auth.getUser();
-      await configureRC(data.user?.id);
       try {
-        const { Purchases } = await import("@revenuecat/purchases-capacitor");
-        const offerings = await Purchases.getOfferings();
-        if (cancelled) return;
-        const current = offerings.current;
-        offeringRef.current = current;
-        const monthly = current?.monthly ?? current?.availablePackages?.find((p: any) => p.identifier === "$rc_monthly");
-        if (monthly?.product?.priceString) setMonthlyPriceLabel(monthly.product.priceString);
+        await loadOfferings();
       } catch (e) {
         console.warn("[IAP] getOfferings failed", e);
+      } finally {
+        if (!cancelled) setReady(true);
       }
     })();
-    return () => { cancelled = true; };
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [loadOfferings]);
 
   const purchase = async (productId: IAPProductId): Promise<{ success: boolean }> => {
     setLoading(true);
     try {
       if (!isNative()) {
         toast.info("In-App Purchase", {
-          description: "Purchases are only available in the native iOS app via the App Store.",
+          description: "Subscriptions are purchased through the App Store in the ScanIQ iOS app.",
         });
         return { success: false };
       }
       if (!RC_API_KEY_IOS) {
-        toast.error("Payment system not yet configured", {
-          description: "RevenueCat API key missing. Contact support.",
+        toast.error("Payments are temporarily unavailable", {
+          description: "Please try again later or contact support.",
         });
         return { success: false };
       }
       const { Purchases } = await import("@revenuecat/purchases-capacitor");
-      const offerings = offeringRef.current ?? (await Purchases.getOfferings()).current;
-      const pkg = offerings?.availablePackages?.find((p: any) => p.product?.identifier === productId)
-        ?? offerings?.monthly;
+      const offering = offeringRef.current ?? (await loadOfferings());
+      const pkg = findPackage(offering, productId);
       if (!pkg) {
-        toast.error("Product not available");
+        toast.error("This subscription is not available right now", {
+          description: "Please check your connection and try again.",
+        });
         return { success: false };
       }
       const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
       await syncCustomerInfoToBackend(productId, customerInfo);
-      return { success: !!activeEntitlement(customerInfo) };
+      const ok = !!activeEntitlement(customerInfo);
+      if (!ok) {
+        toast.error("Purchase could not be verified", {
+          description: "If you were charged, tap Restore purchases.",
+        });
+      }
+      return { success: ok };
     } catch (e: any) {
-      if (e?.userCancelled) return { success: false };
+      if (e?.userCancelled || e?.code === "1" || /cancel/i.test(String(e?.message ?? ""))) {
+        return { success: false };
+      }
       toast.error("Purchase failed", { description: e?.message });
       return { success: false };
     } finally {
@@ -143,9 +179,11 @@ export function useIAP() {
     setLoading(true);
     try {
       if (!isNative() || !RC_API_KEY_IOS) {
-        toast.info("Restore purchases is only available in the native app");
+        toast.info("Restore purchases is only available in the iOS app");
         return { restored: false };
       }
+      const { data } = await supabase.auth.getUser();
+      await configureRC(data.user?.id);
       const { Purchases } = await import("@revenuecat/purchases-capacitor");
       const { customerInfo } = await Purchases.restorePurchases();
       await syncCustomerInfoToBackend(IAP_PRODUCTS.monthly, customerInfo);
@@ -158,5 +196,5 @@ export function useIAP() {
     }
   };
 
-  return { purchase, restore, loading, monthlyPriceLabel };
+  return { purchase, restore, loading, ready, monthlyPriceLabel, yearlyPriceLabel, isNative: isNative() };
 }

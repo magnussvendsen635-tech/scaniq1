@@ -513,7 +513,18 @@ export default function Onboarding() {
                   <motion.div variants={itemVariants}><PlanCard label={tt("home.carbs")} value={plan.carbs} unit="g" /></motion.div>
                   <motion.div variants={itemVariants}><PlanCard label={tt("home.fat")} value={plan.fat} unit="g" /></motion.div>
                 </motion.div>
+                {/* Apple 1.4.1: the basis of the recommendation must be stated. */}
+                <motion.p variants={itemVariants} className="mt-4 text-[11px] leading-relaxed text-muted-foreground">
+                  These targets are an estimate calculated with the Mifflin-St Jeor equation
+                  (Mifflin et al., Am J Clin Nutr 1990) and WHO/FAO/UNU activity factors. ScanIQ is a
+                  general wellness app and does not provide medical advice. Consult your doctor or a
+                  registered dietitian before changing your diet.{" "}
+                  <a href="/sources" className="underline underline-offset-4 text-primary">
+                    View sources
+                  </a>
+                </motion.p>
               </Step>
+
             )}
           </motion.div>
         </AnimatePresence>

@@ -29,7 +29,7 @@ const SOURCE = [
   "Premium is offered as a monthly or yearly subscription.",
   "The subscription renews automatically at the end of the period unless cancelled.",
   "Cancellation takes effect at the end of the period — you retain Premium access until that date.",
-  "All in-app purchases are handled by Apple App Store and Google Play. Apple or Google is the merchant of record and handles payment, receipts and refunds.",
+  "All in-app purchases are handled by the Apple App Store. Apple is the merchant of record and handles payment, receipts and refunds.",
   "\"Restore Purchases\" only restores existing subscriptions; it does not provide refunds or free Premium.",
   "5. No Warranties",
   "The app is provided \"as is\". We make no warranties that the app is error-free, always available, or that it will lead to specific weight loss or health outcomes.",

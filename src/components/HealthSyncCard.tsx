@@ -64,13 +64,22 @@ export function HealthSyncCard() {
           {loading ? <Loader2 className="w-5 h-5 text-primary animate-spin" /> : <Activity className="w-5 h-5 text-primary" />}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium">{platform === "ios" ? "Apple Health" : "Google Fit"}</div>
+          <div className="text-sm font-medium">
+            {platform === "ios" ? "Sync with Apple Health" : "Sync with Health Connect"}
+          </div>
           <div className="text-xs text-muted-foreground">
             {snapshot ? `${snapshot.steps ?? 0} ${t("health.steps")} · ${snapshot.cal ?? 0} kcal` : t("health.tap_to_sync")}
           </div>
         </div>
         <RefreshCw className="w-4 h-4 text-muted-foreground" />
       </div>
+      {/* Apple requires HealthKit usage to be clearly identified in the UI. */}
+      <p className="text-[11px] leading-relaxed text-muted-foreground mt-3">
+        {platform === "ios"
+          ? "ScanIQ reads three health data types from Apple Health: steps, active energy burned and body weight. Steps and active energy adjust your daily calorie budget, and your latest weight is added to your progress chart. ScanIQ only reads this data — it never writes to Apple Health and never shares health data with third parties. You can revoke access at any time in the Health app under Sharing → Apps."
+          : "ScanIQ reads steps, active energy burned and body weight from Health Connect to adjust your daily calorie budget and progress chart. Data is only read, never shared with third parties."}
+      </p>
     </button>
   );
 }
+
