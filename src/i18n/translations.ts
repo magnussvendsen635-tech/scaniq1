@@ -22705,7 +22705,7 @@ const lt: Dict = {
   "exercise.sets": "Serijos",
   "lang.none_found": "Kalbos nerastos.",
   "reminders.page_title": "Priminimai",
-  "reminders.web_warning": "Tiesioginiai pranešimai veikia tik „ScanIQ“ mobiliojoje programėlėje („iOS“ / „Android“). Naršyklėje šie nustatymai išsaugomi ir bus naudojami, kai atidarysite programėlę savo telefone.",
+  "reminders.web_warning": "Tiesioginiai pranešimai veikia tik „ScanIQ“ mobiliojoje programėlėje („iOS“). Naršyklėje šie nustatymai išsaugomi ir bus naudojami, kai atidarysite programėlę savo telefone.",
   "reminders.enable_title": "Įjungti priminimus",
   "reminders.enable_sub": "Išmanus, minimalus – tik kai pamiršite užsirašyti.",
   "reminders.permission_denied_title": "Pranešimai neleidžiami",
