@@ -1,5 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
+import { logAppleAttempt, markSignedInOnce } from "@/lib/authDiagnostics";
 
 /**
  * Native "Sign in with Apple" for iOS/iPadOS.
@@ -47,6 +48,16 @@ async function sha256Hex(input: string): Promise<string> {
  * Throws on real errors so the caller can show a message.
  */
 export async function signInWithAppleNative(): Promise<boolean> {
+  const platform = (() => {
+    try {
+      return Capacitor.getPlatform();
+    } catch {
+      return "unknown";
+    }
+  })();
+  const base = { platform, native: isNativePlatform() };
+  logAppleAttempt({ ...base, status: "started" });
+
   const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
 
   const rawNonce = randomNonce();
@@ -62,20 +73,34 @@ export async function signInWithAppleNative(): Promise<boolean> {
     });
   } catch (e: any) {
     const msg = String(e?.message ?? e ?? "");
-    // User tapped Cancel on the Apple sheet — not an error.
-    if (/cancel/i.test(msg) || e?.code === "1001") return false;
+    const code = String(e?.code ?? "");
+    // User tapped Cancel / dismissed the Apple sheet — not an error.
+    // ASAuthorizationError.canceled = 1001, .unknown on dismiss = 1000.
+    if (/cancel|1001|1000/i.test(msg) || code === "1001" || code === "1000") {
+      logAppleAttempt({ ...base, status: "cancelled", message: msg || "User cancelled", code });
+      return false;
+    }
+    logAppleAttempt({ ...base, status: "error", message: msg || "Apple sheet failed", code });
     throw e;
   }
 
   const identityToken: string | undefined = result?.response?.identityToken;
-  if (!identityToken) throw new Error("Apple did not return an identity token.");
+  if (!identityToken) {
+    logAppleAttempt({ ...base, status: "error", message: "Apple did not return an identity token." });
+    throw new Error("Apple did not return an identity token.");
+  }
 
   const { error } = await supabase.auth.signInWithIdToken({
     provider: "apple",
     token: identityToken,
     nonce: rawNonce,
   });
-  if (error) throw error;
+  if (error) {
+    logAppleAttempt({ ...base, status: "error", message: error.message, code: String((error as any)?.code ?? "") });
+    throw error;
+  }
+  logAppleAttempt({ ...base, status: "success" });
+  markSignedInOnce();
 
   // Apple only shares the full name on the very first authorization.
   const given = result?.response?.givenName;

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { isNativeApple, signInWithAppleNative } from "@/lib/appleAuth";
+import { isNativeApple, isNativePlatform, signInWithAppleNative } from "@/lib/appleAuth";
+import { markSignedInOnce } from "@/lib/authDiagnostics";
 
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -97,7 +98,8 @@ export default function Auth() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        nav(next ?? "/");
+        markSignedInOnce();
+        nav(next ?? "/app", { replace: true });
       }
     } catch (err: any) {
       const code = err?.code || err?.name;
@@ -156,6 +158,7 @@ export default function Auth() {
       if (isNativeApple()) {
         const signedIn = await signInWithAppleNative();
         if (signedIn) {
+          markSignedInOnce();
           nav(next ?? "/app", { replace: true });
           return;
         }
@@ -193,6 +196,7 @@ export default function Auth() {
 
         {mode !== "forgot" && (
           <>
+            {!isNativePlatform() && (
             <Button
               type="button"
               variant="outline"
@@ -208,6 +212,7 @@ export default function Auth() {
               </svg>
               Continue with Google
             </Button>
+            )}
 
             <Button
               type="button"
