@@ -9,7 +9,6 @@ import { PremiumWrapper } from "@/components/PremiumWrapper";
 import { useSubscription } from "@/hooks/useSubscription";
 
 import { HealthScoreCard } from "@/components/HealthScoreCard";
-import { HealthSyncCard } from "@/components/HealthSyncCard";
 import { WaterCard } from "@/components/WaterCard";
 
 import { RemindersCard } from "@/components/RemindersCard";
@@ -163,7 +162,6 @@ export default function Home() {
       <RemindersCard />
 
       {/* Health sync (Apple Health / Google Fit) */}
-      <HealthSyncCard />
 
       {/* Quick actions — secondary features */}
       <div className="grid grid-cols-3 gap-2">

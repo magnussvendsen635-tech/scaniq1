@@ -9,7 +9,6 @@ import { LanguagePicker } from "@/components/LanguagePicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useT } from "@/i18n/useT";
 import { translate } from "@/i18n/translations";
-import { HealthSyncCard } from "@/components/HealthSyncCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -72,7 +71,6 @@ export default function Settings() {
 
         <Section title={t("settings.health")}>
           <div className="px-4 py-3">
-            <HealthSyncCard />
           </div>
         </Section>
 
