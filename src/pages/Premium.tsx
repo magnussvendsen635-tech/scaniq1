@@ -24,19 +24,22 @@ export default function Premium() {
   const t = useT();
   const { user } = useAuth();
   const { isActive, refetch } = useSubscription();
-  const { purchase, restore: restoreIAP, loading, monthlyPriceLabel } = useIAP();
+  const { purchase, restore: restoreIAP, loading, monthlyPriceLabel, yearlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
 
   const upgrade = async () => {
     if (!user) { toast.error(t("premium.must_sign_in")); return; }
-    const { success } = await purchase(IAP_PRODUCTS.monthly);
+    // Buy exactly the plan the user selected — Basic = yearly, Premium = monthly.
+    const productId = selectedPlan === "basic" ? IAP_PRODUCTS.yearly : IAP_PRODUCTS.monthly;
+    const { success } = await purchase(productId);
     if (success) {
       toast.success(t("premium.thanks"));
       fireConfetti();
       await refetch();
     }
   };
+
 
   const fireConfetti = () => {
     const end = Date.now() + 2500;
