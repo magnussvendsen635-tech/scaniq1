@@ -10,7 +10,6 @@ import logo from "@/assets/scaniq-logo-new.png";
 const featureKeys: TKey[] = [
   "premium.feat_scans",
   "premium.feat_macros",
-  "premium.feat_workouts",
   "premium.feat_trends",
   "premium.feat_priority",
 ];
