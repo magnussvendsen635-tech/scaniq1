@@ -7,11 +7,6 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'always',
   },
-  plugins: {
-    HealthKit: {
-      // iOS HealthKit usage descriptions are set in Info.plist
-    },
-  },
 };
 
 export default config;

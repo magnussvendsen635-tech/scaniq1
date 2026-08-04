@@ -1,5 +1,5 @@
 // Native local notifications for ScanIQ
-// Uses @capacitor/local-notifications on iOS/Android, no-ops on web.
+// Uses @capacitor/local-notifications on iOS, no-ops on web.
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import type { Meal, MealCategory, ReminderSettings } from "@/store/useKStore";

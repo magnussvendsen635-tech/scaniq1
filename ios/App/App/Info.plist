@@ -53,8 +53,6 @@
 	<string>ScanIQ needs photo access so you can pick meal photos from your library.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>ScanIQ can save scanned meal photos to your library.</string>
-	<key>NSHealthShareUsageDescription</key>
-	<string>ScanIQ reads your steps, active energy burned and body weight from Apple Health to adjust your daily calorie budget and show your weight progress. ScanIQ never writes to Apple Health.</string>
 
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
