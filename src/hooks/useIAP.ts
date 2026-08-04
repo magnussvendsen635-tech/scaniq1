@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { RC_CONFIG } from "@/config/revenuecat";
+import {
+  RC_API_KEY_IOS,
+  activeEntitlement,
+  configureRC,
+  isNative,
+  syncCustomerInfoToBackend,
+  syncEntitlementNow,
+  resetEntitlementBootstrap,
+} from "@/lib/entitlements";
 
 /**
  * Native In-App Purchase hook backed by RevenueCat / StoreKit.
@@ -10,11 +18,7 @@ import { RC_CONFIG } from "@/config/revenuecat";
  *   - com.scaniq.monthly  (auto-renewable monthly subscription — "Premium")
  *   - scaniq.yearly       (auto-renewable yearly subscription — "Basic")
  *
- * RevenueCat:
- *   - Entitlement identifier: see RC_CONFIG.entitlementId
- *   - Current offering must contain both packages above
- *
- * Apple is the merchant of record. After a purchase the SDK returns
+ * Apple is the merchant of record. After a purchase or restore the SDK returns
  * CustomerInfo, which we forward to the `iap-sync` edge function — the single
  * source of truth for `subscriptions` and `profiles.is_premium`.
  */
@@ -26,44 +30,16 @@ export const IAP_PRODUCTS = {
 
 export type IAPProductId = (typeof IAP_PRODUCTS)[keyof typeof IAP_PRODUCTS];
 
-const RC_API_KEY_IOS = RC_CONFIG.iosApiKey;
-const ENTITLEMENT_ID = RC_CONFIG.entitlementId;
-
-const isNative = (): boolean =>
-  typeof (window as any).Capacitor?.isNativePlatform === "function"
-    ? (window as any).Capacitor.isNativePlatform()
-    : false;
-
-let configured = false;
-
-async function configureRC(appUserID: string | undefined) {
-  if (!isNative() || !RC_API_KEY_IOS) return;
-  try {
-    const { Purchases, LOG_LEVEL } = await import("@revenuecat/purchases-capacitor");
-    if (!configured) {
-      await Purchases.setLogLevel({ level: LOG_LEVEL.WARN });
-      await Purchases.configure({ apiKey: RC_API_KEY_IOS, appUserID });
-      configured = true;
-      return;
-    }
-    // Already configured (e.g. anonymous) — attach the signed-in user so the
-    // purchase is credited to the right account.
-    if (appUserID) {
-      try {
-        await Purchases.logIn({ appUserID });
-      } catch {
-        /* non-fatal */
-      }
-    }
-  } catch (e) {
-    console.error("[IAP] RevenueCat configure failed", e);
-  }
-}
-
-/** Active entitlement: prefer the configured one, else any active entitlement. */
-function activeEntitlement(ci: any) {
-  const active = ci?.entitlements?.active ?? {};
-  return active[ENTITLEMENT_ID] ?? Object.values(active)[0];
+export interface RestoreResult {
+  /** Apple reported an active entitlement for this Apple ID. */
+  restored: boolean;
+  /** Nothing to restore vs. the call itself failed. */
+  outcome: "restored" | "nothing_to_restore" | "unavailable" | "error";
+  /** Product identifier Apple restored, when known. */
+  productId?: string;
+  /** Renewal / expiry date of the restored entitlement, when known. */
+  expiresAt?: string | null;
+  message?: string;
 }
 
 function findPackage(offering: any, productId: IAPProductId) {
@@ -73,24 +49,6 @@ function findPackage(offering: any, productId: IAPProductId) {
     (productId === IAP_PRODUCTS.monthly ? offering?.monthly : offering?.annual) ??
     null
   );
-}
-
-async function syncCustomerInfoToBackend(productId: IAPProductId, ci: any) {
-  const ent: any = activeEntitlement(ci);
-  await supabase.functions.invoke("iap-sync", {
-    body: {
-      source: "client",
-      entitlement_active: !!ent,
-      product_id: ent?.productIdentifier ?? productId,
-      entitlement_id: ent?.identifier ?? ENTITLEMENT_ID,
-      revenuecat_customer_id: ci?.originalAppUserId ?? undefined,
-      transaction_id: ci?.originalAppUserId ?? undefined,
-      original_transaction_id: ent?.originalPurchaseDate ?? undefined,
-      expires_at: ent?.expirationDate ?? null,
-      period_start: ent?.latestPurchaseDate ?? null,
-      will_renew: ent?.willRenew ?? !!ent,
-    },
-  });
 }
 
 export function useIAP() {
@@ -157,6 +115,8 @@ export function useIAP() {
       }
       const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
       await syncCustomerInfoToBackend(productId, customerInfo);
+      const { data: u } = await supabase.auth.getUser();
+      resetEntitlementBootstrap(u.user?.id);
       const ok = !!activeEntitlement(customerInfo);
       if (!ok) {
         toast.error("Purchase could not be verified", {
@@ -175,26 +135,48 @@ export function useIAP() {
     }
   };
 
-  const restore = async (): Promise<{ restored: boolean }> => {
+  const restore = async (): Promise<RestoreResult> => {
     setLoading(true);
     try {
       if (!isNative() || !RC_API_KEY_IOS) {
-        toast.info("Restore purchases is only available in the iOS app");
-        return { restored: false };
+        return {
+          restored: false,
+          outcome: "unavailable",
+          message: "Restore purchases is only available in the ScanIQ iOS app.",
+        };
       }
       const { data } = await supabase.auth.getUser();
       await configureRC(data.user?.id);
       const { Purchases } = await import("@revenuecat/purchases-capacitor");
       const { customerInfo } = await Purchases.restorePurchases();
       await syncCustomerInfoToBackend(IAP_PRODUCTS.monthly, customerInfo);
-      return { restored: !!activeEntitlement(customerInfo) };
+      // Any later start-up check should re-read StoreKit rather than reuse this launch's result.
+      resetEntitlementBootstrap(data.user?.id);
+      const ent: any = activeEntitlement(customerInfo);
+      if (!ent) return { restored: false, outcome: "nothing_to_restore" };
+      return {
+        restored: true,
+        outcome: "restored",
+        productId: ent?.productIdentifier,
+        expiresAt: ent?.expirationDate ?? null,
+      };
     } catch (e: any) {
-      toast.error("Restore failed", { description: e?.message });
-      return { restored: false };
+      // Cancelling the App Store password sheet is not an error.
+      const msg = String(e?.message ?? "");
+      if (e?.userCancelled || /cancel/i.test(msg)) {
+        return { restored: false, outcome: "nothing_to_restore", message: msg };
+      }
+      return { restored: false, outcome: "error", message: msg || "Restore failed" };
     } finally {
       setLoading(false);
     }
   };
 
-  return { purchase, restore, loading, ready, monthlyPriceLabel, yearlyPriceLabel, isNative: isNative() };
+  /** Re-read StoreKit and push the result to the backend (no UI side effects). */
+  const syncEntitlement = useCallback(async () => {
+    const { data } = await supabase.auth.getUser();
+    return syncEntitlementNow(data.user?.id);
+  }, []);
+
+  return { purchase, restore, syncEntitlement, loading, ready, monthlyPriceLabel, yearlyPriceLabel, isNative: isNative() };
 }

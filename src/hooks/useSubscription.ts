@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { bootstrapEntitlement } from "@/lib/entitlements";
 
 export interface SubscriptionRow {
   id: string;
@@ -62,6 +63,10 @@ export function useSubscription() {
       setVerified(true);
       return;
     }
+    // Fresh install: consult StoreKit/RevenueCat once per launch and let
+    // `iap-sync` write the row BEFORE we resolve the locked/unlocked state,
+    // so an existing subscriber never sees a premium-locked screen.
+    await bootstrapEntitlement(user.id);
     const { data } = await supabase
       .from("subscriptions")
       .select("*")
