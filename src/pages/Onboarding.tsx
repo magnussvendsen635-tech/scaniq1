@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet, type Sex } from "@/store/useKStore";
@@ -54,6 +54,9 @@ export default function Onboarding() {
   const [loadProgress, setLoadProgress] = useState(0);
   const [showCheck, setShowCheck] = useState(false);
   const [plan, setPlan] = useState<{ calories: number; protein: number; carbs: number; fat: number } | null>(null);
+  const [stalled, setStalled] = useState(false);
+  const generatingRef = useRef(false);
+  const cancelledRef = useRef(false);
 
   // Sync language live so other components reading from store update.
   useEffect(() => { setLanguage(lang); }, [lang, setLanguage]);
@@ -166,7 +169,7 @@ export default function Onboarding() {
         setPlan(p);
       } catch (e) {
         console.error("computePlan failed", e);
-        toast.error(safeT("common.error") || "Something went wrong");
+        toast.error("Something went wrong");
         return;
       }
     }
