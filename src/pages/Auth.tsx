@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { isNativeApple, signInWithAppleNative } from "@/lib/appleAuth";
+
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
