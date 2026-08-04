@@ -8,13 +8,12 @@ import { LanguagePicker } from "@/components/LanguagePicker";
 import { translate, type TKey } from "@/i18n/translations";
 import { Flame, TrendingDown, TrendingUp, Activity as ActivityIcon, ArrowRight, ArrowLeft, ChevronRight, Loader2, Check, Zap, Scale, Leaf, Heart, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { isHealthAvailable, requestHealthPermissions } from "@/lib/health";
 import { hapticLight, hapticMedium, hapticSuccess } from "@/lib/haptics";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 
-const TOTAL_QUESTIONS = 14; // 0=lang, 1=name, 2=sex, ... 12=AppleHealth, 13=Acquisition survey
+const TOTAL_QUESTIONS = 13; // 0=lang, 1=name, 2=sex, ... 12=Acquisition survey
 
 const SPRING = { type: "spring" as const, stiffness: 520, damping: 32, mass: 0.7 };
 const PAGE_SPRING = { type: "spring" as const, stiffness: 320, damping: 34, mass: 0.8 };
@@ -356,47 +355,6 @@ export default function Onboarding() {
             )}
 
             {step === 12 && (
-              <Step title={tt("onboarding.health_title")} sub={tt("onboarding.health_sub")}>
-                <div className="k-card p-6 flex flex-col items-center text-center gap-5">
-                  <motion.div
-                    className="w-20 h-20 rounded-3xl bg-gradient-soft flex items-center justify-center"
-                    animate={reduce ? undefined : { scale: [1, 1.06, 1] }}
-                    transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                    style={{ willChange: "transform" }}
-                  >
-                    <Heart className="w-10 h-10 text-primary-glow" fill="currentColor" />
-                  </motion.div>
-                  <motion.div className="w-full" whileTap={reduce ? undefined : { scale: 0.97 }} transition={{ duration: 0.15 }}>
-                    <Button
-                      size="lg"
-                      className="w-full h-14 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white text-base font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)] border-0"
-                      onClick={async () => {
-                        hapticMedium();
-                        if (!isHealthAvailable()) {
-                          toast.info(tt("onboarding.health_later"), { description: tt("onboarding.health_native_only") });
-                          next();
-                          return;
-                        }
-                        const ok = await requestHealthPermissions();
-                        if (ok) toast.success(tt("settings.health_connected"));
-                        next();
-                      }}
-                    >
-                      <Heart className="w-5 h-5 mr-2" fill="currentColor" />
-                      {tt("onboarding.health_connect")}
-                    </Button>
-                  </motion.div>
-                  <button
-                    onClick={next}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
-                  >
-                    {tt("onboarding.health_later")}
-                  </button>
-                </div>
-              </Step>
-            )}
-
-            {step === 13 && (
               <div>
                 <div className="flex items-start justify-between mb-2">
                   <h1 className="text-3xl font-semibold tracking-tight">{tt("survey.title")}</h1>
@@ -531,7 +489,7 @@ export default function Onboarding() {
       </div>
 
       <div className="pt-8 flex gap-3">
-        {step < TOTAL_QUESTIONS && step > 0 && step !== 12 && (
+        {step < TOTAL_QUESTIONS && step > 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} whileTap={reduce ? undefined : { scale: 0.97 }} transition={{ duration: 0.15 }}>
             <Button
               size="lg"
@@ -544,7 +502,7 @@ export default function Onboarding() {
             </Button>
           </motion.div>
         )}
-        {step < TOTAL_QUESTIONS && step !== 12 && (
+        {step < TOTAL_QUESTIONS && (
           <motion.div
             className="flex-1"
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: 10 }}
