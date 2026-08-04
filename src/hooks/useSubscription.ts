@@ -66,20 +66,30 @@ export function useSubscription() {
     // Fresh install: consult StoreKit/RevenueCat once per launch and let
     // `iap-sync` write the row BEFORE we resolve the locked/unlocked state,
     // so an existing subscriber never sees a premium-locked screen.
-    await bootstrapEntitlement(user.id);
-    const { data } = await supabase
+    const storeActive = await bootstrapEntitlement(user.id);
+    const { data, error } = await supabase
       .from("subscriptions")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+
+    // Network/DB hiccup: never downgrade a paying user to "locked".
+    // Keep the last known (cached) state and try again later.
+    if (error) {
+      setLoading(false);
+      return;
+    }
+
     const row = (data as SubscriptionRow | null) ?? null;
-    const active = computeActive(row);
+    // Apple/StoreKit is authoritative for ownership. If the store says the
+    // entitlement is active but the row hasn't landed yet, stay unlocked.
+    const active = computeActive(row) || storeActive === true;
     setSubscription(row);
     setCachedActive(active);
     setLoading(false);
-    setVerified(true);
+    setVerified(active === computeActive(row));
     writeCache(user.id, row, active);
   };
 
