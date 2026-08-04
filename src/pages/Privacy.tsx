@@ -14,14 +14,14 @@ const SOURCE = [
   // 3
   "1. Data Controller",
   "ScanIQ is operated by Kinetex Intelligens. If you have questions regarding your data, contact us at",
-  "In-app purchases are handled by Apple App Store and Google Play, who are independent data controllers for payment data.",
+  "In-app purchases are handled by the Apple App Store, which is an independent data controller for payment data.",
   // 6
   "2. Data We Collect",
   "Account: email, hashed password, login provider.",
   "Profile: weight, height, age, gender, activity and goals you enter.",
   "Meals & workouts: meals, scans, food images, water, workouts, weight history, streaks.",
   "Usage data: app interactions, scan count, error logs, device type, language.",
-  "Payments: handled by Apple App Store and Google Play. We never see or store card details.",
+  "Payments: handled by the Apple App Store. We never see or store card details.",
   // 12
   "3. AI & Meal Images",
   "When you scan a meal, the image is sent to our AI provider (Google Gemini via Lovable AI Gateway) to estimate nutrition. We do not store the original image unless you choose to save the meal, and images are not used to train third-party models.",
@@ -34,7 +34,7 @@ const SOURCE = [
   "5. Third Parties",
   "Lovable Cloud (Supabase): secure database & login (EU region).",
   "Lovable AI Gateway / Google Gemini: image analysis.",
-  "Apple App Store / Google Play: payments and subscriptions.",
+  "Apple App Store: payments and subscriptions.",
   "Apple Health / Google Fit: only if you enable it yourself.",
   "We never sell your personal data.",
   // 24

@@ -24,13 +24,13 @@ const SOURCE = [
   "Food images are not kept unless you choose to save the meal.",
   // 14
   "Payments and subscriptions",
-  "All payments are handled by Apple App Store (iOS) or Google Play (Android).",
+  "All payments are handled by the Apple App Store.",
   "ScanIQ does not collect or store card numbers or billing addresses.",
   // 17
   "Subprocessors and integrations",
   "Lovable Cloud: database, authentication and storage.",
   "Lovable AI Gateway / Google Gemini: image analysis for food scans.",
-  "Apple App Store / Google Play: in-app purchases and subscriptions.",
+  "Apple App Store: in-app purchases and subscriptions.",
   "Apple Health / Google Fit: only if you connect it yourself.",
   "We do not sell your personal data.",
   // 23
