@@ -172,12 +172,17 @@ export default function Auth() {
     setAppleError(null);
     try {
       // Native iOS/iPadOS: use Apple's own ASAuthorization sheet. A web redirect
-      // flow cannot return a session inside the Capacitor WebView.
-      if (isNativeApple()) {
+      // flow cannot return a session inside the Capacitor WebView, so we must
+      // never fall back to it on native — that is what bounced reviewers back
+      // to the login screen.
+      if (isNativePlatform()) {
+        if (!isNativeApple()) {
+          throw new Error("Sign in with Apple is only available on iOS. Please use email sign-in.");
+        }
         const signedIn = await signInWithAppleNative();
         if (signedIn) {
           markSignedInOnce();
-          nav(next ?? "/app", { replace: true });
+          nav(destination, { replace: true });
           return;
         }
         // User cancelled the Apple sheet — no error, just reset.
@@ -194,14 +199,20 @@ export default function Auth() {
         ? "We couldn't complete your sign-in with Apple. Your session was not created. Please try again."
         : /identity token/i.test(raw)
         ? "Apple did not return a valid identity token. Please try again."
-        : /network|fetch|timeout/i.test(raw)
+        : /not available in this build|only available on iOS/i.test(raw)
+        ? raw
+        : /timed out/i.test(raw)
+        ? "Sign in with Apple took too long to respond. Please try again."
+        : /network|fetch/i.test(raw)
         ? "Network problem while signing in with Apple. Check your connection and try again."
         : raw || "Apple sign-in failed. Please try again.";
       setAppleError(message);
       toast.error(message);
+    } finally {
       setBusy(false);
     }
   };
+
 
 
 
