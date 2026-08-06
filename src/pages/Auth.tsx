@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { isNativeApple, isNativePlatform, signInWithAppleNative } from "@/lib/appleAuth";
 import { markSignedInOnce } from "@/lib/authDiagnostics";
+import { useKStore } from "@/store/useKStore";
 
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ export default function Auth() {
   const next = safeNext(params.get("next"));
   const returnTo = `${window.location.origin}${next ?? "/"}`;
   const { session, loading } = useAuth();
+  const onboarded = useKStore((s) => s.onboarded);
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +36,22 @@ export default function Auth() {
   const [consent, setConsent] = useState(false);
   const [appleError, setAppleError] = useState<string | null>(null);
 
-  if (loading) return null;
-  if (session) return <Navigate to={next ?? "/app"} replace />;
+  // Navigate only once the session is actually hydrated, otherwise the route
+  // guard bounces the user straight back to the login screen.
+  const destination = next ?? (onboarded ? "/app" : "/onboarding");
+  useEffect(() => {
+    if (session) setBusy(false);
+  }, [session]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  if (session) return <Navigate to={destination} replace />;
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +116,7 @@ export default function Auth() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         markSignedInOnce();
-        nav(next ?? "/app", { replace: true });
+        nav(destination, { replace: true });
       }
     } catch (err: any) {
       const code = err?.code || err?.name;
@@ -156,12 +172,17 @@ export default function Auth() {
     setAppleError(null);
     try {
       // Native iOS/iPadOS: use Apple's own ASAuthorization sheet. A web redirect
-      // flow cannot return a session inside the Capacitor WebView.
-      if (isNativeApple()) {
+      // flow cannot return a session inside the Capacitor WebView, so we must
+      // never fall back to it on native — that is what bounced reviewers back
+      // to the login screen.
+      if (isNativePlatform()) {
+        if (!isNativeApple()) {
+          throw new Error("Sign in with Apple is only available on iOS. Please use email sign-in.");
+        }
         const signedIn = await signInWithAppleNative();
         if (signedIn) {
           markSignedInOnce();
-          nav(next ?? "/app", { replace: true });
+          nav(destination, { replace: true });
           return;
         }
         // User cancelled the Apple sheet — no error, just reset.
@@ -178,14 +199,20 @@ export default function Auth() {
         ? "We couldn't complete your sign-in with Apple. Your session was not created. Please try again."
         : /identity token/i.test(raw)
         ? "Apple did not return a valid identity token. Please try again."
-        : /network|fetch|timeout/i.test(raw)
+        : /not available in this build|only available on iOS/i.test(raw)
+        ? raw
+        : /timed out/i.test(raw)
+        ? "Sign in with Apple took too long to respond. Please try again."
+        : /network|fetch/i.test(raw)
         ? "Network problem while signing in with Apple. Check your connection and try again."
         : raw || "Apple sign-in failed. Please try again.";
       setAppleError(message);
       toast.error(message);
+    } finally {
       setBusy(false);
     }
   };
+
 
 
 
