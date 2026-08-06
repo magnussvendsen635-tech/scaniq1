@@ -26,7 +26,10 @@ export default function Auth() {
   const nav = useNavigate();
   const [params] = useSearchParams();
   const next = safeNext(params.get("next"));
-  const returnTo = `${window.location.origin}${next ?? "/"}`;
+  // Always return to /auth after an OAuth redirect: this page waits for the
+  // session to hydrate and then routes on. Returning to "/" landed the user on
+  // the marketing page before the session existed.
+  const returnTo = `${window.location.origin}/auth${next ? `?next=${encodeURIComponent(next)}` : ""}`;
   const { session, loading } = useAuth();
   const onboarded = useKStore((s) => s.onboarded);
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
