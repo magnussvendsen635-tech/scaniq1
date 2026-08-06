@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { isNativeApple, isNativePlatform, signInWithAppleNative } from "@/lib/appleAuth";
 import { markSignedInOnce } from "@/lib/authDiagnostics";
+import { useKStore } from "@/store/useKStore";
 
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ export default function Auth() {
   const next = safeNext(params.get("next"));
   const returnTo = `${window.location.origin}${next ?? "/"}`;
   const { session, loading } = useAuth();
+  const onboarded = useKStore((s) => s.onboarded);
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +36,22 @@ export default function Auth() {
   const [consent, setConsent] = useState(false);
   const [appleError, setAppleError] = useState<string | null>(null);
 
-  if (loading) return null;
-  if (session) return <Navigate to={next ?? "/app"} replace />;
+  // Navigate only once the session is actually hydrated, otherwise the route
+  // guard bounces the user straight back to the login screen.
+  const destination = next ?? (onboarded ? "/app" : "/onboarding");
+  useEffect(() => {
+    if (session) setBusy(false);
+  }, [session]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  if (session) return <Navigate to={destination} replace />;
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
