@@ -32,6 +32,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [appleError, setAppleError] = useState<string | null>(null);
 
   if (loading) return null;
   if (session) return <Navigate to={next ?? "/app"} replace />;
@@ -152,6 +153,7 @@ export default function Auth() {
 
   const handleApple = async () => {
     setBusy(true);
+    setAppleError(null);
     try {
       // Native iOS/iPadOS: use Apple's own ASAuthorization sheet. A web redirect
       // flow cannot return a session inside the Capacitor WebView.
@@ -162,6 +164,7 @@ export default function Auth() {
           nav(next ?? "/app", { replace: true });
           return;
         }
+        // User cancelled the Apple sheet — no error, just reset.
         setBusy(false);
         return;
       }
@@ -170,10 +173,20 @@ export default function Auth() {
       });
       if (result.error) throw result.error;
     } catch (err: any) {
-      toast.error(err?.message ?? "Apple sign-in failed");
+      const raw = String(err?.message ?? "");
+      const message = /no session|did not create a session/i.test(raw)
+        ? "We couldn't complete your sign-in with Apple. Your session was not created. Please try again."
+        : /identity token/i.test(raw)
+        ? "Apple did not return a valid identity token. Please try again."
+        : /network|fetch|timeout/i.test(raw)
+        ? "Network problem while signing in with Apple. Check your connection and try again."
+        : raw || "Apple sign-in failed. Please try again.";
+      setAppleError(message);
+      toast.error(message);
       setBusy(false);
     }
   };
+
 
 
   return (
@@ -226,6 +239,26 @@ export default function Auth() {
               </svg>
               Continue with Apple
             </Button>
+
+            {appleError && (
+              <div
+                role="alert"
+                className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive"
+              >
+                <p className="leading-relaxed">{appleError}</p>
+                <button
+                  type="button"
+                  onClick={handleApple}
+                  disabled={busy}
+                  className="mt-2 inline-flex items-center gap-2 rounded-xl border border-destructive/40 px-3 py-2 font-semibold disabled:opacity-60"
+                >
+                  {busy && <Loader2 className="w-3 h-3 animate-spin" />}
+                  Try again
+                </button>
+              </div>
+            )}
+
+
 
             <div className="flex items-center gap-3 my-5">
               <div className="flex-1 h-px bg-border" />
