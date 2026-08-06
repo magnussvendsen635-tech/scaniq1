@@ -42,6 +42,51 @@ async function sha256Hex(input: string): Promise<string> {
     .join("");
 }
 
+/** True when the native Apple plugin is actually registered in this build. */
+export function isApplePluginAvailable(): boolean {
+  try {
+    return Capacitor.isPluginAvailable("SignInWithApple");
+  } catch {
+    return false;
+  }
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`${label} timed out. Please try again.`)), ms);
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); },
+    );
+  });
+}
+
+/** Resolve as soon as the SDK reports a session (listener + polling fallback). */
+async function waitForSession(timeoutMs = 8000) {
+  const existing = (await supabase.auth.getSession()).data.session;
+  if (existing) return existing;
+
+  return new Promise<any>((resolve) => {
+    let done = false;
+    const finish = (s: any) => {
+      if (done) return;
+      done = true;
+      try { sub?.subscription.unsubscribe(); } catch { /* ignore */ }
+      clearInterval(poll);
+      clearTimeout(timer);
+      resolve(s);
+    };
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (s) finish(s);
+    });
+    const poll = setInterval(async () => {
+      const s = (await supabase.auth.getSession()).data.session;
+      if (s) finish(s);
+    }, 250);
+    const timer = setTimeout(() => finish(null), timeoutMs);
+  });
+}
+
 /**
  * Runs the native Apple sign-in sheet and sets the Supabase session.
  * Returns true when the user is signed in, false when the user cancelled.
@@ -58,6 +103,12 @@ export async function signInWithAppleNative(): Promise<boolean> {
   const base = { platform, native: isNativePlatform() };
   logAppleAttempt({ ...base, status: "started" });
 
+  if (!isApplePluginAvailable()) {
+    const message = "Sign in with Apple is not available in this build. Please use email sign-in.";
+    logAppleAttempt({ ...base, status: "error", message, code: "plugin_unavailable" });
+    throw new Error(message);
+  }
+
   const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
 
   const rawNonce = randomNonce();
@@ -65,12 +116,16 @@ export async function signInWithAppleNative(): Promise<boolean> {
 
   let result: any;
   try {
-    result = await SignInWithApple.authorize({
-      clientId: "site.scaniq.app",
-      redirectURI: "",
-      scopes: "name email",
-      nonce: hashedNonce,
-    });
+    result = await withTimeout(
+      SignInWithApple.authorize({
+        clientId: "site.scaniq.app",
+        redirectURI: "",
+        scopes: "name email",
+        nonce: hashedNonce,
+      }) as Promise<any>,
+      45000,
+      "Apple sign-in",
+    );
   } catch (e: any) {
     const msg = String(e?.message ?? e ?? "");
     const code = String(e?.code ?? "");
@@ -90,11 +145,15 @@ export async function signInWithAppleNative(): Promise<boolean> {
     throw new Error("Apple did not return an identity token.");
   }
 
-  const { data: signInData, error } = await supabase.auth.signInWithIdToken({
-    provider: "apple",
-    token: identityToken,
-    nonce: rawNonce,
-  });
+  const { data: signInData, error } = await withTimeout(
+    supabase.auth.signInWithIdToken({
+      provider: "apple",
+      token: identityToken,
+      nonce: rawNonce,
+    }),
+    30000,
+    "Apple sign-in",
+  );
   if (error) {
     logAppleAttempt({ ...base, status: "error", message: error.message, code: String((error as any)?.code ?? "") });
     throw error;
@@ -103,11 +162,7 @@ export async function signInWithAppleNative(): Promise<boolean> {
   // The reviewer's symptom ("bounced back to the login screen") happens when the
   // session is not persisted yet. Wait until the SDK reports a session before
   // telling the caller we are signed in.
-  let session = signInData?.session ?? null;
-  for (let i = 0; !session && i < 10; i++) {
-    await new Promise((r) => setTimeout(r, 200));
-    session = (await supabase.auth.getSession()).data.session;
-  }
+  const session = signInData?.session ?? (await waitForSession());
   if (!session) {
     logAppleAttempt({ ...base, status: "error", message: "No session after Apple sign-in." });
     throw new Error("Apple sign-in did not create a session. Please try again.");
