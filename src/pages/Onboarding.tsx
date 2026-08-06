@@ -616,6 +616,16 @@ export default function Onboarding() {
           </motion.div>
         )}
       </div>
+
+      {/* Apple 1.4.1 — medical/health information must carry citations everywhere it appears. */}
+      <p className="mt-6 text-[11px] leading-relaxed text-muted-foreground text-center max-w-md mx-auto">
+        Calorie and macro estimates use the Mifflin-St Jeor equation (Mifflin et al., Am J Clin
+        Nutr 1990) and WHO/FAO/UNU activity factors. ScanIQ is a general wellness app and does not
+        provide medical advice.{" "}
+        <Link to="/sources" className="underline underline-offset-4 text-primary">
+          View sources
+        </Link>
+      </p>
     </div>
   );
 }
