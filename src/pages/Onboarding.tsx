@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet, type Sex } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
@@ -550,9 +550,9 @@ export default function Onboarding() {
                   (Mifflin et al., Am J Clin Nutr 1990) and WHO/FAO/UNU activity factors. ScanIQ is a
                   general wellness app and does not provide medical advice. Consult your doctor or a
                   registered dietitian before changing your diet.{" "}
-                  <a href="/sources" className="underline underline-offset-4 text-primary">
+                  <Link to="/sources" className="underline underline-offset-4 text-primary">
                     View sources
-                  </a>
+                  </Link>
                 </motion.p>
               </Step>
 
@@ -616,6 +616,16 @@ export default function Onboarding() {
           </motion.div>
         )}
       </div>
+
+      {/* Apple 1.4.1 — medical/health information must carry citations everywhere it appears. */}
+      <p className="mt-6 text-[11px] leading-relaxed text-muted-foreground text-center max-w-md mx-auto">
+        Calorie and macro estimates use the Mifflin-St Jeor equation (Mifflin et al., Am J Clin
+        Nutr 1990) and WHO/FAO/UNU activity factors. ScanIQ is a general wellness app and does not
+        provide medical advice.{" "}
+        <Link to="/sources" className="underline underline-offset-4 text-primary">
+          View sources
+        </Link>
+      </p>
     </div>
   );
 }

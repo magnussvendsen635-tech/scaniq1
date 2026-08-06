@@ -90,7 +90,7 @@ export async function signInWithAppleNative(): Promise<boolean> {
     throw new Error("Apple did not return an identity token.");
   }
 
-  const { error } = await supabase.auth.signInWithIdToken({
+  const { data: signInData, error } = await supabase.auth.signInWithIdToken({
     provider: "apple",
     token: identityToken,
     nonce: rawNonce,
@@ -99,6 +99,20 @@ export async function signInWithAppleNative(): Promise<boolean> {
     logAppleAttempt({ ...base, status: "error", message: error.message, code: String((error as any)?.code ?? "") });
     throw error;
   }
+
+  // The reviewer's symptom ("bounced back to the login screen") happens when the
+  // session is not persisted yet. Wait until the SDK reports a session before
+  // telling the caller we are signed in.
+  let session = signInData?.session ?? null;
+  for (let i = 0; !session && i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 200));
+    session = (await supabase.auth.getSession()).data.session;
+  }
+  if (!session) {
+    logAppleAttempt({ ...base, status: "error", message: "No session after Apple sign-in." });
+    throw new Error("Apple sign-in did not create a session. Please try again.");
+  }
+
   logAppleAttempt({ ...base, status: "success" });
   markSignedInOnce();
 

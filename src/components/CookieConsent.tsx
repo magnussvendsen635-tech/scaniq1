@@ -6,18 +6,37 @@ import { useT } from "@/i18n/useT";
 
 const KEY = "scaniq_cookie_consent_v1";
 
+/**
+ * True whenever the app runs inside the native Capacitor shell (iOS/iPadOS).
+ * Belt-and-braces: the Capacitor API, the injected global and the custom
+ * capacitor:// scheme are all checked so the banner can never slip through.
+ */
+function isNativeShell(): boolean {
+  try {
+    if (Capacitor.isNativePlatform?.()) return true;
+    if (Capacitor.getPlatform?.() !== "web") return true;
+  } catch {
+    /* web */
+  }
+  try {
+    const w = window as any;
+    if (w.Capacitor?.isNativePlatform?.()) return true;
+    if (/^capacitor:/i.test(window.location.protocol)) return true;
+    if (w.webkit?.messageHandlers?.bridge) return true;
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+
 export function CookieConsent() {
   const t = useT();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // The native iOS app uses no cookies and no cross-app/cross-site tracking,
-    // so no cookie banner is shown there (and no ATT prompt is required).
-    try {
-      if (Capacitor.isNativePlatform()) return;
-    } catch {
-      /* web */
-    }
+    // Apple 5.1.2(i): the native app sets no cookies and does no tracking, so
+    // the consent prompt must never appear inside the iOS/iPadOS app.
+    if (isNativeShell()) return;
     try {
       if (!localStorage.getItem(KEY)) {
         const timer = setTimeout(() => setVisible(true), 600);
