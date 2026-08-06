@@ -11,13 +11,9 @@ export function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // The native iOS app uses no cookies and no cross-app/cross-site tracking,
-    // so no cookie banner is shown there (and no ATT prompt is required).
-    try {
-      if (Capacitor.isNativePlatform()) return;
-    } catch {
-      /* web */
-    }
+    // Apple 5.1.2(i): the native app sets no cookies and does no tracking, so
+    // the consent prompt must never appear inside the iOS/iPadOS app.
+    if (isNativeShell()) return;
     try {
       if (!localStorage.getItem(KEY)) {
         const timer = setTimeout(() => setVisible(true), 600);
