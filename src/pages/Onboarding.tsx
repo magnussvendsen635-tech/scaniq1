@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useKStore, computePlan, type Goal, type Activity, type Pace, type Frequency, type Diet, type Sex } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
