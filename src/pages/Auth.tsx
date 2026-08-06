@@ -240,6 +240,26 @@ export default function Auth() {
               Continue with Apple
             </Button>
 
+            {appleError && (
+              <div
+                role="alert"
+                className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive"
+              >
+                <p className="leading-relaxed">{appleError}</p>
+                <button
+                  type="button"
+                  onClick={handleApple}
+                  disabled={busy}
+                  className="mt-2 inline-flex items-center gap-2 rounded-xl border border-destructive/40 px-3 py-2 font-semibold disabled:opacity-60"
+                >
+                  {busy && <Loader2 className="w-3 h-3 animate-spin" />}
+                  Try again
+                </button>
+              </div>
+            )}
+
+
+
             <div className="flex items-center gap-3 my-5">
               <div className="flex-1 h-px bg-border" />
               <span className="text-xs uppercase tracking-widest text-muted-foreground">OR</span>
