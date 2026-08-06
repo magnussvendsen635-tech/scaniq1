@@ -32,6 +32,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [appleError, setAppleError] = useState<string | null>(null);
 
   if (loading) return null;
   if (session) return <Navigate to={next ?? "/app"} replace />;
