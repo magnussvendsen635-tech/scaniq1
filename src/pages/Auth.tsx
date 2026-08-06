@@ -152,6 +152,7 @@ export default function Auth() {
 
   const handleApple = async () => {
     setBusy(true);
+    setAppleError(null);
     try {
       // Native iOS/iPadOS: use Apple's own ASAuthorization sheet. A web redirect
       // flow cannot return a session inside the Capacitor WebView.
@@ -162,6 +163,7 @@ export default function Auth() {
           nav(next ?? "/app", { replace: true });
           return;
         }
+        // User cancelled the Apple sheet — no error, just reset.
         setBusy(false);
         return;
       }
@@ -170,10 +172,20 @@ export default function Auth() {
       });
       if (result.error) throw result.error;
     } catch (err: any) {
-      toast.error(err?.message ?? "Apple sign-in failed");
+      const raw = String(err?.message ?? "");
+      const message = /no session|did not create a session/i.test(raw)
+        ? "We couldn't complete your sign-in with Apple. Your session was not created. Please try again."
+        : /identity token/i.test(raw)
+        ? "Apple did not return a valid identity token. Please try again."
+        : /network|fetch|timeout/i.test(raw)
+        ? "Network problem while signing in with Apple. Check your connection and try again."
+        : raw || "Apple sign-in failed. Please try again.";
+      setAppleError(message);
+      toast.error(message);
       setBusy(false);
     }
   };
+
 
 
   return (
