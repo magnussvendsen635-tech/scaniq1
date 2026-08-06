@@ -550,9 +550,9 @@ export default function Onboarding() {
                   (Mifflin et al., Am J Clin Nutr 1990) and WHO/FAO/UNU activity factors. ScanIQ is a
                   general wellness app and does not provide medical advice. Consult your doctor or a
                   registered dietitian before changing your diet.{" "}
-                  <a href="/sources" className="underline underline-offset-4 text-primary">
+                  <Link to="/sources" className="underline underline-offset-4 text-primary">
                     View sources
-                  </a>
+                  </Link>
                 </motion.p>
               </Step>
 
