@@ -116,7 +116,7 @@ export default function Auth() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         markSignedInOnce();
-        nav(next ?? "/app", { replace: true });
+        nav(destination, { replace: true });
       }
     } catch (err: any) {
       const code = err?.code || err?.name;
