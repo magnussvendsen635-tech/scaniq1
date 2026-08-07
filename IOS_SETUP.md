@@ -111,12 +111,12 @@ I Xcode:
 
 1. Vælg **App**-target → fanen **Signing & Capabilities**
 2. Sæt **Team** til din Apple Developer-konto
-3. Bekræft **Bundle Identifier = `site.scaniq.app`**
+3. Bekræft **Bundle Identifier = `com.kinetex.scaniq`**
 4. Slå **Automatically manage signing** til
 5. Klik **+ Capability** → tilføj **Sign in with Apple** og **In-App Purchase**
 
-> **Vigtigt:** Bundle Identifier skal stå præcis som `site.scaniq.app` i **TARGETS → App**, ikke kun under **PROJECT**.
-> Hvis Xcode viser noget som `scaniQ-Calorie-Tracker-com.kinetex.scaniq`, er det forkert og skal ændres manuelt til `site.scaniq.app`.
+> **Vigtigt:** Bundle Identifier skal stå præcis som `com.kinetex.scaniq` i **TARGETS → App**, ikke kun under **PROJECT**.
+> Dette skal matche Bundle ID'et på appen i App Store Connect præcis.
 
 ### Hvis Xcode stadig siger “No profiles found”
 
@@ -130,7 +130,7 @@ Tjek dette i rækkefølge:
 4. Sæt **Bundle Identifier** til præcis:
 
 ```text
-site.scaniq.app
+com.kinetex.scaniq
 ```
 
 5. Sæt **Team** til din betalte Apple Developer-konto.
@@ -166,7 +166,7 @@ Derefter skal du igen kontrollere **TARGETS → App → Signing & Capabilities �
 1. I Xcode: **Product → Archive**
 2. Når arkivet er klar: **Distribute App → App Store Connect → Upload**
 3. Log på [App Store Connect](https://appstoreconnect.apple.com)
-4. Opret ny app med Bundle ID `site.scaniq.app`
+4. Opret ny app med Bundle ID `com.kinetex.scaniq`
 5. Under **In-App Purchases** → opret produkt `com.scaniq.pro.monthly` ($19/md, auto-renewable)
 6. Udfyld **App Privacy**-formularen
 7. Upload screenshots (6.7", 6.5", 5.5")
