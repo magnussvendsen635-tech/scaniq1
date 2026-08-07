@@ -116,7 +116,7 @@ I Xcode:
 5. Klik **+ Capability** → tilføj **Sign in with Apple** og **In-App Purchase**
 
 > **Vigtigt:** Bundle Identifier skal stå præcis som `com.kinetex.scaniq` i **TARGETS → App**, ikke kun under **PROJECT**.
-> Hvis Xcode viser noget som `scaniQ-Calorie-Tracker-com.kinetex.scaniq`, er det forkert og skal ændres manuelt til `com.kinetex.scaniq`.
+> Dette skal matche Bundle ID'et på appen i App Store Connect præcis.
 
 ### Hvis Xcode stadig siger “No profiles found”
 
