@@ -118,7 +118,7 @@ export async function signInWithAppleNative(): Promise<boolean> {
   try {
     result = await withTimeout(
       SignInWithApple.authorize({
-        clientId: "site.scaniq.app",
+        clientId: "com.kinetex.scaniq",
         redirectURI: "",
         scopes: "name email",
         nonce: hashedNonce,
