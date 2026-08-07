@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.kinetex.scaniq',
+  appId: 'site.scaniq.app',
   appName: 'ScanIQ',
   webDir: 'dist',
   ios: {
