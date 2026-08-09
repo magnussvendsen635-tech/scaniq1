@@ -70,12 +70,13 @@ export default function Help() {
       toast.success(t("help.deleted"));
       await signOut();
       nav("/auth", { replace: true });
-    } catch {
-      const body = t("help.delete_email_body")
-        .replace("{id}", user.id)
-        .replace("{email}", user.email ?? "");
-      window.location.href = mailto(t("help.delete_email_subject"), body);
-      toast.error(t("help.delete_failed_email"));
+    } catch (e: any) {
+      // Apple 5.1.1(v): deletion must work in-app. Never silently hand the user
+      // off to email — show the error and let them retry.
+      toast.error(t("help.delete_failed_email"), {
+        description: e?.message ? String(e.message) : undefined,
+        action: { label: t("common.try_again"), onClick: () => handleDelete() },
+      });
     } finally {
       setDeleting(false);
     }
