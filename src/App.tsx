@@ -45,6 +45,7 @@ import Unsubscribe from "./pages/Unsubscribe";
 import OAuthConsent from "./pages/OAuthConsent";
 import AppleSignInDebug from "./pages/AppleSignInDebug";
 import { CookieConsent } from "@/components/CookieConsent";
+import { isNativeShell } from "@/lib/nativePlatform";
 import { UpgradeFab } from "@/components/UpgradeFab";
 import { SplashScreen } from "@/components/SplashScreen";
 import { PageViewTracker } from "@/components/PageViewTracker";
@@ -165,7 +166,8 @@ const App = () => {
               </>
             )}
           </Routes>
-          <CookieConsent />
+          {/* Apple 5.1.2(i): no cookie banner and no cookies at all in the native app. */}
+          {!isNativeShell() && <CookieConsent />}
         </BrowserRouter>
         <SplashScreen />
       </TooltipProvider>
