@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useIAP } from "@/hooks/useIAP";
+import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/scaniq-logo-new.png";
 
 const featureKeys: TKey[] = [
@@ -17,12 +18,13 @@ const featureKeys: TKey[] = [
 export default function Pricing() {
   const nav = useNavigate();
   const t = useT();
-  const { monthlyPriceLabel } = useIAP();
+  const { monthlyPriceLabel, yearlyPriceLabel } = useIAP();
+  const { session } = useAuth();
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto max-w-2xl mx-auto" style={{ paddingBottom: 60 }}>
       <Seo
         title="Pricing — ScanIQ Premium"
-        description="ScanIQ Premium from $19/month or $179/year. Subscriptions handled by the Apple App Store."
+        description="ScanIQ Premium subscriptions — monthly or yearly, billed through the Apple App Store."
         path="/pricing"
       />
       <header className="flex items-center gap-3 mb-6 pt-2">
@@ -69,13 +71,13 @@ export default function Pricing() {
         <div className="p-5 rounded-2xl bg-white border border-[hsl(24_95%_53%)] shadow-[0_8px_24px_-10px_hsl(24_95%_55%/0.5)] ring-2 ring-[hsl(24_95%_53%/0.25)] relative">
           <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-wider bg-[hsl(24_95%_53%)] text-white rounded-full px-2.5 py-0.5">{t("pricing.most_popular")}</span>
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.yearly")}</div>
-          <div className="mt-2 flex items-baseline gap-1.5"><span className="text-3xl font-bold">$179</span><span className="text-xs text-muted-foreground">{t("premium.per_year")}</span></div>
-          <div className="text-xs mt-1 text-muted-foreground">{t("premium.lifetime")}</div>
+          <div className="mt-2 flex items-baseline gap-1.5"><span className="text-3xl font-bold">{yearlyPriceLabel}</span><span className="text-xs text-muted-foreground">{t("premium.per_year")}</span></div>
+          <div className="text-xs mt-1 text-muted-foreground">{t("premium.cancel_anytime")}</div>
         </div>
       </section>
 
       <Button
-        onClick={() => nav("/auth")}
+        onClick={() => nav(session ? "/premium" : "/auth")}
         className="w-full h-14 rounded-2xl bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-base font-semibold shadow-[0_10px_24px_-8px_hsl(24_95%_55%/0.6)]"
       >
         <Sparkles className="w-5 h-5 mr-2" />
