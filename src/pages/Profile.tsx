@@ -29,8 +29,15 @@ export default function Profile() {
   const t = useT();
   const { signOut, user: authUser } = useAuth();
   const { user, streak, premium } = useKStore();
-  const { isActive, refetch } = useSubscription();
+  const { isActive, subscription, refetch } = useSubscription();
+  const { restore: restoreIAP } = useIAP();
   const [restoring, setRestoring] = useState(false);
+  const [restoreInfo, setRestoreInfo] = useState<{
+    state: "restored" | "none" | "error" | "unavailable";
+    productId?: string;
+    expiresAt?: string | null;
+    message?: string;
+  } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -49,16 +56,37 @@ export default function Profile() {
       cancelled = true;
     };
   }, [authUser?.id]);
-  
-  
+
+  const planLabel = (productId?: string | null) =>
+    productId === IAP_PRODUCTS.yearly ? t("premium.yearly") : t("premium.monthly");
 
   const restorePurchase = async () => {
     setRestoring(true);
+    setRestoreInfo(null);
     try {
+      const res = await restoreIAP();
+      // The backend row is written by `iap-sync`; refresh so the status card matches.
       await refetch();
-      toast.success(isActive ? "Dit abonnement er gendannet" : "Intet aktivt abonnement fundet");
-    } catch {
-      toast.error("Kunne ikke gendanne — prøv igen senere");
+      if (res.outcome === "unavailable") {
+        setRestoreInfo({ state: "unavailable" });
+        toast.info(t("premium.restore_unavailable"));
+        return;
+      }
+      if (res.outcome === "error") {
+        setRestoreInfo({ state: "error", message: res.message });
+        toast.error(t("premium.restore_failed"), { description: res.message });
+        return;
+      }
+      if (!res.restored) {
+        setRestoreInfo({ state: "none" });
+        toast(t("premium.no_active"), { description: t("premium.restore_none_desc") });
+        return;
+      }
+      setRestoreInfo({ state: "restored", productId: res.productId, expiresAt: res.expiresAt });
+      toast.success(t("premium.restored"), { description: t("premium.restore_ok_desc") });
+    } catch (e: any) {
+      setRestoreInfo({ state: "error", message: e?.message });
+      toast.error(t("premium.restore_failed"), { description: e?.message });
     } finally {
       setRestoring(false);
     }
