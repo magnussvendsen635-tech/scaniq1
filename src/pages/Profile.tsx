@@ -10,6 +10,7 @@ import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
 import {
   AlertDialog,
   AlertDialogAction,
