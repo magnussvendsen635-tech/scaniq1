@@ -148,12 +148,12 @@ const App = () => {
                 <Route path="/barcode" element={<Shell><BarcodeScan /></Shell>} />
                 <Route path="/favorites" element={<Shell><Favorites /></Shell>} />
                 
-                <Route path="/diary" element={<Shell><Diary /></Shell>} /></Shell>} />
+                <Route path="/diary" element={<Shell><Diary /></Shell>} />
                 <Route path="/progress" element={<Shell><Progress /></Shell>} />
                 <Route path="/profile" element={<Shell><Profile /></Shell>} />
                 <Route path="/settings" element={<Shell><Settings /></Shell>} />
                 <Route path="/premium" element={<Shell><Premium /></Shell>} />
-                <Route path="/weight" element={<Shell><Weight /></Shell>} /></Shell>} />
+                <Route path="/weight" element={<Shell><Weight /></Shell>} />
                 <Route path="/help" element={<Shell><Help /></Shell>} />
                 <Route path="/data-privacy" element={<Shell><DataPrivacy /></Shell>} />
                 <Route path="/admin" element={<Shell><Admin /></Shell>} />
