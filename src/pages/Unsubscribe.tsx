@@ -51,39 +51,39 @@ export default function Unsubscribe() {
            state === "invalid" || state === "error" ? <XCircle className="w-6 h-6 text-destructive" /> :
            <MailX className="w-6 h-6 text-muted-foreground" />}
         </div>
-        {state === "loading" && <p className="text-muted-foreground">Indlæser…</p>}
+        {state === "loading" && <p className="text-muted-foreground">Loading…</p>}
         {state === "valid" && (
           <>
-            <h1 className="text-xl font-semibold mb-2">Afmeld nyhedsbrev</h1>
+            <h1 className="text-xl font-semibold mb-2">Unsubscribe</h1>
             <p className="text-sm text-muted-foreground mb-6">
-              Bekræft at du vil afmelde {email && <strong>{email}</strong>} fra alle e-mails fra ScanIQ.
+              Confirm that you want to unsubscribe {email && <strong>{email}</strong>} from all ScanIQ emails.
             </p>
-            <Button onClick={confirm} className="w-full">Bekræft afmelding</Button>
+            <Button onClick={confirm} className="w-full">Confirm unsubscribe</Button>
           </>
         )}
-        {state === "confirming" && <p>Afmelder…</p>}
+        {state === "confirming" && <p>Unsubscribing…</p>}
         {state === "done" && (
           <>
-            <h1 className="text-xl font-semibold mb-2">Afmeldt</h1>
-            <p className="text-sm text-muted-foreground">Du modtager ikke flere e-mails fra os.</p>
+            <h1 className="text-xl font-semibold mb-2">Unsubscribed</h1>
+            <p className="text-sm text-muted-foreground">You will no longer receive emails from us.</p>
           </>
         )}
         {state === "already" && (
           <>
-            <h1 className="text-xl font-semibold mb-2">Allerede afmeldt</h1>
-            <p className="text-sm text-muted-foreground">Denne adresse er allerede afmeldt.</p>
+            <h1 className="text-xl font-semibold mb-2">Already unsubscribed</h1>
+            <p className="text-sm text-muted-foreground">This address is already unsubscribed.</p>
           </>
         )}
         {state === "invalid" && (
           <>
-            <h1 className="text-xl font-semibold mb-2">Ugyldigt link</h1>
-            <p className="text-sm text-muted-foreground">Linket er udløbet eller forkert.</p>
+            <h1 className="text-xl font-semibold mb-2">Invalid link</h1>
+            <p className="text-sm text-muted-foreground">The link has expired or is incorrect.</p>
           </>
         )}
         {state === "error" && (
           <>
-            <h1 className="text-xl font-semibold mb-2">Noget gik galt</h1>
-            <p className="text-sm text-muted-foreground">{error || "Prøv igen senere."}</p>
+            <h1 className="text-xl font-semibold mb-2">Something went wrong</h1>
+            <p className="text-sm text-muted-foreground">{error || "Please try again later."}</p>
           </>
         )}
       </div>

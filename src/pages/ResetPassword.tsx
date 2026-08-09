@@ -27,21 +27,21 @@ export default function ResetPassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      toast.error("Adgangskoden skal være mindst 6 tegn");
+      toast.error("Password must be at least 6 characters");
       return;
     }
     if (password !== confirm) {
-      toast.error("Adgangskoderne matcher ikke");
+      toast.error("Passwords do not match");
       return;
     }
     setBusy(true);
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      toast.success("Adgangskode opdateret", { description: "Du er nu logget ind." });
+      toast.success("Password updated", { description: "You are now signed in." });
       nav("/");
     } catch (err: any) {
-      toast.error(err?.message ?? "Kunne ikke opdatere adgangskoden");
+      toast.error(err?.message ?? "Could not update your password");
     } finally {
       setBusy(false);
     }
@@ -52,16 +52,16 @@ export default function ResetPassword() {
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <Logo size={56} />
-          <h1 className="text-3xl font-semibold tracking-tight mt-4">Ny adgangskode</h1>
+          <h1 className="text-3xl font-semibold tracking-tight mt-4">New password</h1>
           <p className="text-sm text-muted-foreground mt-2 text-center">
-            Vælg en ny adgangskode til din ScanIQ-konto.
+            Choose a new password for your ScanIQ account.
           </p>
         </div>
 
         {!ready ? (
           <div className="text-center text-sm text-muted-foreground">
             <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
-            Bekræfter reset-link…
+            Verifying reset link…
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -73,7 +73,7 @@ export default function ResetPassword() {
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ny adgangskode"
+                placeholder="New password"
                 className="w-full h-12 rounded-2xl bg-card border border-border/60 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/60"
               />
             </div>
@@ -85,7 +85,7 @@ export default function ResetPassword() {
                 minLength={6}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                placeholder="Gentag adgangskode"
+                placeholder="Repeat password"
                 className="w-full h-12 rounded-2xl bg-card border border-border/60 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/60"
               />
             </div>
@@ -94,7 +94,7 @@ export default function ResetPassword() {
               disabled={busy}
               className="w-full h-12 rounded-2xl bg-[hsl(14_100%_55%)] hover:bg-[hsl(14_100%_50%)] text-white font-bold shadow-[0_8px_20px_-4px_hsl(14_100%_55%/0.5)]"
             >
-              {busy ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <span className="text-white">Opdater adgangskode</span>}
+              {busy ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <span className="text-white">Update password</span>}
             </Button>
           </form>
         )}
