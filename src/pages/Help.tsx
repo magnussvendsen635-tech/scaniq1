@@ -75,7 +75,7 @@ export default function Help() {
       // off to email — show the error and let them retry.
       toast.error(t("help.delete_failed_email"), {
         description: e?.message ? String(e.message) : undefined,
-        action: { label: t("common.try_again"), onClick: () => handleDelete() },
+        action: { label: "Try again", onClick: () => handleDelete() },
       });
     } finally {
       setDeleting(false);
