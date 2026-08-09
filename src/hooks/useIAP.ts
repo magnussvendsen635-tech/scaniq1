@@ -55,7 +55,7 @@ export function useIAP() {
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const [monthlyPriceLabel, setMonthlyPriceLabel] = useState<string>("$19");
-  const [yearlyPriceLabel, setYearlyPriceLabel] = useState<string>("$119");
+  const [yearlyPriceLabel, setYearlyPriceLabel] = useState<string>("$179");
   const offeringRef = useRef<any>(null);
 
   const loadOfferings = useCallback(async () => {
