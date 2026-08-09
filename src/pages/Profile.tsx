@@ -10,6 +10,7 @@ import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,8 +30,15 @@ export default function Profile() {
   const t = useT();
   const { signOut, user: authUser } = useAuth();
   const { user, streak, premium } = useKStore();
-  const { isActive, refetch } = useSubscription();
+  const { isActive, subscription, refetch } = useSubscription();
+  const { restore: restoreIAP } = useIAP();
   const [restoring, setRestoring] = useState(false);
+  const [restoreInfo, setRestoreInfo] = useState<{
+    state: "restored" | "none" | "error" | "unavailable";
+    productId?: string;
+    expiresAt?: string | null;
+    message?: string;
+  } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -49,16 +57,37 @@ export default function Profile() {
       cancelled = true;
     };
   }, [authUser?.id]);
-  
-  
+
+  const planLabel = (productId?: string | null) =>
+    productId === IAP_PRODUCTS.yearly ? t("premium.yearly") : t("premium.monthly");
 
   const restorePurchase = async () => {
     setRestoring(true);
+    setRestoreInfo(null);
     try {
+      const res = await restoreIAP();
+      // The backend row is written by `iap-sync`; refresh so the status card matches.
       await refetch();
-      toast.success(isActive ? "Dit abonnement er gendannet" : "Intet aktivt abonnement fundet");
-    } catch {
-      toast.error("Kunne ikke gendanne — prøv igen senere");
+      if (res.outcome === "unavailable") {
+        setRestoreInfo({ state: "unavailable" });
+        toast.info(t("premium.restore_unavailable"));
+        return;
+      }
+      if (res.outcome === "error") {
+        setRestoreInfo({ state: "error", message: res.message });
+        toast.error(t("premium.restore_failed"), { description: res.message });
+        return;
+      }
+      if (!res.restored) {
+        setRestoreInfo({ state: "none" });
+        toast(t("premium.no_active"), { description: t("premium.restore_none_desc") });
+        return;
+      }
+      setRestoreInfo({ state: "restored", productId: res.productId, expiresAt: res.expiresAt });
+      toast.success(t("premium.restored"), { description: t("premium.restore_ok_desc") });
+    } catch (e: any) {
+      setRestoreInfo({ state: "error", message: e?.message });
+      toast.error(t("premium.restore_failed"), { description: e?.message });
     } finally {
       setRestoring(false);
     }
@@ -91,6 +120,59 @@ export default function Profile() {
         <Stat label={t("profile.weight")} value={`${user.weight}`} unit="kg" />
         <Stat label={t("profile.calories")} value={`${user.calories}`} unit="kcal" />
         <Stat label={t("profile.protein")} value={`${user.protein}`} unit="g" />
+      </div>
+
+      {/* Premium status — plan and renewal date after a purchase or restore */}
+      <div className="k-card p-5 mb-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t("premium.status_plan")}
+            </div>
+            <div className={`text-lg font-semibold ${isActive ? "text-[hsl(24_95%_45%)]" : ""}`}>
+              {isActive ? t("premium.status_premium") : t("premium.status_free")}
+            </div>
+          </div>
+          <button
+            onClick={restorePurchase}
+            disabled={restoring}
+            className="k-tap h-11 px-4 rounded-2xl border-2 border-border bg-card text-sm font-semibold flex items-center gap-2 disabled:opacity-60"
+          >
+            <RefreshCw className={`w-4 h-4 ${restoring ? "animate-spin" : ""}`} />
+            {restoring ? t("premium.restoring") : t("premium.restore")}
+          </button>
+        </div>
+
+        {isActive && (
+          <div className="mt-3 space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{t("premium.status_plan")}</span>
+              <span className="font-medium">
+                {planLabel(restoreInfo?.productId ?? subscription?.product_id)}
+              </span>
+            </div>
+            {(restoreInfo?.expiresAt || subscription?.current_period_end) && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t("premium.status_renews")}</span>
+                <span className="font-medium">
+                  {new Date(
+                    (restoreInfo?.expiresAt ?? subscription?.current_period_end) as string
+                  ).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {restoreInfo && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {restoreInfo.state === "restored" && t("premium.restore_ok_desc")}
+            {restoreInfo.state === "none" && t("premium.restore_none_desc")}
+            {restoreInfo.state === "unavailable" && t("premium.restore_unavailable")}
+            {restoreInfo.state === "error" &&
+              `${t("premium.restore_failed")}${restoreInfo.message ? ` — ${restoreInfo.message}` : ""}`}
+          </p>
+        )}
       </div>
 
       {!premium && (
