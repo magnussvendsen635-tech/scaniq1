@@ -196,10 +196,17 @@ export default function Settings() {
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
           <button
-            onClick={() => nav("/debug/apple-signin")}
+            onClick={() => nav("/sources")}
             className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
           >
-            <span className="text-sm">Sign in with Apple — status</span>
+            <span className="text-sm">Sources & references</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <button
+            onClick={() => nav("/disclosures")}
+            className="w-full px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
+          >
+            <span className="text-sm">Privacy & disclosures</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
           <div className="px-5 py-3 flex items-center justify-between gap-4">

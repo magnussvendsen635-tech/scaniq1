@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useKStore, caloriesToday, categoryForNow, type MealCategory } from "@/store/useKStore";
-import { Camera, Sparkles, ArrowLeft, Heart, Check, Crown, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus } from "lucide-react";
+import { Camera, Sparkles, ArrowLeft, Heart, Check, Crown, Sun, UtensilsCrossed, Moon, Cookie, Search, X, Plus, Barcode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -1046,6 +1046,14 @@ export default function FoodScan() {
               >
                 <Search className="w-4 h-4" />
                 {t("scan.search_manually_instead")}
+              </button>
+
+              <button
+                onClick={() => nav("/barcode")}
+                className="k-tap w-full mt-3 h-12 rounded-2xl border-2 border-border bg-card text-sm font-semibold flex items-center justify-center gap-2 hover:border-primary transition-colors"
+              >
+                <Barcode className="w-4 h-4" />
+                Scan barcode
               </button>
             </div>
           )}

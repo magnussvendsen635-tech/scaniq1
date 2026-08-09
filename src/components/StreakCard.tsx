@@ -1,25 +1,15 @@
 import { Link } from "react-router-dom";
-import { Flame, Snowflake, Wrench, Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Flame, Snowflake } from "lucide-react";
+import { useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import { useKStore } from "@/store/useKStore";
 import { useT } from "@/i18n/useT";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 
 export function StreakCard() {
   const t = useT();
-  const { streak, lastActiveDate, frozenDays, freezeStreak, freezesLeftThisWeek, repairStreak, lastResetStreak } = useKStore();
-  const language = useKStore((s) => s.language);
-  const { user } = useAuth();
-  const [repairOpen, setRepairOpen] = useState(false);
-  const [repairing, setRepairing] = useState(false);
+  const { streak, lastActiveDate, frozenDays, freezeStreak, freezesLeftThisWeek } = useKStore();
   const today = new Date().toISOString().slice(0, 10);
   const activeToday = lastActiveDate === today;
   const flameRef = useRef<HTMLDivElement | null>(null);
@@ -77,42 +67,6 @@ export function StreakCard() {
     toast.success(t("streak.freeze_toast"), { description: `${r.remaining} ${t("streak.freeze_toast_sub")}` });
   };
 
-  const canRepair = streak === 0 && lastResetStreak > 0;
-
-  const openRepair = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setRepairOpen(true);
-  };
-
-  const handleRepair = async () => {
-    setRepairing(true);
-    try {
-      // NOTE: This is a placeholder for the App Store $3 In-App Purchase.
-      // On native, the IAP completion handler would call this same flow.
-      repairStreak();
-      if (user?.email) {
-        await supabase.functions.invoke("send-transactional-email", {
-          body: {
-            templateName: "welcome-receipt",
-            recipientEmail: user.email,
-            idempotencyKey: `streak-repair-${user.id}-${Date.now()}`,
-            templateData: {
-              language: language?.startsWith("da") ? "da" : "en",
-              productName: "Streak Repair",
-              price: "$3",
-            },
-          },
-        });
-      }
-      toast.success(t("streak.restored"));
-      setRepairOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || t("streak.repair_failed"));
-    } finally {
-      setRepairing(false);
-    }
-  };
 
 
   return (
@@ -235,37 +189,7 @@ export function StreakCard() {
         </div>
       </div>
 
-      {canRepair && (
-        <button
-          onClick={openRepair}
-          className="mt-4 w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-yellow-400 text-white text-sm font-semibold shadow-[0_4px_14px_-4px_rgba(249,115,22,0.6)]"
-        >
-          <Wrench className="w-4 h-4" />
-          {t("streak.repair_cta")}
-        </button>
-      )}
 
-      <Dialog open={repairOpen} onOpenChange={setRepairOpen}>
-        <DialogContent onClick={(e) => e.stopPropagation()} className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>{t("streak.repair_title")}</DialogTitle>
-            <DialogDescription>{t("streak.repair_sub")}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={(e) => { e.stopPropagation(); setRepairOpen(false); }}>
-              {t("streak.repair_cancel")}
-            </Button>
-            <Button
-              onClick={(e) => { e.stopPropagation(); handleRepair(); }}
-              disabled={repairing}
-              className="bg-gradient-to-r from-orange-500 to-yellow-400 text-white"
-            >
-              {repairing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Wrench className="w-4 h-4 mr-2" />}
-              {t("streak.repair_buy")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </Link>
   );
 }
