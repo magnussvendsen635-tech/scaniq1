@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ChevronRight, Download, Trash2, FileText, Shield, Cookie } from "lucide-react";
+import { isNativeShell } from "@/lib/nativePlatform";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -99,7 +100,9 @@ export default function DataPrivacy() {
       <Section title="Juridisk">
         <Row Icon={Shield} title="Privatlivspolitik" sub="Hvilke data vi gemmer & hvorfor" onClick={() => nav("/privacy")} />
         <Row Icon={FileText} title="Servicevilkår" sub="Brugervilkår & ansvarsbegrænsning" onClick={() => nav("/terms")} />
-        <Row Icon={Cookie} title="Cookie-indstillinger" sub="Nulstil dit cookie-valg" onClick={resetCookies} />
+        {!isNativeShell() && (
+          <Row Icon={Cookie} title="Cookie-indstillinger" sub="Nulstil dit cookie-valg" onClick={resetCookies} />
+        )}
       </Section>
 
       <Section title="Dine data (GDPR)">
