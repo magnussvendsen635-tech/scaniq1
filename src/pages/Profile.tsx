@@ -122,6 +122,59 @@ export default function Profile() {
         <Stat label={t("profile.protein")} value={`${user.protein}`} unit="g" />
       </div>
 
+      {/* Premium status — plan and renewal date after a purchase or restore */}
+      <div className="k-card p-5 mb-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t("premium.status_plan")}
+            </div>
+            <div className={`text-lg font-semibold ${isActive ? "text-[hsl(24_95%_45%)]" : ""}`}>
+              {isActive ? t("premium.status_premium") : t("premium.status_free")}
+            </div>
+          </div>
+          <button
+            onClick={restorePurchase}
+            disabled={restoring}
+            className="k-tap h-11 px-4 rounded-2xl border-2 border-border bg-card text-sm font-semibold flex items-center gap-2 disabled:opacity-60"
+          >
+            <RefreshCw className={`w-4 h-4 ${restoring ? "animate-spin" : ""}`} />
+            {restoring ? t("premium.restoring") : t("premium.restore")}
+          </button>
+        </div>
+
+        {isActive && (
+          <div className="mt-3 space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{t("premium.status_plan")}</span>
+              <span className="font-medium">
+                {planLabel(restoreInfo?.productId ?? subscription?.product_id)}
+              </span>
+            </div>
+            {(restoreInfo?.expiresAt || subscription?.current_period_end) && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t("premium.status_renews")}</span>
+                <span className="font-medium">
+                  {new Date(
+                    (restoreInfo?.expiresAt ?? subscription?.current_period_end) as string
+                  ).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {restoreInfo && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {restoreInfo.state === "restored" && t("premium.restore_ok_desc")}
+            {restoreInfo.state === "none" && t("premium.restore_none_desc")}
+            {restoreInfo.state === "unavailable" && t("premium.restore_unavailable")}
+            {restoreInfo.state === "error" &&
+              `${t("premium.restore_failed")}${restoreInfo.message ? ` — ${restoreInfo.message}` : ""}`}
+          </p>
+        )}
+      </div>
+
       {!premium && (
         <Link
           to="/premium"
