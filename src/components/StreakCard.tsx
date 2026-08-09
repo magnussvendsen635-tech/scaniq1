@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Flame, Snowflake } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import { useKStore } from "@/store/useKStore";
 import { useT } from "@/i18n/useT";
