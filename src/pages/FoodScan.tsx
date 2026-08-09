@@ -1047,6 +1047,14 @@ export default function FoodScan() {
                 <Search className="w-4 h-4" />
                 {t("scan.search_manually_instead")}
               </button>
+
+              <button
+                onClick={() => nav("/barcode")}
+                className="k-tap w-full mt-3 h-12 rounded-2xl border-2 border-border bg-card text-sm font-semibold flex items-center justify-center gap-2 hover:border-primary transition-colors"
+              >
+                <Barcode className="w-4 h-4" />
+                Scan barcode
+              </button>
             </div>
           )}
 
