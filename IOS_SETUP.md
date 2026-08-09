@@ -86,16 +86,12 @@ og træk `resources/icon.png` ind på "App Store" slottet.
 
 <key>NSPhotoLibraryAddUsageDescription</key>
 <string>ScanIQ can save scanned meal photos to your library.</string>
-
-<key>NSHealthShareUsageDescription</key>
-<string>ScanIQ reads weight and activity from Apple Health to personalise your daily goals.</string>
-
-<key>NSHealthUpdateUsageDescription</key>
-<string>ScanIQ writes meals and nutrition data to Apple Health so you can track it there.</string>
-
-<key>NSUserTrackingUsageDescription</key>
-<string>ScanIQ uses this to improve product recognition. You can decline.</string>
 ```
+
+ScanIQ does **not** use HealthKit/CareKit and does **not** track users, so no
+`NSHealth*` keys and no `NSUserTrackingUsageDescription` (App Tracking Transparency)
+must ever be added to the Info.plist.
+
 
 ---
 
