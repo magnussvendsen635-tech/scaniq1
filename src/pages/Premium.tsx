@@ -173,7 +173,7 @@ export default function Premium() {
               : "border border-border/60"
           }`}
         >
-          <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">Basic</div>
+          <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.yearly")}</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
             <span className="text-3xl font-bold tracking-tight">{yearlyPriceLabel}</span>
             <span className="text-xs text-muted-foreground">{t("premium.per_year")}</span>
@@ -193,7 +193,7 @@ export default function Premium() {
           <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-wider bg-[hsl(24_95%_53%)] text-white rounded-full px-2.5 py-0.5 shadow-sm whitespace-nowrap">
             {t("premium.most_popular")}
           </span>
-          <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">Premium</div>
+          <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.monthly")}</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
             <span className="text-3xl font-bold tracking-tight">{monthlyPriceLabel}</span>
             <span className="text-xs text-muted-foreground">{t("premium.per_month")}</span>
@@ -265,7 +265,7 @@ export default function Premium() {
               <div className="flex items-center justify-between gap-3 mt-1.5">
                 <span className="text-muted-foreground">{t("premium.status_plan")}</span>
                 <span className="font-semibold">
-                  {restoreInfo.productId === IAP_PRODUCTS.yearly ? "Basic" : "Premium"}
+                  {restoreInfo.productId === IAP_PRODUCTS.yearly ? t("premium.yearly") : t("premium.monthly")}
                 </span>
               </div>
             )}

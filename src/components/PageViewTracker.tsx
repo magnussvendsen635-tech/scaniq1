@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { isNativeShell } from "@/lib/nativePlatform";
 
 function getSessionId(): string {
   try {
@@ -20,6 +21,8 @@ export function PageViewTracker() {
   const lastPath = useRef<string>("");
 
   useEffect(() => {
+    // Apple 5.1.2(i): the native app performs no analytics/tracking at all.
+    if (isNativeShell()) return;
     const path = location.pathname;
     if (path === lastPath.current) return;
     lastPath.current = path;

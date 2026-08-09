@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useKStore } from "@/store/useKStore";
 import { Logo } from "@/components/Logo";
-import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift, Tag, Lock } from "lucide-react";
+import { Settings as SettingsIcon, LogOut, ChevronRight, Scale, Database, LifeBuoy, RefreshCw, ExternalLink, Shield, FileText, Trash2, Gift, Tag, Lock, Heart } from "lucide-react";
 import leafLogo from "@/assets/scaniq-logo-new.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -114,6 +114,7 @@ export default function Profile() {
 
       <div className="k-card divide-y divide-border/60 overflow-hidden">
         <Row Icon={Scale} title={t("profile.weight_tracker")} sub={t("profile.weight_tracker_sub")} onClick={() => nav("/weight")} />
+        <Row Icon={Heart} title="Favorites" sub="Your saved meals" onClick={() => nav("/favorites")} />
         <Row Icon={SettingsIcon} title={t("profile.edit_settings")} sub={t("profile.edit_settings_sub")} onClick={() => nav("/settings")} />
         <Row Icon={Tag} title={t("profile.pricing")} sub={t("profile.pricing_sub")} onClick={() => nav("/pricing")} />
         <Row
