@@ -16,6 +16,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
 import FoodScan from "./pages/FoodScan";
+import BarcodeScan from "./pages/BarcodeScan";
+import Favorites from "./pages/Favorites";
 
 import Diary from "./pages/Diary";
 import Workouts from "./pages/Workouts";
@@ -43,7 +45,6 @@ import BonusTerms from "./pages/BonusTerms";
 import NotFound from "./pages/NotFound.tsx";
 import Unsubscribe from "./pages/Unsubscribe";
 import OAuthConsent from "./pages/OAuthConsent";
-import AppleSignInDebug from "./pages/AppleSignInDebug";
 import { CookieConsent } from "@/components/CookieConsent";
 import { isNativeShell } from "@/lib/nativePlatform";
 import { UpgradeFab } from "@/components/UpgradeFab";
@@ -136,7 +137,6 @@ const App = () => {
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />
             <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
-            <Route path="/debug/apple-signin" element={<AppleSignInDebug />} />
             {loading ? (
               <Route path="*" element={<div className="min-h-screen bg-background" />} />
             ) : !session ? (
@@ -147,6 +147,8 @@ const App = () => {
               <>
                 <Route path="/app" element={<Shell><Home /></Shell>} />
                 <Route path="/scan" element={<Shell><FoodScan /></Shell>} />
+                <Route path="/barcode" element={<Shell><BarcodeScan /></Shell>} />
+                <Route path="/favorites" element={<Shell><Favorites /></Shell>} />
                 
                 <Route path="/diary" element={<Shell><Diary /></Shell>} />
                 <Route path="/workouts" element={<Shell><Workouts /></Shell>} />
