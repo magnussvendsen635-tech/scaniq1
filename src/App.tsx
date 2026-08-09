@@ -20,14 +20,12 @@ import BarcodeScan from "./pages/BarcodeScan";
 import Favorites from "./pages/Favorites";
 
 import Diary from "./pages/Diary";
-import Workouts from "./pages/Workouts";
 import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Premium from "./pages/Premium";
 import Weight from "./pages/Weight";
 
-import Recipes from "./pages/Recipes";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Security from "./pages/Security";
@@ -150,15 +148,12 @@ const App = () => {
                 <Route path="/barcode" element={<Shell><BarcodeScan /></Shell>} />
                 <Route path="/favorites" element={<Shell><Favorites /></Shell>} />
                 
-                <Route path="/diary" element={<Shell><Diary /></Shell>} />
-                <Route path="/workouts" element={<Shell><Workouts /></Shell>} />
+                <Route path="/diary" element={<Shell><Diary /></Shell>} /></Shell>} />
                 <Route path="/progress" element={<Shell><Progress /></Shell>} />
                 <Route path="/profile" element={<Shell><Profile /></Shell>} />
                 <Route path="/settings" element={<Shell><Settings /></Shell>} />
                 <Route path="/premium" element={<Shell><Premium /></Shell>} />
-                <Route path="/weight" element={<Shell><Weight /></Shell>} />
-                
-                <Route path="/recipes" element={<Shell><Recipes /></Shell>} />
+                <Route path="/weight" element={<Shell><Weight /></Shell>} /></Shell>} />
                 <Route path="/help" element={<Shell><Help /></Shell>} />
                 <Route path="/data-privacy" element={<Shell><DataPrivacy /></Shell>} />
                 <Route path="/admin" element={<Shell><Admin /></Shell>} />
