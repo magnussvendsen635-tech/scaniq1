@@ -166,6 +166,8 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/../scripts/verify-forbidden-frameworks.sh",
+				"$(TARGET_BUILD_DIR)/$(WRAPPER_NAME)",
 			);
 			name = "Verify Forbidden Frameworks";
 			outputFileListPaths = (
