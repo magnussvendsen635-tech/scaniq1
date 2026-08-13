@@ -103,13 +103,22 @@ export async function signInWithAppleNative(): Promise<boolean> {
   const base = { platform, native: isNativePlatform() };
   logAppleAttempt({ ...base, status: "started" });
 
-  if (!isApplePluginAvailable()) {
+  // Note: we do NOT hard-block on Capacitor.isPluginAvailable() — it can report
+  // false before the bridge finishes registering plugins (and in some simulator
+  // runs), which produced a bogus "not available in this build" error. Instead we
+  // load the plugin and only fail if it is truly missing.
+  let SignInWithApple: any;
+  try {
+    ({ SignInWithApple } = await import("@capacitor-community/apple-sign-in"));
+  } catch {
+    SignInWithApple = undefined;
+  }
+
+  if (!SignInWithApple || typeof SignInWithApple.authorize !== "function") {
     const message = "Sign in with Apple is not available in this build. Please use email sign-in.";
     logAppleAttempt({ ...base, status: "error", message, code: "plugin_unavailable" });
     throw new Error(message);
   }
-
-  const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
 
   const rawNonce = randomNonce();
   const hashedNonce = await sha256Hex(rawNonce);
