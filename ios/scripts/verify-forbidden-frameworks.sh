@@ -44,6 +44,13 @@ if [ -f "${app_bundle}/Info.plist" ]; then
   fi
 fi
 
+if [ -n "${CODE_SIGN_ENTITLEMENTS:-}" ]; then
+  entitlement_file="${SRCROOT}/${CODE_SIGN_ENTITLEMENTS}"
+  if [ -f "$entitlement_file" ] && /usr/bin/grep -Eiq "${health_entitlement}|${health_access_entitlement}" "$entitlement_file"; then
+    failures="${failures}\n- health entitlement in the target entitlement file"
+  fi
+fi
+
 signed_entitlements="$(mktemp)"
 trap 'rm -f "$signed_entitlements"' EXIT
 if /usr/bin/codesign -d --entitlements :- "$app_bundle" >"$signed_entitlements" 2>/dev/null; then
