@@ -13,7 +13,7 @@ export default function Sources() {
   return (
     <div className="k-page min-h-screen overflow-y-auto max-w-2xl mx-auto px-5 pb-24 pt-2">
       <Seo
-        title="How ScanIQ calculates your calories — sources"
+        title="Health Information & Sources — ScanIQ"
         description="The scientific references behind ScanIQ's calorie and macronutrient recommendations, including the Mifflin-St Jeor equation and WHO/FAO/UNU activity factors."
         path="/sources"
       />
@@ -25,7 +25,7 @@ export default function Sources() {
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-semibold tracking-tight">How we calculate your calories</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Health Information & Sources</h1>
       </header>
 
       <section className="space-y-5 text-sm leading-relaxed">
@@ -82,7 +82,25 @@ Women: BMR = 10 × weight(kg) + 6.25 × height(cm) − 5 × age(years) − 161`}
         </div>
 
         <div>
-          <h2 className="font-semibold mb-1">3. Weight-loss or weight-gain adjustment</h2>
+          <h2 className="font-semibold mb-1">3. World Health Organization guidance</h2>
+          <p className="text-muted-foreground">
+            WHO healthy-diet guidance supports the general nutrition context shown alongside
+            ScanIQ's estimates, including guidance on a varied diet and limiting free sugars,
+            saturated fat and sodium. It does not replace individual medical advice and is not used
+            as the BMR equation.
+          </p>
+          <a
+            className="text-xs underline underline-offset-4 text-primary"
+            href="https://www.who.int/news-room/fact-sheets/detail/healthy-diet"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            who.int — Healthy diet
+          </a>
+        </div>
+
+        <div>
+          <h2 className="font-semibold mb-1">4. Weight-loss or weight-gain adjustment</h2>
           <p className="text-muted-foreground">
             A goal of losing weight subtracts roughly 500 kcal/day (about 0.5 kg per week) and a
             gaining goal adds roughly 350 kcal/day, in line with the CDC’s guidance that a safe rate
@@ -100,7 +118,7 @@ Women: BMR = 10 × weight(kg) + 6.25 × height(cm) − 5 × age(years) − 161`}
         </div>
 
         <div>
-          <h2 className="font-semibold mb-1">4. Macronutrient split</h2>
+          <h2 className="font-semibold mb-1">5. Macronutrient split</h2>
           <p className="text-muted-foreground">
             Protein, carbohydrate and fat targets stay inside the Acceptable Macronutrient
             Distribution Ranges (AMDR) from the Institute of Medicine: 10–35% of energy from protein,
@@ -122,7 +140,7 @@ Women: BMR = 10 × weight(kg) + 6.25 × height(cm) − 5 × age(years) − 161`}
         </div>
 
         <div>
-          <h2 className="font-semibold mb-1">5. Food and nutrition data</h2>
+          <h2 className="font-semibold mb-1">6. Food and nutrition data</h2>
           <p className="text-muted-foreground">
             Nutrition values come from the product’s own label where available, and otherwise from
             public food databases (Open Food Facts) combined with AI image estimation. Values shown
