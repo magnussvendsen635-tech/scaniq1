@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKStore, type Goal, type Activity } from "@/store/useKStore";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronRight, Shield } from "lucide-react";
+import { ArrowLeft, ChevronRight, ExternalLink, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { LANGUAGES } from "@/data/languages";
 import { LanguagePicker } from "@/components/LanguagePicker";
@@ -60,6 +60,31 @@ export default function Settings() {
               <span>{currentLang.native}</span>
               <ChevronRight className="w-4 h-4" />
             </span>
+          </button>
+        </Section>
+
+        <Section title="Health Information & Sources">
+          <SourceLink
+            title="Mifflin-St Jeor equation"
+            description="Supports ScanIQ's estimate of resting energy expenditure (BMR)."
+            href="https://pubmed.ncbi.nlm.nih.gov/2305711/"
+          />
+          <SourceLink
+            title="World Health Organization (WHO)"
+            description="Supports the general healthy-diet guidance used to contextualize nutrition recommendations."
+            href="https://www.who.int/news-room/fact-sheets/detail/healthy-diet"
+          />
+          <SourceLink
+            title="FAO/WHO/UNU Human Energy Requirements"
+            description="Supports physical activity levels and total daily energy expenditure calculations."
+            href="https://www.fao.org/4/y5686e/y5686e00.htm"
+          />
+          <button
+            onClick={() => nav("/sources")}
+            className="w-full min-h-14 px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
+          >
+            <span className="text-sm font-medium">View all sources & calculation details</span>
+            <ChevronRight className="w-4 h-4 shrink-0 text-muted-foreground" />
           </button>
         </Section>
 
@@ -251,6 +276,29 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
     <span className="text-sm">{label}</span>
     <div className="w-40">{children}</div>
   </div>
+);
+
+const SourceLink = ({
+  title,
+  description,
+  href,
+}: {
+  title: string;
+  description: string;
+  href: string;
+}) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="w-full min-h-[76px] px-5 py-4 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors"
+  >
+    <span className="min-w-0">
+      <span className="block text-sm font-semibold text-primary">{title}</span>
+      <span className="block mt-1 text-xs leading-relaxed text-muted-foreground">{description}</span>
+    </span>
+    <ExternalLink className="w-4 h-4 shrink-0 text-primary" aria-hidden="true" />
+  </a>
 );
 
 const NumInput = ({ value, onChange }: { value: number; onChange: (n: number) => void }) => (

@@ -88,7 +88,7 @@ og træk `resources/icon.png` ind på "App Store" slottet.
 <string>ScanIQ can save scanned meal photos to your library.</string>
 ```
 
-ScanIQ does **not** use HealthKit/CareKit and does **not** track users, so no
+ScanIQ does **not** access Apple health data and does **not** track users, so no
 `NSHealth*` keys and no `NSUserTrackingUsageDescription` (App Tracking Transparency)
 must ever be added to the Info.plist.
 

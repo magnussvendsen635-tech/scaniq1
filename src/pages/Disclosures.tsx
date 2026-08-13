@@ -191,7 +191,7 @@ export default function Disclosures() {
         <div className="text-sm font-semibold mb-1">{tt("Not used")}</div>
         <p className="text-xs text-muted-foreground leading-relaxed">
           {tt(
-            "ScanIQ does not use HealthKit, location, contacts, microphone, Bluetooth, calendar or the advertising identifier. No such permission is requested and no matching code ships in the app."
+            "ScanIQ does not access Apple health data, location, contacts, microphone, Bluetooth, calendar or the advertising identifier. No such permission is requested and no matching code ships in the app."
           )}
         </p>
       </div>
