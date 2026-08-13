@@ -33,6 +33,10 @@ if /usr/bin/strings -a "$app_binary" | /usr/bin/grep -Eiq "${health_framework}|$
   failures="${failures}\n- health framework name or symbol in the app executable"
 fi
 
+if /usr/bin/grep -R -a -Eiq "${health_framework}|${care_framework}" "$app_bundle"; then
+  failures="${failures}\n- health framework name in the final app bundle or embedded web assets"
+fi
+
 if [ -f "${app_bundle}/Info.plist" ]; then
   if /usr/libexec/PlistBuddy -c "Print :${health_share_key}" "${app_bundle}/Info.plist" >/dev/null 2>&1 || \
      /usr/libexec/PlistBuddy -c "Print :${health_update_key}" "${app_bundle}/Info.plist" >/dev/null 2>&1; then
