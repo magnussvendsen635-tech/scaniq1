@@ -145,6 +145,19 @@ export async function signInWithAppleNative(): Promise<boolean> {
     throw new Error("Apple did not return an identity token.");
   }
 
+  // Diagnostics: the native token's audience must be the iOS bundle id.
+  const audience = (() => {
+    try {
+      const payload = JSON.parse(
+        atob(identityToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+      );
+      return Array.isArray(payload?.aud) ? payload.aud.join(",") : String(payload?.aud ?? "");
+    } catch {
+      return "";
+    }
+  })();
+  logAppleAttempt({ ...base, status: "started", message: `id_token aud=${audience || "unknown"}` });
+
   const { data: signInData, error } = await withTimeout(
     supabase.auth.signInWithIdToken({
       provider: "apple",
@@ -155,7 +168,15 @@ export async function signInWithAppleNative(): Promise<boolean> {
     "Apple sign-in",
   );
   if (error) {
-    logAppleAttempt({ ...base, status: "error", message: error.message, code: String((error as any)?.code ?? "") });
+    const audienceIssue = /audience/i.test(error.message);
+    logAppleAttempt({
+      ...base,
+      status: "error",
+      message: audienceIssue
+        ? `${error.message} (aud=${audience}) — add this bundle id to the Apple provider's authorized client IDs.`
+        : error.message,
+      code: String((error as any)?.code ?? ""),
+    });
     throw error;
   }
 
