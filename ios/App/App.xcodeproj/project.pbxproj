@@ -167,7 +167,6 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/../scripts/verify-forbidden-frameworks.sh",
-				"$(TARGET_BUILD_DIR)/$(WRAPPER_NAME)",
 			);
 			name = "Verify Forbidden Frameworks";
 			outputFileListPaths = (
@@ -339,6 +338,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6RQWN88D6K;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ScanIQ;
@@ -367,6 +367,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6RQWN88D6K;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				INFOPLIST_FILE = App/Info.plist;
