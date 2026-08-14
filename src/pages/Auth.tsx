@@ -257,6 +257,7 @@ export default function Auth() {
             </Button>
             )}
 
+            {isNativeApple() && (
             <Button
               type="button"
               variant="outline"
@@ -269,6 +270,8 @@ export default function Auth() {
               </svg>
               Continue with Apple
             </Button>
+            )}
+
 
             {appleError && (
               <div
