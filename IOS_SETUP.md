@@ -114,6 +114,20 @@ I Xcode:
 > **Vigtigt:** Bundle Identifier skal stå præcis som `com.kinetex.scaniq` i **TARGETS → App**, ikke kun under **PROJECT**.
 > Dette skal matche Bundle ID'et på appen i App Store Connect præcis.
 
+### Apple Sign-In audience
+
+Native Sign in with Apple udsteder et ID-token med audience `com.kinetex.scaniq`.
+Under **Backend → Users → Authentication Settings → Sign In Methods → Apple**
+skal `com.kinetex.scaniq` derfor være blandt Apple-providerens accepterede Client IDs.
+Hvis web-login fortsat bruger Services ID'et `site.scaniq.app`, skal begge IDs være
+angivet: `site.scaniq.app,com.kinetex.scaniq`.
+
+Kontrollér projektets native konfiguration før Xcode-sync:
+
+```bash
+npm run ios:verify-apple
+```
+
 ### Hvis Xcode stadig siger “No profiles found”
 
 Fejlen betyder normalt, at Xcode prøver at lave signing til den forkerte Bundle Identifier eller ikke kan få Apple til at lave en provisioning profile.
@@ -177,8 +191,7 @@ Hver gang du henter nye ændringer fra Lovable/GitHub:
 ```bash
 git pull
 npm install
-npm run build
-npx cap sync ios
+npm run ios:prepare
 ```
 
 Så åbn Xcode igen og kør.
