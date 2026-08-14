@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && cap copy ios",
+    "ios:prepare": "vite build && cap sync ios && npm run ios:verify-apple",
+    "ios:verify-apple": "sh ios/scripts/verify-apple-signin.sh",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",

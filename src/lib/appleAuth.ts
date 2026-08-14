@@ -3,6 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { logAppleAttempt, markSignedInOnce } from "@/lib/authDiagnostics";
 
 /**
+ * Apple's native ASAuthorization flow issues an ID token whose audience is the
+ * signed app's Bundle ID. This value must also be present in the backend Apple
+ * provider's accepted Client IDs.
+ */
+export const APPLE_NATIVE_CLIENT_ID = "com.kinetex.scaniq";
+
+/**
  * Native "Sign in with Apple" for iOS/iPadOS.
  *
  * Inside the Capacitor WKWebView a browser-redirect OAuth flow cannot return a
@@ -40,6 +47,23 @@ async function sha256Hex(input: string): Promise<string> {
   return Array.from(new Uint8Array(digest))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+}
+
+function readTokenAudiences(identityToken: string): string[] {
+  try {
+    const encodedPayload = identityToken.split(".")[1];
+    if (!encodedPayload) return [];
+    const normalizedPayload = encodedPayload.replace(/-/g, "+").replace(/_/g, "/");
+    const paddedPayload = normalizedPayload.padEnd(
+      normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4),
+      "=",
+    );
+    const payload = JSON.parse(atob(paddedPayload)) as { aud?: string | string[] };
+    if (Array.isArray(payload.aud)) return payload.aud.map(String);
+    return payload.aud ? [String(payload.aud)] : [];
+  } catch {
+    return [];
+  }
 }
 
 /** True when the native Apple plugin is actually registered in this build. */
@@ -127,7 +151,7 @@ export async function signInWithAppleNative(): Promise<boolean> {
   try {
     result = await withTimeout(
       SignInWithApple.authorize({
-        clientId: "com.kinetex.scaniq",
+        clientId: APPLE_NATIVE_CLIENT_ID,
         redirectURI: "",
         scopes: "name email",
         nonce: hashedNonce,
@@ -154,18 +178,16 @@ export async function signInWithAppleNative(): Promise<boolean> {
     throw new Error("Apple did not return an identity token.");
   }
 
-  // Diagnostics: the native token's audience must be the iOS bundle id.
-  const audience = (() => {
-    try {
-      const payload = JSON.parse(
-        atob(identityToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
-      );
-      return Array.isArray(payload?.aud) ? payload.aud.join(",") : String(payload?.aud ?? "");
-    } catch {
-      return "";
-    }
-  })();
+  // ASAuthorizationAppleIDProvider derives the native audience from the signed
+  // Bundle ID. Reject any unexpected token before sending it to the backend.
+  const audiences = readTokenAudiences(identityToken);
+  const audience = audiences.join(",");
   logAppleAttempt({ ...base, status: "started", message: `id_token aud=${audience || "unknown"}` });
+  if (!audiences.includes(APPLE_NATIVE_CLIENT_ID)) {
+    const message = `Apple returned a token for an unexpected app (aud=${audience || "missing"}).`;
+    logAppleAttempt({ ...base, status: "error", message, code: "unexpected_audience" });
+    throw new Error(message);
+  }
 
   const { data: signInData, error } = await withTimeout(
     supabase.auth.signInWithIdToken({
@@ -182,7 +204,7 @@ export async function signInWithAppleNative(): Promise<boolean> {
       ...base,
       status: "error",
       message: audienceIssue
-        ? `${error.message} (aud=${audience}) — add this bundle id to the Apple provider's authorized client IDs.`
+        ? `${error.message} (aud=${audience}) — the backend Apple provider must accept ${APPLE_NATIVE_CLIENT_ID}.`
         : error.message,
       code: String((error as any)?.code ?? ""),
     });
