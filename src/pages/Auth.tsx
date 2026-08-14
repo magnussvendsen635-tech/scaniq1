@@ -257,7 +257,7 @@ export default function Auth() {
             </Button>
             )}
 
-            {(!isNativePlatform() ? false : isNativeApple()) && (
+            {isNativeApple() && (
             <Button
               type="button"
               variant="outline"
