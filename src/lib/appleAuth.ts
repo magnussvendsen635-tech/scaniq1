@@ -1,6 +1,7 @@
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { logAppleAttempt, markSignedInOnce } from "@/lib/authDiagnostics";
+import type { Session } from "@supabase/supabase-js";
 
 /**
  * Apple's native ASAuthorization flow issues an ID token whose audience is the
@@ -8,6 +9,19 @@ import { logAppleAttempt, markSignedInOnce } from "@/lib/authDiagnostics";
  * provider's accepted Client IDs.
  */
 export const APPLE_NATIVE_CLIENT_ID = "com.kinetex.scaniq";
+
+interface AppleIdentityTokenClaims {
+  aud?: string | string[];
+  nonce?: string;
+}
+
+interface AppleAuthorizationResponse {
+  response?: {
+    identityToken?: string;
+    givenName?: string | null;
+    familyName?: string | null;
+  };
+}
 
 /**
  * Native "Sign in with Apple" for iOS/iPadOS.
@@ -49,21 +63,34 @@ async function sha256Hex(input: string): Promise<string> {
     .join("");
 }
 
-function readTokenAudiences(identityToken: string): string[] {
+function readIdentityTokenClaims(identityToken: string): AppleIdentityTokenClaims | null {
   try {
     const encodedPayload = identityToken.split(".")[1];
-    if (!encodedPayload) return [];
+    if (!encodedPayload) return null;
     const normalizedPayload = encodedPayload.replace(/-/g, "+").replace(/_/g, "/");
     const paddedPayload = normalizedPayload.padEnd(
       normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4),
       "=",
     );
-    const payload = JSON.parse(atob(paddedPayload)) as { aud?: string | string[] };
-    if (Array.isArray(payload.aud)) return payload.aud.map(String);
-    return payload.aud ? [String(payload.aud)] : [];
+    return JSON.parse(atob(paddedPayload)) as AppleIdentityTokenClaims;
   } catch {
-    return [];
+    return null;
   }
+}
+
+function tokenAudiences(claims: AppleIdentityTokenClaims): string[] {
+  if (Array.isArray(claims.aud)) return claims.aud.map(String);
+  return claims.aud ? [String(claims.aud)] : [];
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error ?? "");
+}
+
+function errorCode(error: unknown): string {
+  if (typeof error !== "object" || error === null || !("code" in error)) return "";
+  return String(error.code ?? "");
 }
 
 /** True when the native Apple plugin is actually registered in this build. */
@@ -86,19 +113,19 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 }
 
 /** Resolve as soon as the SDK reports a session (listener + polling fallback). */
-async function waitForSession(timeoutMs = 8000) {
+async function waitForSession(timeoutMs = 8000): Promise<Session | null> {
   const existing = (await supabase.auth.getSession()).data.session;
   if (existing) return existing;
 
-  return new Promise<any>((resolve) => {
+  return new Promise<Session | null>((resolve) => {
     let done = false;
-    const finish = (s: any) => {
+    const finish = (session: Session | null) => {
       if (done) return;
       done = true;
       try { sub?.subscription.unsubscribe(); } catch { /* ignore */ }
       clearInterval(poll);
       clearTimeout(timer);
-      resolve(s);
+      resolve(session);
     };
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       if (s) finish(s);
@@ -131,7 +158,7 @@ export async function signInWithAppleNative(): Promise<boolean> {
   // false before the bridge finishes registering plugins (and in some simulator
   // runs), which produced a bogus "not available in this build" error. Instead we
   // load the plugin and only fail if it is truly missing.
-  let SignInWithApple: any;
+  let SignInWithApple: typeof import("@capacitor-community/apple-sign-in")["SignInWithApple"] | undefined;
   try {
     ({ SignInWithApple } = await import("@capacitor-community/apple-sign-in"));
   } catch {
@@ -147,21 +174,24 @@ export async function signInWithAppleNative(): Promise<boolean> {
   const rawNonce = randomNonce();
   const hashedNonce = await sha256Hex(rawNonce);
 
-  let result: any;
+  let result: AppleAuthorizationResponse;
   try {
     result = await withTimeout(
       SignInWithApple.authorize({
+        // Required by the plugin's shared API, but ignored by its native iOS
+        // implementation. ASAuthorizationAppleIDProvider always issues the ID
+        // token for the signed app's Bundle ID: com.kinetex.scaniq.
         clientId: APPLE_NATIVE_CLIENT_ID,
         redirectURI: "",
         scopes: "name email",
         nonce: hashedNonce,
-      }) as Promise<any>,
+      }),
       45000,
       "Apple sign-in",
     );
-  } catch (e: any) {
-    const msg = String(e?.message ?? e ?? "");
-    const code = String(e?.code ?? "");
+  } catch (error: unknown) {
+    const msg = errorMessage(error);
+    const code = errorCode(error);
     // User tapped Cancel / dismissed the Apple sheet — not an error.
     // ASAuthorizationError.canceled = 1001, .unknown on dismiss = 1000.
     if (/cancel|1001|1000/i.test(msg) || code === "1001" || code === "1000") {
@@ -169,7 +199,7 @@ export async function signInWithAppleNative(): Promise<boolean> {
       return false;
     }
     logAppleAttempt({ ...base, status: "error", message: msg || "Apple sheet failed", code });
-    throw e;
+    throw error;
   }
 
   const identityToken: string | undefined = result?.response?.identityToken;
@@ -180,12 +210,28 @@ export async function signInWithAppleNative(): Promise<boolean> {
 
   // ASAuthorizationAppleIDProvider derives the native audience from the signed
   // Bundle ID. Reject any unexpected token before sending it to the backend.
-  const audiences = readTokenAudiences(identityToken);
+  const claims = readIdentityTokenClaims(identityToken);
+  if (!claims) {
+    const message = "Apple returned an unreadable identity token.";
+    logAppleAttempt({ ...base, status: "error", message, code: "invalid_identity_token" });
+    throw new Error(message);
+  }
+
+  const audiences = tokenAudiences(claims);
   const audience = audiences.join(",");
   logAppleAttempt({ ...base, status: "started", message: `id_token aud=${audience || "unknown"}` });
   if (!audiences.includes(APPLE_NATIVE_CLIENT_ID)) {
     const message = `Apple returned a token for an unexpected app (aud=${audience || "missing"}).`;
     logAppleAttempt({ ...base, status: "error", message, code: "unexpected_audience" });
+    throw new Error(message);
+  }
+
+  // Apple puts the SHA-256 hash sent to ASAuthorization in the token. Supabase
+  // receives the original nonce below and performs the same hash comparison.
+  // Rejecting a mismatch here prevents exchanging a token from another attempt.
+  if (claims.nonce !== hashedNonce) {
+    const message = "Apple returned an identity token with an invalid nonce.";
+    logAppleAttempt({ ...base, status: "error", message, code: "nonce_mismatch" });
     throw new Error(message);
   }
 
@@ -206,7 +252,7 @@ export async function signInWithAppleNative(): Promise<boolean> {
       message: audienceIssue
         ? `${error.message} (aud=${audience}) — the backend Apple provider must accept ${APPLE_NATIVE_CLIENT_ID}.`
         : error.message,
-      code: String((error as any)?.code ?? ""),
+      code: errorCode(error),
     });
     throw error;
   }

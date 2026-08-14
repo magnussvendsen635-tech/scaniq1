@@ -31,4 +31,14 @@ grep -q 'supabase.auth.signInWithIdToken' "$ROOT_DIR/src/lib/appleAuth.ts" || \
 grep -q 'nonce: rawNonce' "$ROOT_DIR/src/lib/appleAuth.ts" || \
   fail "Raw nonce is not passed during the token exchange"
 
+grep -q 'nonce: hashedNonce' "$ROOT_DIR/src/lib/appleAuth.ts" || \
+  fail "Hashed nonce is not passed to Apple's native authorization request"
+
+grep -q 'claims.nonce !== hashedNonce' "$ROOT_DIR/src/lib/appleAuth.ts" || \
+  fail "Apple identity token nonce is not validated before exchange"
+
+if grep -q 'APPLE_NATIVE_CLIENT_ID = "com.kinetex.scaniq.web"' "$ROOT_DIR/src/lib/appleAuth.ts"; then
+  fail "Native Apple flow must never use the web Services ID as its audience"
+fi
+
 echo "Apple Sign-In configuration verified for $EXPECTED_CLIENT_ID"
