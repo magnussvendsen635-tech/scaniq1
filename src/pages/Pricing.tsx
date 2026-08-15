@@ -19,7 +19,7 @@ const featureKeys: TKey[] = [
 export default function Pricing() {
   const nav = useNavigate();
   const t = useT();
-  const { monthlyPriceLabel, yearlyPriceLabel } = useIAP();
+  const { monthlyPriceLabel, yearlyPriceLabel, ready } = useIAP();
   const { session } = useAuth();
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto max-w-2xl mx-auto" style={{ paddingBottom: 60 }}>

@@ -8,6 +8,7 @@ import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
 import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
+import { PriceLabel } from "@/components/PriceLabel";
 import { useSubscription } from "@/hooks/useSubscription";
 
 import logo from "@/assets/scaniq-logo-new.png";
