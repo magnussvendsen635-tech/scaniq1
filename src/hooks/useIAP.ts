@@ -54,8 +54,12 @@ function findPackage(offering: any, productId: IAPProductId) {
 export function useIAP() {
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
-  const [monthlyPriceLabel, setMonthlyPriceLabel] = useState<string>("$19");
-  const [yearlyPriceLabel, setYearlyPriceLabel] = useState<string>("$179");
+  /** Localized, App Store-formatted price strings. `null` until StoreKit answers. */
+  const [monthlyPriceLabel, setMonthlyPriceLabel] = useState<string | null>(null);
+  const [yearlyPriceLabel, setYearlyPriceLabel] = useState<string | null>(null);
+  const [monthlyPrice, setMonthlyPrice] = useState<number | null>(null);
+  const [yearlyPrice, setYearlyPrice] = useState<number | null>(null);
+  const [currencyCode, setCurrencyCode] = useState<string | null>(null);
   const offeringRef = useRef<any>(null);
 
   const loadOfferings = useCallback(async () => {
@@ -70,8 +74,13 @@ export function useIAP() {
     const yearly = findPackage(current, IAP_PRODUCTS.yearly);
     if (monthly?.product?.priceString) setMonthlyPriceLabel(monthly.product.priceString);
     if (yearly?.product?.priceString) setYearlyPriceLabel(yearly.product.priceString);
+    if (typeof monthly?.product?.price === "number") setMonthlyPrice(monthly.product.price);
+    if (typeof yearly?.product?.price === "number") setYearlyPrice(yearly.product.price);
+    const cc = monthly?.product?.currencyCode ?? yearly?.product?.currencyCode ?? null;
+    if (cc) setCurrencyCode(cc);
     return current;
   }, []);
+
 
   useEffect(() => {
     let cancelled = false;
