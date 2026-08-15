@@ -8,6 +8,7 @@ import { useT } from "@/i18n/useT";
 import type { TKey } from "@/i18n/translations";
 import { useAuth } from "@/hooks/useAuth";
 import { useIAP, IAP_PRODUCTS } from "@/hooks/useIAP";
+import { PriceLabel } from "@/components/PriceLabel";
 import { useSubscription } from "@/hooks/useSubscription";
 
 import logo from "@/assets/scaniq-logo-new.png";
@@ -24,7 +25,7 @@ export default function Premium() {
   const t = useT();
   const { user } = useAuth();
   const { isActive, refetch } = useSubscription();
-  const { purchase, restore: restoreIAP, loading, monthlyPriceLabel, yearlyPriceLabel } = useIAP();
+  const { purchase, restore: restoreIAP, loading, ready, monthlyPriceLabel, yearlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
   const [restoreInfo, setRestoreInfo] = useState<{
@@ -175,8 +176,8 @@ export default function Premium() {
         >
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.yearly")}</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-3xl font-bold tracking-tight">{yearlyPriceLabel}</span>
-            <span className="text-xs text-muted-foreground">{t("premium.per_year")}</span>
+            <PriceLabel value={yearlyPriceLabel} ready={ready} />
+            {yearlyPriceLabel && <span className="text-xs text-muted-foreground">{t("premium.per_year")}</span>}
           </div>
           <div className="text-xs mt-1 text-muted-foreground">{t("premium.basic_desc")}</div>
         </button>
@@ -195,9 +196,10 @@ export default function Premium() {
           </span>
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.monthly")}</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-3xl font-bold tracking-tight">{monthlyPriceLabel}</span>
-            <span className="text-xs text-muted-foreground">{t("premium.per_month")}</span>
+            <PriceLabel value={monthlyPriceLabel} ready={ready} />
+            {monthlyPriceLabel && <span className="text-xs text-muted-foreground">{t("premium.per_month")}</span>}
           </div>
+
           <div className="text-xs mt-1 text-muted-foreground">{t("premium.cancel_anytime")}</div>
         </button>
       </section>
