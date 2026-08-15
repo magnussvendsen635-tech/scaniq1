@@ -187,5 +187,24 @@ export function useIAP() {
     return syncEntitlementNow(data.user?.id);
   }, []);
 
-  return { purchase, restore, syncEntitlement, loading, ready, monthlyPriceLabel, yearlyPriceLabel, isNative: isNative() };
+  /** Yearly savings vs. 12x monthly, computed from real StoreKit prices. */
+  const yearlySavingsPercent =
+    monthlyPrice && yearlyPrice && monthlyPrice > 0
+      ? Math.max(0, Math.round((1 - yearlyPrice / (monthlyPrice * 12)) * 100))
+      : null;
+
+  return {
+    purchase,
+    restore,
+    syncEntitlement,
+    loading,
+    ready,
+    monthlyPriceLabel,
+    yearlyPriceLabel,
+    monthlyPrice,
+    yearlyPrice,
+    currencyCode,
+    yearlySavingsPercent,
+    isNative: isNative(),
+  };
 }
