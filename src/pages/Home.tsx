@@ -217,21 +217,23 @@ const InsightCard = ({ Icon, title, rows }: { Icon: any; title: string; rows: [s
 const ActionCard = ({ to, Icon, title, sub }: { to: string; Icon: any; title: string; sub: string; gradient?: boolean }) => (
   <Link
     to={to}
-    className="relative overflow-hidden rounded-3xl p-5 flex flex-col gap-4 group transition-all duration-300 active:scale-[0.97] bg-gradient-to-br from-[hsl(14_100%_60%)] via-[hsl(20_100%_58%)] to-[hsl(8_95%_55%)] shadow-[0_8px_24px_-6px_hsl(14_100%_55%/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] border border-[hsl(0_0%_100%/0.15)]"
+    className="relative overflow-hidden rounded-3xl p-3.5 flex flex-col justify-between group transition-all duration-300 active:scale-[0.97] bg-gradient-to-br from-[hsl(14_100%_60%)] via-[hsl(20_100%_58%)] to-[hsl(8_95%_55%)] shadow-[0_6px_18px_-5px_hsl(14_100%_55%/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] border border-[hsl(0_0%_100%/0.15)] min-h-[92px]"
   >
     {/* Glossy highlight */}
     <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
     {/* Soft glow blob */}
-    <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-white/15 rounded-full blur-2xl pointer-events-none" />
+    <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-white/15 rounded-full blur-2xl pointer-events-none" />
 
-    <div className="relative w-11 h-11 rounded-2xl flex items-center justify-center bg-white/25 backdrop-blur-sm border border-white/30 shadow-inner">
-      <Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
+    <div className="relative flex items-start justify-between">
+      <div className="w-9 h-9 rounded-2xl flex items-center justify-center bg-white/25 backdrop-blur-sm border border-white/30 shadow-inner">
+        <Icon className="w-4 h-4 text-white" strokeWidth={2.5} />
+      </div>
+      <ChevronRight className="w-4 h-4 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5" strokeWidth={2.5} />
     </div>
-    <div className="relative">
-      <div className="font-bold text-white text-base tracking-tight">{title}</div>
-      <div className="text-xs text-white/85 font-medium mt-0.5">{sub}</div>
+    <div className="relative mt-2">
+      <div className="font-bold text-white text-sm tracking-tight leading-tight">{title}</div>
+      <div className="text-[10px] text-white/80 font-medium mt-0.5 leading-tight">{sub}</div>
     </div>
-    <ChevronRight className="relative w-5 h-5 ml-auto -mt-7 text-white transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2.5} />
   </Link>
 );
 
