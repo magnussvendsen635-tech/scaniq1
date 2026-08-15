@@ -175,6 +175,10 @@ export default function Profile() {
         )}
       </div>
 
+      <SignInStatusCard />
+
+
+
       {!premium && (
         <Link
           to="/premium"
