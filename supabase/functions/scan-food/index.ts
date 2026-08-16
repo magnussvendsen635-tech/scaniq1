@@ -2,6 +2,7 @@
 // AI food scanner — scans are currently free and unlimited.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { hasPremiumAccess } from "../_shared/entitlement.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -194,7 +195,7 @@ Deno.serve(async (req) => {
 
     const today = todayUTC();
     const scanCount = profile?.scan_count ?? 0;
-    const isPremium = profile?.is_premium ?? false;
+    const isPremium = await hasPremiumAccess(adminClient, userId, profile?.is_premium ?? false);
     const { data: isAdmin } = await adminClient.rpc("is_admin", { _user_id: userId });
     const lastDate = profile?.last_scan_date ?? null;
     // Reset daily counter if it's a new day
