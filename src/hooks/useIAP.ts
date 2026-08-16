@@ -85,13 +85,18 @@ export function useIAP() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      try {
-        await loadOfferings();
-      } catch (e) {
-        console.warn("[IAP] getOfferings failed", e);
-      } finally {
-        if (!cancelled) setReady(true);
+      // StoreKit can answer late right after launch — retry a few times so the
+      // plan cards always end up with the real localized priceString.
+      for (let attempt = 0; attempt < 4 && !cancelled; attempt++) {
+        try {
+          const current = await loadOfferings();
+          if (!isNative() || findPackage(current, IAP_PRODUCTS.monthly)?.product?.priceString) break;
+        } catch (e) {
+          console.warn("[IAP] getOfferings failed", e);
+        }
+        await new Promise((r) => setTimeout(r, 1200));
       }
+      if (!cancelled) setReady(true);
     })();
     return () => {
       cancelled = true;
