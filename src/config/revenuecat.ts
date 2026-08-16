@@ -20,3 +20,14 @@ export const RC_CONFIG = {
   entitlementId: "ScanIQ: Kalorietæller Pro",
 
 } as const;
+
+/**
+ * Reference prices from App Store Connect (USD base tier).
+ * ONLY used for display where StoreKit does not exist (web preview / browser).
+ * On device the real localized `product.priceString` always wins.
+ */
+export const FALLBACK_PRICES = {
+  currency: "USD",
+  monthly: 19,
+  yearly: 189,
+} as const;

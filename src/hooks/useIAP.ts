@@ -10,6 +10,20 @@ import {
   syncEntitlementNow,
   resetEntitlementBootstrap,
 } from "@/lib/entitlements";
+import { FALLBACK_PRICES } from "@/config/revenuecat";
+
+/** Formats the App Store reference amount using the browser locale. */
+function formatFallback(amount: number) {
+  try {
+    return new Intl.NumberFormat(navigator.language || "en-US", {
+      style: "currency",
+      currency: FALLBACK_PRICES.currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `$${amount}`;
+  }
+}
 
 /**
  * Native In-App Purchase hook backed by RevenueCat / StoreKit.
@@ -96,7 +110,15 @@ export function useIAP() {
         }
         await new Promise((r) => setTimeout(r, 1200));
       }
-      if (!cancelled) setReady(true);
+      if (cancelled) return;
+      // Web preview has no StoreKit: show the App Store reference price rather
+      // than an empty box. Native always overrides this with the real price.
+      setMonthlyPriceLabel((v) => v ?? formatFallback(FALLBACK_PRICES.monthly));
+      setYearlyPriceLabel((v) => v ?? formatFallback(FALLBACK_PRICES.yearly));
+      setMonthlyPrice((v) => v ?? FALLBACK_PRICES.monthly);
+      setYearlyPrice((v) => v ?? FALLBACK_PRICES.yearly);
+      setCurrencyCode((v) => v ?? FALLBACK_PRICES.currency);
+      setReady(true);
     })();
     return () => {
       cancelled = true;
