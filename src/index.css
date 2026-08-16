@@ -114,13 +114,11 @@
     touch-action: manipulation;
     overscroll-behavior-y: none;
   }
-  /* iOS zooms the whole viewport when a focused field is under 16px. */
-  input, select, textarea, button {
-    font-size: 16px;
-  }
+  /* iOS zooms the whole viewport when a focused field renders under 16px.
+     Only forced on WebKit touch devices so the web design stays untouched. */
   @supports (-webkit-touch-callout: none) {
     input, select, textarea {
-      font-size: max(16px, 1rem);
+      font-size: 16px !important;
     }
   }
   h1, h2, h3, h4 {
