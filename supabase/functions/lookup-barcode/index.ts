@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { hasPremiumAccess } from "../_shared/entitlement.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -385,7 +386,7 @@ Deno.serve(async (req) => {
       .eq("id", userId)
       .maybeSingle();
 
-    const isPremium = profile?.is_premium ?? false;
+    const isPremium = await hasPremiumAccess(adminClient, userId, profile?.is_premium ?? false);
 
     const today = todayUTC();
     const dailyUsed = profile?.last_scan_date === today ? (profile?.daily_scan_count ?? 0) : 0;

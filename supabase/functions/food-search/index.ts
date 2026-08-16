@@ -2,6 +2,7 @@
 // Same auth + premium + cooldown + daily-limit rules as scan-food.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { hasPremiumAccess } from "../_shared/entitlement.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -78,7 +79,7 @@ Deno.serve(async (req) => {
 
     const today = todayUTC();
     const scanCount = profile?.scan_count ?? 0;
-    const isPremium = profile?.is_premium ?? false;
+    const isPremium = await hasPremiumAccess(adminClient, userId, profile?.is_premium ?? false);
     const lastDate = profile?.last_scan_date ?? null;
     const dailyUsed = lastDate === today ? (profile?.daily_scan_count ?? 0) : 0;
 
