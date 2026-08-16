@@ -14,6 +14,7 @@ import { PremiumWrapper } from "@/components/PremiumWrapper";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface FoodItem {
   name: string;
@@ -333,7 +334,9 @@ export default function FoodScan() {
   const DAILY_LIMIT = 20;
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const todayUTC = () => new Date().toISOString().slice(0, 10);
-  const canScan = isPremiumServer || isAdmin;
+  const { isActive: subActive } = useSubscription();
+  // Premium = server profile flag OR an active subscription (same rule as PremiumLock/Premium page)
+  const canScan = isPremiumServer || subActive || isAdmin;
   const preview = previews[previews.length - 1] ?? null;
 
   const refreshQuota = async () => {
@@ -344,7 +347,7 @@ export default function FoodScan() {
       .eq("id", profile.id)
       .maybeSingle();
     const scans = data?.scan_count ?? scansUsed;
-    const serverPremium = !!data?.is_premium;
+    const serverPremium = !!data?.is_premium || subActive;
     const today = todayUTC();
     const daily = data?.last_scan_date === today ? (data?.daily_scan_count ?? 0) : 0;
     setScansUsed(scans);
