@@ -6,18 +6,19 @@
  */
 export function PriceLabel({
   value,
+  loading,
   className = "text-3xl font-bold tracking-tight",
 }: {
   value: string | null;
-  /** Kept for call-site compatibility; the skeleton is shown whenever no price exists. */
-  ready?: boolean;
+  loading: boolean;
   className?: string;
 }) {
   if (value) return <span className={className}>{value}</span>;
 
   return (
     <span
-      aria-hidden
+      role="status"
+      aria-label={loading ? "Loading App Store price" : "App Store price unavailable"}
       className="inline-block h-7 w-20 rounded-md bg-muted animate-pulse align-middle"
     />
   );
