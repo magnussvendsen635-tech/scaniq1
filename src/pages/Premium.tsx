@@ -37,6 +37,9 @@ export default function Premium() {
     message?: string;
   } | null>(null);
 
+  /** Localized App Store price for the currently selected plan (never hardcoded). */
+  const selectedPriceLabel = selectedPlan === "basic" ? yearlyPriceLabel : monthlyPriceLabel;
+
   /** The backend row is written by `iap-sync`; poll briefly so Premium unlocks
    *  immediately after StoreKit confirms the purchase. */
   const settleEntitlement = async () => {
@@ -224,7 +227,11 @@ export default function Premium() {
         className="w-full h-14 rounded-2xl bg-[hsl(24_95%_53%)] hover:bg-[hsl(24_95%_48%)] text-white text-base font-semibold tracking-tight shadow-[0_10px_24px_-8px_hsl(24_95%_55%/0.6)] transition-all"
       >
         {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Sparkles className="w-5 h-5 mr-2" />}
-        {isActive ? t("premium.youre_premium") : t("premium.upgrade_now")}
+        {isActive
+          ? t("premium.youre_premium")
+          : selectedPriceLabel
+            ? `${t("premium.upgrade_now")} — ${selectedPriceLabel}${selectedPlan === "basic" ? t("premium.per_year") : t("premium.per_month")}`
+            : t("premium.upgrade_now")}
       </Button>
 
       <p className="text-[11px] text-muted-foreground text-center mt-3 px-6 leading-relaxed">
