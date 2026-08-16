@@ -96,7 +96,15 @@ export function useIAP() {
         }
         await new Promise((r) => setTimeout(r, 1200));
       }
-      if (!cancelled) setReady(true);
+      if (cancelled) return;
+      // Web preview has no StoreKit: show the App Store reference price rather
+      // than an empty box. Native always overrides this with the real price.
+      setMonthlyPriceLabel((v) => v ?? formatFallback(FALLBACK_PRICES.monthly));
+      setYearlyPriceLabel((v) => v ?? formatFallback(FALLBACK_PRICES.yearly));
+      setMonthlyPrice((v) => v ?? FALLBACK_PRICES.monthly);
+      setYearlyPrice((v) => v ?? FALLBACK_PRICES.yearly);
+      setCurrencyCode((v) => v ?? FALLBACK_PRICES.currency);
+      setReady(true);
     })();
     return () => {
       cancelled = true;
