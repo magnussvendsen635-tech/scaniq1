@@ -10,20 +10,6 @@ import {
   syncEntitlementNow,
   resetEntitlementBootstrap,
 } from "@/lib/entitlements";
-import { FALLBACK_PRICES } from "@/config/revenuecat";
-
-/** Formats the App Store reference amount using the browser locale. */
-function formatFallback(amount: number) {
-  try {
-    return new Intl.NumberFormat(navigator.language || "en-US", {
-      style: "currency",
-      currency: FALLBACK_PRICES.currency,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  } catch {
-    return `$${amount}`;
-  }
-}
 
 /**
  * Native In-App Purchase hook backed by RevenueCat / StoreKit.
@@ -65,6 +51,10 @@ function findPackage(offering: any, productId: IAPProductId) {
   );
 }
 
+function findProduct(products: any[], productId: IAPProductId) {
+  return products.find((product) => product?.identifier === productId) ?? null;
+}
+
 export function useIAP() {
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
@@ -81,18 +71,28 @@ export function useIAP() {
     const { data } = await supabase.auth.getUser();
     await configureRC(data.user?.id);
     const { Purchases } = await import("@revenuecat/purchases-capacitor");
-    const offerings = await Purchases.getOfferings();
-    const current = offerings.current;
+    // Fetch the exact StoreKit products directly. Their priceString is already
+    // formatted by the user's active App Store storefront and is the only
+    // value that may be shown as a subscription price.
+    const [productsResult, offeringsResult] = await Promise.allSettled([
+      Purchases.getProducts({ productIdentifiers: [IAP_PRODUCTS.monthly, IAP_PRODUCTS.yearly] }),
+      Purchases.getOfferings(),
+    ]);
+    const products = productsResult.status === "fulfilled" ? productsResult.value.products : [];
+    const current = offeringsResult.status === "fulfilled" ? offeringsResult.value.current : null;
     offeringRef.current = current;
-    const monthly = findPackage(current, IAP_PRODUCTS.monthly);
-    const yearly = findPackage(current, IAP_PRODUCTS.yearly);
-    if (monthly?.product?.priceString) setMonthlyPriceLabel(monthly.product.priceString);
-    if (yearly?.product?.priceString) setYearlyPriceLabel(yearly.product.priceString);
-    if (typeof monthly?.product?.price === "number") setMonthlyPrice(monthly.product.price);
-    if (typeof yearly?.product?.price === "number") setYearlyPrice(yearly.product.price);
-    const cc = monthly?.product?.currencyCode ?? yearly?.product?.currencyCode ?? null;
+    const monthly = findProduct(products, IAP_PRODUCTS.monthly) ?? findPackage(current, IAP_PRODUCTS.monthly)?.product;
+    const yearly = findProduct(products, IAP_PRODUCTS.yearly) ?? findPackage(current, IAP_PRODUCTS.yearly)?.product;
+    if (monthly?.priceString) setMonthlyPriceLabel(monthly.priceString);
+    if (yearly?.priceString) setYearlyPriceLabel(yearly.priceString);
+    if (typeof monthly?.price === "number") setMonthlyPrice(monthly.price);
+    if (typeof yearly?.price === "number") setYearlyPrice(yearly.price);
+    const cc = monthly?.currencyCode ?? yearly?.currencyCode ?? null;
     if (cc) setCurrencyCode(cc);
-    return current;
+    return {
+      offering: current,
+      hasBothPrices: Boolean(monthly?.priceString && yearly?.priceString),
+    };
   }, []);
 
 
@@ -103,21 +103,14 @@ export function useIAP() {
       // plan cards always end up with the real localized priceString.
       for (let attempt = 0; attempt < 4 && !cancelled; attempt++) {
         try {
-          const current = await loadOfferings();
-          if (!isNative() || findPackage(current, IAP_PRODUCTS.monthly)?.product?.priceString) break;
+          const result = await loadOfferings();
+          if (!isNative() || result?.hasBothPrices) break;
         } catch (e) {
           console.warn("[IAP] getOfferings failed", e);
         }
         await new Promise((r) => setTimeout(r, 1200));
       }
       if (cancelled) return;
-      // Web preview has no StoreKit: show the App Store reference price rather
-      // than an empty box. Native always overrides this with the real price.
-      setMonthlyPriceLabel((v) => v ?? formatFallback(FALLBACK_PRICES.monthly));
-      setYearlyPriceLabel((v) => v ?? formatFallback(FALLBACK_PRICES.yearly));
-      setMonthlyPrice((v) => v ?? FALLBACK_PRICES.monthly);
-      setYearlyPrice((v) => v ?? FALLBACK_PRICES.yearly);
-      setCurrencyCode((v) => v ?? FALLBACK_PRICES.currency);
       setReady(true);
     })();
     return () => {
@@ -141,7 +134,7 @@ export function useIAP() {
         return { success: false };
       }
       const { Purchases } = await import("@revenuecat/purchases-capacitor");
-      const offering = offeringRef.current ?? (await loadOfferings());
+       const offering = offeringRef.current ?? (await loadOfferings())?.offering;
       const pkg = findPackage(offering, productId);
       if (!pkg) {
         toast.error("This subscription is not available right now", {
