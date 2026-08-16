@@ -19,7 +19,7 @@ const featureKeys: TKey[] = [
 export default function Pricing() {
   const nav = useNavigate();
   const t = useT();
-  const { monthlyPriceLabel, yearlyPriceLabel, ready } = useIAP();
+  const { monthlyPriceLabel, yearlyPriceLabel, pricesLoading } = useIAP();
   const { session } = useAuth();
   return (
     <div className="k-page bg-[hsl(40_40%_97%)] min-h-screen overflow-y-auto max-w-2xl mx-auto" style={{ paddingBottom: 60 }}>
@@ -66,13 +66,13 @@ export default function Pricing() {
       <section className="grid grid-cols-2 gap-3 mb-5">
         <div className="p-5 rounded-2xl bg-white border border-border/60 shadow-sm">
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.monthly")}</div>
-          <div className="mt-2 flex items-baseline gap-1.5 flex-wrap"><PriceLabel value={monthlyPriceLabel} ready={ready} /><span className="text-xs text-muted-foreground">{t("premium.per_month")}</span></div>
+          <div className="mt-2 flex items-baseline gap-1.5 flex-wrap"><PriceLabel value={monthlyPriceLabel} loading={pricesLoading} /><span className="text-xs text-muted-foreground">{t("premium.per_month")}</span></div>
           <div className="text-xs mt-1 text-muted-foreground">{t("premium.cancel_anytime")}</div>
         </div>
         <div className="p-5 rounded-2xl bg-white border border-[hsl(24_95%_53%)] shadow-[0_8px_24px_-10px_hsl(24_95%_55%/0.5)] ring-2 ring-[hsl(24_95%_53%/0.25)] relative">
           <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-wider bg-[hsl(24_95%_53%)] text-white rounded-full px-2.5 py-0.5">{t("pricing.most_popular")}</span>
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.yearly")}</div>
-          <div className="mt-2 flex items-baseline gap-1.5 flex-wrap"><PriceLabel value={yearlyPriceLabel} ready={ready} /><span className="text-xs text-muted-foreground">{t("premium.per_year")}</span></div>
+          <div className="mt-2 flex items-baseline gap-1.5 flex-wrap"><PriceLabel value={yearlyPriceLabel} loading={pricesLoading} /><span className="text-xs text-muted-foreground">{t("premium.per_year")}</span></div>
           <div className="text-xs mt-1 text-muted-foreground">{t("premium.cancel_anytime")}</div>
         </div>
       </section>

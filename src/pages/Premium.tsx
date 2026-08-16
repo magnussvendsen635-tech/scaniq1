@@ -25,7 +25,7 @@ export default function Premium() {
   const t = useT();
   const { user } = useAuth();
   const { isActive, refetch } = useSubscription();
-  const { purchase, restore: restoreIAP, loading, ready, monthlyPriceLabel, yearlyPriceLabel } = useIAP();
+  const { purchase, restore: restoreIAP, loading, pricesLoading, monthlyPriceLabel, yearlyPriceLabel } = useIAP();
   const [restoring, setRestoring] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "premium">("premium");
   const [restoreInfo, setRestoreInfo] = useState<{
@@ -179,7 +179,7 @@ export default function Premium() {
         >
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.yearly")}</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-            <PriceLabel value={yearlyPriceLabel} ready={ready} />
+            <PriceLabel value={yearlyPriceLabel} loading={pricesLoading} />
             <span className="text-xs text-muted-foreground">{t("premium.per_year")}</span>
           </div>
           <div className="text-xs mt-1 text-muted-foreground">{t("premium.basic_desc")}</div>
@@ -199,7 +199,7 @@ export default function Premium() {
           </span>
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.monthly")}</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-            <PriceLabel value={monthlyPriceLabel} ready={ready} />
+            <PriceLabel value={monthlyPriceLabel} loading={pricesLoading} />
             <span className="text-xs text-muted-foreground">{t("premium.per_month")}</span>
           </div>
 

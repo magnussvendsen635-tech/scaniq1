@@ -57,7 +57,7 @@ function findProduct(products: any[], productId: IAPProductId) {
 
 export function useIAP() {
   const [loading, setLoading] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [pricesLoading, setPricesLoading] = useState(true);
   /** Localized, App Store-formatted price strings. `null` until StoreKit answers. */
   const [monthlyPriceLabel, setMonthlyPriceLabel] = useState<string | null>(null);
   const [yearlyPriceLabel, setYearlyPriceLabel] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export function useIAP() {
         await new Promise((r) => setTimeout(r, 1200));
       }
       if (cancelled) return;
-      setReady(true);
+      setPricesLoading(false);
     })();
     return () => {
       cancelled = true;
@@ -218,7 +218,7 @@ export function useIAP() {
     restore,
     syncEntitlement,
     loading,
-    ready,
+    pricesLoading,
     monthlyPriceLabel,
     yearlyPriceLabel,
     monthlyPrice,
