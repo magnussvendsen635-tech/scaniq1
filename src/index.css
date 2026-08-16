@@ -102,11 +102,24 @@
   html, body, #root {
     @apply bg-background text-foreground;
     min-height: 100%;
+    /* iOS: never let Safari/WKWebView rescale text on orientation or font-boost */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   body {
     -webkit-font-smoothing: antialiased;
     font-family: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     letter-spacing: -0.01em;
+    /* Kills the 300ms double-tap-to-zoom gesture on iOS */
+    touch-action: manipulation;
+    overscroll-behavior-y: none;
+  }
+  /* iOS zooms the whole viewport when a focused field renders under 16px.
+     Only forced on WebKit touch devices so the web design stays untouched. */
+  @supports (-webkit-touch-callout: none) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
   }
   h1, h2, h3, h4 {
     font-weight: 800;

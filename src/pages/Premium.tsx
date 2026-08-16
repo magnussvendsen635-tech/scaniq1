@@ -180,7 +180,7 @@ export default function Premium() {
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.yearly")}</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
             <PriceLabel value={yearlyPriceLabel} ready={ready} />
-            {yearlyPriceLabel && <span className="text-xs text-muted-foreground">{t("premium.per_year")}</span>}
+            <span className="text-xs text-muted-foreground">{t("premium.per_year")}</span>
           </div>
           <div className="text-xs mt-1 text-muted-foreground">{t("premium.basic_desc")}</div>
         </button>
@@ -200,7 +200,7 @@ export default function Premium() {
           <div className="text-[11px] tracking-wider uppercase font-semibold text-muted-foreground">{t("premium.monthly")}</div>
           <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
             <PriceLabel value={monthlyPriceLabel} ready={ready} />
-            {monthlyPriceLabel && <span className="text-xs text-muted-foreground">{t("premium.per_month")}</span>}
+            <span className="text-xs text-muted-foreground">{t("premium.per_month")}</span>
           </div>
 
           <div className="text-xs mt-1 text-muted-foreground">{t("premium.cancel_anytime")}</div>
