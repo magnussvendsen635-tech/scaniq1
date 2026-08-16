@@ -10,6 +10,20 @@ import {
   syncEntitlementNow,
   resetEntitlementBootstrap,
 } from "@/lib/entitlements";
+import { FALLBACK_PRICES } from "@/config/revenuecat";
+
+/** Formats the App Store reference amount using the browser locale. */
+function formatFallback(amount: number) {
+  try {
+    return new Intl.NumberFormat(navigator.language || "en-US", {
+      style: "currency",
+      currency: FALLBACK_PRICES.currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `$${amount}`;
+  }
+}
 
 /**
  * Native In-App Purchase hook backed by RevenueCat / StoreKit.
