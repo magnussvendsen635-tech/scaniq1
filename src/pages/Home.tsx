@@ -24,7 +24,13 @@ export default function Home() {
   const m = macrosToday(meals);
   const motivation = t("app.tagline");
   const lastMeal = meals.length ? [...meals].sort((a, b) => b.at - a.at)[0] : null;
-  const firstName = (user.name ?? "").trim().split(/\s+/)[0];
+  const rawFirstName = (user.name ?? "").trim().split(/\s+/)[0] ?? "";
+  // Only show a real, human-looking first name — never placeholders like "L_M" or "test".
+  const isRealName =
+    rawFirstName.length >= 2 &&
+    /^[\p{L}][\p{L}'’-]*$/u.test(rawFirstName) &&
+    !/^(test|user|bruger|demo|guest|admin|null|undefined)$/i.test(rawFirstName);
+  const firstName = isRealName ? rawFirstName : "";
   const hour = new Date().getHours();
   const greet = hour < 10 ? t("home.greet_morning") : hour < 14 ? t("home.greet_day") : hour < 18 ? t("home.greet_afternoon") : t("home.greet_evening");
 
@@ -38,12 +44,12 @@ export default function Home() {
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3 min-w-0">
           <Logo size={72} withText={!firstName} />
-          {firstName && (
-            <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{greet}</div>
+          <div className="min-w-0">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{greet}</div>
+            {firstName && (
               <div className="text-base font-bold leading-tight truncate">{firstName} 👋</div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </header>
 
