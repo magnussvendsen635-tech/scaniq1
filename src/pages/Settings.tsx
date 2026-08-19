@@ -63,7 +63,7 @@ export default function Settings() {
           </button>
         </Section>
 
-        <Section title="Health &amp; Nutrition Sources">
+        <Section title="Health & Nutrition Sources">
           <SourceLink
             title="Mifflin-St Jeor equation"
             description="Supports ScanIQ's estimate of resting energy expenditure (BMR)."
