@@ -13,6 +13,8 @@ import { WaterCard } from "@/components/WaterCard";
 
 import { RemindersCard } from "@/components/RemindersCard";
 import { Seo } from "@/components/Seo";
+import { firstNameOf } from "@/lib/displayName";
+
 
 export default function Home() {
   const t = useT();
