@@ -96,8 +96,18 @@ export default function Onboarding() {
     { id: "vegetarian", titleKey: "onboarding.diet_veg", subKey: "onboarding.diet_veg_sub", Icon: Leaf },
   ];
 
-  const next = () => { hapticMedium(); setDir(1); setStep((s) => s + 1); };
-  const back = () => { hapticLight(); setDir(-1); setStep((s) => Math.max(0, s - 1)); };
+  // Apple (guideline 4): if the account already carries a name — e.g. from Sign
+  // in with Apple's credential — never ask for it again; skip the name step.
+  const next = () => {
+    hapticMedium();
+    setDir(1);
+    setStep((s) => (s + 1 === NAME_STEP && nameFromAccount ? s + 2 : s + 1));
+  };
+  const back = () => {
+    hapticLight();
+    setDir(-1);
+    setStep((s) => Math.max(0, s - 1 === NAME_STEP && nameFromAccount ? s - 2 : s - 1));
+  };
   const pick = <T,>(setter: (v: T) => void) => (v: T) => { hapticLight(); setter(v); };
 
   const loadingSteps: TKey[] = ["onboarding.loading_1", "onboarding.loading_2", "onboarding.loading_3"];
