@@ -1,6 +1,7 @@
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { logAppleAttempt, markSignedInOnce } from "@/lib/authDiagnostics";
+import { sanitizeName } from "@/lib/displayName";
 import type { Session } from "@supabase/supabase-js";
 
 /**
@@ -289,7 +290,7 @@ export async function persistAppleProfileName(
   userId: string,
   appleFullName: string | null,
 ): Promise<string | null> {
-  let resolved = appleFullName?.trim() || null;
+  let resolved = sanitizeName(appleFullName) ?? null;
 
   if (resolved) {
     try {
@@ -310,7 +311,7 @@ export async function persistAppleProfileName(
         .select("display_name")
         .eq("id", userId)
         .maybeSingle();
-      resolved = data?.display_name?.trim() || null;
+      resolved = sanitizeName(data?.display_name) ?? null;
     } catch {
       /* best-effort */
     }
@@ -319,7 +320,7 @@ export async function persistAppleProfileName(
         const { data } = await supabase.auth.getUser();
         const meta = data.user?.user_metadata ?? {};
         resolved =
-          ((meta.full_name as string | undefined) || (meta.name as string | undefined))?.trim() || null;
+          sanitizeName((meta.full_name as string | undefined) || (meta.name as string | undefined)) ?? null;
       } catch {
         /* best-effort */
       }
