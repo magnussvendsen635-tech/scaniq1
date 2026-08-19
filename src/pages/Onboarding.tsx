@@ -59,6 +59,10 @@ export default function Onboarding() {
         const authUser = data.user;
         if (!authUser) return;
         const meta = (authUser.user_metadata ?? {}) as Record<string, unknown>;
+        // The signup trigger fills profiles.display_name with the email local
+        // part when no real name exists — that is not a name, so never use it.
+        const emailLocal = (authUser.email ?? "").split("@")[0].trim().toLowerCase();
+        const isEmailLocal = (v: string) => !!emailLocal && v.trim().toLowerCase() === emailLocal;
         let resolved =
           ((meta.full_name as string | undefined) || (meta.name as string | undefined))?.trim() || "";
         if (!resolved) {
@@ -69,6 +73,8 @@ export default function Onboarding() {
             .maybeSingle();
           resolved = profile?.display_name?.trim() || "";
         }
+        if (isEmailLocal(resolved)) resolved = "";
+
         if (resolved && !cancelled) {
           setName(resolved);
           setNameFromAccount(true);
