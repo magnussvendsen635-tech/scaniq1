@@ -269,17 +269,70 @@ export async function signInWithAppleNative(): Promise<boolean> {
   logAppleAttempt({ ...base, status: "success" });
   markSignedInOnce();
 
-  // Apple only shares the full name on the very first authorization.
+  // Apple only shares the full name on the very first authorization. Persist it
+  // to the existing account (auth metadata + profile) so we never have to ask
+  // the user to type their name again (App Review guideline 4).
   const given = result?.response?.givenName;
   const family = result?.response?.familyName;
   const fullName = [given, family].filter(Boolean).join(" ").trim();
-  if (fullName) {
+  await persistAppleProfileName(session.user.id, fullName || null);
+
+  return true;
+}
+
+/**
+ * Stores the name Apple returned on the first authorization, or reuses the one
+ * already saved on the account for later logins. Also mirrors it into the local
+ * store so onboarding can skip the "What's your name?" question.
+ */
+export async function persistAppleProfileName(
+  userId: string,
+  appleFullName: string | null,
+): Promise<string | null> {
+  let resolved = appleFullName?.trim() || null;
+
+  if (resolved) {
     try {
-      await supabase.auth.updateUser({ data: { full_name: fullName } });
+      await supabase.auth.updateUser({ data: { full_name: resolved } });
     } catch {
       /* best-effort */
     }
+    try {
+      await supabase.from("profiles").update({ display_name: resolved }).eq("id", userId);
+    } catch {
+      /* best-effort */
+    }
+  } else {
+    // Repeat login: Apple omits the name — reuse what the account already has.
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", userId)
+        .maybeSingle();
+      resolved = data?.display_name?.trim() || null;
+    } catch {
+      /* best-effort */
+    }
+    if (!resolved) {
+      try {
+        const { data } = await supabase.auth.getUser();
+        const meta = data.user?.user_metadata ?? {};
+        resolved =
+          ((meta.full_name as string | undefined) || (meta.name as string | undefined))?.trim() || null;
+      } catch {
+        /* best-effort */
+      }
+    }
   }
 
-  return true;
+  if (resolved) {
+    try {
+      const { useKStore } = await import("@/store/useKStore");
+      useKStore.getState().updateUser({ name: resolved });
+    } catch {
+      /* store is optional here */
+    }
+  }
+  return resolved;
 }
