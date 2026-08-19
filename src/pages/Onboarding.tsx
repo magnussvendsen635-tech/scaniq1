@@ -75,11 +75,22 @@ export default function Onboarding() {
         }
         if (isEmailLocal(resolved)) resolved = "";
 
-        if (resolved && !cancelled) {
-          setName(resolved);
+        // Sign in with Apple: Apple already supplies the name/email through the
+        // Authentication Services framework, so we must never ask for it again —
+        // even when Apple withholds the name on later logins (App Review 4).
+        const providers = [
+          ...(((authUser.app_metadata as Record<string, unknown> | undefined)?.providers as string[] | undefined) ?? []),
+          ((authUser.app_metadata as Record<string, unknown> | undefined)?.provider as string | undefined) ?? "",
+          ...((authUser.identities ?? []).map((i) => i.provider)),
+        ];
+        const isApple = providers.some((p) => p === "apple");
+
+        if ((resolved || isApple) && !cancelled) {
+          if (resolved) setName(resolved);
           setNameFromAccount(true);
           setStep((s) => (s === NAME_STEP ? s + 1 : s));
         }
+
       } catch {
         /* fall back to asking for the name */
       }
