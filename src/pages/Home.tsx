@@ -13,6 +13,8 @@ import { WaterCard } from "@/components/WaterCard";
 
 import { RemindersCard } from "@/components/RemindersCard";
 import { Seo } from "@/components/Seo";
+import { firstNameOf } from "@/lib/displayName";
+
 
 export default function Home() {
   const t = useT();
@@ -24,13 +26,10 @@ export default function Home() {
   const m = macrosToday(meals);
   const motivation = t("app.tagline");
   const lastMeal = meals.length ? [...meals].sort((a, b) => b.at - a.at)[0] : null;
-  const rawFirstName = (user.name ?? "").trim().split(/\s+/)[0] ?? "";
-  // Only show a real, human-looking first name — never placeholders like "L_M" or "test".
-  const isRealName =
-    rawFirstName.length >= 2 &&
-    /^[\p{L}][\p{L}'’-]*$/u.test(rawFirstName) &&
-    !/^(test|user|bruger|demo|guest|admin|null|undefined)$/i.test(rawFirstName);
-  const firstName = isRealName ? rawFirstName : "";
+  // Only show a real, human-looking first name — never placeholders like "L_M",
+  // "test" or an email prefix stored by the signup trigger.
+  const firstName = firstNameOf(user.name);
+
   const hour = new Date().getHours();
   const greet = hour < 10 ? t("home.greet_morning") : hour < 14 ? t("home.greet_day") : hour < 18 ? t("home.greet_afternoon") : t("home.greet_evening");
 
