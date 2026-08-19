@@ -44,12 +44,12 @@ export default function Home() {
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3 min-w-0">
           <Logo size={72} withText={!firstName} />
-          {firstName && (
-            <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{greet}</div>
+          <div className="min-w-0">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{greet}</div>
+            {firstName && (
               <div className="text-base font-bold leading-tight truncate">{firstName} 👋</div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </header>
 
