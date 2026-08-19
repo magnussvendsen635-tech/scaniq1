@@ -42,6 +42,45 @@ export default function Onboarding() {
   const [lang, setLang] = useState(language);
   const tt = (k: TKey) => translate(lang, k);
   const [name, setName] = useState(user.name ?? "");
+  const [nameFromAccount, setNameFromAccount] = useState(false);
+
+  // Reuse the name the account already has (Sign in with Apple provides it via
+  // the ASAuthorization credential on first login; later logins read it back
+  // from the saved profile) so we never ask an Apple user to type it again.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if ((user.name ?? "").trim()) {
+          if (!cancelled) setNameFromAccount(true);
+          return;
+        }
+        const { data } = await supabase.auth.getUser();
+        const authUser = data.user;
+        if (!authUser) return;
+        const meta = (authUser.user_metadata ?? {}) as Record<string, unknown>;
+        let resolved =
+          ((meta.full_name as string | undefined) || (meta.name as string | undefined))?.trim() || "";
+        if (!resolved) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("display_name")
+            .eq("id", authUser.id)
+            .maybeSingle();
+          resolved = profile?.display_name?.trim() || "";
+        }
+        if (resolved && !cancelled) {
+          setName(resolved);
+          setNameFromAccount(true);
+          setStep((s) => (s === NAME_STEP ? s + 1 : s));
+        }
+      } catch {
+        /* fall back to asking for the name */
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [goal, setGoal] = useState<Goal>(user.goal);
   const [sex, setSex] = useState<Sex>(user.sex);
   const [age, setAge] = useState(user.age);
