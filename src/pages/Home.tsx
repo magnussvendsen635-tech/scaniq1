@@ -111,6 +111,13 @@ export default function Home() {
                 />
               </div>
             </div>
+            <Link
+              to="/sources"
+              className="mt-3 block text-[10px] text-muted-foreground underline underline-offset-4"
+            >
+              Calorie &amp; nutrition targets: Mifflin-St Jeor / FAO-WHO-UNU — view sources
+            </Link>
+
           </div>
         </div>
       </PremiumWrapper>
