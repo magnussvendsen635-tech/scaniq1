@@ -16,6 +16,8 @@ import { supabase } from "@/integrations/supabase/client";
 const TOTAL_QUESTIONS = 13; // 0=lang, 1=name, 2=sex, ... 12=Acquisition survey
 /** Index of the final question; the next step is the loading screen. */
 const LAST_QUESTION = TOTAL_QUESTIONS - 1;
+/** Step index of the "What's your name?" question. */
+const NAME_STEP = 1;
 
 const SPRING = { type: "spring" as const, stiffness: 520, damping: 32, mass: 0.7 };
 const PAGE_SPRING = { type: "spring" as const, stiffness: 320, damping: 34, mass: 0.8 };
@@ -40,6 +42,45 @@ export default function Onboarding() {
   const [lang, setLang] = useState(language);
   const tt = (k: TKey) => translate(lang, k);
   const [name, setName] = useState(user.name ?? "");
+  const [nameFromAccount, setNameFromAccount] = useState(false);
+
+  // Reuse the name the account already has (Sign in with Apple provides it via
+  // the ASAuthorization credential on first login; later logins read it back
+  // from the saved profile) so we never ask an Apple user to type it again.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if ((user.name ?? "").trim()) {
+          if (!cancelled) setNameFromAccount(true);
+          return;
+        }
+        const { data } = await supabase.auth.getUser();
+        const authUser = data.user;
+        if (!authUser) return;
+        const meta = (authUser.user_metadata ?? {}) as Record<string, unknown>;
+        let resolved =
+          ((meta.full_name as string | undefined) || (meta.name as string | undefined))?.trim() || "";
+        if (!resolved) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("display_name")
+            .eq("id", authUser.id)
+            .maybeSingle();
+          resolved = profile?.display_name?.trim() || "";
+        }
+        if (resolved && !cancelled) {
+          setName(resolved);
+          setNameFromAccount(true);
+          setStep((s) => (s === NAME_STEP ? s + 1 : s));
+        }
+      } catch {
+        /* fall back to asking for the name */
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [goal, setGoal] = useState<Goal>(user.goal);
   const [sex, setSex] = useState<Sex>(user.sex);
   const [age, setAge] = useState(user.age);
@@ -96,8 +137,18 @@ export default function Onboarding() {
     { id: "vegetarian", titleKey: "onboarding.diet_veg", subKey: "onboarding.diet_veg_sub", Icon: Leaf },
   ];
 
-  const next = () => { hapticMedium(); setDir(1); setStep((s) => s + 1); };
-  const back = () => { hapticLight(); setDir(-1); setStep((s) => Math.max(0, s - 1)); };
+  // Apple (guideline 4): if the account already carries a name — e.g. from Sign
+  // in with Apple's credential — never ask for it again; skip the name step.
+  const next = () => {
+    hapticMedium();
+    setDir(1);
+    setStep((s) => (s + 1 === NAME_STEP && nameFromAccount ? s + 2 : s + 1));
+  };
+  const back = () => {
+    hapticLight();
+    setDir(-1);
+    setStep((s) => Math.max(0, s - 1 === NAME_STEP && nameFromAccount ? s - 2 : s - 1));
+  };
   const pick = <T,>(setter: (v: T) => void) => (v: T) => { hapticLight(); setter(v); };
 
   const loadingSteps: TKey[] = ["onboarding.loading_1", "onboarding.loading_2", "onboarding.loading_3"];
