@@ -51,46 +51,44 @@ export default function Onboarding() {
     let cancelled = false;
     (async () => {
       try {
-        if ((user.name ?? "").trim()) {
-          if (!cancelled) setNameFromAccount(true);
-          return;
-        }
         const { data } = await supabase.auth.getUser();
-        const authUser = data.user;
-        if (!authUser) return;
-        const meta = (authUser.user_metadata ?? {}) as Record<string, unknown>;
-        // The signup trigger fills profiles.display_name with the email local
-        // part when no real name exists — that is not a name, so never use it.
-        const emailLocal = (authUser.email ?? "").split("@")[0].trim().toLowerCase();
-        const isEmailLocal = (v: string) => !!emailLocal && v.trim().toLowerCase() === emailLocal;
-        let resolved =
-          ((meta.full_name as string | undefined) || (meta.name as string | undefined))?.trim() || "";
-        if (!resolved) {
+        const authUser = data.user ?? null;
+        const email = authUser?.email ?? null;
+
+        // Sign in with Apple: Apple already supplies the name/email through the
+        // Authentication Services framework, so we must never ask for it again —
+        // even when Apple withholds the name on later logins (App Review 4).
+        const appMeta = (authUser?.app_metadata ?? {}) as Record<string, unknown>;
+        const providers = [
+          ...((appMeta.providers as string[] | undefined) ?? []),
+          (appMeta.provider as string | undefined) ?? "",
+          ...((authUser?.identities ?? []).map((i) => i.provider)),
+        ];
+        const isApple = providers.some((p) => p === "apple");
+
+        // Never trust placeholders or the email local part as a real name.
+        let resolved = sanitizeName(user.name, email);
+
+        if (!resolved && authUser) {
+          const meta = (authUser.user_metadata ?? {}) as Record<string, unknown>;
+          resolved =
+            sanitizeName(meta.full_name as string | undefined, email) ??
+            sanitizeName(meta.name as string | undefined, email);
+        }
+        if (!resolved && authUser) {
           const { data: profile } = await supabase
             .from("profiles")
             .select("display_name")
             .eq("id", authUser.id)
             .maybeSingle();
-          resolved = profile?.display_name?.trim() || "";
+          resolved = sanitizeName(profile?.display_name, email);
         }
-        if (isEmailLocal(resolved)) resolved = "";
-
-        // Sign in with Apple: Apple already supplies the name/email through the
-        // Authentication Services framework, so we must never ask for it again —
-        // even when Apple withholds the name on later logins (App Review 4).
-        const providers = [
-          ...(((authUser.app_metadata as Record<string, unknown> | undefined)?.providers as string[] | undefined) ?? []),
-          ((authUser.app_metadata as Record<string, unknown> | undefined)?.provider as string | undefined) ?? "",
-          ...((authUser.identities ?? []).map((i) => i.provider)),
-        ];
-        const isApple = providers.some((p) => p === "apple");
 
         if ((resolved || isApple) && !cancelled) {
           if (resolved) setName(resolved);
           setNameFromAccount(true);
           setStep((s) => (s === NAME_STEP ? s + 1 : s));
         }
-
       } catch {
         /* fall back to asking for the name */
       }
@@ -98,6 +96,7 @@ export default function Onboarding() {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const [goal, setGoal] = useState<Goal>(user.goal);
   const [sex, setSex] = useState<Sex>(user.sex);
   const [age, setAge] = useState(user.age);
