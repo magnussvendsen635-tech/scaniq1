@@ -194,6 +194,9 @@ export default function Landing() {
             <Link to="/privacy" className="hover:text-foreground transition-colors">
               Privacy Policy
             </Link>
+            <Link to="/sources" className="hover:text-foreground transition-colors">
+              Health &amp; Nutrition Sources
+            </Link>
           </nav>
         </div>
       </footer>

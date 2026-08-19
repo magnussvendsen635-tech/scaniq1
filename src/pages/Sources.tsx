@@ -13,7 +13,7 @@ export default function Sources() {
   return (
     <div className="k-page min-h-screen overflow-y-auto max-w-2xl mx-auto px-5 pb-24 pt-2">
       <Seo
-        title="Health Information & Sources — ScanIQ"
+        title="Health & Nutrition Sources — ScanIQ"
         description="The scientific references behind ScanIQ's calorie and macronutrient recommendations, including the Mifflin-St Jeor equation and WHO/FAO/UNU activity factors."
         path="/sources"
       />
@@ -25,7 +25,7 @@ export default function Sources() {
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-semibold tracking-tight">Health Information & Sources</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Health &amp; Nutrition Sources</h1>
       </header>
 
       <section className="space-y-5 text-sm leading-relaxed">
@@ -153,6 +153,129 @@ Women: BMR = 10 × weight(kg) + 6.25 × height(cm) − 5 × age(years) − 161`}
             rel="noopener noreferrer"
           >
             openfoodfacts.org
+          </a>
+        </div>
+
+        <div>
+          <h2 className="font-semibold mb-1">7. Protein and fat targets</h2>
+          <p className="text-muted-foreground">
+            ScanIQ sets protein at <strong>2 g per kg of body weight</strong> and fat at{" "}
+            <strong>25% of daily energy</strong> (9 kcal/g); carbohydrate fills the remaining
+            energy. The protein level follows position-stand guidance for physically active adults
+            (1.4–2.0 g/kg/day) and stays inside the IOM AMDR range above.
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Jäger R, Kerksick CM, Campbell BI, et al. “International Society of Sports Nutrition
+            Position Stand: protein and exercise.” <em>Journal of the International Society of
+            Sports Nutrition</em>, 2017;14:20.
+          </p>
+          <a
+            className="text-xs underline underline-offset-4 text-primary"
+            href="https://pubmed.ncbi.nlm.nih.gov/28642676/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            pubmed.ncbi.nlm.nih.gov/28642676
+          </a>
+        </div>
+
+        <div>
+          <h2 className="font-semibold mb-1">8. Daily water goal</h2>
+          <p className="text-muted-foreground">
+            The default hydration goal is <strong>2,500 ml per day</strong> and can be set manually
+            between 500 and 6,000 ml. It reflects the EFSA adequate intake for total water (2.0 L/day
+            for women, 2.5 L/day for men, from drinks and food). It is a general reference value, not
+            a personal medical recommendation.
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            EFSA Panel on Dietetic Products, Nutrition and Allergies. “Scientific Opinion on Dietary
+            Reference Values for water.” <em>EFSA Journal</em>, 2010;8(3):1459.
+          </p>
+          <a
+            className="text-xs underline underline-offset-4 text-primary"
+            href="https://www.efsa.europa.eu/en/efsajournal/pub/1459"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            efsa.europa.eu — Dietary reference values for water
+          </a>
+        </div>
+
+        <div>
+          <h2 className="font-semibold mb-1">9. Daily nutrition score (1–10)</h2>
+          <p className="text-muted-foreground">
+            The score on the home screen is <strong>not a medical or clinical score</strong>. It is a
+            simple in-app rating of how closely the day’s logged food matches your own calorie and
+            macro targets: protein vs. target (0–3 points), share of energy from fat inside the
+            20–35% AMDR band (0–3 points), carbohydrate vs. target (0–2 points) and total calories
+            vs. target (0–2 points). The 20–35% fat band comes from the IOM AMDR reference in section 5.
+          </p>
+        </div>
+
+        <div>
+          <h2 className="font-semibold mb-1">10. Processing level (NOVA group)</h2>
+          <p className="text-muted-foreground">
+            Foods are grouped 1–4 using the <strong>NOVA classification</strong> of food processing.
+            The group is an estimate based on the visible product, its ingredient list and label.
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Monteiro CA, Cannon G, Levy RB, et al. “Ultra-processed foods: what they are and how to
+            identify them.” <em>Public Health Nutrition</em>, 2019;22(5):936–941. FAO, <em>Ultra-processed
+            foods, diet quality and health using the NOVA classification system</em>, Rome, 2019.
+          </p>
+          <a
+            className="text-xs underline underline-offset-4 text-primary"
+            href="https://www.fao.org/3/ca5644en/ca5644en.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            fao.org — NOVA classification system
+          </a>
+        </div>
+
+        <div>
+          <h2 className="font-semibold mb-1">11. Exercise energy expenditure</h2>
+          <p className="text-muted-foreground">
+            Calories burned in the workout timer are estimated as{" "}
+            <strong>minutes × a fixed kcal/minute value per exercise</strong>. Those per-minute values
+            are derived from the metabolic equivalent (MET) values of the Compendium of Physical
+            Activities for an average adult, so they are approximations and are not adjusted to your
+            individual physiology.
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Ainsworth BE, Haskell WL, Herrmann SD, et al. “2011 Compendium of Physical Activities.”{" "}
+            <em>Medicine &amp; Science in Sports &amp; Exercise</em>, 2011;43(8):1575–1581.
+          </p>
+          <a
+            className="text-xs underline underline-offset-4 text-primary"
+            href="https://pubmed.ncbi.nlm.nih.gov/21681120/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            pubmed.ncbi.nlm.nih.gov/21681120
+          </a>
+        </div>
+
+        <div>
+          <h2 className="font-semibold mb-1">12. Accuracy of AI photo estimates</h2>
+          <p className="text-muted-foreground">
+            Photo-based results are produced by an AI vision model. When a nutrition label or barcode
+            is available, the label values and the Open Food Facts database take priority; otherwise
+            portion size, hidden oils and dressings are estimated visually. Macros are sanity-checked
+            against the Atwater factors (protein 4 kcal/g, carbohydrate 4 kcal/g, fat 9 kcal/g) and
+            calories are recomputed when they disagree. Treat every photo estimate as an approximation.
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Merrill AL, Watt BK. <em>Energy value of foods: basis and derivation.</em> USDA Agriculture
+            Handbook No. 74, Washington DC, 1973.
+          </p>
+          <a
+            className="text-xs underline underline-offset-4 text-primary"
+            href="https://www.ars.usda.gov/ARSUserFiles/80400525/Data/Classics/ah74.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            usda.gov — Energy value of foods (Atwater factors)
           </a>
         </div>
       </section>

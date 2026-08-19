@@ -386,6 +386,8 @@ export default function Auth() {
           <a href="/refund" className="hover:text-foreground underline-offset-4 hover:underline">Refund</a>
           <span>·</span>
           <a href="/privacy" className="hover:text-foreground underline-offset-4 hover:underline">Privacy</a>
+          <span>·</span>
+          <a href="/sources" className="hover:text-foreground underline-offset-4 hover:underline">Health &amp; Nutrition Sources</a>
         </div>
       </div>
     </div>
