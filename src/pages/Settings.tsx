@@ -63,7 +63,7 @@ export default function Settings() {
           </button>
         </Section>
 
-        <Section title="Health Information & Sources">
+        <Section title="Health &amp; Nutrition Sources">
           <SourceLink
             title="Mifflin-St Jeor equation"
             description="Supports ScanIQ's estimate of resting energy expenditure (BMR)."
@@ -83,7 +83,7 @@ export default function Settings() {
             onClick={() => nav("/sources")}
             className="w-full min-h-14 px-5 py-3 flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors text-left"
           >
-            <span className="text-sm font-medium">View all sources & calculation details</span>
+            <span className="text-sm font-medium">View all sources &amp; calculation details</span>
             <ChevronRight className="w-4 h-4 shrink-0 text-muted-foreground" />
           </button>
         </Section>
