@@ -12,6 +12,8 @@ import { hapticLight, hapticMedium, hapticSuccess } from "@/lib/haptics";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeName } from "@/lib/displayName";
+
 
 const TOTAL_QUESTIONS = 13; // 0=lang, 1=name, 2=sex, ... 12=Acquisition survey
 /** Index of the final question; the next step is the loading screen. */
